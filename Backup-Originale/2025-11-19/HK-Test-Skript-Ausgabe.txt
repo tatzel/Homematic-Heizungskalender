@@ -1,0 +1,181 @@
+___________________________________________________________________________
+HK1-Schaltliste=2;1763557200;1763564400;0;1;
+
+Schaltzeiten Raum=2
+Zeit Start=2025-11-19 14:00:00
+Zeit Ende=2025-11-19 16:00:00
+Temperatur=0
+Heizen/Schalten=1
+___________________________________________________________________________
+HK1-R-Liste=3;2;4;5;9
+HK1-R-ListeNamen=Großer Saal;Kleiner Saal;Küche;JuHu-Raum;KiGo-Raum
+HK2-HKG-Liste=HKG-Raum-GrSaal+HKG-Raum-Foyer+HKG-Raum-WCs;HKG-Raum-KlSaal+HKG-Raum-Foyer+HKG-Raum-WCs;HKG-Raum-Küche;HKG-Raum-JuHu+HKG-Raum-VorraumKüche+HKG-Raum-Dreiecksraum;HKG-Raum-KiGo
+_____________________________
+Raum: 	1
+Chruchtools Resource: 	3
+Zugeordnete Raeume: 	HKG-Raum-GrSaal+HKG-Raum-Foyer+HKG-Raum-WCs
+
+Raum: HKG-Raum-GrSaal
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	300
+Nachlaufzeit: 	60
+Aktoren:
+	Heizgruppe: Großer Saal:1 	 SET_POINT_TEMPERATURE=16.000000
+
+Raum: HKG-Raum-Foyer
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Foyer:1 	 SET_POINT_TEMPERATURE=16.000000
+
+Raum: HKG-Raum-WCs
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	18
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: WCs:1 	 SET_POINT_TEMPERATURE=16.000000
+_____________________________
+Raum: 	2
+Chruchtools Resource: 	2
+Zugeordnete Raeume: 	HKG-Raum-KlSaal+HKG-Raum-Foyer+HKG-Raum-WCs
+
+Raum: HKG-Raum-KlSaal
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Kleiner Saal:1 	 SET_POINT_TEMPERATURE=16.000000
+
+Raum: HKG-Raum-Foyer
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Foyer:1 	 SET_POINT_TEMPERATURE=16.000000
+
+Raum: HKG-Raum-WCs
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	18
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: WCs:1 	 SET_POINT_TEMPERATURE=16.000000
+_____________________________
+Raum: 	3
+Chruchtools Resource: 	4
+
+Raum: HKG-Raum-Küche
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Küche:1 	 SET_POINT_TEMPERATURE=16.000000
+_____________________________
+Raum: 	4
+Chruchtools Resource: 	5
+Zugeordnete Raeume: 	HKG-Raum-JuHu+HKG-Raum-VorraumKüche+HKG-Raum-Dreiecksraum
+
+Raum: HKG-Raum-JuHu
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Jugendraum:1 	 SET_POINT_TEMPERATURE=16.000000
+
+Raum: HKG-Raum-VorraumKüche
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Vorraum Küche:1 	 SET_POINT_TEMPERATURE=16.000000
+
+Raum: HKG-Raum-Dreiecksraum
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	18
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Dreiecksraum:1 	 SET_POINT_TEMPERATURE=16.000000
+_____________________________
+Raum: 	5
+Chruchtools Resource: 	9
+
+Raum: HKG-Raum-KiGo
+Raum Status: 	0 ausgeschaltet
+Modus:   	H Heizen
+Geraetebauart: 	IP=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)
+Temperatur: 	20
+Vorlaufzeit: 	0
+Nachlaufzeit: 	30
+Aktoren:
+	Heizgruppe: Kinderraum:1 	 SET_POINT_TEMPERATURE=16.000000
+___________________________________________________________________________
+System Variablen zum Heizkalender
+
+HK-SystemProtokollSichern=1366;3673;Ende Schaltskriptlauf;2025-11-19 05:55:01;
+HK1-CT-Gemeindename=baptisten-hu
+HK1-CT-Token=vIRMKgJyfRTKE5jnVV69e4PbjKT9WzULZpA2GGxTuMvphZMH8ckeGdm33M9xviLSI39IvBFSl7a72vSpQ2CctlKOIakbNXItoxlMuZkbUMvDKhPnbgU7O43DqSRj3za0cGfFYf5azkJnR1WJlS7dCbCePfyWv6uc6IN7wDJPYlaTJFrVBqkj0HrF1pRQPNGRrX168qszKoVcNMX2T4xEVSdMbKG0kolLxlhPXNaBSQ5DrF7r8o7s0spoeWoUuPDa
+HK1-Log=Ende ChurchTools-Skriptlauf
+HK1-Logging=true
+HK1-R-Liste=3;2;4;5;9
+HK1-R-ListeNamen=Großer Saal;Kleiner Saal;Küche;JuHu-Raum;KiGo-Raum
+HK1-Schaltliste=2;1763557200;1763564400;0;1;
+HK2-A.Temp.Grenze=19.000000
+HK2-Aussentemperatur=1.800000
+HK2-Grundtemperatur=16.000000
+HK2-Hand-Grundtemp=true
+HK2-Hand-Temp=false
+HK2-HKG-Liste=HKG-Raum-GrSaal+HKG-Raum-Foyer+HKG-Raum-WCs;HKG-Raum-KlSaal+HKG-Raum-Foyer+HKG-Raum-WCs;HKG-Raum-Küche;HKG-Raum-JuHu+HKG-Raum-VorraumKüche+HKG-Raum-Dreiecksraum;HKG-Raum-KiGo
+HK2-Kurve=81;68;55;34;29;24;16;10
+HK2-Kurvenversatz=0.000000
+HK2-Log=Ende Schaltskriptlauf
+HK2-Logging=true
+HK2-VorzeitAus=0.000000
+HKG-Raum-Büro=0;H;IP;20;0;30;Heizgruppe: Büro:1
+HKG-Raum-Dreiecksraum=0;H;IP;18;0;30;Heizgruppe: Dreiecksraum:1
+HKG-Raum-Foyer=0;H;IP;20;0;30;Heizgruppe: Foyer:1
+HKG-Raum-GrSaal=0;H;IP;20;300;60;Heizgruppe: Großer Saal:1
+HKG-Raum-JuHu=0;H;IP;20;0;30;Heizgruppe: Jugendraum:1
+HKG-Raum-KiGo=0;H;IP;20;0;30;Heizgruppe: Kinderraum:1
+HKG-Raum-KlSaal=0;H;IP;20;0;30;Heizgruppe: Kleiner Saal:1
+HKG-Raum-Küche=0;H;IP;20;0;30;Heizgruppe: Küche:1
+HKG-Raum-VorraumKüche=0;H;IP;20;0;30;Heizgruppe: Vorraum Küche:1
+HKG-Raum-WCs=0;H;IP;18;0;30;Heizgruppe: WCs:1
+
+___________________________________________________________________________
+Logging Status
+
+HK1-Logging: Logging Script 1 ist eingeschaltet
+HK1-Log: Log-Variable fuer Script 1 existiert
+HK2-Logging: Logging Script 2 ist eingeschaltet
+HK2-Log: Log-Variable fuer Script 2 existiert
+___________________________________________________________________________

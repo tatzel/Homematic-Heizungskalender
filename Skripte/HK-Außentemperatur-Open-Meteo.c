@@ -1,0 +1,57 @@
+!// Bestimmen der Außentemperatur für den Heizkalender
+!//================================================================================================
+!// Stand:    22.11.2025; 
+!// Autor:    Martin Richter    (heizkalender@m-ri.de)
+!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
+!//================================================================================================
+!// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
+!// entwicklet.
+!// Die Nutzung ist kostenlos, aber wir bitten die Nutzung an einer der obigen Email Adressen zu 
+!// melden.
+!//================================================================================================
+!//
+!// Doku siehe hier https://open-meteo.com/en/docs/dwd-api?forecast_days=1
+!//
+!// Dieser Aufruf liefert eine Temperatur Prognose für die entsprechenden Geokoordinaten für 
+!// die nächsten 24h. Die Geokoordinaten selbst werden aus den Daten der CCU3 ausgelesen.
+!//
+
+!//Eingabe eines Namens Präfix
+!//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
+!//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
+string vrp="";
+
+!//#######---Ende Variabler Bereich---#############################################################
+!//Im Folgenden Hier keine Veränderungen vornehmen!
+
+!//Variablen
+string error="kein";
+string command;
+string stemp;
+string lat=system.Latitude().ToFloat();
+string lon=system.Longitude().ToFloat();
+
+!WriteLine(lat+"\n");
+!WriteLine(lon+"\n");
+
+command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&forecast_days=1'";
+!WriteLine(command+"\n");
+system.Exec(command, &stemp, &error);
+!WriteLine(stemp+"\n");
+
+!// passenden eintrag finden
+integer pos=stemp.Find("\"temperature_2m\":[");
+stemp=stemp.Substr(pos+18,1000);
+pos=stemp.Find("]");
+stemp=stemp.Substr(0,pos);
+!WriteLine(stemp+"\n");
+
+!// Eintrag anhand der Uhrzeit finden
+string temp=stemp.StrValueByIndex(",",system.Date("%H").ToInteger()).ToFloat();
+WriteLine(temp+"\n");
+
+!// Ergebnis schreiben
+if (temp!=""){
+  dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp);
+}
+
