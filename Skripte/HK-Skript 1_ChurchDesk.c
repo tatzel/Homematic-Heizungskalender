@@ -27,10 +27,10 @@
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="test";
+string vrp="";
 
 !//Debug ein oder aus
-boolean DEBUG=1;
+boolean DEBUG=0;
 
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
