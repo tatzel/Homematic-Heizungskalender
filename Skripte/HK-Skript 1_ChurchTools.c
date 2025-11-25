@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
-!// Stand:    23.11.2025; 
+!// Stand:    24.11.2025; 
 !// Autor:    Lukas Helduser
 !//           Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
@@ -13,14 +13,15 @@
 !//
 !// Der Code basiert in großen Teilen auf der Datei: 
 !//  HKP-CT-3.2.1 churchtools_Ressource_V2_8_8.c
-!// Dieser ursprüngliche Code wurde geschrieben von:
+!// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
-!// Skript sollte alle 5min laufen
+!// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2025-11-24	Anpassung Doku. Doppelte Schaltlisteneinträge
 !// MRi: 2025-11-16	Fehlerbehandlung eingebaut
 !// MRi: 2025-11-14	MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
 !//					        korrektur nochmal für doppelte Schaltlisteneinträge
@@ -52,35 +53,37 @@ boolean log=0;
 !//################################################################################################################################################
 !//##################-------Stript Variablen und Script Arbeitsteil. Von Benutzer nicht zu verändern !!!!-------##########################################################
 
-string SLA=dom.GetObject(vrp+"HK1-Schaltliste").State();
-string token=dom.GetObject(vrp+"HK1-CT-Token").State();
-string from=system.Date("%F");
-string to=(((from.ToTime().ToInteger())+86400).ToTime().ToString()).Substr(0,10);
-integer GMT=(system.Date("%z").Substr(2,1)).ToInteger()*3600;
-string Data;
-string Feed1;
-string Feed2;
 string aktID;
 string tempID;
 string urlID;
+string SLA=dom.GetObject(vrp+"HK1-Schaltliste").State();
 string SLN;
 string SLT;
 string IDL=dom.GetObject(vrp+"HK1-R-Liste").State();
 string urlwget ="wget --timeout=3 -O - '";
 string urlR="https://"+dom.GetObject(vrp+"HK1-CT-Gemeindename").State()+".church.tools/api/bookings?login_token=";
 string urlM="https://"+dom.GetObject(vrp+"HK1-CT-Gemeindename").State()+".church.tools/api/resource/masterdata";
+string token=dom.GetObject(vrp+"HK1-CT-Token").State();
+string from=system.Date("%F");
+string to=(((from.ToTime().ToInteger())+86400).ToTime().ToString()).Substr(0,10);
+integer GMT=(system.Date("%z").Substr(2,1)).ToInteger()*3600;
 string SRaumVarListe=dom.GetObject(vrp+"HK2-HKG-Liste").Value();
+string RaumVar;
 string AktRaum;
 string cap;
-string start;
 string SchaltenHeizen;
-string RaumVar;
 string SHFlag;
+string start;
 string end;
 string id;
 string cmd;
 string toadd;
+string Data;
+string Feed1;
+string Feed2;
 integer frID=0;
+
+!// Logging vorbereiten
 var logObj=dom.GetObject(vrp+"HK1-Log");
 var loggingObj=dom.GetObject(vrp+"HK1-Logging");
 
@@ -173,6 +176,7 @@ if (!Data.Contains("COUNT\":")){
     id=Data.Substr(Data.Find("RESOURCE\":{\"ID")+16,4)+";";
     id=id.Replace(",","").Replace("\"","").Replace("N","");
 
+    frID=0;
     foreach(AktRaum,IDL.Split(";")){
       if(AktRaum!=""){
         if(AktRaum.ToInteger()==id.ToInteger()){
@@ -196,16 +200,21 @@ if (!Data.Contains("COUNT\":")){
       }
       frID=frID+1;
     }
-    frID=0;
 
     !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
 	  toadd = id+start+end+cap+SHFlag;
-    if (SLT.Find(toadd)<0){
+    if (SLN.Find(toadd)<0){
 	    SLN=SLN+toadd;	  
 	  }	
     if(Data.Contains("BOOKING\":")==false){break;}
   }
 
+!//------------------------------------------------------------------------------------------------
+!// Ab hier haben wir Standard Code. Die Variablen SLN, SLA und SLT müssen belegt werden.
+!// Der Rest ist in allen Skripten vom Typ1 gleich. 
+!// SLT enthält unser gewünschtes Ergebnis
+
+  !// Alte Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
   integer whileID=0;
   while (true){
     if(SLA.StrValueByIndex(";",whileID)!=""){
@@ -232,6 +241,7 @@ if (!Data.Contains("COUNT\":")){
     }
   }
 
+  !// Neue Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
   whileID=0;
   while (true){
     if(SLN.StrValueByIndex(";",whileID)!=""){
@@ -280,9 +290,10 @@ if(DEBUG){
   WriteLine("Error/Feed2: " + Feed2+"\n");
   WriteLine("  ---  ");
   WriteLine("SLN: " +SLN);
-  WriteLine("SLT: " +SLT);
   WriteLine("SLA: " +SLA);
   WriteLine("SLT: " +SLT);
 }
+
+!//------------------------------------------------------------------------------------------------
 
 if(log){logObj.State("Ende ChurchTools-Skriptlauf");}

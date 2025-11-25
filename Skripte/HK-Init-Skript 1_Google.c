@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Google)
 !//================================================================================================
-!// Stand:    23.11.2025; 
+!// Stand:    25.11.2025; 
 !// Autor:    Lukas Helduser
 !//           Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
@@ -13,7 +13,7 @@
 !//
 !// Der Code basiert in großen Teilen auf der Datei: 
 !//   HKP-GK-V-3.2.1 Variablen zu Skript1_GoogleKalender_V1.2.c
-!// Dieser ursprüngliche Code wurde geschrieben von:
+!// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.

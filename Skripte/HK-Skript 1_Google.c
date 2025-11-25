@@ -1,67 +1,140 @@
-!//Heizkalender per Google Kalender Version 3.4.4 / 02.10.2025 Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
-!//Teil 1 Skript zum auslesen des Google Kalender
+!// UNGETESTET!!! Skript 1 um die Termine aus Google auszulesen
+!//================================================================================================
+!// Stand:    24.11.2025; 
+!// Autor:    Lukas Helduser
+!//           Martin Richter    (heizkalender@m-ri.de)
+!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
+!//================================================================================================
+!// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
+!// entwicklet.
+!// Die Nutzung ist kostenlos, aber wir bitten die Nutzung an einer der obigen Email Adressen zu 
+!// melden.
+!//================================================================================================
+!//
+!// Der Code basiert in großen Teilen auf der Datei: 
+!//  HKP-GK-3.2.1 Googlekalender_V3_4_4.c
+!// Der ursprüngliche Code wurde geschrieben von:
+!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
+!// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
+!// meiner Gemeinde anzupassen.
+!//
+!// Skript sollte alle 30min laufen
+!//
+
+!// MRi: 2025-11-24	MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
+!//					        korrektur nochmal für doppelte Schaltlisteneinträge
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="";
+string vrp="test";
 
-!//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=0;
+!//Debug ein oder aus
+boolean DEBUG=1;
 
-!//Nehmen sie hier keine Veränderungen vor!
+!//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
+boolean multiRaumVariante=true;
+
+!//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
+boolean log=0;
+
+!// Zeitfenster in dem nach Termine geschaut wird 
+!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit), 
+!// plus zeitVorlauf (min = maximale Vorlaufzeit)
+integer zeitVorlauf=8*60;		!// 8 Stunden (default=12h)
+integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
+
+
 !//#######---Ende Variabler Bereich---#############################################################################################################
 !//Stript Variablen. Von Benutzer nicht zu verändern !!!!
-string url1 ="https://www.googleapis.com/calendar/v3/calendars/";
-string urlwget ="wget --timeout=3 -O - '";
 string url;
 string TimemaxT2="%3A00%3A00-00%3A00";
-string Data;
-string DataTemp;
+string data;
+string dataTemp;
 string error="non";
 integer EventPosID=0;
-string SRaumliste;
-string SRaumVarListe;
-string NSchaltliste;
+string sRaumliste;
+string sRaumVarListe;
+string sRaumVar;
+string SLA=dom.GetObject(vrp+"HK1-Schaltliste").State();
+string SLN;
+string SLT;
 string AktRaum;
 string start;
 string stop;
 string EventID;
-integer frID=0;
-string AktionFlag;
+integer frRID=0;
+string SHFlag;
 string cap;
+string toadd;
 
+!// Logging vorbereiten
+var logObj=dom.GetObject(vrp+"HK1-Log");
+var loggingObj=dom.GetObject(vrp+"HK1-Logging");
 
-!//AUfbau der gesamt URL
+!// Prüfe logging erwartet wird
+if ((!log) && loggingObj){
+  if (loggingObj.State()!=0){
+	  log = true;
+  }
+}
+	
+!// Logging auschalten, wenn keine Variable vorhanden
+if (!logObj){
+	log = false;
+}
+
+if(log){logObj.State("Beginn Google-Skriptlauf");}
+
+!//Aufbau der gesamt URL
 string globaldate=system.Date();
 string to=(((globaldate.ToTime().ToInteger())+25200).ToTime().ToString().Substr(0,10)+"T"+((globaldate.ToTime().ToInteger())+25200).ToTime().ToString().Substr(11,8)+"Z");
 string from=(((globaldate.ToTime().ToInteger())).ToTime().ToString().Substr(0,10)+"T"+((globaldate.ToTime().ToInteger())).ToTime().ToString().Substr(11,8)+"Z");
-url=urlwget+url1+dom.GetObject(vrp+"HK1-GK-Kalender-ID").Value()+"@group.calendar.google.com/events?orderBy=startTime&singleEvents=true&timeMax="+to;
-url=url+"&timeMin="+from+"&key="+dom.GetObject(vrp+"HK1-GK-API-Key").Value()+"'";
+url="wget --timeout=3 -O - 'https://www.googleapis.com/calendar/v3/calendars/" #
+        dom.GetObject(vrp+"HK1-GK-Kalender-ID").Value() # 
+        "@group.calendar.google.com/events?orderBy=startTime&singleEvents=true&timeMax="+to #
+        "&timeMin="+from+"&key="+dom.GetObject(vrp+"HK1-GK-API-Key").Value()+"'";
 
 !//URL abfragen
-system.Exec(url,&Data,&error);
-Data=Data.ToUpper();
+system.Exec(url,&data,&error);
+data=data.ToUpper();
+
+!// Irgendwas muss gelesen worden sein
+if(data==""){
+  if (log){ logObj.State("Fehler beim Lesen der Termin-Daten von Google!"); }
+  if(DEBUG){
+    WriteLine("Fehler beim Lesen der Termin-Daten von Google!");
+  }	
+  quit;
+}
 
 !//Raumliste auslesen
-SRaumliste=dom.GetObject(vrp+"HK1-R-Liste").Value().ToUpper();
-SRaumVarListe=dom.GetObject(vrp+"HK2-HKG-Liste").Value();
+sRaumliste=dom.GetObject(vrp+"HK1-R-Liste").Value().ToUpper();
+sRaumVarListe=dom.GetObject(vrp+"HK2-HKG-Liste").Value();
 
-if(Data.Find("CALENDAR#EVENT")>-1){
+if(data.Find("CALENDAR#EVENT")>-1){
 
-
-  !//DIe Raumliste druchgehen und Prüfen ob für den jeweiligen Raum ein Termin vorliegt.
+  !//Die Raumliste druchgehen und Prüfen ob für den jeweiligen Raum ein Termin vorliegt.
   !//Liegt ein Termin vor dann die Daten des Termin aufbereiten und auf die NEUE Schaltliste setzen.
-  foreach(AktRaum,SRaumliste.Split(";")){
-    DataTemp=Data;
+  foreach(AktRaum,sRaumliste.Split(";")){
+    dataTemp=data;
     if(AktRaum!=""){
-      EventPosID=DataTemp.Find(AktRaum);
+      EventPosID=dataTemp.Find(AktRaum);
       if(EventPosID>-1){
-       if(dom.GetObject(dom.GetObject(SRaumVarListe.StrValueByIndex(";",frID))).Value().StrValueByIndex(";",1)=="S"){AktionFlag="0;";};
-       if(dom.GetObject(dom.GetObject(SRaumVarListe.StrValueByIndex(";",frID))).Value().StrValueByIndex(";",1)=="H"){AktionFlag="1;";};
-       DataTemp=DataTemp.Substr(EventPosID,DataTemp.Length()-EventPosID);
+        
+        sRaumVar = sRaumVarListe.StrValueByIndex(";",frRID);
+        if (multiRaumVariante){
+            sRaumVar=sRaumVar.StrValueByIndex("+",0);
+        }	        
+        if(dom.GetObject(dom.GetObject(sRaumVar)).Value().StrValueByIndex(";",1)=="S"){
+          SHFlag="0;";
+        }else{
+          SHFlag="1;";
+        };
+        
+        dataTemp=dataTemp.Substr(EventPosID,dataTemp.Length()-EventPosID);
 
-       cap=DataTemp.Substr(DataTemp.Find("DESCRIP")+15,6);
+       cap=dataTemp.Substr(dataTemp.Find("DESCRIP")+15,6);
        if (cap.Contains("#")==true){
           cap=cap.Replace("#","").Replace(",","").Replace("G","").Replace("D","").Replace(".","").Replace("\"","").Replace("V","");
           cap=cap.Replace("D","").Replace("E","").Replace(" ","").Replace("R","").Replace("A","").Replace("C","").Replace("°","").Replace("\r\n","");
@@ -73,56 +146,107 @@ if(Data.Find("CALENDAR#EVENT")>-1){
           cap="0;";
         }
 
+        start=dataTemp.Substr(dataTemp.Find("START\":")+27,19);
+        start=start.Replace("T"," ");
+        stop=dataTemp.Substr(dataTemp.Find("END\":")+25,19);
+        stop=stop.Replace("T"," ");
+        toadd=AktRaum+";"+(start.ToTime().ToInteger().ToString())+";"+(stop.ToTime().ToInteger().ToString())+";"+cap+SHFlag;
 
-       start=DataTemp.Substr(DataTemp.Find("START\":")+27,19);
-       start=start.Replace("T"," ");
-       stop=DataTemp.Substr(DataTemp.Find("END\":")+25,19);
-       stop=stop.Replace("T"," ");
-       NSchaltliste=NSchaltliste+AktRaum+";"+(start.ToTime().ToInteger().ToString())+";"+(stop.ToTime().ToInteger().ToString())+";"+cap+AktionFlag;
-       }
+        !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist        
+        if (SLN.Find(toadd)<0){
+          SLN=SLN+toadd;
+          if (log){
+            logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
+          }
+        }
+      }
     }
-    frID=frID+1;
+    frRID=frRID+1;
   }
-  frID=0;
+  frRID=0;
 }
 
+!//------------------------------------------------------------------------------------------------
+!// Ab hier haben wir Standard Code. Die Variablen SLN, SLA und SLT müssen belegt werden.
+!// Der Rest ist in allen Skripten vom Typ1 gleich. 
+!// SLT enthält unser gewünschtes Ergebnis
 
-!//Variablen für den zusammebau und Sortierung der neuen Daten
-string Aliste=dom.GetObject(vrp+"HK1-Schaltliste").State();
-string Templiste="";
-integer whileID=0;
-
-!//Die ALTE Schaltliste durch gehen und prüfen ob veraltetet Termine enthalten sind. Noch nötige Termine zwischen Speichern.
-!//Ein Termin ist veraltet wenn die Ausschaltzeit in der Vergangenheit liegt.
-!//Termine die in der Zukunft liegen und von Google nicht mehr geliefert werden aus der alten Liste übernehmen.
-while (true){
-   if(Aliste.StrValueByIndex(";",whileID)!=""){
-     if(Aliste.StrValueByIndex(";",whileID+1).ToInteger()<system.Date().ToTime().ToInteger()){
-      if((Aliste.StrValueByIndex(";",whileID+2).ToInteger()+7200)>system.Date().ToTime().ToInteger()){
-       if(NSchaltliste.Find(Aliste.StrValueByIndex(";",whileID)+";"+Aliste.StrValueByIndex(";",whileID+1)+";"+Aliste.StrValueByIndex(";",whileID+2))==-1){
-          Templiste=Templiste+Aliste.StrValueByIndex(";",whileID)+";"+Aliste.StrValueByIndex(";",whileID+1)+
-            ";"+Aliste.StrValueByIndex(";",whileID+2)+";"+Aliste.StrValueByIndex(";",whileID+3)+";"+Aliste.StrValueByIndex(";",whileID+4)+";";
-       }
+  !// Alte Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
+  integer whileID=0;
+  while (true){
+    if(SLA.StrValueByIndex(";",whileID)!=""){
+	  !//noch zeitNachlauf min nach Ausschaltezeit in der Liste lassen, wegen Nachlaufzeit.
+      !WriteLine("???? "+SLA.StrValueByIndex(";",whileID+2)+"  "+system.Date().ToTime().ToInteger().ToString()+"  "+SLA.StrValueByIndex(";",whileID+1).ToInteger().ToString());
+      if((SLA.StrValueByIndex(";",whileID+2).ToInteger()+(zeitNachlauf*60))>system.Date().ToTime().ToInteger()){
+        if(SLA.StrValueByIndex(";",whileID+1).ToInteger()<system.Date().ToTime().ToInteger()){
+	        toadd = SLA.StrValueByIndex(";",whileID)+";"+SLA.StrValueByIndex(";",whileID+1)+";"+SLA.StrValueByIndex(";",whileID+2)+";"+SLA.StrValueByIndex(";",whileID+3)+";"+SLA.StrValueByIndex(";",whileID+4)+";";
+          !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
+		      if(DEBUG){
+			      WriteLine("add: "+toadd);
+		      }
+		      if (SLT.Find(toadd)<0){
+            SLT=SLT+toadd;
+		      	if (log){
+			        logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
+	  	      }
+          }  
+		    }
       }
-     }
-     whileID=whileID+5;
+      whileID=whileID+5;
     }else{
       break;
-   }
-}
+    }
+  }
 
+  !// Neue Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
+  whileID=0;
+  while (true){
+    if(SLN.StrValueByIndex(";",whileID)!=""){
+	    !// zeitVorlauf min vor Einschalttermin in Schaltliste aufnehmen
+      if(SLN.StrValueByIndex(";",whileID+1).ToInteger()>(system.Date().ToTime().ToInteger()-300)){
+        if(SLN.StrValueByIndex(";",whileID+1).ToInteger()<(system.Date().ToTime().ToInteger()+(zeitVorlauf*60))){
+          toadd = SLN.StrValueByIndex(";",whileID)+";"+SLN.StrValueByIndex(";",whileID+1)+";"+SLN.StrValueByIndex(";",whileID+2)+";"+SLN.StrValueByIndex(";",whileID+3)+";"+SLN.StrValueByIndex(";",whileID+4)+";";
+          !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
+		      if(DEBUG){
+			      WriteLine("add: "+toadd);
+		      }
+	     	  if (SLT.Find(toadd)<0){
+            SLT=SLT+toadd;
+	      		if (log){
+			        logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
+	  	      }
+          }  
+        }
+      }
+      whileID=whileID+5;
+    }else{
+      break;
+    }
+  }
 
-
-dom.GetObject(vrp+"HK1-Schaltliste").State(Templiste+NSchaltliste);
-
+  if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
+    dom.GetObject(vrp+"HK1-Schaltliste").State(SLT);
+    if (SLT==""){
+	    if (log){ logObj.State("Neue Schaltliste: Keine Termine"); }
+    }else{
+      if (log){ logObj.State("Neue Schaltliste: "+SLT); }
+    }
+  } else {
+    if (log){ logObj.State("Schaltliste unverändert"); }
+  }
 
 !Debugausgaben
 if(DEBUG){
-WriteLine(SRaumliste+"\n");
-WriteLine(NSchaltliste+"\n");
-WriteLine(whileID);
-WriteLine("\n"+EventID);
-WriteLine("\n"+url+"\n");
-WriteLine(error+"\n");
-WriteLine(Data);
+  WriteLine(sRaumliste+"\n");
+  WriteLine("\n"+EventID);
+  WriteLine("\n"+url+"\n");
+  WriteLine(error+"\n");
+  WriteLine(data);
+  WriteLine("SLN: " +SLN);
+  WriteLine("SLA: " +SLA);
+  WriteLine("SLT: " +SLT);
 }
+
+!//------------------------------------------------------------------------------------------------
+
+if(log){logObj.State("Ende Google-Skriptlauf");}

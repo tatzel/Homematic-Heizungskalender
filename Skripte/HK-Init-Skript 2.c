@@ -1,7 +1,8 @@
-!// Scrip1t zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2 
+!// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2 
 !//================================================================================================
-!// Stand:    23.11.2025; 
-!// Autor:    Martin Richter    (heizkalender@m-ri.de)
+!// Stand:    25.11.2025; 
+!// Autor:    Lukas Helduser
+!//           Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
 !// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
@@ -12,7 +13,7 @@
 !//
 !// Der Code basiert in großen Teilen auf der Datei: 
 !//   HKP-S2-V-3.1.1 Variablen zu Skript2_V1.3.c
-!// Dieser ursprüngliche Code wurde geschrieben von:
+!// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.

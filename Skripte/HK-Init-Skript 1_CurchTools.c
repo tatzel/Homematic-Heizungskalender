@@ -13,7 +13,7 @@
 !//
 !// Der Code basiert in großen Teilen auf der Datei: 
 !//   HKP-CT-V--3.2.1 Variablen zu Skript1_ChurchTools_V1.4.c
-!// Dieser ursprüngliche Code wurde geschrieben von:
+!// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
