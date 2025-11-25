@@ -1,6 +1,6 @@
 !// Reboot der HomeMatic CCU3 mit sichern des Systemprotokolls
 !//================================================================================================
-!// Stand:    22.11.2025; 
+!// Stand:    25.11.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
@@ -36,7 +36,7 @@ if(logging){
   foreach(log,logs.Split(";")){
     var logObj=dom.GetObject(vrp# log # "-Log");
     var loggingObj=dom.GetObject(vrp # log # "-Logging");
-    if (loggingObj){
+    if (logObj && loggingObj){
       if (loggingObj.State()!=0){
         logObj.State("Reboot");
       }

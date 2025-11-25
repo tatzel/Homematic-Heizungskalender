@@ -1,6 +1,6 @@
 !// Wake On LAN für bestimmte PCs
 !//================================================================================================
-!// Stand:    23.11.2025; 
+!// Stand:    25.11.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs
 !//================================================================================================
@@ -17,6 +17,11 @@
 !// MAC vom BeamerPC    00:E0:4C:71:0B:E2
 !// MAC meines Rechner  10:7C:61:07:A3:AB
 string Devices = "00:E0:4C:71:0B:E2;10:7C:61:07:A3:AB";
+
+!//#######---Ende Variabler Bereich---#############################################################
+!//Im Folgenden Hier keine Veränderungen vornehmen!
+
+
 string Device;
 
 foreach(Device,Devices.Split(";")){

@@ -1,11 +1,13 @@
 !// Alle Heizgruppen auf Auto Modus zu setzen
 !//================================================================================================
-!// Stand:    23.11.2025; 
+!// Stand:    25.11.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs
 !//================================================================================================
 !// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
 !// entwicklet.
+!// Die Nutzung ist kostenlos, aber wir bitten die Nutzung an einer der obigen Email Adressen zu 
+!// melden.
 !//================================================================================================
 !//
 !// Skript kann einmal in der Nacht in einer ruhigen Nutzungsphase ausgeführt werden.
