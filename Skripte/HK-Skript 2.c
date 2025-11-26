@@ -1,14 +1,17 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    25.11.2025; 
+!// Stand:    26.11.2025; 
 !// Autor:    Lukas Helduser
 !//           Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
 !// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
-!// entwicklet.
-!// Die Nutzung ist kostenlos, aber wir bitten die Nutzung an einer der obigen Email Adressen zu 
-!// melden.
+!// entwickelt.
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit 
+!// einen Beitrag zum Umweltschutz leisten. Und es wäre schön, wenn Sie die Nutzung per E-Mail an 
+!// Info@Heizkalender.de melden. Dadurch ergäbe ich eine Übersicht und zudem die Möglichkeit auf 
+!// wichtige Änderungen hinzuweisen. Gerne können Sie auch über Ihre Erfahrung mit dem Heizkalender 
+!// berichten.
 !//================================================================================================
 !//
 !// Der Code basiert in großen Teilen auf der Datei: 
@@ -20,10 +23,11 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
-!// MRi: 2025-11-21  Kein Einschalten, wenn Schaltezit <5min oder Ausschalktzeitpunkt vor Einschlatzeitpunkt liegt
-!// MRi: 2025-11-20  Logging verbessert. 
-!// MRi: 2025-11-18  Logging verbessert, Behandlung der Grenztemperatur fürs Heizen Übersteuerung geändert 
-!// MRi: 2025-11-14	MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
+!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbesseters Logging
+!// MRi: 2025-11-21 Kein Einschalten, wenn Schaltezit <5min oder Ausschalktzeitpunkt vor Einschlatzeitpunkt liegt
+!// MRi: 2025-11-20 Logging verbessert. 
+!// MRi: 2025-11-18 Logging verbessert, Behandlung der Grenztemperatur fürs Heizen Übersteuerung geändert 
+!// MRi: 2025-11-14 MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
 !// MRi: 2025-11-13	Log-Ausgaben verbessert und präzisiert.
 !// MRi: 2025-11-13	1. Auschaltzyklen Übersprungsicher gemacht! Das Programm muss aber alle 5min laufen
 !//					        2. Ebenfalls schalten wir alle Heizkörper auf Grundtemperatur zurück und setzen die
@@ -54,7 +58,11 @@ integer OffsetEin=dom.GetObject(vrp+"HK2-Kurvenversatz").State();
 string SListe=dom.GetObject(vrp+"HK1-Schaltliste").State();
 string VarNamen=dom.GetObject(vrp+"HK2-HKG-Liste").State();
 string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State().ToUpper();
-string RIDINamen=dom.GetObject(vrp+"HK1-R-ListeNamen").State();
+var obj=dom.GetObject(vrp+"HK1-R-ListeNamen");
+string RIDINamen="";
+if (obj){
+  RIDINamen = obj.State();
+}
 integer ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
 boolean FW1=dom.GetObject(vrp+"HK2-Hand-Temp").State();
 boolean FW2=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();

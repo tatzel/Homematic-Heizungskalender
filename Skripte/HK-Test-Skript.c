@@ -1,13 +1,16 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    22.11.2025; 
+!// Stand:    26.11.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
 !// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
-!// entwicklet.
-!// Die Nutzung ist kostenlos, aber wir bitten die Nutzung an einer der obigen Email Adressen zu 
-!// melden.
+!// entwickelt.
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit 
+!// einen Beitrag zum Umweltschutz leisten. Und es wäre schön, wenn Sie die Nutzung per E-Mail an 
+!// Info@Heizkalender.de melden. Dadurch ergäbe ich eine Übersicht und zudem die Möglichkeit auf 
+!// wichtige Änderungen hinzuweisen. Gerne können Sie auch über Ihre Erfahrung mit dem Heizkalender 
+!// berichten.
 !//================================================================================================
 !//
 !//  Alle aktuellen Raumvariablen werden dekodiert, alle Einstellungen werden im Klartext 
@@ -30,6 +33,10 @@ string vrp="";
 string stemp="";
 string stext="";
 integer i=0;
+
+!//------------------------------------------------------------------------------------------
+WriteLine("___________________________________________________________________________");
+WriteLine("Test Skript Lauf vom " # system.Date().ToString());
 
 !//------------------------------------------------------------------------------------------
 !// Dekodieren der Schaltliste in Klartext
@@ -64,7 +71,11 @@ while (true) {
 WriteLine("___________________________________________________________________________");
 
 string hk1RaumListe=dom.GetObject(vrp # "HK1-R-Liste").State();
-string hk1RaumListeNamen=dom.GetObject(vrp # "HK1-R-ListeNamen").State();
+var obj = dom.GetObject(vrp # "HK1-R-ListeNamen");
+string hk1RaumListeNamen="";
+if (obj){
+  hk1RaumListeNamen = obj.State();
+}
 string hk2RaumListe=dom.GetObject(vrp # "HK2-HKG-Liste").State();
 
 WriteLine("HK1-R-Liste=" # hk1RaumListe);
@@ -77,7 +88,11 @@ string RName;
 var Raum;
 string RaumDef;
 foreach(RListe, hk2RaumListe.Split(";")){
-  WriteLine("_____________________________\nRaum: \t" # (i+1).ToString());
+  RName = "";
+  if (hk1RaumListeNamen!=""){
+    RName = " (" # hk1RaumListeNamen.StrValueByIndex(";",i) # ")";
+  }
+  WriteLine("_____________________________\nRaum: \t" # (i+1).ToString() # RName);
   WriteLine("Chruchtools Resource: \t" # hk1RaumListe.StrValueByIndex(";",i));
   if (RListe.Find("+")>=0){
     WriteLine ("Zugeordnete Raeume: \t" # RListe);
@@ -120,17 +135,17 @@ foreach(RListe, hk2RaumListe.Split(";")){
       
       !// Wert #2 Gerätebauart
       stemp = RaumDef.StrValueByIndex(";",2);
-      stext = "Geraetebauart: \t" # stemp;
+      stext = "Gerätebauart: \t" # stemp;
       if(stemp=="IP"){
-        stext = stext # "=IP-Thermostate-Aktoren-Geraetetyp (Kanal 1)";
+        stext = stext # "=IP-Thermostate-Aktoren-Gerätetyp (Kanal 1)";
       }elseif(stemp=="RT"){
-        stext = stext # "=Klassik-Thermostate-Aktoren-Geraetetyp (Kanal 4)";
+        stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)";
       }elseif(stemp=="TC"){
-        stext = stext # "=Klassik-Thermostate-Aktoren-Geraetetyp (Kanal 2)";
+        stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)";
       }elseif(stemp=="IT"){
-        stext = stext # "=Klassik-Thermostate-Aktoren-Geraetetyp (Kanal 2)";
+        stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)";
       }elseif(stemp=="SW"){
-        stext = stext # "=Klassik-Schalter-Aktoren-Geraetetyp (Kanal 1/2)";
+        stext = stext # "=Klassik-Schalter-Aktoren-Gerätetyp (Kanal 1/2)";
       }else{
         stext = stext # " UNBEKANNT!!! FEHLER!!!";
       }
@@ -206,6 +221,23 @@ WriteLine(svListStr);
 WriteLine("___________________________________________________________________________");
 WriteLine("Logging Status\n");
 
+obj=dom.GetObject(vrp # "HK-Logging");
+if (obj){
+  if (obj.State()!=0){
+    stemp = "ein";
+  }else{
+    stemp = "aus";
+  }
+  WriteLine("HK-Logging: Logging Script 1 ist " # stemp # "geschaltet");
+}else{
+  WriteLine("HK-Logging: Log-Variable für Script 1 existiert nicht");
+}
+if (dom.GetObject(vrp # "HK-Log")){
+  WriteLine("HK-Log: Log-Variable für Tools existiert");
+}else{
+  WriteLine("HK-Log: Log-Variable für Tools existiert nicht");
+}
+
 obj=dom.GetObject(vrp # "HK1-Logging");
 if (obj){
   if (obj.State()!=0){
@@ -215,12 +247,12 @@ if (obj){
   }
   WriteLine("HK1-Logging: Logging Script 1 ist " # stemp # "geschaltet");
 }else{
-  WriteLine("HK1-Logging: Log-Variable fuer Script 1 existiert nicht");
+  WriteLine("HK1-Logging: Log-Variable für Script 1 existiert nicht");
 }
-if (dom.GetObject(vrp # "HK2-Log")){
-  WriteLine("HK1-Log: Log-Variable fuer Script 1 existiert");
+if (dom.GetObject(vrp # "HK1-Log")){
+  WriteLine("HK1-Log: Log-Variable für Script 1 existiert");
 }else{
-  WriteLine("HK1-Log: Log-Variable fuer Script 1 existiert nicht");
+  WriteLine("HK1-Log: Log-Variable für Script 1 existiert nicht");
 }
 
 obj=dom.GetObject(vrp # "HK2-Logging");
@@ -232,12 +264,12 @@ if (obj){
   }
   WriteLine("HK2-Logging: Logging Script 2 ist " # stemp # "geschaltet");
 }else{
-  WriteLine("HK2-Logging: Log-Variable fuer Script 1 existiert nicht");
+  WriteLine("HK2-Logging: Log-Variable für Script 2 existiert nicht");
 }
 if (dom.GetObject(vrp # "HK2-Log")){
-  WriteLine("HK2-Log: Log-Variable fuer Script 2 existiert");
+  WriteLine("HK2-Log: Log-Variable für Script 2 existiert");
 }else{
-  WriteLine("HK2-Log: Log-Variable fuer Script 2 existiert nicht");
+  WriteLine("HK2-Log: Log-Variable für Script 2 existiert nicht");
 }
 
 WriteLine("___________________________________________________________________________");

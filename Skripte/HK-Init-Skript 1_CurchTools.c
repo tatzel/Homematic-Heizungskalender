@@ -6,9 +6,12 @@
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
 !// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
-!// entwicklet.
-!// Die Nutzung ist kostenlos, aber wir bitten die Nutzung an einer der obigen Email Adressen zu 
-!// melden.
+!// entwickelt.
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit 
+!// einen Beitrag zum Umweltschutz leisten. Und es wäre schön, wenn Sie die Nutzung per E-Mail an 
+!// Info@Heizkalender.de melden. Dadurch ergäbe ich eine Übersicht und zudem die Möglichkeit auf 
+!// wichtige Änderungen hinzuweisen. Gerne können Sie auch über Ihre Erfahrung mit dem Heizkalender 
+!// berichten.
 !//================================================================================================
 !//
 !// Der Code basiert in großen Teilen auf der Datei: 
@@ -41,16 +44,19 @@ string vrp="";
 string nm=  "HK1-CT-Gemeindename;" #
             "HK1-Schaltliste;" #
             "HK1-R-Liste;" #
+            "HK1-R-ListeNamen;" #
             "HK1-CT-Token";
             
 !// Beschreibungstexte
 string be=  "Name der Gemeinde in Churchtools;" #
             "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Ressourcen in ChurchTools;" #
+            "Liste der Ressourcen als Name passend zu HK1-R-Liste;" #
             "Sicherheitstoken für ChurchTools";              
             
 !// Typen
 string tp=  "string;" #                                                          
+            "string;" #                                                          
             "string;" #                                                          
             "string;" #                                                          
             "string";                                                            
@@ -58,6 +64,7 @@ string tp=  "string;" #
 !// Vorgabe Werte
 string vl=  "Gemeinde xyz;" #                                                               
             ";" #                                                                
+            ";" #                                                               
             ";" #                                                               
             "";                                                                  
                                           
@@ -71,6 +78,7 @@ string wr=  "";
                         
 !// Protokollierungs Flags
 string pr=  "1;" #                                                               
+            "1;" #                                                               
             "1;" #                                                               
             "1;" #                                                               
             "1";                                                                 
