@@ -1,14 +1,17 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
-!// Stand:    24.11.2025; 
+!// Stand:    26.11.2025; 
 !// Autor:    Lukas Helduser
 !//           Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
 !// Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde Hanau 
-!// entwicklet.
-!// Die Nutzung ist kostenlos, aber wir bitten die Nutzung an einer der obigen Email Adressen zu 
-!// melden.
+!// entwickelt.
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit 
+!// einen Beitrag zum Umweltschutz leisten. Und es wäre schön, wenn Sie die Nutzung per E-Mail an 
+!// Info@Heizkalender.de melden. Dadurch ergäbe ich eine Übersicht und zudem die Möglichkeit auf 
+!// wichtige Änderungen hinzuweisen. Gerne können Sie auch über Ihre Erfahrung mit dem Heizkalender 
+!// berichten.
 !//================================================================================================
 !//
 !// Der Code basiert in großen Teilen auf der Datei: 
@@ -21,6 +24,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbesseters Logging
 !// MRi: 2025-11-24	Anpassung Doku. Doppelte Schaltlisteneinträge
 !// MRi: 2025-11-16	Fehlerbehandlung eingebaut
 !// MRi: 2025-11-14	MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
