@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
-!// Stand:    26.11.2025; 
+!// Stand:    29.11.2025; 
 !// Autor:    Lukas Helduser
 !//           Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
@@ -24,6 +24,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2025-11-29 Alte Schaltliste wird nicht mehr übernommen um Schalttermine abbrechen zu können.
 !// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbesseters Logging
 !// MRi: 2025-11-24	Anpassung Doku. Doppelte Schaltlisteneinträge
 !// MRi: 2025-11-16	Fehlerbehandlung eingebaut
@@ -60,9 +61,9 @@ boolean log=0;
 string aktID;
 string tempID;
 string urlID;
-string SLA=dom.GetObject(vrp+"HK1-Schaltliste").State();
 string SLN;
 string SLT;
+string value;
 string IDL=dom.GetObject(vrp+"HK1-R-Liste").State();
 string urlwget ="wget --timeout=3 -O - '";
 string urlR="https://"+dom.GetObject(vrp+"HK1-CT-Gemeindename").State()+".church.tools/api/bookings?login_token=";
@@ -71,7 +72,9 @@ string token=dom.GetObject(vrp+"HK1-CT-Token").State();
 string from=system.Date("%F");
 string to=(((from.ToTime().ToInteger())+86400).ToTime().ToString()).Substr(0,10);
 integer GMT=(system.Date("%z").Substr(2,1)).ToInteger()*3600;
-string SRaumVarListe=dom.GetObject(vrp+"HK2-HKG-Liste").Value();
+integer NOW=system.Date().ToTime().ToInteger();
+string SRaumVarListe=dom.GetObject(vrp+"HK2-HKG-Liste").State();
+string RaumVarListe;
 string RaumVar;
 string AktRaum;
 string cap;
@@ -85,7 +88,7 @@ string toadd;
 string Data;
 string Feed1;
 string Feed2;
-integer frID=0;
+integer i=0;
 
 !// Logging vorbereiten
 var logObj=dom.GetObject(vrp+"HK1-Log");
@@ -171,6 +174,7 @@ if (!Data.Contains("COUNT\":")){
     }else{
       cap="0";
     }
+    cap=cap+";";
     start=Data.Substr(Data.Find("CALCULATED\":{\"")+26,19).Replace("T"," ");
     start=((start.ToTime().ToInteger())+GMT).ToString()+";";
 
@@ -180,15 +184,17 @@ if (!Data.Contains("COUNT\":")){
     id=Data.Substr(Data.Find("RESOURCE\":{\"ID")+16,4)+";";
     id=id.Replace(",","").Replace("\"","").Replace("N","");
 
-    frID=0;
+    !// Für den aktuellen Raum Schalten/Heizen bestimmen
+    i=0;
     foreach(AktRaum,IDL.Split(";")){
       if(AktRaum!=""){
         if(AktRaum.ToInteger()==id.ToInteger()){
 	        !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
     		  !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
     		  !// MRI: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.   
-	        !WriteLine("Raum:"+SRaumVarListe.StrValueByIndex(";",frID)); 
-	        RaumVar=SRaumVarListe.StrValueByIndex(";",frID);
+	        !WriteLine("Raum:"+SRaumVarListe.StrValueByIndex(";",i)); 
+	        RaumVarListe=SRaumVarListe.StrValueByIndex(";",i);
+          RaumVar = RaumVarListe;
 	        if (multiRaumVariante){
        			RaumVar=RaumVar.StrValueByIndex("+",0);
 	        }
@@ -196,78 +202,48 @@ if (!Data.Contains("COUNT\":")){
 	  
 	        SchaltenHeizen=dom.GetObject(RaumVar).State().StrValueByIndex(";",1);
           if(SchaltenHeizen=="H"){
-      			SHFlag=";1;";
+      			SHFlag="1;";
 	        }else{
-	        	SHFlag=";0;";
+	        	SHFlag="0;";
 	        };
         }
       }
-      frID=frID+1;
+      i=i+1;
     }
 
     !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
-	  toadd = id+start+end+cap+SHFlag;
+	  toadd = id+start+end+cap+SHFlag+RaumVarListe;
     if (SLN.Find(toadd)<0){
+      if (SLN!=""){
+        SLN=SLN+"\t";
+      }
 	    SLN=SLN+toadd;	  
 	  }	
     if(Data.Contains("BOOKING\":")==false){break;}
   }
 
 !//------------------------------------------------------------------------------------------------
-!// Ab hier haben wir Standard Code. Die Variablen SLN, SLA und SLT müssen belegt werden.
+!// Ab hier haben wir Standard Code. Die Variablen SLN muss belegt werden. SLT ist leer.
 !// Der Rest ist in allen Skripten vom Typ1 gleich. 
 !// SLT enthält unser gewünschtes Ergebnis
-
-  !// Alte Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
-  integer whileID=0;
-  while (true){
-    if(SLA.StrValueByIndex(";",whileID)!=""){
-	  !//noch zeitNachlauf min nach Ausschaltezeit in der Liste lassen, wegen Nachlaufzeit.
-      !WriteLine("???? "+SLA.StrValueByIndex(";",whileID+2)+"  "+system.Date().ToTime().ToInteger().ToString()+"  "+SLA.StrValueByIndex(";",whileID+1).ToInteger().ToString());
-      if((SLA.StrValueByIndex(";",whileID+2).ToInteger()+(zeitNachlauf*60))>system.Date().ToTime().ToInteger()){
-        if(SLA.StrValueByIndex(";",whileID+1).ToInteger()<system.Date().ToTime().ToInteger()){
-	        toadd = SLA.StrValueByIndex(";",whileID)+";"+SLA.StrValueByIndex(";",whileID+1)+";"+SLA.StrValueByIndex(";",whileID+2)+";"+SLA.StrValueByIndex(";",whileID+3)+";"+SLA.StrValueByIndex(";",whileID+4)+";";
-          !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
-		      if(DEBUG){
-			      WriteLine("add: "+toadd);
-		      }
-		      if (SLT.Find(toadd)<0){
-            SLT=SLT+toadd;
-		      	if (log){
-			        logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
-	  	      }
-          }  
-		    }
-      }
-      whileID=whileID+5;
-    }else{
-      break;
-    }
-  }
-
+  
   !// Neue Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
-  whileID=0;
-  while (true){
-    if(SLN.StrValueByIndex(";",whileID)!=""){
-	    !// zeitVorlauf min vor Einschalttermin in Schaltliste aufnehmen
-      if(SLN.StrValueByIndex(";",whileID+1).ToInteger()>(system.Date().ToTime().ToInteger()-300)){
-        if(SLN.StrValueByIndex(";",whileID+1).ToInteger()<(system.Date().ToTime().ToInteger()+(zeitVorlauf*60))){
-          toadd = SLN.StrValueByIndex(";",whileID)+";"+SLN.StrValueByIndex(";",whileID+1)+";"+SLN.StrValueByIndex(";",whileID+2)+";"+SLN.StrValueByIndex(";",whileID+3)+";"+SLN.StrValueByIndex(";",whileID+4)+";";
-          !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
-		      if(DEBUG){
-			      WriteLine("add: "+toadd);
-		      }
-	     	  if (SLT.Find(toadd)<0){
-            SLT=SLT+toadd;
-	      		if (log){
-			        logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
-	  	      }
-          }  
+  foreach(value,SLN) {
+    !// zeitVorlauf min vor Einschalttermin in Schaltliste aufnehmen
+    if((value.StrValueByIndex(";",2).ToInteger()+(zeitNachlauf*60))>NOW){
+      if(value.StrValueByIndex(";",1).ToInteger()<(NOW+(zeitVorlauf*60))){
+        toadd = value.StrValueByIndex(";",0)+";"+value.StrValueByIndex(";",1)+";"+value.StrValueByIndex(";",2)+";"+value.StrValueByIndex(";",3)+";"+value.StrValueByIndex(";",4)+";";
+        !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
+        if(DEBUG){
+          WriteLine("add: "+toadd);
         }
+        if (SLT.Find(toadd)<0){
+          SLT=SLT+toadd;
+          if (log){
+            logObj.State("Raum: "+value.StrValueByIndex(";",5)+" ("+toadd.StrValueByIndex(";",0)+") - "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
+          }
+        }  
       }
-      whileID=whileID+5;
-    }else{
-      break;
     }
   }
 
@@ -294,7 +270,6 @@ if(DEBUG){
   WriteLine("Error/Feed2: " + Feed2+"\n");
   WriteLine("  ---  ");
   WriteLine("SLN: " +SLN);
-  WriteLine("SLA: " +SLA);
   WriteLine("SLT: " +SLT);
 }
 
