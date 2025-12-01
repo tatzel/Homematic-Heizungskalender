@@ -1,6 +1,6 @@
 !// Sammlung von Hilfscode
 !//================================================================================================
-!// Stand:    23.11.2025; 
+!// Stand:    27.11.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs
 !//================================================================================================
@@ -78,3 +78,10 @@ WriteLine(command);
 system.Exec(command, &stemp, &error);
 WriteLine(stemp+"\n");
 
+!//------------------------------------------------------------------------------------------
+!// Urlaub Start und Ende setzen
+WriteLine(dom.GetObject("VirtualDevices.INT0000003:1.PARTY_TIME_START").State());
+dom.GetObject("VirtualDevices.INT0000003:1.PARTY_TIME_START").State( @2000-01-01 00:00@);
+WriteLine(dom.GetObject("VirtualDevices.INT0000003:1.PARTY_TIME_END").State());
+dom.GetObject("VirtualDevices.INT0000003:1.PARTY_TIME_END").State(@2000-01-01 00:00@);
+WriteLine("Test");
