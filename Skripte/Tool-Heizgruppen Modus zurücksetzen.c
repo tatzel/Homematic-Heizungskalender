@@ -125,14 +125,14 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
           {
             dom.GetObject(datapoint#".CONTROL_MODE").State(0);                                      
             if(debug){WriteLine("\t Setting to auto mode");}
-            if(log){logObj.State("Heizgruppe:" # device # " auf \"Auto\" setzen!");}
+            if(log){logObj.State("Moduskorrektur für Heizgruppe:" # device # " auf \"Auto\" setzen!");}
           }
       
           if( 1!=currentstate )
           {
             dom.GetObject(datapoint#".CONTROL_MODE").State(1);                                      
             if(debug){WriteLine("\t Setting to manual mode");}
-            if(log){logObj.State("Heizgruppe:" # device # " auf  \"Manuell\" setzen!");}
+            if(log){logObj.State("Moduskorrektur für Heizgruppe:" # device # " auf  \"Manuell\" setzen!");}
           }
         }
         !// Wir können aufhören weiter zu sichen, es gibt nur einen Heating Device Channel
