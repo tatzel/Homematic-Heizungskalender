@@ -1,6 +1,6 @@
 !// Gestörte Kommunikation beheben
 !//================================================================================================
-!// Stand:    01.12.2025; 
+!// Stand:    02.12.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
@@ -59,9 +59,14 @@ foreach(itemID, dom.GetObject(ID_DEVICES).EnumUsedIDs()) {
   if (aldp_obj) {
     if (aldp_obj.Value()) {
       foreach (channel, dom.GetObject(itemID).Channels().EnumUsedIDs()) {
-        if (max > 0) { 
+        !// Test Lesen vom Channel
+        if (max > 0) {         
           if(log){
-            logObj.State("Kommunikationstest:" # name # " Objekt: " # aldp_obj # " Adresse: "# address);
+            string neuerLog = "Kommunikationstest:" # name # " Objekt: " # aldp_obj # " Adresse: "# address;
+            !// Nur wenn sich was ändert. Wir brauchen nicht x-gleiche Meldungen.
+            if (logObj.State()!=neuerLog){
+              logObj.State(neuerLog);
+            }
           }
           x = dom.GetObject(channel).State();
           max = max - 1;
