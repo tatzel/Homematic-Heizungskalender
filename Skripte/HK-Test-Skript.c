@@ -1,6 +1,6 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    26.11.2025; 
+!// Stand:    03.12.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
 !//================================================================================================
@@ -71,15 +71,10 @@ while (true) {
 WriteLine("___________________________________________________________________________");
 
 string hk1RaumListe=dom.GetObject(vrp # "HK1-R-Liste").State();
-var obj = dom.GetObject(vrp # "HK1-R-ListeNamen");
-string hk1RaumListeNamen="";
-if (obj){
-  hk1RaumListeNamen = obj.State();
-}
 string hk2RaumListe=dom.GetObject(vrp # "HK2-HKG-Liste").State();
-
+string hk1RaumListeNamen=hk2RaumListe.Replace("HKG-Raum-","").Replace("HKG-","");
 WriteLine("HK1-R-Liste=" # hk1RaumListe);
-WriteLine("HK1-R-ListeNamen=" # hk1RaumListeNamen);
+WriteLine("HK1-R-Liste Namen=" # hk1RaumListeNamen);
 WriteLine("HK2-HKG-Liste=" # hk2RaumListe);
 
 i=0;
