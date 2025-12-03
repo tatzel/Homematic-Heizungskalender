@@ -304,7 +304,7 @@ while(true){
           if(AktAktor.Length()>4){
             if(HSFlag){
               dom.GetObject(AktAktor).DPByHssDP(Param).State(RTemp);
-              if(log){logObj.State(AktAktor +" dauerhaft eingeschaltet auf Temp.: "+RTemp);}
+              if(log){logObj.State(AktAktor +" dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
             }else{
               dom.GetObject(AktAktor).DPByHssDP(Param).State(1);
               if(log){logObj.State(AktAktor +" dauerhaft eingeschaltet");}
@@ -406,14 +406,14 @@ while(true){
                       if(dom.GetObject(AktAktor).DPByHssDP(Param).State()==GT){
                         dom.GetObject(AktAktor).DPByHssDP(Param).State(RTemp);
                         !WriteLine("Schalten ein "+AktAktor+" "+Param+" "+RTemp);
-                        if(log){logObj.State(AktAktor+" Einschalten (mit Funktion Reglervorrang) auf Temp.: "+RTemp+" Parameter: "+Param);}
+                        if(log){logObj.State(AktAktor+" Einschalten (mit Funktion Reglervorrang) auf Temp.: "+RTemp.ToString(1)+" Parameter: "+Param);}
                       }else{
                         if(log){logObj.State(AktAktor+" Reglervorrang bei EIN (Regeler händisch verstellt auf: ("+dom.GetObject(AktAktor).DPByHssDP(Param).State().ToString());}
                       }
                     }else{
                       dom.GetObject(AktAktor).DPByHssDP(Param).State(RTemp);
                       !WriteLine("Schalten ein "+AktAktor+" "+Param+" "+RTemp);
-                      if(log){logObj.State(AktAktor+" Einschalten (ohne Funktion Reglervorrang) auf Temp.: "+RTemp+" Parameter: "+Param);}
+                      if(log){logObj.State(AktAktor+" Einschalten (ohne Funktion Reglervorrang) auf Temp.: "+RTemp.ToString(1)+" Parameter: "+Param);}
                     }
                 }else{
                   dom.GetObject(AktAktor).DPByHssDP(Param).State(1);
