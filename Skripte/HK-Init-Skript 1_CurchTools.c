@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Churchtools)
 !//================================================================================================
-!// Stand:    23.11.2025; 
+!// Stand:    03.12.2025; 
 !// Autor:    Lukas Helduser
 !//           Martin Richter    (heizkalender@m-ri.de)
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
@@ -44,19 +44,16 @@ string vrp="";
 string nm=  "HK1-CT-Gemeindename;" #
             "HK1-Schaltliste;" #
             "HK1-R-Liste;" #
-            "HK1-R-ListeNamen;" #
             "HK1-CT-Token";
             
 !// Beschreibungstexte
 string be=  "Name der Gemeinde in Churchtools;" #
             "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Ressourcen in ChurchTools;" #
-            "Liste der Ressourcen als Name passend zu HK1-R-Liste;" #
             "Sicherheitstoken für ChurchTools";              
             
 !// Typen
 string tp=  "string;" #                                                          
-            "string;" #                                                          
             "string;" #                                                          
             "string;" #                                                          
             "string";                                                            
@@ -64,7 +61,6 @@ string tp=  "string;" #
 !// Vorgabe Werte
 string vl=  "Gemeinde xyz;" #                                                               
             ";" #                                                                
-            ";" #                                                               
             ";" #                                                               
             "";                                                                  
                                           
@@ -78,7 +74,6 @@ string wr=  "";
                         
 !// Protokollierungs Flags
 string pr=  "1;" #                                                               
-            "1;" #                                                               
             "1;" #                                                               
             "1;" #                                                               
             "1";                                                                 
