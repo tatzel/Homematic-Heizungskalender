@@ -1,9 +1,9 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
 !// Stand:    29.11.2025; 
-!// Autor:    Lukas Helduser
-!//           Martin Richter    (heizkalender@m-ri.de)
-!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
+!// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
+!//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
+!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
 !// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
 !// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
