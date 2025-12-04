@@ -1,8 +1,8 @@
 !// Reboot der HomeMatic CCU3 mit sichern des Systemprotokolls
 !//================================================================================================
 !// Stand:    25.11.2025; 
-!// Autor:    Martin Richter    (heizkalender@m-ri.de)
-!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
+!// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
+!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
 !// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
 !// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 

@@ -1,8 +1,8 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
 !// Stand:    03.12.2025; 
-!// Autor:    Martin Richter    (heizkalender@m-ri.de)
-!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de)
+!// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
+!// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
 !// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
 !// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
@@ -68,6 +68,63 @@ while (true) {
     WriteLine("Heizen/Schalten=" + stemp);
   } 
   i=i+1;
+}
+
+!//------------------------------------------------------------------------------------------
+!// Logging überprüfen
+
+WriteLine("___________________________________________________________________________");
+WriteLine("Logging Status\n");
+
+var obj=dom.GetObject(vrp # "HK-Logging");
+if (obj){
+  if (obj.State()!=0){
+    stemp = "ein";
+  }else{
+    stemp = "aus";
+  }
+  WriteLine("HK-Logging: Logging Script 1 ist " # stemp # "geschaltet");
+}else{
+  WriteLine("HK-Logging: Log-Variable für Script 1 existiert nicht");
+}
+if (dom.GetObject(vrp # "HK-Log")){
+  WriteLine("HK-Log: Log-Variable für Tools existiert");
+}else{
+  WriteLine("HK-Log: Log-Variable für Tools existiert nicht");
+}
+
+obj=dom.GetObject(vrp # "HK1-Logging");
+if (obj){
+  if (obj.State()!=0){
+    stemp = "ein";
+  }else{
+    stemp = "aus";
+  }
+  WriteLine("HK1-Logging: Logging Script 1 ist " # stemp # "geschaltet");
+}else{
+  WriteLine("HK1-Logging: Log-Variable für Script 1 existiert nicht");
+}
+if (dom.GetObject(vrp # "HK1-Log")){
+  WriteLine("HK1-Log: Log-Variable für Script 1 existiert");
+}else{
+  WriteLine("HK1-Log: Log-Variable für Script 1 existiert nicht");
+}
+
+obj=dom.GetObject(vrp # "HK2-Logging");
+if (obj){
+  if (obj.State()!=0){
+    stemp = "ein";
+  }else{
+    stemp = "aus";
+  }
+  WriteLine("HK2-Logging: Logging Script 2 ist " # stemp # "geschaltet");
+}else{
+  WriteLine("HK2-Logging: Log-Variable für Script 2 existiert nicht");
+}
+if (dom.GetObject(vrp # "HK2-Log")){
+  WriteLine("HK2-Log: Log-Variable für Script 2 existiert");
+}else{
+  WriteLine("HK2-Log: Log-Variable für Script 2 existiert nicht");
 }
 
 !//------------------------------------------------------------------------------------------
@@ -175,7 +232,7 @@ foreach(RListe, hk2RaumListe.Split(";")){
 	    if (Aktor.Length()>4){
           stemp = "\t" # Aktor;
           if (Param!=""){
-            var obj = dom.GetObject(Aktor);
+            obj = dom.GetObject(Aktor);
             if (obj){
               obj=obj.DPByHssDP(Param);
               if (obj){
@@ -208,68 +265,11 @@ var svIDs = dom.GetObject(ID_SYSTEM_VARIABLES).EnumIDs();
  
 foreach(vid, svIDs){
     var sysVar = dom.GetObject(vid);
-    if (sysVar.Name().StartsWith(vrp # "HK")) {
+    if (sysVar.Name().StartsWith(vrp # "HK") || sysVar.Name().StartsWith(vrp # "Tool-")) {
       svListStr = svListStr # sysVar.Name() # "=" #  sysVar.Value() # "\n";
     }
 }
  
 WriteLine(svListStr);
-
-!//------------------------------------------------------------------------------------------
-!// Logging überprüfen
-
-WriteLine("___________________________________________________________________________");
-WriteLine("Logging Status\n");
-
-obj=dom.GetObject(vrp # "HK-Logging");
-if (obj){
-  if (obj.State()!=0){
-    stemp = "ein";
-  }else{
-    stemp = "aus";
-  }
-  WriteLine("HK-Logging: Logging Script 1 ist " # stemp # "geschaltet");
-}else{
-  WriteLine("HK-Logging: Log-Variable für Script 1 existiert nicht");
-}
-if (dom.GetObject(vrp # "HK-Log")){
-  WriteLine("HK-Log: Log-Variable für Tools existiert");
-}else{
-  WriteLine("HK-Log: Log-Variable für Tools existiert nicht");
-}
-
-obj=dom.GetObject(vrp # "HK1-Logging");
-if (obj){
-  if (obj.State()!=0){
-    stemp = "ein";
-  }else{
-    stemp = "aus";
-  }
-  WriteLine("HK1-Logging: Logging Script 1 ist " # stemp # "geschaltet");
-}else{
-  WriteLine("HK1-Logging: Log-Variable für Script 1 existiert nicht");
-}
-if (dom.GetObject(vrp # "HK1-Log")){
-  WriteLine("HK1-Log: Log-Variable für Script 1 existiert");
-}else{
-  WriteLine("HK1-Log: Log-Variable für Script 1 existiert nicht");
-}
-
-obj=dom.GetObject(vrp # "HK2-Logging");
-if (obj){
-  if (obj.State()!=0){
-    stemp = "ein";
-  }else{
-    stemp = "aus";
-  }
-  WriteLine("HK2-Logging: Logging Script 2 ist " # stemp # "geschaltet");
-}else{
-  WriteLine("HK2-Logging: Log-Variable für Script 2 existiert nicht");
-}
-if (dom.GetObject(vrp # "HK2-Log")){
-  WriteLine("HK2-Log: Log-Variable für Script 2 existiert");
-}else{
-  WriteLine("HK2-Log: Log-Variable für Script 2 existiert nicht");
-}
 
 WriteLine("___________________________________________________________________________");
