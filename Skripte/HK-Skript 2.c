@@ -67,8 +67,8 @@ string VarNamen=dom.GetObject(vrp+"HK2-HKG-Liste").State();
 string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State().ToUpper();
 string RIDINamen="";
 integer ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
-boolean FW1=dom.GetObject(vrp+"HK2-Hand-Temp").State();
-boolean FW2=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
+boolean Flag_Hand_Temp=dom.GetObject(vrp+"HK2-Hand-Temp").State();
+boolean Flag_Hand_Grundtemp=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
 integer AT=dom.GetObject(vrp+"HK2-Aussentemperatur").State().ToFloat();
 integer GT=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
 string AktSR;
@@ -88,7 +88,7 @@ integer T=0;
 string AGF;
 string stdout;
 string stderr;
-string RTemp;
+real RTemp;
 integer SDFlag;
 string Param;
 integer NOW=system.Date().ToTime().ToInteger();
@@ -355,7 +355,7 @@ while(true){
             !// Nummerische (kurze Einträge) in der Liste überspringen.
             if(AktAktor.Length()>4){
               if(HSFlag){
-                if(FW1!=false){
+                if(Flag_Hand_Temp!=false){
                   if(dom.GetObject(AktAktor).DPByHssDP(Param).State()==RTemp){
                     !dom.GetObject(AktAktor).DPByHssDP(Param).State(GT);
                     !WriteLine("Schalten aus "+AktAktor+" "+Param+" "+GT.ToString(1));
@@ -407,7 +407,7 @@ while(true){
               !// Nummerische (kurze Einträge) in der Liste überspringen.
               if(AktAktor.Length()>4){
                 if(HSFlag){
-                    if(FW1==1){
+                    if(Flag_Hand_Temp!=false){
                       if(dom.GetObject(AktAktor).DPByHssDP(Param).State()==GT){
                         dom.GetObject(AktAktor).DPByHssDP(Param).State(RTemp);
                         !WriteLine("Schalten ein "+AktAktor+" "+Param+" "+RTemp);
@@ -462,7 +462,7 @@ while(true){
 }
 
 !// Code für Prüfung der Nachschaltung immer um 01:00 Uhr!
-if((system.Date("%H%M").ToInteger()>56)&&(system.Date("%H%M").ToInteger()<104)&&(FW2!=false)){
+if((system.Date("%H%M").ToInteger()>56)&&(system.Date("%H%M").ToInteger()<104)&&(Flag_Hand_Grundtemp!=false)){
   if(log){logObj.State("Beginn Nachtabschaltung");}
 
   !// Wandle die Raumliste um, sodass auch die multiRaumVariante berücksichtigt wird
