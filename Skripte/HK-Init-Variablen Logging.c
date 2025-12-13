@@ -40,7 +40,10 @@
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="";
+string vrp="CT_";
+
+!//################################################################################################
+!//######------Skript Variablen und Skript Arbeitsteil. Vom Benutzer nicht zu verändern------######
 
 !// Namen der Variablen, die angelegt werden sollen
 string nm=  "HK-Logging;" #                                                   

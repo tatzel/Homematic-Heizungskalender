@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
-!// Stand:    29.11.2025; 
+!// Stand:    11.12.2025; 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,8 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2025-12-10 Neue Sonderbefehle #GT# #NH# #NS#
+!// MRi: 2025-12-08 Altes Skript komplett überarbeitet
 !// MRi: 2025-11-29 Alte Schaltliste wird nicht mehr übernommen um Schalttermine abbrechen zu können.
 !// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbesseters Logging
 !// MRi: 2025-11-24	Anpassung Doku. Doppelte Schaltlisteneinträge
@@ -60,40 +62,8 @@ integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
 !//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
 boolean log=0;
 
-!//################################################################################################################################################
-!//##################-------Stript Variablen und Script Arbeitsteil. Von Benutzer nicht zu verändern !!!!-------##########################################################
-
-string aktID;
-string tempID;
-string urlID;
-string SLN;
-string SLT;
-string value;
-string IDL=dom.GetObject(vrp+"HK1-R-Liste").State();
-string urlwget ="wget --timeout=3 -O - '";
-string urlR="https://"+dom.GetObject(vrp+"HK1-CT-Gemeindename").State()+".church.tools/api/bookings?login_token=";
-string urlM="https://"+dom.GetObject(vrp+"HK1-CT-Gemeindename").State()+".church.tools/api/resource/masterdata";
-string token=dom.GetObject(vrp+"HK1-CT-Token").State();
-string from=system.Date("%F");
-string to=(((from.ToTime().ToInteger())+86400).ToTime().ToString()).Substr(0,10);
-integer GMT=(system.Date("%z").Substr(2,1)).ToInteger()*3600;
-integer NOW=system.Date().ToTime().ToInteger();
-string SRaumVarListe=dom.GetObject(vrp+"HK2-HKG-Liste").State();
-string RaumVarListe;
-string RaumVar;
-string AktRaum;
-string cap;
-string SchaltenHeizen;
-string SHFlag;
-string start;
-string end;
-string id;
-string cmd;
-string toadd;
-string Data;
-string Feed1;
-string Feed2;
-integer i=0;
+!//################################################################################################
+!//######------Skript Variablen und Skript Arbeitsteil. Vom Benutzer nicht zu verändern------######
 
 !// Logging vorbereiten
 var logObj=dom.GetObject(vrp+"HK1-Log");
@@ -112,172 +82,249 @@ if (!logObj){
 }
 
 if(log){logObj.State("Beginn ChurchTools-Skriptlauf");}
+WriteLine("Beginn ChurchTools-Skriptlauf");
 
-cmd = urlwget+urlM+"?login_token="+token+"'";
-if(DEBUG){
-  WriteLine(cmd);
+
+!// Daten für den Zugriff setzen
+string loginToken = dom.GetObject(vrp # "HK1-CT-Token").State();
+string gemeindeName = dom.GetObject(vrp # "HK1-CT-Gemeindename").State();
+
+!// Filter für Resourcen setzen
+string RIdListe=dom.GetObject(vrp#"HK1-R-Liste").State();
+string HKGListe=dom.GetObject(vrp#"HK2-HKG-Liste").State();
+
+!// Suche alle Ids der Ressourcen
+string filter="";
+string RId;
+foreach(RId,RIdListe.Split(";")){
+  filter = filter # "&resource_ids[]=" # RId;
 }
-system.Exec(cmd, &Data, &Feed1);
+
+!// Ab hier verwenden wir die RaumIdListe mit einem führenden und folgendem ";" um die Suche zu erleichtern
+RIdListe = ";" # RIdListe # ";";
 if(DEBUG){
-  WriteLine(Data);
+  WriteLine("HKGListe=" # HKGListe);
+  WriteLine("RIdListe=" # RIdListe);
 }
-Data=Data.ToUpper();
 
-!// Suche ressourcen
-integer pos = Data.Find("RESOURCES\":");
+!// Start und Enddatum setzen, End Datum = 1+Tage
+integer versatzGMT=(system.Date("%z").Substr(1,2)).ToInteger()*3600;
+integer JETZT=system.Date().ToTime().ToInteger();
+string startDatum = JETZT.ToTime().ToString("%F");
+string endDatum = (JETZT+86400).ToTime().ToString("%F");
 
-!// Wenn Schlüsselwort nicht vorhanden Abbruch
-if(pos<0){
-  if (log){ logObj.State("Fehler beim Lesen der Ressource-Daten von Churchtools!"); }
+!// Zugriff auf ChurchTools API
+string cmd = "wget --timeout=3 -O - 'https://" # gemeindeName # ".church.tools/api/bookings?login_token=" # loginToken #
+                                        filter # "&from=" # startDatum # "&to=" # endDatum # "'";  
+if(DEBUG){
+  WriteLine("Cmd:" # cmd);
+}
+string stdout;
+string stderr;
+system.Exec(cmd, &stdout, &stderr);
+
+if(DEBUG){
+  WriteLine("stdout:" # stdout);
+  WriteLine("stderr:" # stderr);
+}
+
+!//------------------------------------------------------------------------------------------------
+
+!// Neue Schaltliste
+string SLT="";
+
+!// Ergebn is prüfen
+if (stdout.Contains("\"meta\":{\"count\":0}")){
+  !// Keine Termine
   if(DEBUG){
-    WriteLine("Fehler beim Lesen der Ressource-Daten von Churchtools!");
+    WriteLine("Keine Termine vorhanden!");
   }	
-  quit;
-}
-
-!// Suche alle Ressourcen
-Data=Data.Substr(pos,Data.Length()-pos);
-foreach(aktID,IDL.Split(";")){
-  if(Data.Contains("\"ID\":"+aktID)){
-    urlID=urlID+"resource_ids%5B%5D="+aktID+"&";
-    tempID=tempID+aktID+";";
-  }
-}
-
-cmd = urlwget+urlR+token+"&"+urlID+"&from="+from+"&to="+to+"'";
-if(DEBUG){
-  WriteLine(cmd);
-}
-system.Exec(cmd, &Data, &Feed2);
-if(DEBUG){
-  WriteLine(Data);
-}
-Data=Data.ToUpper();
-
-!// Schlüsselwort muss vorhanden sein
-if (!Data.Contains("COUNT\":")){
-  if (log){ logObj.State("Fehler beim Lesen der Termin-Daten von Churchtools!"); }
+}elseif(!stdout.StartsWith("{\"data\":[")){  
+  if (log){ logObj.State("Fehler beim Lesen der Event-Daten von ChurchTools!"); }
   if(DEBUG){
-    WriteLine("Fehler beim Lesen der Termin-Daten von Churchtools!");
+    WriteLine("Fehler beim Lesen der Event-Daten von ChurchTools!");
   }	
   quit;
 }else{
-  !// Daten durchsuchen nach Terminen
-  while(true){
-    Data=Data.Substr(Data.Find("BOOKING\":")+12,Data.Length()-7);
-    cap=Data.Substr(Data.Find("DESCRIPTION")+14,6);
-    !WriteLine(cap+"\n");
-    !WriteLine(Data+"\n");
-    if (cap.Contains("#")==true){
-      cap=cap.Replace("#","").Replace(",","").Replace("G","").Replace("D","").Replace(".","").Replace("\"","").Replace("V","");
-      cap=cap.Replace("D","").Replace("E","").Replace(" ","").Replace("R","").Replace("A","").Replace("C","").Replace("°","").Replace("\r\n","");
-      !WriteLine(cap);
-      if(cap.Length()==3){cap=cap.Substr(0,2)+".5";}
-      if(cap=="US"){cap="-1";}
-      if(cap=="IN"){cap="-2";}
-      if(cap=="NOML"){cap="-3";}
+  !// Termine durchlesen
+  string termine = stdout.Replace("\"booking\":{\"base\":{","\t");
+  string termin;
+  foreach(termin,termine){
+    !// Schleife über all einzelnen Termine
+    if(DEBUG){
+      WriteLine("Termin Daten: " # termin);
+    }
+    integer iPos = termin.Find("\"resourceId\":");
+    if (iPos<0){
+      continue;
+    }
+    
+    !// Id der Ressource bestimmen
+    string resId=termin.Substr(iPos+13,10).ToInteger();
+    
+    !// Nun suchen wir den Raum Index mit einem Trick. Wir zählen einfach die
+    !// vorhandenen Semikolons im SubSTr
+    iPos = RIdListe.Find(";" # resId # ";");
+    if (iPos<0){
+      !// Raum nicht in unserer Liste (dürfte eigentlich nicht passieren, da wir einen
+      !// Filter für Resourcen haben.
+      if(DEBUG){
+        WriteLine("Raum Resource Id konnte nicht gefunden werden!");
+      }	
+      continue;
+    }
+    integer raumIndex = (RIdListe.Substr(0,iPos).Length())-(RIdListe.Substr(0,iPos).Replace(";","").Length());
+    
+    !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
+    !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
+    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.   
+    string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
+    string RaumVar = RaumVarListe;
+    if (multiRaumVariante){
+      RaumVar=RaumVar.StrValueByIndex("+",0);
+    }
+    if (DEBUG){
+      WriteLine("RaumVar:"+RaumVar+" "+dom.GetObject(RaumVar).State());
+    }
+
+    string SchaltenHeizen=dom.GetObject(RaumVar).State().StrValueByIndex(";",1);
+    string SHFlag;
+    if(SchaltenHeizen=="H"){
+      SHFlag="1";
     }else{
-      cap="0";
+      SHFlag="0";
+    };
+    
+    !// Start und Enddatum holen.
+    iPos = termin.Find("\"calculated\":{");
+    string strTemp = termin.Substr(iPos+14,termin.Length()-iPos-14);
+    startDatum=strTemp.Substr(strTemp.Find("\"startDate\":\"")+13,19).Replace("T"," ");
+    if (DEBUG){
+      WriteLine(startDatum);
     }
-    cap=cap+";";
-    start=Data.Substr(Data.Find("CALCULATED\":{\"")+26,19).Replace("T"," ");
-    start=((start.ToTime().ToInteger())+GMT).ToString()+";";
-
-    end=Data.Substr(Data.Find("CALCULATED\":{\"")+59,19).Replace("T"," ");
-    end=((end.ToTime().ToInteger())+GMT).ToString()+";";
-
-    id=Data.Substr(Data.Find("RESOURCE\":{\"ID")+16,4)+";";
-    id=id.Replace(",","").Replace("\"","").Replace("N","");
-
-    !// Für den aktuellen Raum Schalten/Heizen bestimmen
-    i=0;
-    foreach(AktRaum,IDL.Split(";")){
-      if(AktRaum!=""){
-        if(AktRaum.ToInteger()==id.ToInteger()){
-	        !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
-    		  !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-    		  !// MRI: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.   
-	        !WriteLine("Raum:"+SRaumVarListe.StrValueByIndex(";",i)); 
-	        RaumVarListe=SRaumVarListe.StrValueByIndex(";",i);
-          RaumVar = RaumVarListe;
-	        if (multiRaumVariante){
-       			RaumVar=RaumVar.StrValueByIndex("+",0);
-	        }
-	        !WriteLine("RaumVar:"+RaumVar+" "+dom.GetObject(RaumVar).State());
-	  
-	        SchaltenHeizen=dom.GetObject(RaumVar).State().StrValueByIndex(";",1);
-          if(SchaltenHeizen=="H"){
-      			SHFlag="1;";
-	        }else{
-	        	SHFlag="0;";
-	        };
-        }
-      }
-      i=i+1;
+    startDatum=(startDatum.ToTime().ToInteger()+versatzGMT).ToString();
+    
+    endDatum=strTemp.Substr(strTemp.Find("\"endDate\":\"")+11,19).Replace("T"," ");
+    if (DEBUG){
+      WriteLine(endDatum);
     }
-
-    !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
-	  toadd = id+start+end+cap+SHFlag+RaumVarListe;
-    if (SLN.Find(toadd)<0){
-      if (SLN!=""){
-        SLN=SLN+"\t";
+    endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
+    
+    !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
+    if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
+      !// Termin liegt in der Zukunft
+      if (DEBUG){
+        WriteLine("Termin liegt in der Zukunft");
       }
-	    SLN=SLN+toadd;	  
-	  }	
-    if(Data.Contains("BOOKING\":")==false){break;}
-  }
-
-!//------------------------------------------------------------------------------------------------
-!// Ab hier haben wir Standard Code. Die Variablen SLN muss belegt werden. SLT ist leer.
-!// Der Rest ist in allen Skripten vom Typ1 gleich. 
-!// SLT enthält unser gewünschtes Ergebnis
-  
-  !// Neue Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
-  foreach(value,SLN) {
-    !// zeitVorlauf min vor Einschalttermin in Schaltliste aufnehmen
-    if((value.StrValueByIndex(";",2).ToInteger()+(zeitNachlauf*60))>NOW){
-      if(value.StrValueByIndex(";",1).ToInteger()<(NOW+(zeitVorlauf*60))){
-        toadd = value.StrValueByIndex(";",0)+";"+value.StrValueByIndex(";",1)+";"+value.StrValueByIndex(";",2)+";"+value.StrValueByIndex(";",3)+";"+value.StrValueByIndex(";",4)+";";
-        !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
-        if(DEBUG){
-          WriteLine("add: "+toadd);
-        }
-        if (SLT.Find(toadd)<0){
-          SLT=SLT+toadd;
-          if (log){
-            logObj.State("Raum: "+value.StrValueByIndex(";",5)+" ("+toadd.StrValueByIndex(";",0)+") - "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
+      continue;
+    }
+    if ((endDatum.ToInteger()+(zeitNachlauf*60))<JETZT){
+      !// Termin liegt in der Vergangenheit
+      if (DEBUG){
+        WriteLine("Termin liegt in der Vergangenheit");
+      }
+      continue;
+    }
+    
+    !// Beschreibung muss noch auf Tokens geprüft werden.
+    !// #EIN#, #AUS#, #NORMAL#, #RESET#, #<zahl><text>#
+    string cap="0";
+    iPos=termin.Find("\"description\":\"");
+    if (iPos>=0){
+      !// Start und ende finden
+      strTemp = termin.Substr(iPos+15,50);
+      iPos = strTemp.Find("#");
+      if (iPos>=0){
+        strTemp = strTemp.Substr(iPos+1,strTemp.Length()-iPos-1);
+        iPos = strTemp.Find("#");
+        !// Ende vorhanden?
+        if (iPos>=0){
+          !// Englische (Dezimalpunkt) Deutsche (Dezimalkomma) Konvertierung
+          strTemp = strTemp.Substr(0,iPos).ToUpper();
+          strTemp.Replace(",",".");
+          if (strTemp=="EIN"){
+            !// Dauer EIN
+            cap = "-2";
+          }elseif(strTemp=="AUS"){
+            !// Dauer AUS
+            cap = "-1";
+          }elseif((strTemp=="NORMAL") || (strTemp=="RESET")){
+            !// Zurücksetzen RESET AUS/EIN
+            cap = "-3";
+          }elseif((strTemp=="GT")){
+            !// Grundtemperatur GT
+            cap = dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat().ToString(1);
+          }elseif((strTemp=="NH") || (strTemp=="NS")){
+            !// Nicht schalten/heizen (Es wird kein Listeneintrag erzeugt)
+            cap = "";
+          }else{
+            !// Nimm die Zahl, die hier kommt.
+            cap = strTemp.ToInteger();
+            if ((cap>0) && (cap<30)){
+              cap = cap.ToString();
+            }else{
+              cap = "0";
+            }
           }
-        }  
+        }
+      }      
+    }      
+        
+    !// Verhindern, dass doppelte Einträge erzeugt werden.
+ 	  string toadd = resId # ";" # startDatum # ";" # endDatum # ";" # cap # ";" # SHFlag # ";";
+    !WriteLine(toadd);
+    if (SLT.Find(toadd)<0){
+      if (cap){
+        !// Schalt Eintrag setzen
+        SLT=SLT+toadd;	  
+        if (log){
+          cap = toadd.StrValueByIndex(";",3).ToInteger();
+          if (toadd.StrValueByIndex(";",4).ToInteger()!=0){
+            if (cap<0){
+              cap = ("AUS;EIN;NORMAL").StrValueByIndex(";",(1+cap)*(-1));
+            }elseif(cap==0){
+              cap = "Normaltemperatur";
+            }else{
+              cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
+            }
+          }
+          logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
+                       toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
+                       toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
+                       " Parameter: " # cap # " " # 
+                       ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
+        }
+      }else{
+        !// Wir haben den Sonderbefehl NH/NS
+        if (log){
+          logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
+                       toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
+                       toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
+                       " Nicht Heizen/Schalten (#NH#/#NS#)");
+        }
       }
-    }
-  }
-
-  if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
-    dom.GetObject(vrp+"HK1-Schaltliste").State(SLT);
-    if (SLT==""){
-	    if (log){ logObj.State("Neue Schaltliste: Keine Termine"); }
-    }else{
-      if (log){ logObj.State("Neue Schaltliste: "+SLT); }
-    }
-  } else {
-    if (log){ logObj.State("Schaltliste unverändert"); }
+	  }	
   }
 }
 
-!//Debugausgaben
+!// Geänderte Schaltliste schreiben, aber nur wenn nötig.
+
 if(DEBUG){
-  WriteLine("DEBUG########");
-  WriteLine("IDL: " + IDL);
-  WriteLine("tempID: " + tempID);
-  WriteLine("###########");
-  WriteLine("Data: " + Data+"\n");
-  WriteLine("Error/Feed1: " + Feed1+"\n");
-  WriteLine("Error/Feed2: " + Feed2+"\n");
-  WriteLine("  ---  ");
-  WriteLine("SLN: " +SLN);
-  WriteLine("SLT: " +SLT);
+  WriteLine("SLT=" # SLT);
+}
+
+if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
+  dom.GetObject(vrp+"HK1-Schaltliste").State(SLT);
+  if (SLT==""){
+    if (log){ logObj.State("Neue Schaltliste: Keine Termine"); }
+  }else{
+    if (log){ logObj.State("Neue Schaltliste: "+SLT); }
+  }
+} else {
+  if (log){ logObj.State("Schaltliste unverändert"); }
 }
 
 !//------------------------------------------------------------------------------------------------
 
 if(log){logObj.State("Ende ChurchTools-Skriptlauf");}
+WriteLine("Ende ChurchTools-Skriptlauf");
