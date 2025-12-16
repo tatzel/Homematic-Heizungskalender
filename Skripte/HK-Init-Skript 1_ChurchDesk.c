@@ -1,6 +1,10 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (ChurchDesk)
 !//================================================================================================
+<<<<<<< Updated upstream
 !// Stand:    25.11.2025;
+=======
+!// Stand:    16.12.2025; 
+>>>>>>> Stashed changes
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,7 +33,11 @@
 
 !// Dieses Skript erstellt die nötigen Systemvariablen des Heizkalender für Skript 1 ChurchDesk
 !// Hinweis: Ein erneutes Ausführen dieses Programms ändert bestehende Variablen und ihren Inhalt nicht
+<<<<<<< Updated upstream
 !// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
+=======
+!// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann 
+>>>>>>> Stashed changes
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
 !//Eingabe eines Namens Präfix
@@ -42,7 +50,11 @@ string vrp="CD_";
 !// in den Variablen angelegt wird dieses verwendet
 string apiToken="c394ee6875210309c3cbe5c54f34054998ef41bf402ea299f7361059f72ea308";
 
+<<<<<<< Updated upstream
 !// Vorgegebene Orgnaisations ID
+=======
+!// Vorgegebene Orgnaisations ID 
+>>>>>>> Stashed changes
 string organizationId = "7102";
 
 !// Vorgabe für Raumnamen Prefix
@@ -61,12 +73,17 @@ string nm=  "HK1-Schaltliste;" #
             "HK1-CD-OrganisationsId;" #
             "HK1-CD-Token;" #
             "HK2-HKG-Liste;";
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
 !// Beschreibungstexte
 string be=  "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Räume aus ChurchDesk;" #
             "Organisations ID in ChurchDesk;" #
             "API-Token für ChurchDesk;" #
+<<<<<<< Updated upstream
             "Liste der HK-Raum-Variablen;";
 
 !// Typen
@@ -75,6 +92,16 @@ string tp=  "string;" #
             "string;" #
             "string;" #
             "string";
+=======
+            "Liste der HK-Raum-Variablen;";              
+            
+!// Typen
+string tp=  "string;" #                                                          
+            "string;" #                                                          
+            "string;" #                                                          
+            "string;" #                                                          
+            "string";                                                            
+>>>>>>> Stashed changes
 
 !// Vorgabe Werte
 string vl=  "";
@@ -88,11 +115,19 @@ string vu=  "";
 string wr=  "";
 
 !// Protokollierungs Flags
+<<<<<<< Updated upstream
 string pr=  "1;" #
             "1;" #
             "1;" #
             "1;" #
             "1";
+=======
+string pr=  "1;" #                                                               
+            "1;" #                                                               
+            "1;" #                                                               
+            "1;" #                                                               
+            "1";                                                                 
+>>>>>>> Stashed changes
 
 !//------------------------------------------------------------------------------------------------
 !// Ab hier Standard Code zum erzeugen von Variablen
@@ -155,7 +190,11 @@ if(svObj.State()!=""){
   apiToken = svObj.State();
 }elseif(apiToken!=""){
   !// Setze das aktuelle Token
+<<<<<<< Updated upstream
   svObj.State(apiToken);
+=======
+  svObj.State(apiToken);  
+>>>>>>> Stashed changes
 }
 
 !// Prüfe ob eine OrganisationsId vorhanden ist
@@ -165,7 +204,11 @@ if(svObj.State()!=""){
   organizationId = svObj.State();
 }elseif(organizationId!=""){
   !// Setze das aktuelle Token
+<<<<<<< Updated upstream
   svObj.State(organizationId);
+=======
+  svObj.State(organizationId);  
+>>>>>>> Stashed changes
 }
 
 !// Wenn ein API-Token vorhandne ist lesen wir die Ressource Liste
@@ -175,11 +218,19 @@ if (apiToken && organizationId){
     WriteLine("Die Variablen für die ChurchDesk Ressourcen wurden bereits gesetzt!");
   }else{
     !// URL aufbauen
+<<<<<<< Updated upstream
     string cmd = "wget --timeout=3 -O - 'https://api2.churchdesk.com/api/v3.0.0/events/resources?partnerToken=" # apiToken # "&organizationId=" # organizationId #"'";
     string stdout;
     string stderr;
     system.Exec(cmd, &stdout, &stderr);
 
+=======
+    string cmd = "wget --timeout=3 -O - 'https://api2.churchdesk.com/api/v3.0.0/events/resources?partnerToken=" # apiToken # "&organizationId=" # organizationId #"'";  
+    string stdout;
+    string stderr;
+    system.Exec(cmd, &stdout, &stderr);
+    
+>>>>>>> Stashed changes
     if (stdout.StartsWith("[")){
       !// Zeichensatz fixen
       stdout = stdout.ToLatin();
@@ -194,6 +245,7 @@ if (apiToken && organizationId){
           !// Fehler, falsches format
           continue;
         }
+<<<<<<< Updated upstream
 
         !// Bei Color 0 ist das der Gemeinde-Eintrag, den überspringen wir.
         integer iPos = res.Find("\"color\":");
@@ -206,13 +258,31 @@ if (apiToken && organizationId){
         !// Id holen
         integer resId = res.Substr(5,10).ToInteger();
 
+=======
+        
+        !// Bei Color 0 ist das der Gemeinde-Eintrag, den überspringen wir.
+        integer iPos = res.Find("\"color\":");
+        if (iPos && res.Substr(iPos+8,10).ToInteger()==0){
+          !// Den Gemeinde-Eintrag kann man beim buchen nicht benutzen. 
+          !// Einen anderen Indikator als die Farbe habe ich nicht gefunden.
+          continue;
+        }
+        
+        !// Id holen
+        integer resId = res.Substr(5,10).ToInteger();
+        
+>>>>>>> Stashed changes
         !// Namen suchen
         integer iPos = res.Find(",\"name\":\"");
         if (iPos<0){
           !// Fehler
           continue;
         }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
         !// Namen finden
         res = res.Substr(iPos+9,res.Length()-9);
         integer iPosEnd = res.Find("\",\"");;
@@ -220,6 +290,7 @@ if (apiToken && organizationId){
           !// Fehler
           continue;
         }
+<<<<<<< Updated upstream
 
         !// Namen bereinigen
         name = res.Substr(0,iPosEnd);
@@ -235,6 +306,23 @@ if (apiToken && organizationId){
         raumNamen = raumNamen # name;
       }
 
+=======
+        
+        !// Namen bereinigen
+        name = res.Substr(0,iPosEnd);
+        name = name.Replace(" ","").Replace("\\","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
+        
+        if (raumListe){
+          raumListe = raumListe # ";";            
+        }          
+        raumListe = raumListe # resId;
+        if (raumNamen){
+          raumNamen = raumNamen # ";";            
+        }          
+        raumNamen = raumNamen # name;            
+      }      
+      
+>>>>>>> Stashed changes
       !// Wenn wir eine Raumliste haben dann setzen wir, wenn diese nicht leer ist
       svObj = dom.GetObject(vrp#"HK1-R-Liste");
       if(svObj.State()!=""){
@@ -243,9 +331,15 @@ if (apiToken && organizationId){
         WriteLine("Ermittelte Daten: " # raumListe);
       }else{
         svObj.State(raumListe);
+<<<<<<< Updated upstream
         WriteLine("Variable HK1-R-Liste wird gesetzt auf: " # raumListe);
       }
 
+=======
+        WriteLine("Variable HK1-R-Liste wird gesetzt auf: " # raumListe);        
+      }
+        
+>>>>>>> Stashed changes
       !// Raum Variablen anlegen und HK2-HKG-Liste füllen
       string hkgListe = "";
       foreach(name,raumNamen.Split(";")){
@@ -255,7 +349,11 @@ if (apiToken && organizationId){
           hkgListe = hkgListe # ";";
         }
         hkgListe = hkgListe+name;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
         svObj = dom.GetObject(name);
         if (svObj){
           WriteLine("Raumvariable " # name # " existiert bereits! Wert: " # svObj.State());
@@ -264,7 +362,11 @@ if (apiToken && organizationId){
           object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
           svObj = dom.CreateObject(OT_VARDP);
           svObjects.Add(svObj.ID());
+<<<<<<< Updated upstream
 
+=======
+    
+>>>>>>> Stashed changes
           svObj.Name(name);
           svObj.ValueType(ivtString);
           svObj.ValueSubType(istChar8859);
@@ -272,6 +374,7 @@ if (apiToken && organizationId){
           svObj.DPArchive(true);
           svObj.Internal(false);
           svObj.Visible(true);
+<<<<<<< Updated upstream
           svObj.DPArchive(true);
 
           !// Vorgabe machen
@@ -280,6 +383,16 @@ if (apiToken && organizationId){
         }
       }
 
+=======
+          svObj.DPArchive(true);        
+                    
+          !// Vorgabe machen
+          svObj.State(raumVorgabePreFix # name.Replace(raumNamenPreFix,"") # raumVorgabePostFix);
+          WriteLine("Raumvariable " # name # " angelegt! Wert: " # svObj.State());       
+        }
+      }
+      
+>>>>>>> Stashed changes
       !// HK2-HKG-Liste ändern
       svObj = dom.GetObject(vrp#"HK2-HKG-Liste");
       if(svObj.State()!=""){
@@ -288,7 +401,11 @@ if (apiToken && organizationId){
         WriteLine("Ermittelte Daten: " # hkgListe);
       }else{
         svObj.State(hkgListe);
+<<<<<<< Updated upstream
         WriteLine("Variable HK2-HKG-Liste wird gesetzt auf: " # hkgListe);
+=======
+        WriteLine("Variable HK2-HKG-Liste wird gesetzt auf: " # hkgListe);        
+>>>>>>> Stashed changes
       }
     }else{
       !// Kein Zugriff möglich

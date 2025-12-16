@@ -1,6 +1,6 @@
 !// Sammlung von Hilfscode
 !//================================================================================================
-!// Stand:    27.11.2025; 
+!// Stand:    16.12.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -67,6 +67,7 @@ string stemp;
 string pfad="/media/usb1/HK-Log_20251118.log";
 
 command = "cat "+pfad;
+stemp="";
 system.Exec(command, &stemp, &error);
 WriteLine(stemp+"\n");
 
@@ -80,6 +81,7 @@ string pfad="HK-Log_20251117.log";
 
 command = "tail -n 100 '"+pfad+"'";
 WriteLine(command);
+stemp="";
 system.Exec(command, &stemp, &error);
 WriteLine(stemp+"\n");
 

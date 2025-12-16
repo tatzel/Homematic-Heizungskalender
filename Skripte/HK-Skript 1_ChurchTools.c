@@ -1,6 +1,10 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
+<<<<<<< Updated upstream
 !// Stand:    11.12.2025; 
+=======
+!// Stand:    16.12.2025; 
+>>>>>>> Stashed changes
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -56,7 +60,7 @@ boolean multiRaumVariante=true;
 !// Zeitfenster in dem nach Termine geschaut wird 
 !// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit), 
 !// plus zeitVorlauf (min = maximale Vorlaufzeit)
-integer zeitVorlauf=8*60;		!// 8 Stunden (default=12h)
+integer zeitVorlauf=12*60;		!// 12 Stunden (default=12h)
 integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
 
 !//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
