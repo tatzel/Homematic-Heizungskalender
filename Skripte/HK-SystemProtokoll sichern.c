@@ -1,43 +1,44 @@
 !// Sichern des Systemprotokolls auf dem USB Stick
 !//================================================================================================
-!// Stand:    22.11.2025; 
+!// Stand:    16.12.2025;
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten. 
+!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde 
+!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
 !// Hanau von Martin Richter optimiert.
 !// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen 
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 !// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
 !// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte 
+!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
-!// Das grundsätzliche Problem ist, das das Systemprotokoll fülchtig ist. Alte Einträge werden 
+!// Das grundsätzliche Problem ist, das das Systemprotokoll fülchtig ist. Alte Einträge werden
 !// automatisch verworfen, wenn es voll wird. Weiterhin überlebt es auch keinen Reboot der CCU
 !// Für einen Reboot sollte also unbedingt unser Programm Tool-Reboot benutzt werden um vor dem
 !// Reboot das Protokoll zu sichern.
-!// Für das Sichern wird eine Systemvariable benutzt, in der der letzte Protokoll Eintrag gespeichert 
+!// Für das Sichern wird eine Systemvariable benutzt, in der der letzte Protokoll Eintrag gespeichert
 !// wird.
 !//
-!// Das Skript sollte alle 3-6 Stunden laufen um einen Überlauf des Systemprotokolls und den Verlust
-!// von Einträgen zu verhindern.
+!// Das Skript sollte 17/23/29min laufen.
 !// Die Anzahl der zu erhaltenen LOG Dateien kann eingestellt werden.
 !// Eine Log-Datei wird ca. 250KB bis 1MB groß, je nach Anzahl der Schaltvorgänge.
 
-string vrp = "";
 !// Der Pfad sollte keine Leerzeichen enthalten
 string pfad = "/media/usb1/";
 !// Prefix für den Namen, er wird dann mit dem Datum und der Extension .LOG erweitert:
 !// Also z.B. HK-LOG_2025-11-20.log!
 string prefix = "HK-Log_";
 !// Anzahl der Dateien die erhalten bleiben sollen. Die ältesten Dateien werden automatisch gelöscht.
-integer AnzahlDateien=100;
+integer AnzahlDateien=30;
+
+!// Debug Mouds, wir haben mehrere Levels 0 (Keine Debug Ausgaben) Debugausgaben Leve 1/2
+integer DEBUG=0;
 
 !//#######---Ende Variabler Bereich---####################################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
@@ -46,69 +47,155 @@ string cmd = "";
 string stdout;
 string stderr;
 string dateiname;
-dateiname = pfad # prefix # system.Date("%Y%m%d") # ".log";
 
 !// Cleanup. Lösche so viele Dateien, biss nur noch die entsprechende Anzahl übrig sind.
 cmd = "ls -w 1 -r \"" # pfad # prefix #"\"*.log";
-WriteLine(cmd);
+!if(DEBUG){WriteLine(cmd);}
 system.Exec(cmd,&stdout,&stderr);
-!WriteLine(stdout);
-!WriteLine(stderr);
+!if(DEBUG){WriteLine(stdout);}
+!if(DEBUG){WriteLine(stderr);}
 
-string datei;
 integer cnt=0;
-foreach(datei,stdout.Split("\n")) {
-  !WriteLine(datei);
+foreach(dateiname,stdout.Trim().Split("\n")) {
   if (cnt>=AnzahlDateien){
-    WriteLine("Remove " # datei);
-    cmd = "rm \"" # datei #"\" &";
-    WriteLine(cmd);
+    if(DEBUG){WriteLine("Löschen=" # dateiname);}
+    cmd = "rm \"" # dateiname #"\" &";
+    !if(DEBUG){WriteLine(cmd);}
     system.Exec(cmd);
   }
   cnt=cnt+1;
 }
 
+!// Maximale Anzahl des Systemprotokolls
+integer cnt = dom.GetHistoryDataCount();
+if (cnt==0){
+  if(DEBUG){WriteLine("Keine Daten Systemprotokoll Daten. Abbruch!");}
+  quit;
+}
+integer start=0;
+!// Suche die letzte Datei, die wir haben
+cmd = "ls -w 1 \"" # pfad # prefix #"\"*.log | tail -n 1";
+!if(DEBUG){WriteLine(cmd);}
+stdout = "";
+system.Exec(cmd,&stdout,&stderr);
+!if(DEBUG){WriteLine(stdout);}
+!if(DEBUG){WriteLine(stderr);}
+if (stdout!=""){
+  !// Wir haben eine Datei und holen die letzte Zeile
+  dateiname = stdout.Trim();
+  if(DEBUG){WriteLine("dateiname=" # dateiname);}
+  cmd = "tail -n 1 '" # dateiname # "'";
+  !if(DEBUG){WriteLine("cmd="#cmd);}
+  stdout="";
+  system.Exec(cmd,&stdout,&stderr);
+  !if(DEBUG){WriteLine("stdout="# stdout);}
+  !if(DEBUG){WriteLine("stderr="# stderr);}
+  if (stdout!=""){
+    !// Binary search um den Start mit diesem Datum zu finden
+    string suchtext = stdout.StrValueByIndex("\t",0);
+    if(DEBUG){WriteLine("Letzte geschriebene Daten. suchtext=" # suchtext);}
+    integer low = 0;
+    integer high = cnt-1;
+    while (low<=high){
+      integer mid = (low + high) / 2;
+      string sDatum = dom.GetHistoryData(mid,1).StrValueByIndex(";",3);
+      !if(DEBUG){WriteLine(low # "-" # mid # "-" # high # "-" # sDatum);}
+      if (sDatum<suchtext) {
+        low = mid + 1;
+      }else{
+        high = mid - 1;
+      }
+    }
+
+    !// Mid ist nun unser StartIndex
+    start = mid;
+  }
+}else{
+  !// Wir haben keine Datei. Also stoppen wir hier und schreiben ab Zeile 1
+  if(DEBUG){WriteLine("Keine zulezt geschriebenen Daten gefunden!");}  
+}
+if(DEBUG){WriteLine("Start des Speicherns bei Systemprotokolleintrag=" # start);}
+
 !// Teile des nachfolgenden Codes wurden aus dem folgenden Thread übernommen:
 !//     https://homematic-forum.de/forum/viewtopic.php?f=19&t=75602&p=847023#p735221
 
-integer cnt = dom.GetHistoryDataCount();
 integer iLastGroupIndex = 1;
 string sCollectedNames = "";
 string sCollectedValues = "";
 string sCollectedDateTimes = "";
-string sDatensatz;
-integer rCount;
-string sTotal="";
 
-!// Letzten Datensatz ermitteln
-string letzterGeschriebenerDatensatz=dom.GetObject(vrp+"HK-SystemProtokollSichern").State();
 !// Wir starten im Modus Suchen
 boolean modusSuchen=true;
-
-!// Wenn wir keinen Suchstring haben, schreiben wir sofort
-if (letzterGeschriebenerDatensatz==""){
-  modusSuchen = false;
-}
+string letzterGeschriebenerDatensatz;
+string aktDatum="";
+string aktDateTime="";
 
 while (true){
+  string zuSchreiben="";
+
   !// Wir	durchlaufen jetzt das Protokoll, entweder suchen wir oder wir schreiben
-  foreach( sDatensatz, dom.GetHistoryData(0,cnt, &rCount ) ){
+  string sDatensatz;
+  string logLine;
+  integer rCount;
+  foreach(sDatensatz, dom.GetHistoryData(start,cnt-start, &rCount )){
     integer iGroupIndex = sDatensatz.StrValueByIndex(";",0).ToInteger();
     string sDatapointId = sDatensatz.StrValueByIndex(";",1);
     string sRecordedValue = sDatensatz.StrValueByIndex(";",2);
     string sDateTime = sDatensatz.StrValueByIndex(";",3);
     string stmpDate = sDateTime.StrValueByIndex(" ",0);
     string stmpTime = sDateTime.StrValueByIndex(" ",1);
-      
-    if (modusSuchen) {
-      if ((sDatensatz.StrValueByIndex(";",2)==letzterGeschriebenerDatensatz.StrValueByIndex(";",2)) && (sDatensatz.StrValueByIndex(";",3)==letzterGeschriebenerDatensatz.StrValueByIndex(";",3))){
-        !// Datensatz gefunden, wir wechseln ion den Modus schreiben
-        modusSuchen = false;
-      }            
-    } else {
-      !// letzten Datensatz merken
-      letzterGeschriebenerDatensatz = sDatensatz;
-      
+
+    !// Wri loggen Tagesweise
+    !if(DEBUG){WriteLine("aktDatum=" # aktDatum # " stmpDate="#stmpDate);}
+    if ((aktDatum=="") || (aktDatum!=stmpDate)){
+      !// Start? Dann ist aktDatum leer. Ansonsten bestehende Daten speichern
+      if(DEBUG){WriteLine("Datum=" # stmpDate);}
+      if (aktDatum){
+        !// Alte Daten speichern, wenn vorhanden
+        if (zuSchreiben.Length()>0){
+          !// Zeilenschaltung entfernen, denn den haben wir schon
+          if(DEBUG){WriteLine("Dateiname="#dateiname);}
+          if(DEBUG){WriteLine("Daten schreiben 1: " # dateiname # " Bytes: " # zuSchreiben.Length());}
+          cmd = "echo -n \"" # zuSchreiben # "\" >> '" # dateiname # "' &";
+          system.Exec(cmd);
+          zuSchreiben = "";
+        }else{
+          !// Sollten wir gerade in den Schreibmodus gegangen sein, aber nun einen Dateiwechsel
+          !// haben, dann hatten wir gerade den letzten Datensatz gefunden. Und wir suchen auch in dern
+          !// neuen Datei weiter
+          modusSuchen = true;
+        }
+      }
+      !// Datumswechsel. Neue Datei.
+      aktDatum = stmpDate;
+      aktDateTime = sDateTime;
+      !// neuen Dateiname setzen
+      dateiname = pfad # prefix # aktDatum # ".log";
+      if(DEBUG){WriteLine("Dateiname="#dateiname);}
+      if(modusSuchen){
+        !// Wir laden den zuletzt gelesenen Datensatz
+        cmd = "tail -n 1 '" # dateiname # "'";
+        !if(DEBUG){WriteLine("cmd="#cmd);}
+        stdout="";
+        system.Exec(cmd,&stdout,&stderr);
+        !if(DEBUG){WriteLine("stdout="# stdout);}
+        !if(DEBUG){WriteLine("stderr="# stderr);}
+
+        !// Evtl. diesen Datensatz suchen, wenn da was war, ist kein Datensatz (keine Datei vorhanden)
+        !// gehen wir sofort in den Schreibmodus
+        letzterGeschriebenerDatensatz = stdout.Trim();
+        !if(DEBUG){WriteLine("letzterGeschriebenerDatensatz=" # letzterGeschriebenerDatensatz);}
+        modusSuchen = (letzterGeschriebenerDatensatz!="");
+        if(DEBUG){WriteLine("modusSuchen=" # modusSuchen # " letzterGeschriebenerDatensatz=" # letzterGeschriebenerDatensatz);}
+      }
+    }
+
+    !// Wenn datum und Zeit nicht passt können wir das überspringen
+    if(modusSuchen && letzterGeschriebenerDatensatz && !letzterGeschriebenerDatensatz.StartsWith(sDateTime)){
+      !// Kein Treffer, wir sind im Suchmodus
+      logLine = aktDateTime;
+    }else{
+      !// zu loggende Daten aufbauen
       string sDatapointName = "";
       object oHistDP = dom.GetObject( sDatapointId );
       if( oHistDP ) {
@@ -120,16 +207,16 @@ while (true){
             object oCH = dom.GetObject( oDP.Channel() );
             if( oCH ) {
               sDatapointName = oCH.Name();
-            }            
+            }
            }
         }
-        
-        if( iLastGroupIndex != iGroupIndex ) { 
+
+        if( iLastGroupIndex != iGroupIndex ) {
           sCollectedNames = "";
           sCollectedValues = "";
           iLastGroupIndex = iGroupIndex;
         }
-        
+
         string sRet = "";
 
         object to = dom.GetObject( oDP.ID());
@@ -144,12 +231,12 @@ while (true){
             boolean btoString  = ( (itoVT==ivtString)  && (itoST==istChar8859));
     !// MRi: Wir geben den  Variablen Typ nicht aus
     !        if( (btoLogic || btoAlarm) && ((sRecordedValue == "0") || (sRecordedValue == "")) ) {
-    !          sRet=sRet#to.ValueName0(); } else { sRet=sRet#to.ValueName1(); 
+    !          sRet=sRet#to.ValueName0(); } else { sRet=sRet#to.ValueName1();
     !        }
-            if( (btoList) && (sRecordedValue == "") ) { 
-              sRet=sRet#web.webGetValueFromList(to.ValueList(),0); } else { sRet=sRet#web.webGetValueFromList(to.ValueList(),sRecordedValue.ToInteger()); 
+            if( (btoList) && (sRecordedValue == "") ) {
+              sRet=sRet#web.webGetValueFromList(to.ValueList(),0); } else { sRet=sRet#web.webGetValueFromList(to.ValueList(),sRecordedValue.ToInteger());
             }
-            if( btoNumber ) { 
+            if( btoNumber ) {
               if (sRecordedValue == "") {
                 real n = 0.0;
                 sRet = sRet # n.ToString() # " (" # n.ToString(2);
@@ -175,21 +262,21 @@ while (true){
             string tsLongKey = to.HSSID();
             object toCH = dom.GetObject( to.Channel() );
             if( toCH ) { tsLongKey = toCH.ChnLabel()#"|"#tsLongKey; }
-            
+
             boolean tbOptionList = ( (to.ValueType() == ivtInteger) && (to.ValueSubType() == istEnum) );
             boolean tbAction = ( to.ValueSubType() == istAction );
             boolean tbBinary = ( to.ValueType() == ivtBinary );
             boolean tbRead = (to.Operations() & OPERATION_READ);
             boolean tbEvent = (to.Operations() & OPERATION_EVENT);
             boolean tbWrite = (to.Operations() & OPERATION_WRITE);
-            
+
             boolean bBinary = ( to.ValueTypeStr() == "Binary" );
             boolean bFloat = ( to.ValueTypeStr() == "Float" );
             boolean bSpecial = false;
-                
+
             string sVUTmp = to.ValueUnit().ToString();
             string sSpace = " ";
-            
+
             real fVal1 = 0.0;
             real fVal2 = 0.0;
             string sSpecial = "";
@@ -205,7 +292,7 @@ while (true){
                  sSpace = "";
                }
             }
-            
+
             if( tbBinary && (tbRead || tbAction) ) {
               if( sRecordedValue == "0" ) {
                 tsShortKey = tsShortKey#"=FALSE";
@@ -215,20 +302,20 @@ while (true){
                 tsLongKey = tsLongKey#"=TRUE";
               }
             }
-            
+
             if( tbOptionList ) {
               tsShortKey = tsShortKey#"="#web.webGetValueFromList( to.ValueList(), sRecordedValue );
               tsLongKey = tsLongKey#"="#web.webGetValueFromList( to.ValueList(), sRecordedValue );
             }
-            
+
             if( bSpecial ) {
               tsShortKey = tsShortKey#"="#sSpecial;
               tsLongKey = tsLongKey#"="#sSpecial;
-            }        
-            
+            }
+
             string sVTmp = tsLongKey ;
             if( !sVTmp.Length() ) { sVTmp = tsShortKey; }
-            
+
             if( !bSpecial ) {
               if( sVUTmp == "100%" ) {
                 sRecordedValue = sRecordedValue.ToFloat() * 100;
@@ -237,28 +324,28 @@ while (true){
               }
 
               if( sVUTmp == "degree" ) { sVUTmp = "°"; }
-              
+
               if( bBinary ) { sRecordedValue = ""; sSpace = ""; }
-              
+
               if( bFloat ) { sRecordedValue = sRecordedValue.ToFloat().ToString(2); }
-              
+
               if( (!bBinary) && (!bFloat) ) {
                 if (((toCH.Label() != "HmIPW-DRAP") && (toCH.Label() != "HmIP-HAP")) || (sVUTmp == "°C") || (sVUTmp == "V")) {
                   sRecordedValue = sRecordedValue.ToInteger();
                   sRecordedValue = sRecordedValue.ToString(0);
                 }
               }
-              
+
               if( tbOptionList ) { sRecordedValue = ""; sVUTmp = ""; sSpace = ""; }
             }
-            
+
             sVTmp = sVTmp#sSpace#sRecordedValue#sVUTmp;
             sRet = sVTmp;
           }
         }
-        
+
         sRecordedValue = sRet;
-        
+
         sCollectedNames = sDatapointName;
         sCollectedDateTimes = sDateTime;
 
@@ -268,40 +355,60 @@ while (true){
           sCollectedValues = sCollectedValues#"\t"#sRecordedValue;
         }
       }
-      string logLine=sCollectedDateTimes#"\t"#sCollectedNames#"\t"#sCollectedValues;
+      logLine=sCollectedDateTimes#"\t"#sCollectedNames#"\t"#sCollectedValues;
+    }
+
+    !// Prüfe ob wir die Zeile erreicht haben.
+    if (modusSuchen){
+      if (logLine==letzterGeschriebenerDatensatz){
+        modusSuchen = false;
+      }
+    }else{
       ! logLine = logLine.ToLatin();
-      !// Wir haben keinen Logger, wir sammeln die Daten
-      sTotal = sTotal # logLine # "\n";
-      
+      !// Wir sammeln die Daten
+      zuSchreiben = zuSchreiben # logLine # "\n";
+      !//if(DEBUG){WriteLine(logLine.Trim());}
+
       !// Wenn wir die maximale Größe von 10000 erreicht haben müssen wir schreiben
       !// Bei einer größe über 120000 Bytes versagt echo, aber da wir einen Append nutzen,
       !// ist das kein Problem, den Befehl mehrfach auszuführen
-      if (sTotal.Length()>10000){
-        !// Zeilenschaltung entfernen, denn den haben wir schon 
-        string cmd = "echo -n \"" # sTotal # "\" >> '" # dateiname # "' &";
+      if (zuSchreiben.Length()>10000){
+        !// Zeilenschaltung entfernen, denn den haben wir schon
+        if(DEBUG){WriteLine("Daten schreiben 2: " # dateiname # " Bytes: " # zuSchreiben.Length());}
+        string cmd = "echo -n \"" # zuSchreiben # "\" >> '" # dateiname # "' &";
         system.Exec(cmd);
-        sTotal = "";
+        zuSchreiben = "";
       }
-    }  
+    }
   }
+
+  !// Wir haben die Liste einmal durch.
   if (modusSuchen){
     !// Wenn wir hierher kommen, dann haben wir keinen passenden datensatz gefunden
     !// Wir starten von vorne und schreiben jetzt
+    if(DEBUG){if(DEBUG){WriteLine("Modus: Suchen. Stop! Keine Daten gefunden, alle Daten sammeln");}}
     modusSuchen = false;
+    aktDatum = "";
   }else{
-    !// Letzten Datensatz merken
-    dom.GetObject(vrp+"HK-SystemProtokollSichern").State(letzterGeschriebenerDatensatz);
+    !// Jetzt haben wir alle Daten zum schreiben fertig
+    !if(DEBUG){if(DEBUG){WriteLine(zuSchreiben);}}
+    if(DEBUG){if(DEBUG){WriteLine("Modus: Schreiben. Stop! Gefundene Daten schreiben");}}
     break;
   }
 }
 
 !// Rest schreiben
-if (sTotal.Length()>0){
-  !// Zeilenschaltung entfernen, denn den haben wir schon 
-  string cmd = "echo -n \"" # sTotal # "\" >> '" # dateiname # "' &";
-	system.Exec(cmd);
-	sTotal = "";
+if (zuSchreiben.Length()>0){
+  !// Zeilenschaltung entfernen, denn den haben wir schon
+  if(DEBUG){WriteLine("Daten schreiben 3: " # dateiname # " Bytes: " # zuSchreiben.Length());}
+  string cmd = "echo -n \"" # zuSchreiben # "\" >> '" # dateiname # "' &";
+  system.Exec(cmd);
+}else{
+  if(DEBUG){WriteLine("Daten schreiben 3: Keine Daten zu schreiben " # dateiname);}
 }
 
-!// Nach erfolgreichem schreiben löschen wir das Systemlog
-WriteLine("DONE");
+!// Mal auch alles sichern
+system.Save();
+
+WriteLine("Alles fertig...");
+

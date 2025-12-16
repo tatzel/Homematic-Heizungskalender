@@ -1,6 +1,10 @@
 !// Skript zum Erstellen der Systemvariablen des Heizkalender für das Logging
 !//================================================================================================
+<<<<<<< Updated upstream
 !// Stand:    08.12.2025;
+=======
+!// Stand:    16.12.2025; 
+>>>>>>> Stashed changes
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -47,3 +51,8 @@ foreach(vrp,vrps.Split(";")){
     }
   }
 }
+<<<<<<< Updated upstream
+=======
+
+WriteLine("Alles fertig...");
+>>>>>>> Stashed changes

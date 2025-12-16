@@ -1,6 +1,6 @@
 !// Skript zum Erstellen der Systemvariablen des Heizkalender für das Logging 
 !//================================================================================================
-!// Stand:    23.11.2025; 
+!// Stand:    16.12.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -51,8 +51,7 @@ string nm=  "HK-Logging;" #
             "HK1-Logging;" #                                                   
             "HK1-Log;" #                                                       
             "HK2-Logging;" #                                                    
-            "HK2-Log;" #                                                       
-            "HK-SystemProtokollSichern";                                       
+            "HK2-Log";                                       
             
 !// Beschreibungstexte
 string be=  "Flag um das Logging für Tools ein- und auszuschalten;" #         
@@ -60,8 +59,7 @@ string be=  "Flag um das Logging für Tools ein- und auszuschalten;" #
             "Flag um das Logging für Skript 1 ein- und auszuschalten;" #         
             "Variable um ein einfaches Log im System Protokoll zu erzeugen;" #   
             "Flag um das Logging für Skript 2 ein- und auszuschalten;" #         
-            "Variable um ein einfaches Log im System Protokoll zu erzeugen;" #   
-            "Letzter gesicherter Datensatz des Systemprotokolls";                
+            "Variable um ein einfaches Log im System Protokoll zu erzeugen;";                
             
 !// Typen
 string tp=  "boolean;" #                                                         
@@ -69,8 +67,7 @@ string tp=  "boolean;" #
             "boolean;" #                                                         
             "string;" #                                                          
             "boolean;" #                                                         
-            "string;" #                                                          
-            "string";                                                            
+            "string;";                                                            
 
 !// Vorgabe Werte
 string vl=  "1;" #                                                               
@@ -78,8 +75,7 @@ string vl=  "1;" #
             "1;" #                                                               
             ";" #                                                                
             "1;" #                                                               
-            ";" #                                                                
-            "";                                                                  
+            ";";                                                                  
                                           
 !// Einheit (z.B. °C)
 string vu=  "";                                                                  
@@ -92,8 +88,7 @@ string wr=  "Logging ausgeschaltet+Logging eingeschaltet;" #
             "Logging ausgeschaltet+Logging eingeschaltet;" #                     
             ";" #                                                                
             "Logging ausgeschaltet+Logging eingeschaltet;" #                     
-            ";" #                                                                
-            "";                                                                  
+            ";";                                                                  
                         
 !// Protokollierungs Flags
 string pr=  "1;" #                                                               
@@ -101,8 +96,7 @@ string pr=  "1;" #
             "1;" #                                                               
             "1;" #                                                               
             "1;" #                                                               
-            "1;" #                                                               
-            "0";                                                                 
+            "1;";                                                                 
  
 !//------------------------------------------------------------------------------------------------
 !// Ab hier Standard Code zum erzeugen von Variablen
