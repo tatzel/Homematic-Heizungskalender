@@ -72,6 +72,7 @@ if (cnt==0){
   if(DEBUG){WriteLine("Keine Daten Systemprotokoll Daten. Abbruch!");}
   quit;
 }
+integer rCount;
 integer start=0;
 !// Suche die letzte Datei, die wir haben
 cmd = "ls -w 1 \"" # pfad # prefix #"\"*.log | tail -n 1";
@@ -96,11 +97,13 @@ if (stdout!=""){
     if(DEBUG){WriteLine("Letzte geschriebene Daten. suchtext=" # suchtext);}
     integer low = 0;
     integer high = cnt-1;
-    while (low<=high){
+    while(low<=high){
       integer mid = (low + high) / 2;
-      string sDatum = dom.GetHistoryData(mid,1).StrValueByIndex(";",3);
+      string sDatum = dom.GetHistoryData(mid,1,&rCount).StrValueByIndex(";",3);
       !if(DEBUG){WriteLine(low # "-" # mid # "-" # high # "-" # sDatum);}
-      if (sDatum<suchtext) {
+      if(sDatum==suchtext){
+        break;
+      }elseif(sDatum<suchtext) {
         low = mid + 1;
       }else{
         high = mid - 1;
@@ -109,6 +112,16 @@ if (stdout!=""){
 
     !// Mid ist nun unser StartIndex
     start = mid;
+  }
+  
+  !// Wenn wir den Start haben, gehen wir so weit zurück bis wir den ersten Datensatz
+  !// mit diesem Datum haben. Es is möglich, das wir nicht auf dem ersten Datenatz landen
+  !// mit der binären Suche
+  while((start>0)){
+    if(dom.GetHistoryData(start-1,1,&rCount).StrValueByIndex(";",3)!=suchtext){
+      break;
+    }
+    start=start-1;
   }
 }else{
   !// Wir haben keine Datei. Also stoppen wir hier und schreiben ab Zeile 1
@@ -136,8 +149,7 @@ while (true){
   !// Wir	durchlaufen jetzt das Protokoll, entweder suchen wir oder wir schreiben
   string sDatensatz;
   string logLine;
-  integer rCount;
-  foreach(sDatensatz, dom.GetHistoryData(start,cnt-start, &rCount )){
+  foreach(sDatensatz, dom.GetHistoryData(start,cnt-start,&rCount)){
     integer iGroupIndex = sDatensatz.StrValueByIndex(";",0).ToInteger();
     string sDatapointId = sDatensatz.StrValueByIndex(";",1);
     string sRecordedValue = sDatensatz.StrValueByIndex(";",2);
