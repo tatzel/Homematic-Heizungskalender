@@ -29,6 +29,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2025-12-17 Individuelle Absenktemperatur in Parameter 3 des RVI eingebaut.
 !// MRi: 2025-12-10 Grundsätzliche Überarbeitungen für Sonderbefehle #AUS# #EIN# #NORMAL#
 !//                 Bessere Debugausgaben.
 !// MRi: 2025-12-09 Einschaltverschiebung erhält optionalen Faktor (getrennt mit *)
@@ -82,7 +83,8 @@ integer ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
 boolean Flag_Hand_Temp=dom.GetObject(vrp+"HK2-Hand-Temp").State();
 boolean Flag_Hand_Grundtemp=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
 integer AT=dom.GetObject(vrp+"HK2-Aussentemperatur").State().ToFloat();
-integer GT=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
+real GTStandard=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
+real GT=GTStandard;
 string  AktAktor;
 string Param;
 
@@ -257,7 +259,12 @@ foreach(SLEintrag,SListe){
       if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " berechne Zeiten mit Raum-Zeitversatz "+EIN.ToTime().Format("%X")+" / "+AUS.ToTime().Format("%X"));}
     }
     if(SDFlag<=0){
-      RTemp=RVI.StrValueByIndex(";",3).ToFloat();
+      !// Temperaturen individuell bestimmen
+      RTemp=RVI.StrValueByIndex(";",3).StrValueByIndex("/",0).ToFloat();
+      GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();    
+      if(GT==0){
+        GT=GTStandard;
+      }
       if((log))
       {
         if (SDFlag==-3)     {logObj.State(AktSRName # "-" # RVNName # " Sonderfunktion \"Normalisierung\": "+GT.ToString(1));}
@@ -634,13 +641,21 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
     !// Haben wir Schaltzustand 1 (eingeschaltet), gehen wir davon aus, dass wir noch 
     !// einn Schaltbefehl ausführen und lassen den Eintrag.
     if (aktuellerSchaltZustand!=1){
-      !// Bestimme den passenden Zsuatnd für 0=Aus, 2=Dauer AUS, 3=Dauer EIN
-      RTemp=RVI.StrValueByIndex(";",3).ToFloat();    
+      !// Bestimme den passenden Zustand für 0=Aus, 2=Dauer AUS, 3=Dauer EIN
       integer sollZustand = 1;
       if ((aktuellerSchaltZustand==0) || (aktuellerSchaltZustand==3)){
         RTemp = GT;
         sollZustand = 0;
       }
+      
+      !// Temperatur individuell bestimmen
+      RTemp=RVI.StrValueByIndex(";",3).StrValueByIndex("/",0).ToFloat();    
+      GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();    
+      if(GT==0){
+        GT=GTStandard;
+      }
+
+      !// AKtoren untersuchen schalten
       foreach(AktAktor,RVI.Split(";")){
         !// Nummerische (kurze Einträge) in der Liste überspringen.
         if(AktAktor.Length()>minAktorNamenLaenge){
@@ -694,6 +709,12 @@ foreach(RVN,RVNListe.Split(";")) {
   elseif(AGF=="SW"){Param="STATE";}
   
   HSFlag = RVI.StrValueByIndex(";",1)=="H";
+  
+  !// Grundtemperatur individuell bestimmen
+  GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();    
+  if(GT==0){
+    GT=GTStandard;
+  }
 
   !// Heizung oder Schaltung zurücksetzen, wenn diese sich immer noch im Heizen-/Schaltenzustand
   !// befindet und nicht in der Liste der beheizten/geschalteten Räume enthalten ist. Evtl. wurde
