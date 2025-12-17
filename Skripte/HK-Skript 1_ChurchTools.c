@@ -218,7 +218,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }
       continue;
     }
-    if ((endDatum.ToInteger()+(zeitNachlauf*60))<JETZT){
+    if ((endDatum.ToInteger()+(zeitNachlauf*60))<=JETZT){
       !// Termin liegt in der Vergangenheit
       if (DEBUG){
         WriteLine("Termin liegt in der Vergangenheit");
