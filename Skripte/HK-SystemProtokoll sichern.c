@@ -407,8 +407,5 @@ if (zuSchreiben.Length()>0){
   if(DEBUG){WriteLine("Daten schreiben 3: Keine Daten zu schreiben " # dateiname);}
 }
 
-!// Mal auch alles sichern
-system.Save();
-
 WriteLine("Alles fertig...");
 

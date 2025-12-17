@@ -1,6 +1,6 @@
 !// Sichern der Cloudmatic Diagramm Daten
 !//================================================================================================
-!// Stand:    16.12.2025; 
+!// Stand:    17.12.2025;
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -42,13 +42,12 @@ string dateiname;
 !// Lade die Diagrammliste
 object logVar = dom.GetObject("_CM_diagrams_");
 string logValues = logVar.Value();
-!logValues="3058,_CM_Diagramm_Außentemperatur,1,30,1,Außentemperatur";
 if(DEBUG){WriteLine("_CM_diagrams_" # logValues);}
 
 !// Über alle Diagramme laufen
 string logVal;
 foreach(logVal, logValues.Split(";")){
-  !if(DEBUG){WriteLine("logVal=" # logVal);}
+  if(DEBUG){WriteLine("logVal=" # logVal);}
   string stringDP = logVal.StrValueByIndex(",", 0);
   string valueStringName = logVal.StrValueByIndex(",", 1);
   real digits = logVal.StrValueByIndex(",", 2);
@@ -63,6 +62,7 @@ foreach(logVal, logValues.Split(";")){
                 .Replace("Ö","Oe")
                 .Replace("ü","ue")
                 .Replace("Ü","Ue");
+
   if (active != 0){
     !// String mit Daten laden
     if(DEBUG){WriteLine("----------------------------------------");}
@@ -91,14 +91,14 @@ foreach(logVal, logValues.Split(";")){
 
     !// String aufspalten und neu aufbauen
     integer n = valueString.StrValueByIndex(";",0).ToInteger();
-    if(DEBUG){WriteLine(n);}
+    if(DEBUG){WriteLine("Anzahl Eintrge=" # n);}
     integer i = 0;
     string alleEintraege="";
     string aktDatum="";
     integer iPos=valueString.Find(";");
-    !// Diese Schelife mit StrValueByIndex ist extrem viel langsamer.
+    !// Diese Schleife mit StrValueByIndex ist extrem viel langsamer.
     !// Wir nehmen einfach Substr. Eine Schleife die Zeichenweise prüft geht.
-    !// Ich benutzer aber die Substr Variant, dieweniger Script Schritte auslöst.
+    !// Ich benutzer aber die Substr Variant, die weniger Script Schritte auslöst.
     valueString = valueString.Substr(iPos+1,valueString.Length()-iPos-1);
     iPos = valueString.Find(";");
     while ((iPos>=0) && (valueString.Length()!=0))
@@ -112,21 +112,42 @@ foreach(logVal, logValues.Split(";")){
       valueString = valueString.Substr(iPos+1,valueString.Length()-iPos-1);
       iPos = valueString.Find(";");
     }
-    !if(DEBUG){WriteLine("alleEintraege=\n" # alleEintraege);}
+
+    !// Sortieren der Einträge
+    string kleinster;
+    valueString = "";
+    string eintrag;
+    while (alleEintraege.Length()){
+      kleinster = alleEintraege.StrValueByIndex("\0",0);
+      foreach(eintrag,alleEintraege.RTrim().Split("\n")){
+        if (eintrag<kleinster){
+          kleinster = eintrag;
+        }
+      }
+      valueString = valueString # kleinster # "\n";
+      iPos = alleEintraege.Find(kleinster);
+      alleEintraege = alleEintraege.Substr(0,iPos) # alleEintraege.Substr(iPos+kleinster.Length()+1,alleEintraege.Length()-iPos-kleinster.Length()-1);
+    }
+    !if(DEBUG){WriteLine("valueString=\n" # valueString);}
 
     !// Zuletzt geschriebene Daten suchen
+    boolean modusSuchen=true;
+    string aktDatum;
+    string zuSchreiben;
+    string letzterGeschriebenerDatensatz;
     while (true){
-      !// Modus Suche starten
-      boolean modusSuchen=true;
-      string aktDatum="";
-      string letzterGeschriebenerDatensatz;
-      string zuSchreiben="";
+      !// Modus Suche oder Schreiben starten
+      aktDatum="";
+      zuSchreiben="";
+      letzterGeschriebenerDatensatz="";
       string eintrag;
-      foreach(eintrag,alleEintraege.Split("\n")){
-        !if(DEBUG){WriteLine("Eintrag=" # eintrag);}
+      !// Letztes Newline entfernen
+      !if(DEBUG){WriteLine("valueString=\n" # valueString);}
+      foreach(eintrag,valueString.RTrim().Split("\n")){
         !// Wir wollen keine Semikolons, wir wollen Tabs
         !// Wir testen mal das Datum und prüfen ob wir noch auf der aktuellen Datum liegen
         eintrag = eintrag.Replace(";","\t");
+        !if(DEBUG){WriteLine("Eintrag=" # eintrag);}
         string stmpDate = eintrag.StrValueByIndex("\t",0).StrValueByIndex(" ",0);
 
         !// Wohenanfang suchen
@@ -185,7 +206,6 @@ foreach(logVal, logValues.Split(";")){
         }else{
           !// Wir sammeln die Daten und haben alles gelesen um es zu schreiben
           !// Jetzt können wir die while(true) Schleife abbrechen.
-          if(DEBUG){WriteLine("Modus Schreiben: Ende der Daten gefunden");}
           zuSchreiben = zuSchreiben # eintrag # "\n";
         }
       }
@@ -196,7 +216,6 @@ foreach(logVal, logValues.Split(";")){
         !// Wir starten von vorne und schreiben jetzt alles
         if(DEBUG){WriteLine("Modus: Suchen. Stop! Keine Daten gefunden, alle Daten sammeln");}
         modusSuchen = false;
-        aktDatum = "";
       }
       else
       {
@@ -221,7 +240,5 @@ foreach(logVal, logValues.Split(";")){
   }
 }
 
-!// Mal auch alles sichern
-system.Save();
-
 WriteLine("Alles fertig...");
+
