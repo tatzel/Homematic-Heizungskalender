@@ -1,6 +1,6 @@
 !// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2 
 !//================================================================================================
-!// Stand:    25.11.2025; 
+!// Stand:    16.12.2025; 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -57,7 +57,7 @@ string nm=  "HK2-HKG-Liste;" #
             "HK2-Kurve";                                                     
 
 !// Beschreibungstexte
-string be=  "Liste der HK-Gruppenvariablen;" #
+string be=  "Liste der HK-Raum-Variablen;" #
             "Grundtemperatur;" #
             "Aussentemperatur-Grenzwert;" #
             "Aussentemperatur;" #
