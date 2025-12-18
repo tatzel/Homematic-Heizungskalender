@@ -1,6 +1,6 @@
 !// Skript zum Erstellen der Systemvariablen des Heizkalender für das Logging 
 !//================================================================================================
-!// Stand:    16.12.2025; 
+!// Stand:    18.12.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -40,7 +40,7 @@
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="CT_";
+string vrp="";
 
 !//################################################################################################
 !//######------Skript Variablen und Skript Arbeitsteil. Vom Benutzer nicht zu verändern------######

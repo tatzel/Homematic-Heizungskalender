@@ -1,21 +1,21 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen
 !//================================================================================================
-!// Stand:    25.11.2025;
+!// Stand:    18.12.2025;
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten. 
+!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde 
+!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
 !// Hanau von Martin Richter optimiert.
 !// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen 
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 !// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
 !// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte 
+!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
@@ -36,10 +36,10 @@
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="CD_";
+string vrp="";
 
 !//Debug ein oder aus
-boolean DEBUG=1;
+boolean DEBUG=0;
 
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
@@ -66,7 +66,7 @@ if ((!log) && loggingObj){
 	  log = true;
   }
 }
-	
+
 !// Logging auschalten, wenn keine Variable vorhanden
 if (!logObj){
 	log = false;
@@ -126,17 +126,17 @@ foreach(RId,RIdListe.Split(";")){
 
   if(DEBUG){
     !WriteLine("stdout:" # stdout);
-    WriteLine("stderr:" # stderr);
+    !WriteLine("stderr:" # stderr);
   }
 
   !// Tabs entfernen, sollten welche drin sein. Newlines setzen
   stdout = stdout.Replace("\t"," ").Replace("\r\n","\n");
-    
+
   if (!stdout.StartsWith("BEGIN:VCALENDAR")){
     if (log){ logObj.State("Fehler beim Lesen der Event-Daten von ChurchDesk!"); }
     if(DEBUG){
       WriteLine("Fehler beim Lesen der Event-Daten von ChurchDesk!");
-    }	
+    }
   }else{
     !// Zeitzone abschneiden
     integer iPos = stdout.Find("\nBEGIN:VEVENT\n");
@@ -144,7 +144,7 @@ foreach(RId,RIdListe.Split(";")){
       !// Termindaten fehlerhaft
       continue;
     }
-    
+
     !// Resource Id bestimmen
     iPos = RIdListeSearch.Find(";" # RId # ";");
     if (iPos<0){
@@ -152,14 +152,14 @@ foreach(RId,RIdListe.Split(";")){
       !// Filter für Resourcen haben.
       if(DEBUG){
         WriteLine("Raum Resource Id konnte nicht gefunden werden!");
-      }	
+      }
       continue;
     }
     integer raumIndex = (RIdListeSearch.Substr(0,iPos).Length())-(RIdListeSearch.Substr(0,iPos).Replace(";","").Length());
 
     !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
     !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.   
+    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
     string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
     string RaumVar = RaumVarListe;
     if (multiRaumVariante){
@@ -183,9 +183,9 @@ foreach(RId,RIdListe.Split(";")){
     foreach(termin,termine){
       !// Schleife über all einzelnen Termine
       if(DEBUG){
-        WriteLine("Termin Daten: " # termin);
+        !WriteLine("Termin Daten: " # termin);
       }
-      
+
       !// Start und Enddatum holen.
       iPos = termin.Find("\nDTSTART:");
       if (iPos<0){
@@ -200,7 +200,7 @@ foreach(RId,RIdListe.Split(";")){
       !WriteLine(startDatum.ToTime());
       startDatum=(startDatum.ToTime().ToInteger()+versatzGMT).ToString();
       !WriteLine(startDatum.ToInteger().ToTime());
-      
+
       iPos = termin.Find("\nDTEND:");
       endDatum=termin.Substr(iPos+7,13).Replace("T"," ");
       endDatum=endDatum.Substr(0,4)#"-"#endDatum.Substr(4,2)#"-"#endDatum.Substr(6,2)#" "#endDatum.Substr(9,2)#":"#endDatum.Substr(11,2);
@@ -210,7 +210,7 @@ foreach(RId,RIdListe.Split(";")){
       !WriteLine(endDatum.ToTime());
       endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
       !WriteLine(endDatum.ToInteger().ToTime());
-            
+
       !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
       if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
         !// Termin liegt in der Zukunft
@@ -236,7 +236,7 @@ foreach(RId,RIdListe.Split(";")){
       if (SLT.Find(toadd)<0){
         if (cap){
           !// Schalt Eintrag setzen
-          SLT=SLT+toadd;	  
+          SLT=SLT+toadd;
           if (log){
             cap = toadd.StrValueByIndex(";",3).ToInteger();
             if (toadd.StrValueByIndex(";",4).ToInteger()!=0){
@@ -248,18 +248,18 @@ foreach(RId,RIdListe.Split(";")){
                 cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
               }
             }
-            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
-                         " Parameter: " # cap # " " # 
+            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         " Parameter: " # cap # " " #
                          ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
           }
         }else{
           !// Wir haben den Sonderbefehl NH/NS
           if (log){
-            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
+            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
                          " Nicht Heizen/Schalten (#NH#/#NS#)");
           }
         }

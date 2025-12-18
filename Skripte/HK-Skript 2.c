@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    17.12.2025;
+!// Stand:    18.12.2025;
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,7 +29,8 @@
 !// Skript sollte alle 5min laufen
 !//
 
-!// MRi: 2025-12-17 Individuelle Absenktemperatur in Parameter 3 des RVI eingebaut.
+!// MRi: 2025-12-18 Einfachere Parameter ermittlung je Typ der HomeMatic Geräte
+!// MRi: 2025-12-17 Individuelle Absenktemperatur in Parameter 3 des RVI eingebaut, getrennt mit /
 !// MRi: 2025-12-10 Grundsätzliche Überarbeitungen für Sonderbefehle #AUS# #EIN# #NORMAL#
 !//                 Bessere Debugausgaben.
 !// MRi: 2025-12-09 Einschaltverschiebung erhält optionalen Faktor (getrennt mit *)
@@ -72,6 +73,32 @@ boolean log=0;
 !// in der Raumvariable behandelt.
 integer minAktorNamenLaenge=10;
 
+!//-------------------------------------------------------------
+!// Schaltparameter Varablen
+
+!// IP- Thermostate-Aktoren-Gerätetyp (Kanal 1)
+!//   BWTH_V1, BWTH_V2, TRVB_V1, TRV-C_V1, TRV, TRV-V1, TRV-V2, TRV-V3, TRV-V4, C_V2, WTH-2_V1, WTH-2_V2, WTH2_V3, WTH-BV1, WTH_V1, WT-V1
+string AGFParamIP="SET_POINT_TEMPERATURE";
+
+!// RT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-CC-RT-DN HM-CC-RT-DN
+string AGFParamRT="SET_TEMPERATURE";
+
+!// TC- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-CC-TC
+string AGFParamTC="SETPOINT";
+
+!// IT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-TC-IT-WM-W-EU
+string AGFParamIT="SET_TEMPERATURE";
+
+!// SW- Kennung Kanal Klassik-Schalter-Aktoren-Gerätetyp (Kanal 1 bzw. 2)
+!//   HM-LC-Sw1-FM HM-LC-Sw1PBU-FM, HM-LC-Sw2-FM, HM-ES-PMSw1-DR HM-LC-Sw1-PCB
+!// Kennung Kanal IP-Schalter-Aktoren-Gerätetyp (Kanal 1)
+!//   SW  Noch unerprobt
+string AGFParamSW="STATE";
+
+!//-------------------------------------------------------------
 integer NOW=system.Date().ToTime().ToInteger();
 string  OffsetAT=dom.GetObject(vrp+"HK2-Kurve").State();
 integer OffsetAus=dom.GetObject(vrp+"HK2-VorzeitAus").State();
@@ -85,7 +112,9 @@ boolean Flag_Hand_Grundtemp=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
 integer AT=dom.GetObject(vrp+"HK2-Aussentemperatur").State().ToFloat();
 real GTStandard=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
 real GT=GTStandard;
-string  AktAktor;
+string AktAktor;
+string AGF;
+string AGFParam;
 string Param;
 
 !// Logging bestimmen
@@ -249,7 +278,7 @@ foreach(SLEintrag,SListe){
     }
 
     !// Typ des Aktors bestimmen
-    string AGF=RVI.StrValueByIndex(";",2);
+    AGF=RVI.StrValueByIndex(";",2);
 
     !// Die  Einschaltverschiebung, kann mit einem Faktor versehen sein.
     if (SDFlag>=0){
@@ -279,11 +308,13 @@ foreach(SLEintrag,SListe){
     real lx=0.0;
     real ly=0.0;
     if (HSFlag){
-      if(AGF=="RT"){Param="SET_TEMPERATURE";}
-      elseif(AGF=="TC"){Param="SETPOINT";}
-      elseif(AGF=="IP"){Param="SET_POINT_TEMPERATURE";}
-      elseif(AGF=="IT"){Param="SET_TEMPERATURE";}
-
+      !// Schaltparameter bestimmen
+      AGFParam = "AGFParam"#AGF.ToUpper();
+      Param = AGFParamIP;
+      if (system.IsVar(AGFParam)){
+        Param = system.GetVar(AGFParam);
+      }
+      
       !// Wir nutzen die Temperaturverschiebung nur, wenn wir einen normalen Schaltvorgang haben
       !// Spezial Befehle #EIN# #AUS# #NORMAL# werden zur normalen Zeit ausgeführt.
       if (SDFlag>=0){
@@ -621,11 +652,13 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
     if(log){logObj.State("Gruppe:"+RVN);}
     RVI=dom.GetObject(RVN).State();
     AGF=RVI.StrValueByIndex(";",2);
-    if(AGF=="RT"){Param="SET_TEMPERATURE";}
-    elseif(AGF=="TC"){Param="SETPOINT";}
-    elseif(AGF=="IP"){Param="SET_POINT_TEMPERATURE";}
-    elseif(AGF=="IT"){Param="SET_TEMPERATURE";}
-    elseif(AGF=="SW"){Param="STATE";}
+    
+    !// Schaltparameter bestimmen
+    AGFParam = "AGFParam"#AGF.ToUpper();
+    Param = AGFParamIP;
+    if (system.IsVar(AGFParam)){
+      Param = system.GetVar(AGFParam);
+    }
     
     HSFlag = RVI.StrValueByIndex(";",1)=="H";
 
@@ -644,16 +677,14 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
       !// Bestimme den passenden Zustand für 0=Aus, 2=Dauer AUS, 3=Dauer EIN
       integer sollZustand = 1;
       if ((aktuellerSchaltZustand==0) || (aktuellerSchaltZustand==3)){
+        !// Grundtemperatur individuell bestimmen
+        GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();    
+        if(GT==0){
+          GT=GTStandard;
+        }
         RTemp = GT;
         sollZustand = 0;
-      }
-      
-      !// Temperatur individuell bestimmen
-      RTemp=RVI.StrValueByIndex(";",3).StrValueByIndex("/",0).ToFloat();    
-      GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();    
-      if(GT==0){
-        GT=GTStandard;
-      }
+      }      
 
       !// AKtoren untersuchen schalten
       foreach(AktAktor,RVI.Split(";")){
@@ -702,11 +733,13 @@ foreach(RVN,RVNListe.Split(";")) {
   !// Raum Parameter bestimmen
   RVI=dom.GetObject(RVN).State();
   AGF=RVI.StrValueByIndex(";",2);
-  if(AGF=="RT"){Param="SET_TEMPERATURE";}
-  elseif(AGF=="TC"){Param="SETPOINT";}
-  elseif(AGF=="IP"){Param="SET_POINT_TEMPERATURE";}
-  elseif(AGF=="IT"){Param="SET_TEMPERATURE";}
-  elseif(AGF=="SW"){Param="STATE";}
+  
+  !// Schaltparameter bestimmen
+  AGFParam = "AGFParam"#AGF.ToUpper();
+  Param = AGFParamIP;
+  if (system.IsVar(AGFParam)){
+    Param = system.GetVar(AGFParam);
+  }
   
   HSFlag = RVI.StrValueByIndex(";",1)=="H";
   

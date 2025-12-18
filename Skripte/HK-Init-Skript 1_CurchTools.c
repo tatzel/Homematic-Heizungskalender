@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Churchtools)
 !//================================================================================================
-!// Stand:    03.12.2025; 
+!// Stand:    18.12.2025; 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,15 +35,15 @@
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="CT_";
+string vrp="";
 
 !// Es ist möglich hier sofort ein API-Tokn für ChurchTools anzugeben. Da mit werden gleich weitere
 !// Variablen für alle Ressourcen angelegt und die "HK1-R-Liste" befüllt. Ist ein API-Token bereits
 !// in den Variablen angelegt wird dieses verwendet
-string loginToken="vIRMKgJyfRTKE5jnVV69e4PbjKT9WzULZpA2GGxTuMvphZMH8ckeGdm33M9xviLSI39IvBFSl7a72vSpQ2CctlKOIakbNXItoxlMuZkbUMvDKhPnbgU7O43DqSRj3za0cGfFYf5azkJnR1WJlS7dCbCePfyWv6uc6IN7wDJPYlaTJFrVBqkj0HrF1pRQPNGRrX168qszKoVcNMX2T4xEVSdMbKG0kolLxlhPXNaBSQ5DrF7r8o7s0spoeWoUuPDa";
+string loginToken="";
 
 !// Vorgegebene Orgnaisations ID 
-string gemeindeName = "baptisten-hu";
+string gemeindeName = "";
 
 !// Vorgabe für Raumnamen Prefix
 string raumNamenPreFix =  vrp#"HKG-Raum-";

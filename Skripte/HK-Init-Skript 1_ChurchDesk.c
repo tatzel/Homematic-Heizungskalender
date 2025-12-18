@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (ChurchDesk)
 !//================================================================================================
-!// Stand:    16.12.2025; 
+!// Stand:    18.12.2025; 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,15 +35,15 @@
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="CD_";
+string vrp="";
 
-!// Es ist möglich hier sofort ein API-Tokn für ChurchDesk anzugeben. Da mit werden gleich weitere
+!// Es ist möglich hier sofort ein API-Token für ChurchDesk anzugeben. Da mit werden gleich weitere
 !// Variablen für alle Ressourcen angelegt und die "HK1-R-Liste" befüllt. Ist ein API-Token bereits
 !// in den Variablen angelegt wird dieses verwendet
-string apiToken="c394ee6875210309c3cbe5c54f34054998ef41bf402ea299f7361059f72ea308";
+string apiToken="";
 
 !// Vorgegebene Orgnaisations ID
-string organizationId = "7102";
+string organizationId = "";
 
 !// Vorgabe für Raumnamen Prefix
 string raumNamenPreFix =  vrp#"HKG-Raum-";
