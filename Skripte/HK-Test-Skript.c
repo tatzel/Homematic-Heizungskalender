@@ -1,6 +1,6 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    16.12.2025; 
+!// Stand:    18.12.2025; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -258,7 +258,6 @@ foreach(RListe, hk2RaumListe.Split(";")){
 WriteLine("___________________________________________________________________________");
 WriteLine("System Variablen zum Heizkalender\n");
 
-string vrp="";
 string svListStr = "";
 string vid; 
 var svIDs = dom.GetObject(ID_SYSTEM_VARIABLES).EnumIDs();

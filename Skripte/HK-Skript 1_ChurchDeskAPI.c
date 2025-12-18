@@ -1,39 +1,43 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
-!// Stand:    10.12.2025; 
+!// Stand:    18.12.2025;
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten. 
+!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde 
+!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
 !// Hanau von Martin Richter optimiert.
 !// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen 
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 !// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
 !// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte 
+!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
 !// Skript sollte alle 30min laufen
-!//
+!// ***********************************************************************************************
+!// ACHTUNG DIESES SKRIPT KANN NUR ÖFFENTLICHE TERMINE LESEN. Termine in ChurchDesk können 
+!// folgende Typen haben: Öffentlich, Gemeinde, Gruppen, Privat. Nur Termine des ersten Typs 
+!// "öffentlich" werden aktuell von der API zurückgegegeben.
+!// ***********************************************************************************************
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
-string vrp="CD_";
+string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=1;
+boolean DEBUG=0;
 
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
 
-!// Zeitfenster in dem nach Termine geschaut wird 
-!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit), 
+!// Zeitfenster in dem nach Termine geschaut wird
+!// minus zeitNachlauf in Minuten (min = eingestellte Nachlaufzeit),
 !// plus zeitVorlauf (min = maximale Vorlaufzeit)
 integer zeitVorlauf=8*60;		!// 8 Stunden (default=12h)
 integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
@@ -54,7 +58,7 @@ if ((!log) && loggingObj){
 	  log = true;
   }
 }
-	
+
 !// Logging auschalten, wenn keine Variable vorhanden
 if (!logObj){
 	log = false;
@@ -76,7 +80,7 @@ string filter="";
 string RId;
 foreach(RId,RIdListe.Split(";")){
   if (filter){
-    filter = filter # "|";
+    filter = filter # ",";
   }
   filter = filter # RId;
 }
@@ -97,8 +101,8 @@ string startDatum = JETZT.ToTime().ToString("%F");
 string endDatum = (JETZT+172800).ToTime().ToString("%F");
 
 !// Zugriff auf ChurchDesk API
-string cmd = "wget --timeout=3 -O - 'https://api2.churchdesk.com/api/v3.0.0/events?partnerToken=" # apiToken # "&organizationId=" # organizationId # 
-                                        "&rid=" # filter # "&startDate=" # startDatum # "&endDate=" # endDatum # "'";  
+string cmd = "wget --timeout=3 -O - 'https://api2.churchdesk.com/api/v3.0.0/events?partnerToken=" # apiToken # "&organizationId=" # organizationId #
+                                        "&rid=" # filter # "&startDate=" # startDatum # "&endDate=" # endDatum # "'";
 if(DEBUG){
   WriteLine("Cmd:" # cmd);
 }
@@ -107,8 +111,8 @@ string stderr;
 system.Exec(cmd, &stdout, &stderr);
 
 if(DEBUG){
-  WriteLine("stdout:" # stdout);
-  WriteLine("stderr:" # stderr);
+  !WriteLine("stdout:" # stdout);
+  !WriteLine("stderr:" # stderr);
 }
 
 !//------------------------------------------------------------------------------------------------
@@ -121,12 +125,12 @@ if (stdout=="[]"){
   !// Keine Termine
   if(DEBUG){
     WriteLine("Keine Termine vorhanden!");
-  }	
-}elseif(!stdout.StartsWith("[{\"id\":")){  
+  }
+}elseif(!stdout.StartsWith("[{\"id\":")){
   if (log){ logObj.State("Fehler beim Lesen der Event-Daten von ChurchDesk!"); }
   if(DEBUG){
     WriteLine("Fehler beim Lesen der Event-Daten von ChurchDesk!");
-  }	
+  }
 }else{
   !// Termine durchlesen
   string termine = stdout.Replace("\"updatedAt\":\"","\t");
@@ -135,23 +139,23 @@ if (stdout=="[]"){
   foreach(termin,termine){
     !// Schleife über all einzelnen Termine
     if(DEBUG){
-      WriteLine("Termin Daten: " # termin);
+      !WriteLine("Termin Daten: " # termin);
     }
-    
+
     !// Prüfe ob der Eintrag gültig ist
     integer iPos = termin.Find("\"description\":\"");
     if (iPos<0){
       !// Eintrag ist kein Termineintrag
       continue;
     }
-    
+
     !// Aus der diese speziellen Features laden
     !// #EIN#, #AUS#, #NORMAL#, #RESET#, #<zahl><text>#
     string cap="0";
     iPos=termin.Find(",\"summary\":\"");
     if (iPos>=0){
       !// Start und ende finden
-      strTemp = termin.Substr(iPos+11,50);
+      string strTemp = termin.Substr(iPos+11,50);
       iPos = strTemp.Find("#");
       if (iPos>=0){
         strTemp = strTemp.Substr(iPos+1,strTemp.Length()-iPos-1);
@@ -186,8 +190,8 @@ if (stdout=="[]"){
             }
           }
         }
-      }      
-    }      
+      }
+    }
 
     !// Start und Enddatum holen.
     iPos = termin.Find("\"startDate\":\"");
@@ -197,14 +201,14 @@ if (stdout=="[]"){
       WriteLine(startDatum);
     }
     startDatum=(startDatum.ToTime().ToInteger()+versatzGMT).ToString();
-    
+
     iPos = strTemp.Find("\"endDate\":\"");
     endDatum=strTemp.Substr(iPos+11,19).Replace("T"," ");
     if (DEBUG){
       WriteLine(endDatum);
     }
     endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
-    
+
     !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
     if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
       !// Termin liegt in der Zukunft
@@ -243,14 +247,14 @@ if (stdout=="[]"){
         !// Filter für Resourcen haben.
         if(DEBUG){
           WriteLine("Raum Resource Id konnte nicht gefunden werden!");
-        }	
+        }
         continue;
       }
       integer raumIndex = (RIdListeSearch.Substr(0,iPos).Length())-(RIdListeSearch.Substr(0,iPos).Replace(";","").Length());
-      
+
       !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
       !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-      !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.   
+      !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
       string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
       string RaumVar = RaumVarListe;
       if (multiRaumVariante){
@@ -267,14 +271,14 @@ if (stdout=="[]"){
       }else{
         SHFlag="0";
       };
-                
+
       !// Verhindern, dass doppelte Einträge erzeugt werden.
       string toadd = resId # ";" # startDatum # ";" # endDatum # ";" # cap # ";" # SHFlag # ";";
       !WriteLine(toadd);
       if (SLT.Find(toadd)<0){
         if (cap){
           !// Schalt Eintrag setzen
-          SLT=SLT+toadd;	  
+          SLT=SLT+toadd;
           if (log){
             cap = toadd.StrValueByIndex(";",3).ToInteger();
             if (toadd.StrValueByIndex(";",4).ToInteger()!=0){
@@ -286,20 +290,20 @@ if (stdout=="[]"){
                 cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
               }
             }
-            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
-                         " Parameter: " # cap # " " # 
+            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         " Parameter: " # cap # " " #
                          ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
           }
         }else{
           !// Wir haben den Sonderbefehl NH/NS
           if (log){
-            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
+            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
                          " Nicht Heizen/Schalten (#NH#/#NS#)");
-          } 
+          }
         }
       }
     }
