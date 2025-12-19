@@ -109,7 +109,7 @@ string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State().ToUpper();
 integer ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
 boolean Flag_Hand_Temp=dom.GetObject(vrp+"HK2-Hand-Temp").State();
 boolean Flag_Hand_Grundtemp=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
-integer AT=dom.GetObject(vrp+"HK2-Aussentemperatur").State().ToFloat();
+real AT=dom.GetObject(vrp+"HK2-Aussentemperatur").State().ToFloat();
 real GTStandard=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
 real GT=GTStandard;
 string AktAktor;
