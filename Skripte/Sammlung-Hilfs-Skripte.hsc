@@ -92,3 +92,39 @@ dom.GetObject("VirtualDevices.INT0000003:1.PARTY_TIME_START").State( @2000-01-01
 WriteLine(dom.GetObject("VirtualDevices.INT0000003:1.PARTY_TIME_END").State());
 dom.GetObject("VirtualDevices.INT0000003:1.PARTY_TIME_END").State(@2000-01-01 00:00@);
 WriteLine("Test");
+
+!//------------------------------------------------------------------------------------------
+!// Schaltparameter ermitteln
+
+!// IP- Thermostate-Aktoren-Gerätetyp (Kanal 1)
+!//   BWTH_V1, BWTH_V2, TRVB_V1, TRV-C_V1, TRV, TRV-V1, TRV-V2, TRV-V3, TRV-V4, C_V2, WTH-2_V1, WTH-2_V2, WTH2_V3, WTH-BV1, WTH_V1, WT-V1
+string AGFParamIP="SET_POINT_TEMPERATURE";
+
+!// RT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-CC-RT-DN HM-CC-RT-DN
+string AGFParamRT="SET_TEMPERATURE";
+
+!// TC- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-CC-TC
+string AGFParamTC="SETPOINT";
+
+!// IT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-TC-IT-WM-W-EU
+string AGFParamIT="SET_TEMPERATURE";
+
+!// SW- Kennung Kanal Klassik-Schalter-Aktoren-Gerätetyp (Kanal 1 bzw. 2)
+!//   HM-LC-Sw1-FM HM-LC-Sw1PBU-FM, HM-LC-Sw2-FM, HM-ES-PMSw1-DR HM-LC-Sw1-PCB
+!// Kennung Kanal IP-Schalter-Aktoren-Gerätetyp (Kanal 1)
+!//   SW  Noch unerprobt
+string AGFParamSW="STATE";
+
+string AGFs="IP;RT;TC;IT;SW;falsch";
+string AGF;
+foreach(AGF,AGFs.Split(";")){
+  string AGFParam = "AGFParam"#AGF.ToUpper();
+  string Param = AGFParamIP;
+  if (system.IsVar(AGFParam)){
+    Param = system.GetVar(AGFParam);
+  }
+  WriteLine("AGF=" # AGF # "->" # Param);
+}
