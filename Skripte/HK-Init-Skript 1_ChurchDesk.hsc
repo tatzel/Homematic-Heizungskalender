@@ -32,6 +32,9 @@
 !// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
+!// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
+!//                 manuell angelegt werden.
+
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
@@ -44,6 +47,10 @@ string apiToken="";
 
 !// Vorgegebene Orgnaisations ID
 string organizationId = "";
+
+!// Weitere einzurichtende Räume, für die keine Ressourcen vorhanden sind- Für diese werden auch
+!// Raum Variablen angelegt.
+string zusaetzlicheRaumNamen = "";
 
 !// Vorgabe für Raumnamen Prefix
 string raumNamenPreFix =  vrp#"HKG-Raum-";
@@ -245,6 +252,16 @@ if (apiToken && organizationId){
         svObj.State(raumListe);
         WriteLine("Variable HK1-R-Liste wird gesetzt auf: " # raumListe);
       }
+
+      !// Weitere Räume hinzufügen, wenn diese nicht schon in der Liste sind
+      foreach(name,zusaetzlicheRaumNamen.Split(";")){
+        if (name && ((";" # raumNamen # ";").Find(";" # name # ";")<0)){
+          if(!raumNamen.EndsWith(";")){
+            raumNamen = raumNamen # ";";
+          }
+          raumNamen = raumNamen # name;
+        } 
+      }          
 
       !// Raum Variablen anlegen und HK2-HKG-Liste füllen
       string hkgListe = "";
