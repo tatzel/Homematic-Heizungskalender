@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    18.12.2025;
+!// Stand:    19.12.2025;
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2025-12-19 Log-Darstellung für Schalttemperaturen verbessert
 !// MRi: 2025-12-18 Einfachere Parameter ermittlung je Typ der HomeMatic Geräte
 !// MRi: 2025-12-17 Individuelle Absenktemperatur in Parameter 3 des RVI eingebaut, getrennt mit /
 !// MRi: 2025-12-10 Grundsätzliche Überarbeitungen für Sonderbefehle #AUS# #EIN# #NORMAL#
@@ -101,8 +102,8 @@ string AGFParamSW="STATE";
 !//-------------------------------------------------------------
 integer NOW=system.Date().ToTime().ToInteger();
 string  OffsetAT=dom.GetObject(vrp+"HK2-Kurve").State();
-integer OffsetAus=dom.GetObject(vrp+"HK2-VorzeitAus").State();
-integer OffsetEin=dom.GetObject(vrp+"HK2-Kurvenversatz").State();
+integer GrundOffsetRaumAus=dom.GetObject(vrp+"HK2-VorzeitAus").State();
+integer GrundOffsetRaumEin=dom.GetObject(vrp+"HK2-Kurvenversatz").State();
 string SListe=dom.GetObject(vrp+"HK1-Schaltliste").State();
 string VarNamen=dom.GetObject(vrp+"HK2-HKG-Liste").State();
 string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State().ToUpper();
@@ -185,11 +186,7 @@ foreach(SLEintrag,SListe){
   real RTemp      = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
   if(HSFlag){
-    !// Offset wird nur beim heizen berücksichtigt und auch nicht bei Sonderbefehlen berücksichtigt
-    if (SDFlag>=0){
-      EIN=EIN-(OffsetEin*60);
-      AUS=AUS-(OffsetAus*60);
-    }
+  !// Sonderbefehl kontrollieren
     string cap = toadd.StrValueByIndex(";",3).ToInteger();
     if (cap<0){
       cap = ("AUS;EIN;NORMAL").StrValueByIndex(";",(1+cap)*(-1));
@@ -200,12 +197,16 @@ foreach(SLEintrag,SListe){
         cap = RTemp.ToString(1);
       }
     }
-    if(log) {logObj.State("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X") # " / " # AUS.ToTime().Format("%X") # "  Parameter " # cap);}
-    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X") # " / " # AUS.ToTime().Format("%X") # "  Parameter " # cap);}
+    if(log) {logObj.State("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # 
+                                            AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
+    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # 
+                                            AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
   }else{
     !// Schalten kennt kein Offset
-    if(log) {logObj.State("---Schaltlisteneintrag für Ressource (" # AktSR # ") Schalten: " # EIN.ToTime().Format("%X") # " - " # AUS.ToTime().Format("%X"));}
-    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Schalten: " # EIN.ToTime().Format("%X") # " - " # AUS.ToTime().Format("%X"));}
+    if(log) {logObj.State("---Schaltlisteneintrag für Ressource (" # AktSR # ") Schalten: " # EIN.ToTime().Format("%X").Substr(0,5) # " - " # 
+                                            AUS.ToTime().Format("%X").Substr(0,5));}
+    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Schalten: " # EIN.ToTime().Format("%X").Substr(0,5) # " - " # 
+                                            AUS.ToTime().Format("%X").Substr(0,5));}
   }
 
   !// Zum Listenelement passende Raumvariable suchen
@@ -271,21 +272,22 @@ foreach(SLEintrag,SListe){
     EIN = SLEintrag.StrValueByIndex(";",1).ToInteger();
     AUS = SLEintrag.StrValueByIndex(";",2).ToInteger();
     RTemp = SLEintrag.StrValueByIndex(";",3).ToFloat();
-    !// Wir berücksichtigen die Offset Zeiten nur, bei normalen Heizvorgängen.
-    if(HSFlag && (SDFlag>=0)){
-      EIN=EIN-(OffsetEin*60);
-      AUS=AUS-(OffsetAus*60);
-    }
 
     !// Typ des Aktors bestimmen
     AGF=RVI.StrValueByIndex(";",2);
 
-    !// Die  Einschaltverschiebung, kann mit einem Faktor versehen sein.
+    !// Schaltverzögerung berechnen
+    integer offsetRaumAn=0;
+    integer offsetRaumAus=0;
     if (SDFlag>=0){
-      EIN=EIN-(RVI.StrValueByIndex(";",4).StrValueByIndex("*",0).ToInteger()*60);
-      AUS=AUS-(RVI.StrValueByIndex(";",5).ToInteger()*60);
-      if(log) {logObj.State(AktSRName # "-" # RVNName # " berechne Zeiten mit Raum-Zeitversatz "+EIN.ToTime().Format("%X")+" / "+AUS.ToTime().Format("%X"));}
-      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " berechne Zeiten mit Raum-Zeitversatz "+EIN.ToTime().Format("%X")+" / "+AUS.ToTime().Format("%X"));}
+      !// Die  Einschaltverschiebung, kann mit einem Faktor versehen sein.
+      offsetRaumAn = 0-(RVI.StrValueByIndex(";",4).StrValueByIndex("*",0).ToInteger()*60);
+      offsetRaumAus = 0-(RVI.StrValueByIndex(";",5).ToInteger()*60);
+      !// Wir berücksichtigen die Offset Zeiten nur, bei normalen Heizvorgängen.
+      if(HSFlag){
+        offsetRaumAn = offsetRaumAn-(GrundOffsetRaumEin*60);
+        offsetRaumAus = offsetRaumAus-(GrundOffsetRaumAus*60);
+      }
     }
     if(SDFlag<=0){
       !// Temperaturen individuell bestimmen
@@ -359,14 +361,14 @@ foreach(SLEintrag,SListe){
         }
 
         !// linear Interpolieren
-        real offset=0.0;
+        real offsetTempAn=0.0;
         if((lx!=0)||(ly!=0)){
-          offset = (((uy-ly)/(ux-lx))*(AT-lx))+ly;
+          offsetTempAn = (((uy-ly)/(ux-lx))*(AT-lx))+ly;
         }else{
-          offset = 0;
+          offsetTempAn = 0;
         }
-        if (offset<0){
-          offset = 0;
+        if (offsetTempAn<0){
+          offsetTempAn = 0;
         }
 
         !// Bestimme den Verschiebungsfaktor zur Temperaturverschiebung. maximal 300%
@@ -379,10 +381,23 @@ foreach(SLEintrag,SListe){
         }elseif (faktor>3){
           faktor = 3.0;
         }
-        EIN=EIN-(faktor*offset).ToInteger()*60;
+        offsetTempAn = 0-(faktor*offsetTempAn).ToInteger()*60;
 
-        if(log) {logObj.State(AktSRName # "-" # RVNName # " berechne Startpunkt mit Temp.-Zeitversatz "+EIN.ToTime().Format("%X")+" Parameter: "+AGF);}
-        if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " berechne Startpunkt mit Temp.-Zeitversatz "+EIN.ToTime().Format("%X")+" Parameter: "+AGF);}
+        !// Reale Schaltzeiten berechnen
+        if (log || DEBUG){
+          string logText = AktSRName # "-" # RVNName # " Startpunkt Heizen "+EIN.ToTime().Format("%X").Substr(0,5) # " ";
+          if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
+          logText = logText # (offsetRaumAn/60) #"min ";
+          if (offsetTempAn==0){ logText=logText#" - "; }
+          logText = logText # (offsetTempAn/60) # "min = ";
+          EIN = EIN + offsetRaumAn + offsetTempAn;
+          logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
+          if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
+          AUS = AUS + offsetRaumAus;
+          logText = logText # (offsetRaumAus/60) # "min = " # AUS.ToTime().Format("%X").Substr(0,5);
+          if(log) {logObj.State(logText);}
+          if(DEBUG)  {WriteLine(logText);}
+        }
       }
     }else{
       Param="STATE";
