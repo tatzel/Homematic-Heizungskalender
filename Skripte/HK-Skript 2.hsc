@@ -385,7 +385,7 @@ foreach(SLEintrag,SListe){
 
         !// Reale Schaltzeiten berechnen
         if (log || DEBUG){
-          string logText = AktSRName # "-" # RVNName # " Startpunkt Heizen "+EIN.ToTime().Format("%X").Substr(0,5) # " ";
+          string logText = AktSRName # "-" # RVNName # " Heizen "+EIN.ToTime().Format("%X").Substr(0,5) # " ";
           if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
           logText = logText # (offsetRaumAn/60) #"min ";
           if (offsetTempAn==0){ logText=logText#" - "; }
@@ -401,7 +401,8 @@ foreach(SLEintrag,SListe){
       }
     }else{
       Param="STATE";
-      if(log){logObj.State(AktSRName # "-" # RVNName # "  Parameter: "+AGF);}
+      if(log){logObj.State(AktSRName # "-" # RVNName # " Schalten - Parameter: "+AGF);}
+      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Schalten - Parameter: "+AGF);}
     }
 
     !// Verhindern dass Ausschaltpunkt vor Einschaltpunkt liegt
@@ -429,7 +430,8 @@ foreach(SLEintrag,SListe){
                 if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
               }else{
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(0);
-                if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet");}
+                if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
+                if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
               }
             }
           }
@@ -499,7 +501,8 @@ foreach(SLEintrag,SListe){
                 if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
               }else{
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(0);
-                if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS");}
+                if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
+                if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
               }
             }
           }
@@ -554,8 +557,8 @@ foreach(SLEintrag,SListe){
                 }
               }else{
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(0);
-                if(log) {logObj.State(AktAktor+" Ausschalten "+Param);}
-                if(DEBUG)  {WriteLine(AktAktor+" Ausschalten "+Param);}
+                if(log) {logObj.State(AktAktor+" Ausschalten. Parameter: "+Param);}
+                if(DEBUG)  {WriteLine(AktAktor+" Ausschalten. Parameter: "+Param);}
               }
             }
           }
@@ -718,12 +721,16 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
                       "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
             }
           }else{
+            Param="STATE";
             boolean istZustand = dom.GetObject(AktAktor).DPByHssDP(Param).State(0)!=0;
             if (istZustand!=(sollZustand!=0)){
               dom.GetObject(AktAktor).DPByHssDP(Param).State(sollZustand);
               if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
                       ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                      "\" - Ist: " # istZustand # " Soll: " # sollZustand #" Parameter: " # Param);}             
+                      "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}             
+              if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
+                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                      "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}             
             }
           }
         }
@@ -782,11 +789,13 @@ foreach(RVN,RVNListe.Split(";")) {
           dom.GetObject(AktAktor).DPByHssDP(Param).State(GT);
           if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
         }else{
+          Param="STATE";
           boolean istZustand = dom.GetObject(AktAktor).DPByHssDP(Param).State()!=0;
           if (istZustand)
           {
             dom.GetObject(AktAktor).DPByHssDP(Param).State(0);
-            if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Schalter - "+AktAktor+" ausschalten "+Param);}
+            if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Schalter - "+AktAktor+" ausschalten. Parameter: "+Param);}
+            if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Schalter - "+AktAktor+" ausschalten. Parameter: "+Param);}
           }
         }
       }
