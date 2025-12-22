@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    19.12.2025;
+!// Stand:    22.12.2025;
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2025-12-22 Schaltskript arbeitete nicht für Schalten. Es wurde immer ein Heizvorgang angenommen
 !// MRi: 2025-12-19 Log-Darstellung für Schalttemperaturen verbessert
 !// MRi: 2025-12-18 Einfachere Parameter ermittlung je Typ der HomeMatic Geräte
 !// MRi: 2025-12-17 Individuelle Absenktemperatur in Parameter 3 des RVI eingebaut, getrennt mit /
@@ -163,7 +164,7 @@ while (iPos<SListe.Length()) {
   if (SListe.Substr(iPos,1)==";"){
     iEntry=iEntry+1;
     if ((iEntry%5)==0){
-      SListe = SListe.Substr(0,iPos-1) # "\t" # SListe.Substr(iPos+1,SListe.Length()-iPos-1);
+      SListe = SListe.Substr(0,iPos) # "\t" # SListe.Substr(iPos+1,SListe.Length()-iPos-1);
     }
   }
   iPos = iPos+1;
@@ -177,21 +178,21 @@ foreach(SLEintrag,SListe){
   string AktSR=SLEintrag.StrValueByIndex(";",0);
   if(DEBUG){WriteLine("AktSR=" # AktSR);}
   !// Listenelement auslesen   
-  !// Parameter für aktuellen Schaltvorgang . DIe Parameter werden später noch einmal gelesen
-  !// und Final bestimmt. Auch das HSFlag wwird aus der Raumbeschreibung gelesen.
-  boolean HSFlag=SLEintrag.StrValueByIndex(";",4).ToInteger()==0;
+  !// Parameter für aktuellen Schaltvorgang. Die Parameter werden später noch einmal gelesen
+  !// und Final bestimmt. Auch das HSFlag wird aus der Raumbeschreibung gelesen.
+  boolean HSFlag  = SLEintrag.StrValueByIndex(";",4).ToInteger()!=0;
   integer EIN     = SLEintrag.StrValueByIndex(";",1).ToInteger();
   integer AUS     = SLEintrag.StrValueByIndex(";",2).ToInteger();
   integer SDFlag  = SLEintrag.StrValueByIndex(";",3).ToInteger();
-  real RTemp      = SLEintrag.StrValueByIndex(";",3).ToFloat();
+  real    RTemp   = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
   if(HSFlag){
   !// Sonderbefehl kontrollieren
-    string cap = toadd.StrValueByIndex(";",3).ToInteger();
-    if (cap<0){
-      cap = ("AUS;EIN;NORMAL").StrValueByIndex(";",(1+cap)*(-1));
+    string cap;
+    if (SDFlag<0){
+      cap = ("AUS;EIN;NORMAL").StrValueByIndex(";",(1+SDFlag)*(-1));
     }else{
-      if (cap==0){
+      if (SDFlag==0){
         cap = "Normaltemperatur";
       }else{          
         cap = RTemp.ToString(1);
