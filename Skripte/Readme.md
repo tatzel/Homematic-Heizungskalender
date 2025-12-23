@@ -4,19 +4,19 @@ Dieser Ordner enthält alle Skripte für den Heizkalender in der MRi-Variante.
 
 ## Dateiheader
 
-Die Datei-Header wurden vereineinheitlicht. Wo ich eine Quelle oder anderen Code verwendet habe ist dies überall (so hoffe ich) erwähnt.
+Die Datei-Header wurden vereinheitlicht. Wo ich eine Quelle oder anderen Code verwendet habe ist dies überall (so hoffe ich) erwähnt.
 Auch die Quelle aus den älteren Heizkalender Versionen sind erwähnt. Auch der ursprüngliche Autor wird entsprechend überall genannt.
 
 ## Versionierung
 
 Ich verzichte auf eine Versionsnummer in meinen Skripten. Auch das erscheint mir zu kompliziert. Der Stand jedes Skriptes ist an dem Datum im Kopf des Skriptes erkennbar.
-Kompatible Skripte finden sich immer ein einem Realease zu einem Stand-Datum (siehe Versions Label in GitHub). Auch als Release-Label verwende ich ein Datum.
+Kompatible Skripte finden sich immer ein einem Release zu einem Stand-Datum (siehe Versions-Label in GitHub). Auch als Release-Label verwende ich ein Datum.
 
 ## Extension .c versus .hsc
 
 Die ursprünglichen Skripte wurden mit der Extension .c erzeugt. Hintergrund ist vermutlich, dass ein Editor mit c-Syntaxcolorierung verwendet wurde.
-entsprechend sind die meisten Kommentare als !// ausgeführt. Das Ausrufezeichen ist das Kommentarzeichen in den Homamatic Skripten.
-Damit aber ein Kommentar im Ediotr auch entsprechend angezeigt wird wurde zusätzlich ein C-Kommentar ergänzt.
+entsprechend sind die meisten Kommentare als !// ausgeführt. Das Ausrufezeichen ist das Kommentarzeichen in den Homematic Skripten.
+Damit aber ein Kommentar im Editor auch entsprechend angezeigt wird wurde zusätzlich ein C-Kommentar ergänzt.
 
 Ich nutze NotePad++ mit einer entsprechenden Sprach-Erweiterung. Und zusätzlich den **SDV 5.0**.
 https://github.com/HMMike/Script-Developer-CCU
@@ -29,7 +29,7 @@ Dies ist der Code mit dem ich meine ersten Schritte mit der CCU3 machte.
 
 ### Alte und neue Dateinamen
 
-Die Benamung der alten Skripte war mir zu kompliziert und unüberscihtlich. Ich habe deshalb die Benamung vereinfacht und auch grundsätzlich immer alle Skripte im Paket gesendet. Damit kann ich gewährleisten, dass die enstprechenden Skripte untereinnader kompatibel sind.
+Die Namensgebung der alten Skripte war mir zu kompliziert und übersichtlich. Ich habe deshalb die Namensgebung vereinfacht und auch grundsätzlich immer alle Skripte im Paket gesendet. Damit kann ich gewährleisten, dass die entsprechenden Skripte untereinander kompatibel sind.
 Die nachfolgende Tabelle zeigt wie ich die Namen der alten Skripte, auf denen meine Version basiert, verändert habe.
 
 Diese Dateien befinden sich alle [in diesem Ordner](Backup-Originale/3.2.1)
