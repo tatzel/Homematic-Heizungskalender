@@ -240,6 +240,7 @@ foreach(SLEintrag,SListe){
   !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste dirch + getrennt.
   if(multiRaumVariante){
     if(log){logObj.State(AktSRName # " Raumliste: "+RVNListe);}
+    if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
     RVNListe=RVNListe.Split("+");
   }
 
@@ -261,8 +262,10 @@ foreach(SLEintrag,SListe){
     integer aktuellerSchaltZustand = RVI.StrValueByIndex(";",0).ToInteger();
     if (aktuellerSchaltZustand==3){
       if(log){logObj.State(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand EIN!");}
+      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand EIN!");}
     }elseif(aktuellerSchaltZustand==2){
       if(log){logObj.State(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand AUS!");}
+      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand AUS!");}
     }
 
     !//Aktoren und Raumtemp setzen, und bestimmen ob wi Heizen oder Schalten
@@ -429,6 +432,7 @@ foreach(SLEintrag,SListe){
               if(HSFlag){
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(GT);
                 if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
+                if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
               }else{
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(0);
                 if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
@@ -451,6 +455,7 @@ foreach(SLEintrag,SListe){
         }
       }else{
         if(log){logObj.State(AktSRName # "-" # RVNName # " ist dauerhaft ausgeschaltet");}
+        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " ist dauerhaft ausgeschaltet");}
       }
     }
 
@@ -465,9 +470,11 @@ foreach(SLEintrag,SListe){
               if(HSFlag){
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(RTemp);
                 if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
+                if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
               }else{
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(1);
                 if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet");}
+                if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet");}
               }
             }
           }
@@ -486,6 +493,7 @@ foreach(SLEintrag,SListe){
         }
       }else{
         if(log){logObj.State(AktSRName # "-" # RVNName # " ist dauerhaft eingeschaltet");}
+        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " ist dauerhaft eingeschaltet");}
       }
     }
 
@@ -500,6 +508,7 @@ foreach(SLEintrag,SListe){
               if(HSFlag){
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(GT);
                 if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
+                if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
               }else{
                 dom.GetObject(AktAktor).DPByHssDP(Param).State(0);
                 if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
@@ -522,6 +531,7 @@ foreach(SLEintrag,SListe){
         }
       }else{
         if(log){logObj.State(AktSRName # "-" # RVNName # " ist bereits in einem normalen Schaltzustand");}
+        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " ist bereits in einem normalen Schaltzustand");}
       }
     }
     
@@ -581,6 +591,7 @@ foreach(SLEintrag,SListe){
       }elseif(aktuellerSchaltZustand==0){
         !// Wir loggen nur normale (zustände, kein Dauer-Aus/an
         if(log){logObj.State(AktSRName # "-" # RVNName # " Gruppe " # RVN # " ist ausgeschaltet");}
+        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Gruppe " # RVN # " ist ausgeschaltet");}
       }
     }
     
@@ -608,6 +619,7 @@ foreach(SLEintrag,SListe){
                         if(DEBUG)  {WriteLine(AktAktor+" Einschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # RTemp.ToString(1) #" Parameter: " # Param);}
                       }else{
                         if(log){logObj.State(AktAktor+" Reglervorrang bei EIN (Regeler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
+                        if(DEBUG) {WriteLine(AktAktor+" Reglervorrang bei EIN (Regeler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
                       }
                     }else{
                       dom.GetObject(AktAktor).DPByHssDP(Param).State(RTemp);
@@ -638,10 +650,12 @@ foreach(SLEintrag,SListe){
           }
         }else{
           if(log){logObj.State(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT # " größer Grenzwert "+ATG.ToString());}
+          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT # " größer Grenzwert "+ATG.ToString());}
         }
       }elseif(aktuellerSchaltZustand==1){
         !// Wir loggen nur normale (zustände, kein Dauer-Aus/an
         if(log){logObj.State(AktSRName # "-" # RVNName # " Gruppe " # RVN # " ist eingeschaltet");}
+        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Gruppe " # RVN # " ist eingeschaltet");}
       }
     }
   }
@@ -658,6 +672,7 @@ foreach(SLEintrag,SListe){
 
 if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW.ToTime().Format("%H%M")<="0103")){
   if(log){logObj.State("Beginn Nachtabschaltung");}
+  if(DEBUG) {WriteLine("Beginn Nachtabschaltung");}
 
   !// Wandle die Raumliste um, sodass auch die multiRaumVariante berücksichtigt wird
   RVNListe = VarNamen;
@@ -669,6 +684,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
   foreach(RVN,RVNListe.Split(";")) {
     !// Raum Parameter bestimmen
     if(log){logObj.State("Gruppe:"+RVN);}
+    if(DEBUG) {WriteLine("Gruppe:"+RVN);}
     RVI=dom.GetObject(RVN).State();
     AGF=RVI.StrValueByIndex(";",2);
     
@@ -705,7 +721,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
         sollZustand = 0;
       }      
 
-      !// AKtoren untersuchen schalten
+      !// Aktoren untersuchen schalten
       foreach(AktAktor,RVI.Split(";")){
         !// Nummerische (kurze Einträge) in der Liste überspringen.
         if(AktAktor.Length()>minAktorNamenLaenge){
@@ -715,9 +731,15 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
               if(log){logObj.State(AktAktor+" Nachtschaltung für \"" # 
                                    ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
                                    "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
+              if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung für \"" # 
+                                   ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                                   "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
             }else{
               dom.GetObject(AktAktor).DPByHssDP(Param).State(RTemp);
               if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
+                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                      "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
+              if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
                       ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
                       "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
             }
@@ -739,6 +761,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
     }
   }
   if(log){logObj.State("Ende Nachtabschaltung");}
+  if(DEBUG) {WriteLine("Ende Nachtabschaltung");}
 }
 
 !// Schaltlistenprüfung----------------------------------------------
@@ -781,6 +804,7 @@ foreach(RVN,RVNListe.Split(";")) {
     !// in der Raumliste auch auf 0 stehen.
     dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
     if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
+    if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
     !// Aktoren zurücksetzen
     foreach(AktAktor,RVI.Split(";")){
       !// Nummerische (kurze Einträge) in der Liste überspringen.
@@ -789,6 +813,7 @@ foreach(RVN,RVNListe.Split(";")) {
           real istTemperatur = dom.GetObject(AktAktor).DPByHssDP(Param).State();
           dom.GetObject(AktAktor).DPByHssDP(Param).State(GT);
           if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+          if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
         }else{
           Param="STATE";
           boolean istZustand = dom.GetObject(AktAktor).DPByHssDP(Param).State()!=0;
