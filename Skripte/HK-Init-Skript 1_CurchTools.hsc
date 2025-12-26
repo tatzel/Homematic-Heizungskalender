@@ -1,35 +1,35 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Churchtools)
 !//================================================================================================
-!// Stand:    18.12.2025; 
+!// Stand:    18.12.2025;
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten. 
+!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde 
+!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
 !// Hanau von Martin Richter optimiert.
 !// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen 
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 !// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
 !// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte 
+!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
-!// Der Code basiert in großen Teilen auf der Datei: 
+!// Der Code basiert in großen Teilen auf der Datei:
 !//   HKP-CT-V--3.2.1 Variablen zu Skript1_ChurchTools_V1.4.c
 !// Der ursprüngliche Code wurde geschrieben von:
-!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
+!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
 
 !// Dieses Skript erstellt die nötigen Systemvariablen des Heizkalender für Skript 1 ChurchDesk
 !// Hinweis: Ein erneutes Ausführen dieses Programms ändert bestehende Variablen und ihren Inhalt nicht
-!// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann 
+!// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
 !// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
@@ -45,7 +45,7 @@ string vrp="";
 !// in den Variablen angelegt wird dieses verwendet
 string loginToken="";
 
-!// Vorgegebene Orgnaisations ID 
+!// Vorgegebene Orgnaisations ID
 string gemeindeName = "";
 
 !// Weitere einzurichtende Räume, für die keine Ressourcen vorhanden sind- Für diese werden auch
@@ -68,38 +68,38 @@ string nm=  "HK1-CT-Gemeindename;" #
             "HK1-R-Liste;" #
             "HK1-CT-Token;" #
             "HK2-HKG-Liste;";
-            
+
 !// Beschreibungstexte
 string be=  "Name der Gemeinde in Churchtools;" #
             "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Ressourcen in ChurchTools;" #
             "Sicherheitstoken für ChurchTools;" #
-            "Liste der HK-Raum-Variablen;";              
-            
+            "Liste der HK-Raum-Variablen;";
+
 !// Typen
-string tp=  "string;" #                                                          
-            "string;" #                                                          
-            "string;" #                                                          
-            "string;" #                                                          
-            "string";                                                            
+string tp=  "string;" #
+            "string;" #
+            "string;" #
+            "string;" #
+            "string";
 
 !// Vorgabe Werte
-string vl=  "";                                                                  
-                                          
-!// Einheit (z.B. °C)
-string vu=  "";                                                                  
+string vl=  "";
 
-!// Zusätzliche Info Texte für 
+!// Einheit (z.B. °C)
+string vu=  "";
+
+!// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
 !//   - Numerisch - min/max durch + getrennt
-string wr=  "";                                                                  
-                        
+string wr=  "";
+
 !// Protokollierungs Flags
-string pr=  "1;" #                                                               
-            "1;" #                                                               
-            "1;" #                                                               
-            "1;" #                                                               
-            "1";                                                                 
+string pr=  "1;" #
+            "1;" #
+            "1;" #
+            "1;" #
+            "1";
 
 !//------------------------------------------------------------------------------------------------
 !// Ab hier Standard Code zum erzeugen von Variablen
@@ -117,7 +117,7 @@ while(true){
     object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
     svObj = dom.CreateObject(OT_VARDP);
     svObjects.Add(svObj.ID());
-  
+
     svObj.Name(name);
     svObj.DPInfo(be.StrValueByIndex(";",i));
     svObj.ValueUnit(vu.StrValueByIndex(";",i));
@@ -141,7 +141,7 @@ while(true){
       svObj.ValueType(ivtBinary);
       svObj.ValueSubType(istBool);
       svObj.ValueName0(wr.StrValueByIndex(";",i).StrValueByIndex("+",0));
-      svObj.ValueName1(wr.StrValueByIndex(";",i).StrValueByIndex("+",1));    
+      svObj.ValueName1(wr.StrValueByIndex(";",i).StrValueByIndex("+",1));
       svObj.State(vl.StrValueByIndex(";",i).ToInteger());
     }else{
       quit;
@@ -162,7 +162,7 @@ if(svObj.State()!=""){
   loginToken = svObj.State();
 }elseif(loginToken!=""){
   !// Setze das aktuelle Token
-  svObj.State(loginToken);  
+  svObj.State(loginToken);
 }
 
 !// Prüfe ob eine gemeindeName vorhanden ist
@@ -172,7 +172,7 @@ if(svObj.State()!=""){
   gemeindeName = svObj.State();
 }elseif(gemeindeName!=""){
   !// Setze das aktuelle Token
-  svObj.State(gemeindeName);  
+  svObj.State(gemeindeName);
 }
 
 !// Wenn ein API-Token vorhandne ist lesen wir die Ressource Liste
@@ -182,7 +182,7 @@ if (loginToken && gemeindeName){
     WriteLine("Die Variablen für die ChurchTools Ressourcen wurden bereits gesetzt!");
   }else{
     !// URL aufbauen
-    string cmd = "wget --timeout=3 -O - 'https://" # gemeindeName # ".church.tools/api/resource/masterdata?login_token=" # loginToken #"'";  
+    string cmd = "wget --timeout=3 -O - 'https://" # gemeindeName # ".church.tools/api/resource/masterdata?login_token=" # loginToken #"'";
     string stdout;
     string stderr;
     system.Exec(cmd, &stdout, &stderr);
@@ -198,7 +198,7 @@ if (loginToken && gemeindeName){
                      .Replace("\\u00dc","Ü")
                      .Replace("\\u00df","ß");
 
-      
+
       !// Wir suchen die Ressource Raum/Room. Dazu spalten wir den Datenstring auf
       integer iPosRes = stdout.Find("\"resources\":[");
       if (iPosRes<0) {
@@ -207,14 +207,14 @@ if (loginToken && gemeindeName){
       }else{
         !// Ressource Type Raum finden ({"data":{"resourceTypes" überspringen)
         string ressourceTypes = stdout.Substr(26,iPosRes-26);
-        
+
         !// Vernichte die id's die wir nicht wollen
         ressourceTypes = ressourceTypes.Replace("Person\":{\"id\":","");
-        
+
         !// Suche die id für Räume
-        integer resTypeId = 0;        
+        integer resTypeId = 0;
         string resType;
-        
+
         foreach(resType,ressourceTypes.Replace("{\"id\":","\t")){
           integer iPos = resType.Find("\"name\":\"");
           if (iPos>=0){
@@ -228,30 +228,30 @@ if (loginToken && gemeindeName){
             }
           }
         }
-        
+
         !// Nur wenn wir eine Resource Type haben
-        if(resTypeId==0){    
+        if(resTypeId==0){
           WriteLine("Der Ressourcen Typ für Räume wurde nicht gefunden!");
-        }else{          
+        }else{
           !// Wir bauen nun die raumliste auf
           string resources = stdout.Substr(iPosRes+13,stdout.Length()-iPosRes-13);
 
 
           string raumListe = "";
           string raumNamen = "";
-          
+
           !// Vernichte die id's die wir nicht wollen
           resources = resources.Replace("Person\":{\"id\":","");
           string res;
           foreach(res,resources.Replace("{\"id\":","\t")){
-            !// Suche die resId und prüfe ob es passt            
+            !// Suche die resId und prüfe ob es passt
             integer iPos = res.Find("\"resourceTypeId\":");
             ! WriteLine(iPos # "-" # res);
             if(res.Substr(iPos+17,10).ToInteger()!=resTypeId){
               !// Resource passt nicht (kein Raum)
               continue;
             }
-          
+
             !// Id holen
             integer resId = res.ToInteger();
             if (resId<=0){
@@ -264,7 +264,7 @@ if (loginToken && gemeindeName){
               !// Fehler
               continue;
             }
-            
+
             !// Namen finden
             res = res.Substr(iPos+9,res.Length()-9);
             integer iPosEnd = res.Find("\",\"");;
@@ -272,23 +272,23 @@ if (loginToken && gemeindeName){
               !// Fehler
               continue;
             }
-            
+
             !// Namen bereinigen
             name = res.Substr(0,iPosEnd);
             name = name.Replace(" ","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
-            
+
             if (raumListe){
-              raumListe = raumListe # ";";            
-            }          
+              raumListe = raumListe # ";";
+            }
             raumListe = raumListe # resId;
             if (raumNamen){
-              raumNamen = raumNamen # ";";            
-            }          
-            raumNamen = raumNamen # name;            
-          }                  
+              raumNamen = raumNamen # ";";
+            }
+            raumNamen = raumNamen # name;
+          }
           !WriteLine(raumNamen);
           !WriteLine(raumListe);
-          
+
           !// Wenn wir eine Raumliste haben dann setzen wir, wenn diese nicht leer ist
           svObj = dom.GetObject(vrp # "HK1-R-Liste");
           if(svObj.State()!=""){
@@ -297,29 +297,37 @@ if (loginToken && gemeindeName){
             WriteLine("Ermittelte Daten: " # raumListe);
           }else{
             svObj.State(raumListe);
-            WriteLine("Variable HK1-R-Liste wird gesetzt auf: " # raumListe);        
+            WriteLine("Variable HK1-R-Liste wird gesetzt auf: " # raumListe);
           }
-           
+
           !// Weitere Räume hinzufügen, wenn diese nicht schon in der Liste sind
           foreach(name,zusaetzlicheRaumNamen.Split(";")){
+            !// Namen bereinigen
+            name = name.Replace(" ","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
             if (name && ((";" # raumNamen # ";").Find(";" # name # ";")<0)){
               if(!raumNamen.EndsWith(";")){
                 raumNamen = raumNamen # ";";
               }
               raumNamen = raumNamen # name;
-            } 
+            }
           }
-          
+
           !// Raum Variablen anlegen und HK2-HKG-Liste füllen
           string hkgListe = "";
+          integer iRaeume=0;
           foreach(name,raumNamen.Split(";")){
             !// Variablen Name erzeugen
             name = raumNamenPreFix # name;
-            if (hkgListe){
-              hkgListe = hkgListe # ";";
+
+            !// Wir fügen den Raum nur zur HKG-Liste, wenn er auch zu einer Ressource gehört
+            if (raumListe.StrValueByIndex(";",iRaeume).Trim()){
+              if (hkgListe){
+                hkgListe = hkgListe # ";";
+              }
+              hkgListe = hkgListe+name;
             }
-            hkgListe = hkgListe+name;
-            
+            iRaeume = iRaeume+1;
+
             svObj = dom.GetObject(name);
             if (svObj){
               WriteLine("Raumvariable " # name # " existiert bereits! Wert: " # svObj.State());
@@ -328,7 +336,7 @@ if (loginToken && gemeindeName){
               object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
               svObj = dom.CreateObject(OT_VARDP);
               svObjects.Add(svObj.ID());
-        
+
               svObj.Name(name);
               svObj.ValueType(ivtString);
               svObj.ValueSubType(istChar8859);
@@ -336,14 +344,14 @@ if (loginToken && gemeindeName){
               svObj.DPArchive(true);
               svObj.Internal(false);
               svObj.Visible(true);
-              svObj.DPArchive(true);        
-                        
+              svObj.DPArchive(true);
+
               !// Vorgabe machen
               svObj.State(raumVorgabePreFix # name.Replace(raumNamenPreFix,"") # raumVorgabePostFix);
-              WriteLine("Raumvariable " # name # " angelegt! Wert: " # svObj.State());       
+              WriteLine("Raumvariable " # name # " angelegt! Wert: " # svObj.State());
             }
           }
-          
+
           !// HK2-HKG-Liste ändern
           svObj = dom.GetObject(vrp # "HK2-HKG-Liste");
           if(svObj.State()!=""){
@@ -352,7 +360,7 @@ if (loginToken && gemeindeName){
             WriteLine("Ermittelte Daten: " # hkgListe);
           }else{
             svObj.State(hkgListe);
-            WriteLine("Variable HK2-HKG-Liste wird gesetzt auf: " # hkgListe);        
+            WriteLine("Variable HK2-HKG-Liste wird gesetzt auf: " # hkgListe);
           }
         }
       }
@@ -371,3 +379,4 @@ if (loginToken && gemeindeName){
 dom.RTUpdate(0);
 
 WriteLine("Alles erledigt...!");
+
