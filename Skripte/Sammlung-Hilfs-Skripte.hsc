@@ -64,6 +64,7 @@ while (SListe.StrValueByIndex(";",i)!="") {
 
 string command;
 string stemp;
+string error;
 string pfad="/media/usb1/HK-Log_20251118.log";
 
 command = "cat "+pfad;
