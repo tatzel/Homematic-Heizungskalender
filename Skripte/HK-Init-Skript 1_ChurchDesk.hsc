@@ -255,6 +255,8 @@ if (apiToken && organizationId){
 
       !// Weitere Räume hinzufügen, wenn diese nicht schon in der Liste sind
       foreach(name,zusaetzlicheRaumNamen.Split(";")){
+        !// Namen bereinigen
+        name = name.Replace(" ","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
         if (name && ((";" # raumNamen # ";").Find(";" # name # ";")<0)){
           if(!raumNamen.EndsWith(";")){
             raumNamen = raumNamen # ";";
@@ -265,13 +267,19 @@ if (apiToken && organizationId){
 
       !// Raum Variablen anlegen und HK2-HKG-Liste füllen
       string hkgListe = "";
+      integer iRaeume=0;
       foreach(name,raumNamen.Split(";")){
         !// Variablen Name erzeugen
         name = raumNamenPreFix # name;
-        if (hkgListe){
-          hkgListe = hkgListe # ";";
+        
+        !// Wir fügen den Raum nur zur HKG-Liste, wenn er auch zu einer Ressource gehört
+        if (raumListe.StrValueByIndex(";",iRaeume).Trim()){
+          if (hkgListe){
+            hkgListe = hkgListe # ";";
+          }
+          hkgListe = hkgListe+name;
         }
-        hkgListe = hkgListe+name;
+        iRaeume = iRaeume+1;
 
         svObj = dom.GetObject(name);
         if (svObj){

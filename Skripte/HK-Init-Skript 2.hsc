@@ -1,36 +1,36 @@
-!// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2 
+!// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2
 !//================================================================================================
-!// Stand:    16.12.2025; 
+!// Stand:    16.12.2025;
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten. 
+!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde 
+!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
 !// Hanau von Martin Richter optimiert.
 !// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen 
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 !// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
 !// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte 
+!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
-!// Der Code basiert in großen Teilen auf der Datei: 
+!// Der Code basiert in großen Teilen auf der Datei:
 !//   HKP-S2-V-3.1.1 Variablen zu Skript2_V1.3.c
 !// Der ursprüngliche Code wurde geschrieben von:
-!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
+!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
-!// Anleitung um das Skript auszuführen: 
+!// Anleitung um das Skript auszuführen:
 !// - Menü WebUI der CCU
 !// - Kopieren sie den Inhalt dieses Datei komplett und unverändert in das Fenster:
 !//   => Programm und Verknüpfungen => Skripte Testen
-!// - Betätigen sie den Button "Ausführen", im Ausgabe Fenster sehen sie ob und welche Variablen 
+!// - Betätigen sie den Button "Ausführen", im Ausgabe Fenster sehen sie ob und welche Variablen
 !//   angelegt wurden (als Info).
 !// - Beim erscheinen des Text "alles erledigt" wurde das Skript komplett ausgeführt.
 !// Sie können das Fenster dann wieder schließen.
@@ -46,15 +46,15 @@
 string vrp="";
 
 !// Namen der Variablen, die angelegt werden sollen
-string nm=  "HK2-HKG-Liste;" #                                               
-            "HK2-Grundtemperatur;" #                                         
-            "HK2-A.Temp.Grenze;" #                                           
-            "HK2-Aussentemperatur;" #                                        
-            "HK2-Hand-Temp;" #                                               
-            "HK2-Hand-Grundtemp;" #                                          
-            "HK2-VorzeitAus;" #                                              
-            "HK2-Kurvenversatz;" #                                           
-            "HK2-Kurve";                                                     
+string nm=  "HK2-HKG-Liste;" #
+            "HK2-Grundtemperatur;" #
+            "HK2-A.Temp.Grenze;" #
+            "HK2-Aussentemperatur;" #
+            "HK2-Hand-Temp;" #
+            "HK2-Hand-Grundtemp;" #
+            "HK2-VorzeitAus;" #
+            "HK2-Kurvenversatz;" #
+            "HK2-Kurve";
 
 !// Beschreibungstexte
 string be=  "Liste der HK-Raum-Variablen;" #
@@ -68,14 +68,14 @@ string be=  "Liste der HK-Raum-Variablen;" #
             "Hzg.-Vorlaufzeit: Eingeben in Minuten zu Außentemperaturen kleiner als -10, -5, 0, 8, 10, 12, 15, 17,5";
 
 !// Typen
-string tp=  "string;" #                                                
-            "integer;" #                                               
-            "integer;" #                                               
-            "integer;" #                                               
-            "boolean;" #                                               
-            "boolean;" #                                               
-            "integer;" #                                               
-            "integer;" #                                               
+string tp=  "string;" #
+            "integer;" #
+            "integer;" #
+            "integer;" #
+            "boolean;" #
+            "boolean;" #
+            "integer;" #
+            "integer;" #
             "string;";
 
 !// Vorgabe Werte
@@ -100,29 +100,29 @@ string vu=  ";" #
             "min;" #
             "min";
 
-!// Zusätzliche Info Texte für 
+!// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
 !//   - Numerisch - min/max durch + getrennt
-string wr=  ";" #                     
-            "5+30;" #                                                                
-            "-50+50;" #                                                                
-            "-50+50;" #                                                                
-            "Immer auf Grundtemperatur zurücksetzen+Manuelle Temperatur hat Vorrang;" #                                                                
-            "Keine Rückstellung auf Grundtemperatur um 01:00 Uhr+Rückstellung auf Grundtemperatur um 01:00 Uhr;" #                                                                
-            "0+120;" #                                                                
-            "-100+100;" #                                                                
+string wr=  ";" #
+            "5+30;" #
+            "-50+50;" #
+            "-50+50;" #
+            "Immer auf Grundtemperatur zurücksetzen+Manuelle Temperatur hat Vorrang;" #
+            "Keine Rückstellung auf Grundtemperatur um 01:00 Uhr+Rückstellung auf Grundtemperatur um 01:00 Uhr;" #
+            "0+120;" #
+            "-100+100;" #
             "";
-                        
+
 !// Protokollierungs Flags
-string pr=  "1;" #                                                               
-            "1;" #                                                               
-            "1;" #                                                               
-            "1;" #                                                               
-            "1;" #                                                               
-            "1;" #                                                               
-            "1;" #                                                               
+string pr=  "1;" #
             "1;" #
-            "1";                                                                 
+            "1;" #
+            "1;" #
+            "1;" #
+            "1;" #
+            "1;" #
+            "1;" #
+            "1";
 
 !//------------------------------------------------------------------------------------------------
 !// Ab hier Standard Code zum erzeugen von Variablen
@@ -140,7 +140,7 @@ while(true){
     object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
     svObj = dom.CreateObject(OT_VARDP);
     svObjects.Add(svObj.ID());
-  
+
     svObj.Name(name);
     svObj.DPInfo(be.StrValueByIndex(";",i));
     svObj.ValueUnit(vu.StrValueByIndex(";",i));
@@ -164,7 +164,7 @@ while(true){
       svObj.ValueType(ivtBinary);
       svObj.ValueSubType(istBool);
       svObj.ValueName0(wr.StrValueByIndex(";",i).StrValueByIndex("+",0));
-      svObj.ValueName1(wr.StrValueByIndex(";",i).StrValueByIndex("+",1));    
+      svObj.ValueName1(wr.StrValueByIndex(";",i).StrValueByIndex("+",1));
       svObj.State(vl.StrValueByIndex(";",i).ToInteger());
     }else{
       quit;
