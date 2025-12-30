@@ -1,26 +1,26 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    18.12.2025; 
+!// Stand:    18.12.2025;
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten. 
+!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde 
+!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
 !// Hanau von Martin Richter optimiert.
 !// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen 
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 !// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
 !// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte 
+!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
-!//  Alle aktuellen Raumvariablen werden dekodiert, alle Einstellungen werden im Klartext 
+!//  Alle aktuellen Raumvariablen werden dekodiert, alle Einstellungen werden im Klartext
 !//  ausgegeben.
-!//  Anleitung um das Skript auszuführen: 
+!//  Anleitung um das Skript auszuführen:
 !//    WebUI der CCU öffnen
 !//    Kopieren sie den Inhalt dieses Datei komplett und unverändert in das Fenster:
 !//    => Programm und Verknüpfungen => Skripte Testen
@@ -32,8 +32,39 @@
 
 string vrp="";
 
+!// Aktoren müssen einen Namen länger als diesen Wert haben, sonst werden Sie wie einen Parameter
+!// in der Raumvariable behandelt.
+integer minAktorNamenLaenge=10;
+
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
+
+!//-------------------------------------------------------------
+!// Schaltparameter Varablen
+
+!// IP- Thermostate-Aktoren-Gerätetyp (Kanal 1)
+!//   BWTH_V1, BWTH_V2, TRVB_V1, TRV-C_V1, TRV, TRV-V1, TRV-V2, TRV-V3, TRV-V4, C_V2, WTH-2_V1, WTH-2_V2, WTH2_V3, WTH-BV1, WTH_V1, WT-V1
+string AGFParamIP="SET_POINT_TEMPERATURE";
+
+!// RT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-CC-RT-DN HM-CC-RT-DN
+string AGFParamRT="SET_TEMPERATURE";
+
+!// TC- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-CC-TC
+string AGFParamTC="SETPOINT";
+
+!// IT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!//   HM-TC-IT-WM-W-EU
+string AGFParamIT="SET_TEMPERATURE";
+
+!// SW- Kennung Kanal Klassik-Schalter-Aktoren-Gerätetyp (Kanal 1 bzw. 2)
+!//   HM-LC-Sw1-FM HM-LC-Sw1PBU-FM, HM-LC-Sw2-FM, HM-ES-PMSw1-DR HM-LC-Sw1-PCB
+!// Kennung Kanal IP-Schalter-Aktoren-Gerätetyp (Kanal 1)
+!//   SW  Noch unerprobt
+string AGFParamSW="STATE";
+
+
 
 string stemp="";
 string stext="";
@@ -66,7 +97,7 @@ while (true) {
     WriteLine("Temperatur=" + stemp);
   } elseif ((i%5)==4) {
     WriteLine("Heizen/Schalten=" + stemp);
-  } 
+  }
   i=i+1;
 }
 
@@ -139,6 +170,7 @@ WriteLine("HK1-R-Liste=" # hk1RaumListe);
 WriteLine("HK1-R-Liste Namen=" # hk1RaumListeNamen);
 WriteLine("HK2-HKG-Liste=" # hk2RaumListe);
 
+string ListeRaumVariablen = ";";
 i=0;
 string RListe;
 string RName;
@@ -149,108 +181,144 @@ foreach(RListe, hk2RaumListe.Split(";")){
   if (hk1RaumListeNamen!=""){
     RName = " (" # hk1RaumListeNamen.StrValueByIndex(";",i) # ")";
   }
+  
   WriteLine("_____________________________\nRaum: \t" # (i+1).ToString() # RName);
   WriteLine("Chruchtools Resource: \t" # hk1RaumListe.StrValueByIndex(";",i));
   if (RListe.Find("+")>=0){
     WriteLine ("Zugeordnete Raeume: \t" # RListe);
   }
   foreach(RName,RListe.Split("+")){
-    WriteLine("\nRaum: " # RName);
-    Raum = dom.GetObject(RName);
-    if (!Raum){
-      WriteLine("FEHLER!!! Raumvariable " # RName # " nicht vorhanden!!!")
-    }else{
-      RaumDef = Raum.State();
-      
-      !// Wert #0 Raumstatus
-      stemp = RaumDef.StrValueByIndex(";",0);
-      stext = "Raum Status: \t" # stemp;
-      if(stemp=="0"){
-          stext = stext # " ausgeschaltet";
-      }elseif(stemp=="1"){
-          stext = stext # " eingeschaltet";
-      }elseif(stemp=="2"){
-          stext = stext # " generell eingeschaltet";
-      }elseif(stemp=="3"){
-          stext = stext # " generell ausgeschaltet";
-      }else{
-          stext = stext # " UNBEKANNT!!! FEHLER!!!";
-      }
-      WriteLine(stext);
-      
-      !// Wert #1 Heizen Schalten
-      stemp = RaumDef.StrValueByIndex(";",1);
-      stext = "Modus:   \t" # stemp;
-      if(stemp=="H"){
-          stext = stext # " Heizen";
-      }elseif(stemp=="S"){
-          stext = stext # " Schalten";
-      }else{
-          stext = stext # " UNBEKANNT!!! FEHLER!!!";
-      }
-      WriteLine(stext);
-      
-      !// Wert #2 Gerätebauart
-      stemp = RaumDef.StrValueByIndex(";",2);
-      stext = "Gerätebauart: \t" # stemp;
-      if(stemp=="IP"){
-        stext = stext # "=IP-Thermostate-Aktoren-Gerätetyp (Kanal 1)";
-      }elseif(stemp=="RT"){
-        stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)";
-      }elseif(stemp=="TC"){
-        stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)";
-      }elseif(stemp=="IT"){
-        stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)";
-      }elseif(stemp=="SW"){
-        stext = stext # "=Klassik-Schalter-Aktoren-Gerätetyp (Kanal 1/2)";
-      }else{
-        stext = stext # " UNBEKANNT!!! FEHLER!!!";
-      }
-      WriteLine(stext);
-
-      !// Wert #3 Gerätebauart
-      WriteLine("Temperatur: \t" # RaumDef.StrValueByIndex(";",3).ToInteger().ToString());
-  
-      !// Wert #4 Vorlaufzeit
-      WriteLine("Vorlaufzeit: \t" # RaumDef.StrValueByIndex(";",4).ToInteger().ToString());
-  
-      !// Wert #5 Nachlaufzeit
-      WriteLine("Nachlaufzeit: \t" # RaumDef.StrValueByIndex(";",5).ToInteger().ToString());
-  
-      !// Kanäle ausgeben
-      string Aktor="";
-      string Param="";
-      stemp = RaumDef.StrValueByIndex(";",2);
-      if(stemp=="RT"){Param="SET_TEMPERATURE";}
-	  elseif(stemp=="TC"){Param="SETPOINT";}
-	  elseif(stemp=="IP"){Param="SET_POINT_TEMPERATURE";}
-      elseif(stemp=="IT"){Param="SET_TEMPERATURE";}
-      else{Param="";}
-      
-      WriteLine("Aktoren:");
-      foreach(Aktor,RaumDef.Split(";")){
-	    if (Aktor.Length()>4){
-          stemp = "\t" # Aktor;
-          if (Param!=""){
-            obj = dom.GetObject(Aktor);
-            if (obj){
-              obj=obj.DPByHssDP(Param);
-              if (obj){
-                stemp = stemp # " \t " # Param # "=" # obj.State();
-              }else{
-                stemp = stemp # " \t FEHLER!!! Param " # Param # " unbekannt im System!";
-              }
-            }else{
-              stemp = stemp # " \t FEHLER!!! Aktor unbekannt im System!";
-            }
-          }
-          WriteLine(stemp);
-        }
-      }          
+    if (!RName){
+      continue;
+    }
+    !// Raumdaten ausgeben.
+    WriteLine("Raum: " # RName);
+    
+    if (ListeRaumVariablen.Find(";" # RName # ";")<0){
+      ListeRaumVariablen = ListeRaumVariablen # RName # ";";
     }
   }
-  i = i+1;
-}   
+  i=i+1;
+}
+
+WriteLine("___________________________________________________________________________");
+foreach(RName,ListeRaumVariablen.Split(";")){
+  if (!RName){
+      continue;
+  }
+
+  Raum = dom.GetObject(RName);
+  if (!Raum){
+    WriteLine("FEHLER!!! Raumvariable " # RName # " nicht vorhanden!!!")
+    continue;
+  }
+  RaumDef = Raum.State();
+
+  !// Raumdaten ausgeben.
+  WriteLine("Raum: \t" # RName);
+  WriteLine("Raumvariable:\t" # RaumDef);
+
+  !// Wert #0 Raumstatus
+  stemp = RaumDef.StrValueByIndex(";",0);
+  stext = "Raum Status: \t" # stemp;
+  if(stemp=="0"){
+      stext = stext # " ausgeschaltet";
+  }elseif(stemp=="1"){
+      stext = stext # " eingeschaltet";
+  }elseif(stemp=="2"){
+      stext = stext # " generell eingeschaltet";
+  }elseif(stemp=="3"){
+      stext = stext # " generell ausgeschaltet";
+  }else{
+      stext = stext # " UNBEKANNT!!! FEHLER!!!";
+  }
+  WriteLine(stext);
+
+  !// Wert #1 Heizen Schalten
+  stemp = RaumDef.StrValueByIndex(";",1);
+  stext = "Modus:\t\t\t" # stemp;
+  if(stemp=="H"){
+      stext = stext # " Heizen";
+  }elseif(stemp=="S"){
+      stext = stext # " Schalten";
+  }else{
+      stext = stext # " UNBEKANNT!!! FEHLER!!!";
+  }
+  WriteLine(stext);
+
+  !// Wert #2 Gerätebauart
+  stemp = RaumDef.StrValueByIndex(";",2);
+  stext = "Gerätebauart: \t" # stemp;
+
+  if(stemp=="IP"){
+    stext = stext # "=IP-Thermostate-Aktoren-Gerätetyp (Kanal 1)";
+  }elseif(stemp=="RT"){
+    stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)";
+  }elseif(stemp=="TC"){
+    stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)";
+  }elseif(stemp=="IT"){
+    stext = stext # "=Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)";
+  }elseif(stemp=="SW"){
+    stext = stext # "=Klassik-Schalter-Aktoren-Gerätetyp (Kanal 1/2)";
+  }else{
+    stext = stext # " UNBEKANNT!!! FEHLER!!!";
+  }
+  WriteLine(stext);
+
+  !// Wert #3 Wohlfühl-Temperaturvorgabe
+  WriteLine("Temperatur: \t" # RaumDef.StrValueByIndex(";",3).StrValueByIndex("/",0).ToFloat().ToString(1));
+  string stemp = RaumDef.StrValueByIndex(";",3).StrValueByIndex("/",1);
+  if (stemp){
+    !// Optionale abweichende Grundtemperatur
+    WriteLine("Abw. Grundt.: \t" # stemp.ToFloat().ToString(1));
+  }
+
+  !// Wert #4 Vorlaufzeit
+  WriteLine("Vorlaufzeit: \t" # RaumDef.StrValueByIndex(";",4).ToInteger().ToString());
+  string stemp = RaumDef.StrValueByIndex(";",4).StrValueByIndex("*",1);
+  if (stemp){
+    !// Optionale Kurvenkorrektur
+    WriteLine("Kurvenkorr.:\t" # stemp.ToFloat().ToString(2));
+  }
+
+  !// Wert #5 Nachlaufzeit
+  WriteLine("Nachlaufzeit: \t" # RaumDef.StrValueByIndex(";",5).ToInteger().ToString());
+
+  !// Kanäle ausgeben
+  string Aktor="";
+  string Param="";
+  stemp = RaumDef.StrValueByIndex(";",2);
+  if(stemp=="RT"){Param="SET_TEMPERATURE";}
+  elseif(stemp=="TC"){Param="SETPOINT";}
+  elseif(stemp=="IP"){Param="SET_POINT_TEMPERATURE";}
+  elseif(stemp=="IT"){Param="SET_TEMPERATURE";}
+  else{Param="";}
+
+  WriteLine("Aktoren:");
+  foreach(Aktor,RaumDef.Split(";")){
+  if (Aktor.Length()>minAktorNamenLaenge){
+      stemp = "\t" # Aktor;
+      if (Param!=""){
+        obj = dom.GetObject(Aktor);
+        if (obj){
+          obj=obj.DPByHssDP(Param);
+          if (obj){
+            stemp = stemp # " \t " # Param # "=" # obj.State();
+          }else{
+            stemp = stemp # " \t FEHLER!!! Param " # Param # " unbekannt im System!";
+          }
+        }else{
+          stemp = stemp # " \t FEHLER!!! Aktor unbekannt im System!";
+        }
+      }
+      WriteLine(stemp);
+    }
+  }
+  ListeRaumVariablen = ListeRaumVariablen.Replace(";"# RName # ";", ";");
+  if (ListeRaumVariablen.Length()>1){
+    WriteLine("_____________________________");  
+  }
+}
 
 !//------------------------------------------------------------------------------------------
 !// Ausgabe aller Systemvariablen. Damit kann man Einstellungen protokollieren.
@@ -259,16 +327,16 @@ WriteLine("_____________________________________________________________________
 WriteLine("System Variablen zum Heizkalender\n");
 
 string svListStr = "";
-string vid; 
+string vid;
 var svIDs = dom.GetObject(ID_SYSTEM_VARIABLES).EnumIDs();
- 
+
 foreach(vid, svIDs){
     var sysVar = dom.GetObject(vid);
     if (sysVar.Name().StartsWith(vrp # "HK") || sysVar.Name().StartsWith(vrp # "Tool-")) {
       svListStr = svListStr # sysVar.Name() # "=" #  sysVar.Value() # "\n";
     }
 }
- 
+
 WriteLine(svListStr);
 
 WriteLine("___________________________________________________________________________");
