@@ -1,6 +1,6 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    18.12.2025; 
+!// Stand:    01.01.2026 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================

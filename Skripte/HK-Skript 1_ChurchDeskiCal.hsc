@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen
 !//================================================================================================
-!// Stand:    18.12.2025;
+!// Stand:    01.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
 !// MRi: 2025-12-09 Anpassung an ChurchDesk API
 !// MRi: 2025-11-24 MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
 !//                 korrektur nochmal für doppelte Schaltlisteneinträge
@@ -165,11 +166,16 @@ foreach(RId,RIdListe.Split(";")){
     if (multiRaumVariante){
       RaumVar=RaumVar.StrValueByIndex("+",0);
     }
-    if (DEBUG){
-      WriteLine("RaumVar:"+RaumVar+" "+dom.GetObject(RaumVar).State());
+
+    object objVar = dom.GetObject(RaumVar);
+    if (!objVar){
+      !// Raumvariable nicht vorhanden
+      if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+      if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+      continue;
     }
 
-    string SchaltenHeizen=dom.GetObject(RaumVar).State().StrValueByIndex(";",1);
+    string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
     string SHFlag;
     if(SchaltenHeizen=="H"){
       SHFlag="1";

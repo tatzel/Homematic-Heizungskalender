@@ -1,6 +1,6 @@
 !// Skript zum Erstellen der Systemvariablen des Heizkalender für das Logging
 !//================================================================================================
-!// Stand:    08.12.2025;
+!// Stand:    01.01.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -23,6 +23,8 @@
 !// ES KÖNTEN  WICHTIGE DATEN GELÖSCHT WERDEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!// MRi:  2026-01-01  Test auf Namen war nicht caseless
+
 !// Leerer Prefix mit einem Blank " ", löscht alle Variablen mit "HK" oder "Tool-".
 !// Andere Prefixe ChurchDesk cd_, Prefix ChurchTools ct_
 string vrps=" ;cd_;ct_";
@@ -40,7 +42,7 @@ foreach(vrp,vrps.Split(";")){
   WriteLine("Prefix:" #vrp);
   foreach(svName, dom.GetObject(ID_SYSTEM_VARIABLES).EnumUsedNames()){
     !WriteLine(svName);
-    if (svName.ToUpper().StartsWith(vrp.ToUpper()#"HK") || svName.ToUpper().StartsWith(vrp.ToUpper()#"Tool-")){
+    if (svName.ToUpper().StartsWith((vrp#"HK").ToUpper()) || svName.ToUpper().StartsWith((vrp#"Tool-").ToUpper())){
       svObject = dom.GetObject(ID_SYSTEM_VARIABLES).Get(svName);
       dom.DeleteObject(svObject);
       WriteLine("Systemvariable \""#svName#"\" gelöscht");
