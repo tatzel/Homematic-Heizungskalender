@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
-!// Stand:    18.12.2025;
+!// Stand:    01.01.2026 
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -24,6 +24,9 @@
 !// folgende Typen haben: Öffentlich, Gemeinde, Gruppen, Privat. Nur Termine des ersten Typs 
 !// "öffentlich" werden aktuell von der API zurückgegegeben.
 !// ***********************************************************************************************
+
+!// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
+!// MRi: 2025-12-09 Anpassung an ChurchDesk API
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
@@ -254,17 +257,22 @@ if (stdout=="[]"){
 
       !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
       !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-      !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+      !// MRi: Nach meinem Dafürhalten ist diese Information in der Schaltliste redundant.
       string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
       string RaumVar = RaumVarListe;
       if (multiRaumVariante){
         RaumVar=RaumVar.StrValueByIndex("+",0);
       }
-      if (DEBUG){
-        WriteLine("RaumVar:"+RaumVar+" "+dom.GetObject(RaumVar).State());
+
+      object objVar = dom.GetObject(RaumVar);
+      if (!objVar){
+        !// Raumvariable nicht vorhanden
+        if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+        if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+        continue;
       }
 
-      string SchaltenHeizen=dom.GetObject(RaumVar).State().StrValueByIndex(";",1);
+      string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
       string SHFlag;
       if(SchaltenHeizen=="H"){
         SHFlag="1";
