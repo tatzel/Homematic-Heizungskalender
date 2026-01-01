@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen
 !//================================================================================================
-!// Stand:    11.12.2025; 
+!// Stand:    01.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
 !// MRi: 2025-12-10 Neue Sonderbefehle #GT# #NH# #NS#
 !// MRi: 2025-12-08 Altes Skript komplett überarbeitet
 !// MRi: 2025-11-29 Alte Schaltliste wird nicht mehr übernommen um Schalttermine abbrechen zu können.
@@ -183,11 +184,16 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     if (multiRaumVariante){
       RaumVar=RaumVar.StrValueByIndex("+",0);
     }
-    if (DEBUG){
-      WriteLine("RaumVar:"+RaumVar+" "+dom.GetObject(RaumVar).State());
-    }
 
-    string SchaltenHeizen=dom.GetObject(RaumVar).State().StrValueByIndex(";",1);
+    object objVar = dom.GetObject(RaumVar);
+    if (!objVar){
+      !// Raumvariable nicht vorhanden
+      if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+      if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+      continue;
+    }
+    
+    string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
     string SHFlag;
     if(SchaltenHeizen=="H"){
       SHFlag="1";

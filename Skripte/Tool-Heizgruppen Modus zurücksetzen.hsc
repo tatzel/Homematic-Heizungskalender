@@ -1,6 +1,6 @@
 !// Alle Heizgruppen auf Auto Modus zu setzen
 !//================================================================================================
-!// Stand:    27.11.2025; 
+!// Stand:    01.01.2026 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
