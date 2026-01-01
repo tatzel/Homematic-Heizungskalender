@@ -406,7 +406,7 @@ foreach(SLEintrag,SListe){
           if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
         }
 
-        real faktor2 = 1.0-((ISTTemperatur-GT)/(RTemp-GT));
+        real faktor2 = 1.0-((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT));
         offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
         offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
         if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
