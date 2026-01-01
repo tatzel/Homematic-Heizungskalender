@@ -327,7 +327,7 @@ foreach(SLEintrag,SListe){
     !// Das Skript sollte alle 5min laufen.
     if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
       !// Ausschaltpunkt erreicht
-      sTemp = ((NOW-AUS)/60).ToString();
+      sTemp = ((NOW-EIN)/60).ToString();
       if (!sTemp.StartsWith("-")){
         sTemp = "+" # sTemp;
       }
@@ -368,7 +368,6 @@ if (dom.GetObject(vrp+"Tool-Heizkurvenkontrolle").State()!=neueRaumListe){
 } else {
   if (DEBUG) { WriteLine("Raumliste unverändert"); }
 }
-
 
 !// -----------------------------------------------------------------
 
