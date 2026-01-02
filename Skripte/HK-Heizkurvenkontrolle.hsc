@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    01.01.2026
+!// Stand:    02.01.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -18,7 +18,7 @@
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
-!// Skript sollte alle 5min laufen
+!// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript 
 !//
 
 
@@ -60,8 +60,8 @@ object objAktor;
 string AGF;
 
 !// Logging bestimmen
-var logObj=dom.GetObject(vrp+"HK-Log");
-var loggingObj=dom.GetObject(vrp+"HK-Logging");
+var logObj=dom.GetObject(vrp+"HK-LogHeizkurvenkontrolle");
+var loggingObj=dom.GetObject(vrp+"HK-LoggingHeizkurvenkontrolle");
 
 !// Prüfe logging erwartet wird
 if ((!log) && loggingObj){
@@ -80,32 +80,20 @@ if (!logObj){
 !// Dazu benötigen wir auch eine Variable, in der wie zu den Räumen, den jeweiligen
 !// Status und die maximale Temperatur speichern.
 
-var objVar=dom.GetObject(vrp+"Tool-Heizkurvenkontrolle");
+var objVar=dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle");
 if (!objVar){
-  if(DEBUG)  {WriteLine("Tool-Heizkurvenkontrolle ist nicht vorhanden. Abbruch!!!");}
+  if(DEBUG)  {WriteLine("HK-RäumeHeizkurvenkontrolle ist nicht vorhanden. Abbruch!!!");}
   quit;
 }
 string RaumListe = objVar.State();
 string neueRaumListe="";
-
-!// Sollte die Heizliste leer sein, dann können wir auch die Raumliste löschen.
-!// Wir haben dann nichts ehr zu tun. Alle Heizvorgänge sollten längst abgeschlossen sein
-if (!SListe){
-  if(DEBUG)  {WriteLine("Schaltliste ist leer, keine Aktion notwendig!");}
-  dom.GetObject(vrp+"Tool-Heizkurvenkontrolle").State("")
-  quit;
-}
 
 !// Baue eine simple Namensliste aus den HK2-HKG-Liste. Wir entfernen Prefix und im multiraum Fall auch die anderen Räume
 !// Aus HKG-Raum-GrSaal, wird GrSaal. Aus HKG-Foyer wird Foyer
 string RIDINamen=VarNamen.Replace("HKG-Raum-","").Replace("HKG-","");
 
 WriteLine("Beginn Heizkurvenkontrolle");
-if(SListe!=""){
-  !// Log nur, wenn es auch was zu tun gibt
-  if(DEBUG)  {WriteLine("Vollständige Raumliste: "+VarNamen);}
-}
-
+if(DEBUG)  {WriteLine("Vollständige Raumliste: "+VarNamen);}
 
 !// Beginn aussere Schleife------------------------------------------
 !// Element von der Schaltliste nehmen und die dazu gehörige Raumvariablen suchen.
@@ -356,10 +344,10 @@ foreach(SLEintrag,SListe){
 
 !// Neue RaumListen Daten speichern
 if(DEBUG)  {WriteLine("Neue RaumListe=" # neueRaumListe);}
-dom.GetObject(vrp+"Tool-Heizkurvenkontrolle").State(neueRaumListe);
+dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
 
-if (dom.GetObject(vrp+"Tool-Heizkurvenkontrolle").State()!=neueRaumListe){
-  dom.GetObject(vrp+"Tool-Heizkurvenkontrolle").State(neueRaumListe);
+if (dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State()!=neueRaumListe){
+  dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
   if (neueRaumListe==""){
     if (DEBUG) { WriteLine("Neue Raumliste: Keine Termine"); }
   }else{
