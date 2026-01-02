@@ -344,7 +344,6 @@ foreach(SLEintrag,SListe){
 
 !// Neue RaumListen Daten speichern
 if(DEBUG)  {WriteLine("Neue RaumListe=" # neueRaumListe);}
-dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
 
 if (dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State()!=neueRaumListe){
   dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
