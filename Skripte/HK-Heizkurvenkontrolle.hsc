@@ -242,9 +242,6 @@ foreach(SLEintrag,SListe){
     !// Daten aus aktueller Raumliste bestimmen.
     !//   Name
     !//   Messzustand
-    !//     0 = Warte auf Heizen
-    !//     1 = Heizen / Warte auf Temperatur erreicht oder abschalten
-    !//     2 = Zieltemperatur erriecht / Warte auf Temperatur erreicht oder abschalten
     !//   Bisherige maximal Temeratur
     string RaumParameter="";
     integer iPos = RaumListe.Find("#" # RVN # ";");
@@ -308,7 +305,7 @@ foreach(SLEintrag,SListe){
     }
 
     !// Warte auf Zieltemperatur. Nur wenn bit 1 = aus
-    if (((status & 2)==0)){
+    if ((status & 2)==0){
       if (istTemperatur>=RTemp){
         !// Zieltemperatur erreicht
         sTemp = ((NOW-EIN)/60).ToString();
