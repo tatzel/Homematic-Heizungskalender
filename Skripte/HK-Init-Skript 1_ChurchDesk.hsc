@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (ChurchDesk)
 !//================================================================================================
-!// Stand:    18.12.2025; 
+!// Stand:    06.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -230,7 +230,7 @@ if (apiToken && organizationId){
 
         !// Namen bereinigen
         name = res.Substr(0,iPosEnd);
-        name = name.Replace(" ","").Replace("\\","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
+        name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","");
 
         if (raumListe){
           raumListe = raumListe # ";";
@@ -256,7 +256,7 @@ if (apiToken && organizationId){
       !// Weitere Räume hinzufügen, wenn diese nicht schon in der Liste sind
       foreach(name,zusaetzlicheRaumNamen.Split(";")){
         !// Namen bereinigen
-        name = name.Replace(" ","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
+        name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","");
         if (name && ((";" # raumNamen # ";").Find(";" # name # ";")<0)){
           if(!raumNamen.EndsWith(";")){
             raumNamen = raumNamen # ";";

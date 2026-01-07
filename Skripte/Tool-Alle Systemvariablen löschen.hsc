@@ -42,10 +42,10 @@ foreach(vrp,vrps.Split(";")){
   WriteLine("Prefix:" #vrp);
   foreach(svName, dom.GetObject(ID_SYSTEM_VARIABLES).EnumUsedNames()){
     !WriteLine(svName);
-    if (svName.ToUpper().StartsWith((vrp#"HK").ToUpper()) || svName.ToUpper().StartsWith((vrp#"Tool-").ToUpper())){
+    if ((svName.ToUpper().StartsWith((vrp#"HK").ToUpper())) || (svName.ToUpper().StartsWith((vrp#"Tool-").ToUpper()))) {
+      WriteLine("Systemvariable \"" # svName # "\" gelöscht");
       svObject = dom.GetObject(ID_SYSTEM_VARIABLES).Get(svName);
       dom.DeleteObject(svObject);
-      WriteLine("Systemvariable \""#svName#"\" gelöscht");
     }
   }
 }

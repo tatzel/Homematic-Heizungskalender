@@ -1,11 +1,11 @@
 !// Sichern des Systemprotokolls auf dem USB Stick
 !//================================================================================================
-!// Stand:    16.12.2025;
+!// Stand:    06.01.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
 !// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Basis von Homematic
 !// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
 !// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
@@ -37,7 +37,7 @@ string prefix = "HK-Log_";
 !// Anzahl der Dateien die erhalten bleiben sollen. Die ältesten Dateien werden automatisch gelöscht.
 integer AnzahlDateien=30;
 
-!// Debug Mouds, wir haben mehrere Levels 0 (Keine Debug Ausgaben) Debugausgaben Leve 1/2
+!// Debug Mouds, wir haben mehrere Levels 0
 integer DEBUG=0;
 
 !//#######---Ende Variabler Bereich---####################################################################
@@ -47,6 +47,18 @@ string cmd = "";
 string stdout;
 string stderr;
 string dateiname;
+
+!// Prüfen ob USB1 überhaupt verfügbar ist
+dateiname = pfad;
+if (dateiname.EndsWith("/")) {
+  !// Ausgabe in mount hat kein endenden Slash
+  dateiname = dateiname.Substr(0,dateiname.Length()-1);
+}
+system.Exec("mount | grep " # dateiname, &stdout, &stderr);
+if (!stdout) {
+    WriteLine(pfad # " is NOT available.");
+    quit;
+}
 
 !// Cleanup. Lösche so viele Dateien, biss nur noch die entsprechende Anzahl übrig sind.
 cmd = "ls -w 1 -r \"" # pfad # prefix #"\"*.log";

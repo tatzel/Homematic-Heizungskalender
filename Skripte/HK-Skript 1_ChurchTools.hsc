@@ -1,4 +1,4 @@
-!// Skript 1 um die Termine aus ChurchTools auszulesen
+!// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
 !// Stand:    01.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)

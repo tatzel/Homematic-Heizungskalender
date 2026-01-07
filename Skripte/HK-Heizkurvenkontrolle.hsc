@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    02.01.2026
+!// Stand:    03.01.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -28,7 +28,7 @@
 string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=1;
+boolean DEBUG=0;
 
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
@@ -257,6 +257,12 @@ foreach(SLEintrag,SListe){
       RaumParameter = sTemp.Substr(0,iPos2);
     }
     if (DEBUG) { WriteLine("RaumParameter=" # RaumParameter); }
+    !// status bitmap. Diese verhindert, dass ein/aus/Zieltmperatur öfters als einmal 
+    !// geloggt wird.
+    !//   1 bit 0 = Heizung an
+    !//   2 bit 1 = Zieltemperatur erreicht
+    !//   4 bit 2 = Heizung ausgeschaltet
+  
     integer status = RaumParameter.StrValueByIndex(";",1).ToInteger();
     real maxTemperatur = RaumParameter.StrValueByIndex(";",2).ToFloat();
 
@@ -273,8 +279,8 @@ foreach(SLEintrag,SListe){
     !// Neues maximum bestimmen
     maxTemperatur = maxTemperatur.Max(istTemperatur);
 
-    !// Prüfen ob Heizbeginn erkannt wird.
-    if ((aktuellerSchaltZustand==1) && (status==0)){
+    !// Prüfen ob Heizbeginn erkannt wird. Nur wenn bit 0 = aus
+    if ((aktuellerSchaltZustand==1) && ((status & 1)==0)){
       !// Heizbeginn erkannt
       sTemp = ((NOW-EIN)/60).ToString();
       if (!sTemp.StartsWith("-")){
@@ -282,23 +288,27 @@ foreach(SLEintrag,SListe){
       }
       logObj.State          (AktSRName # "-" # RVNName # " Heizbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1));
       if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1)); }
-      status = 1;
+      !// bit 0 setzen und bit 2 zurücksetzen
+      status = status & 251;
+      status = status | 1;
     }
 
-    !// Der Einschaltzeitpunkt wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
-    !// Das Skript sollte alle 5min laufen.
-    if (((EIN-160)<NOW) && ((EIN+160)>NOW)){
-      !// Einschaltpunkt erreicht
+    !// Prüfen ob Heizende erkannt wird. Nur wenn bit 0 = ein und bit 2 = aus
+    if ((aktuellerSchaltZustand==0) && ((status & 1)!=0) && ((status & 4)==0)){
+      !// Heizbeginn erkannt
       sTemp = ((NOW-EIN)/60).ToString();
       if (!sTemp.StartsWith("-")){
         sTemp = "+" # sTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Heizende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      !// Bit 0 löschen und bit 2 setzen
+      status = status & 254;
+      status = status | 4;
     }
 
-    !// Warte auf Zieltemperatur.
-    if (status==1){
+    !// Warte auf Zieltemperatur. Nur wenn bit 1 = aus
+    if (((status & 2)==0)){
       if (istTemperatur>=RTemp){
         !// Zieltemperatur erreicht
         sTemp = ((NOW-EIN)/60).ToString();
@@ -307,14 +317,27 @@ foreach(SLEintrag,SListe){
         }
         logObj.State          (AktSRName # "-" # RVNName # " Zieltemperatur: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
         if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Zieltemperatur: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
-        status = 2;
+        !// Bit 1 setzen
+        status = status | 2;
       }
     }
 
-    !// Der Ausschaltzeitpunkt wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
+    !// Der Terminanfang wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
+    !// Das Skript sollte alle 5min laufen.
+    if (((EIN-160)<NOW) && ((EIN+160)>NOW)){
+      !// Terminanfang erreicht
+      sTemp = ((NOW-EIN)/60).ToString();
+      if (!sTemp.StartsWith("-")){
+        sTemp = "+" # sTemp;
+      }
+      logObj.State          (AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+    }
+
+    !// Der Terminende wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
     !// Das Skript sollte alle 5min laufen.
     if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
-      !// Ausschaltpunkt erreicht
+      !// Terminende erreicht
       sTemp = ((NOW-EIN)/60).ToString();
       if (!sTemp.StartsWith("-")){
         sTemp = "+" # sTemp;
@@ -322,9 +345,9 @@ foreach(SLEintrag,SListe){
       logObj.State          (AktSRName # "-" # RVNName # " Terminende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
       if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
       !// Setze den Status 0, wenn wir wirklich nicht mehr heizen. Andernfalls befinden wir uns schon wieder in
-      !// einer neuen Heizphase
-      if ((aktuellerSchaltZustand==0) && (status!=0)){
-        !// Wir heizen nicht mehr
+      !// einer neuen Heizphase. Jeder andere Status ist uns egal.
+      if (aktuellerSchaltZustand==0){
+        !// Wir heizen nicht mehr. Damit vergessen wir alles, weil der Ausschalttermin gefallen ist.
         status = 0;
       }
     }
@@ -333,7 +356,7 @@ foreach(SLEintrag,SListe){
     !// befindet. Dadurch erreichen wir, dass auch überlappende Termine sofort in der nächsten
     !// SListe bearbeitet werden.
     if (status!=0){
-      !// Neuen RaumParameter zusammensetzen
+      !// Neuen RaumParameter zusammensezen
       RaumParameter = "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
       neueRaumListe = neueRaumListe # RaumParameter;
     }
@@ -343,9 +366,6 @@ foreach(SLEintrag,SListe){
 !// Ende äußere Schleife---------------------------------------------
 
 !// Neue RaumListen Daten speichern
-if(DEBUG)  {WriteLine("Neue RaumListe=" # neueRaumListe);}
-dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
-
 if (dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State()!=neueRaumListe){
   dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
   if (neueRaumListe==""){

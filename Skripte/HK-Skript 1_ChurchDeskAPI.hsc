@@ -1,4 +1,4 @@
-!// Skript 1 um die Termine aus ChurchTools auszulesen
+!// Skript 1 um die Termine aus ChurchDesk auszulesen (API)
 !//================================================================================================
 !// Stand:    01.01.2026 
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
