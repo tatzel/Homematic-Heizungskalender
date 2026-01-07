@@ -129,3 +129,44 @@ foreach(AGF,AGFs.Split(";")){
   }
   WriteLine("AGF=" # AGF # "->" # Param);
 }
+
+!//------------------------------------------------------------------------------------------
+!// Alle Programme auslisten
+string vrp="";
+string sProgramId;
+foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
+  object oProgram = dom.GetObject(sProgramId);
+  if (oProgram) {
+    string sName = oProgram.Name();
+  WriteLine(sProgramId # " " #sName);
+  }
+}
+
+!//------------------------------------------------------------------------------------------
+!// Programm löschen
+
+integer progId = 4393;
+object oPRG;
+if (progId!=0) {
+    oPRG = dom.GetObject(ID_PROGRAMS).Get(progId);
+    if (oPRG) {
+      WriteLine("Deleted!");
+      dom.DeleteObject(progId);
+    }
+}
+dom.RTUpdate (0);
+
+!//------------------------------------------------------------------------------------------
+!// Ausgabe alle Programme: Id, Name, Beschreibung, Aktiv, Zeile1, Stand
+WriteLine("Test " # OT_PROGRAM);
+string sProgramId;
+foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
+  object oProgram = dom.GetObject(sProgramId);
+  if (oProgram) {
+    string sName = oProgram.Name();
+    if (oProgram.Type()==OT_PROGRAM) {
+      WriteLine("Is Program: " # sProgramId # " " #sName # " " # oProgram.Type() # " " # oProgram.TypeName());
+    }
+  }
+}
+
