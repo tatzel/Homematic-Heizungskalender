@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Churchtools)
 !//================================================================================================
-!// Stand:    18.12.2025;
+!// Stand:    06.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -275,7 +275,7 @@ if (loginToken && gemeindeName){
 
             !// Namen bereinigen
             name = res.Substr(0,iPosEnd);
-            name = name.Replace(" ","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
+            name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","");
 
             if (raumListe){
               raumListe = raumListe # ";";
@@ -303,7 +303,7 @@ if (loginToken && gemeindeName){
           !// Weitere Räume hinzufügen, wenn diese nicht schon in der Liste sind
           foreach(name,zusaetzlicheRaumNamen.Split(";")){
             !// Namen bereinigen
-            name = name.Replace(" ","").Replace("\"","").Replace("+","").Replace(";","").Replace(".","");
+            name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","");
             if (name && ((";" # raumNamen # ";").Find(";" # name # ";")<0)){
               if(!raumNamen.EndsWith(";")){
                 raumNamen = raumNamen # ";";
@@ -379,4 +379,3 @@ if (loginToken && gemeindeName){
 dom.RTUpdate(0);
 
 WriteLine("Alles erledigt...!");
-

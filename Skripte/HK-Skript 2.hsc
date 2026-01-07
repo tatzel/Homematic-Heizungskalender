@@ -1,12 +1,12 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    01.01.2026
+!// Stand:    05.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
 !// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Basis von Homematic
 !// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
 !// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
@@ -29,6 +29,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2025-01-05 Begrenzung der Berücksichtigung der Raumtemperatur, Schaltzeiten korrekt berücksichtigen
 !// MRi: 2026-01-01 Skript gegen fehlende Aktoren gesichert
 !// MRi: 2025-12-29 Berücksichtigung der aktuellen Raumtemperatur bei der Vorheizzeit
 !// MRi: 2025-12-22 Schaltskript arbeitete nicht für Schalten. Es wurde immer ein Heizvorgang angenommen
@@ -406,35 +407,52 @@ foreach(SLEintrag,SListe){
           if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
         }
 
+        !// faktor2 wird auf 1.0 gesetzt, wenn wir bereits in der Heizphase sein. Sonst verschiebt sich
+        !// Die EIN Zeit immer weiter auf die AUS-Zeit zu. Was dazu führen könnte das die Heizung ausgeschaltet 
+        !// wird.
         real faktor2 = 1.0-((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT));
+        if (aktuellerSchaltZustand==1){
+          faktor2 = 1.0;
+        }
         offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
         offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
         if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
 
         !// Reale Schaltzeiten berechnen
-        if (log || DEBUG){
-          string logText = AktSRName # "-" # RVNName # " Heizen - " # AT.ToString(1) # "/"  # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C - "  #EIN.ToTime().Format("%X").Substr(0,5) # " ";
-          if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
-          logText = logText # (offsetRaumAn/60) #"min ";
-          if (offsetTempAn==0){ logText=logText#" - "; }
-          logText = logText # (offsetTempAn/60) # "min = ";
-          EIN = EIN + offsetRaumAn + offsetTempAn;
-          logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
-          if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
-          AUS = AUS + offsetRaumAus;
-          logText = logText # (offsetRaumAus/60) # "min = " # AUS.ToTime().Format("%X").Substr(0,5);
-          if(log) {logObj.State(logText);}
-          if(DEBUG)  {WriteLine(logText);}
-        }
+        string logText = AktSRName # "-" # RVNName # " Heizen - " # AT.ToString(1) # "/"  # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C - "  #EIN.ToTime().Format("%X").Substr(0,5) # " ";
+        if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
+        logText = logText # (offsetRaumAn/60) #"min ";
+        if (offsetTempAn==0){ logText=logText#" - "; }
+        logText = logText # (offsetTempAn/60) # "min = ";
+        EIN = EIN + offsetRaumAn + offsetTempAn;
+        logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
+        if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
+        AUS = AUS + offsetRaumAus;
+        logText = logText # (offsetRaumAus/60) # "min = " # AUS.ToTime().Format("%X").Substr(0,5);
+        if(log) {logObj.State(logText);}
+        if(DEBUG)  {WriteLine(logText);}
       }
     }else{
+      !// Reale Schaltzeiten berechnen
+      string logText = AktSRName # "-" # RVNName # " Schalten - " #EIN.ToTime().Format("%X").Substr(0,5) # " ";
+      if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
+      logText = logText # (offsetRaumAn/60) #"min ";
+      EIN = EIN + offsetRaumAn;
+      logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
+      if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
+      AUS = AUS + offsetRaumAus;
+      logText = logText # (offsetRaumAus/60) # "min = " # AUS.ToTime().Format("%X").Substr(0,5);
+      if(log) {logObj.State(logText);}
+      if(DEBUG)  {WriteLine(logText);}
+
+      !// Parameter setzen
       Param="STATE";
-      if(log){logObj.State(AktSRName # "-" # RVNName # " Schalten - Parameter: "+AGF);}
-      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Schalten - Parameter: "+AGF);}
     }
 
     !// Verhindern dass Ausschaltpunkt vor Einschaltpunkt liegt
     if(AUS<=EIN){
+      !// Durch das überspringen des Raumes hier, wird ein Raum evtl. ausgeschaltet, weil er nicht mehr
+      !// als zu heizen gilt.
       if(log) {logObj.State(AktSRName # "-" # RVNName # " Einschaltzeit liegt nach Ausschaltzeit");}
       if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Einschaltzeit liegt nach Ausschaltzeit");}
       continue;
