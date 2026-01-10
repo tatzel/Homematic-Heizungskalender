@@ -71,7 +71,7 @@ string nm=  "HK1-Schaltliste;" #
 
 !// Beschreibungstexte
 string be=  "Schaltliste. Hier bitte nichts verändern!;" #
-            "Zuordnung der Räume aus ChurchDesk;" #
+            "Zuordnung der Räume aus der Ressourcenverwaltung;" #
             "Organisations ID in ChurchDesk;" #
             "API-Token für ChurchDesk;" #
             "Liste der HK-Raum-Variablen;";
