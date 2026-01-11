@@ -54,7 +54,7 @@ string nm=  "HK1-Schaltliste;" #
             
 !// Beschreibungstexte
 string be=  "Schaltliste. Hier bitte nichts verändern!;" #
-            "Zuordnung der Räume aus der Ressourcenverwaltung;" #
+            "Zuordnung der Ressourcen aus dem iCal Kalender;" #
             "URL des iCal Kalender";              
             
 !// Typen

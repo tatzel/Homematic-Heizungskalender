@@ -72,7 +72,7 @@ string nm=  "HK1-CT-Gemeindename;" #
 !// Beschreibungstexte
 string be=  "Name der Gemeinde in Churchtools;" #
             "Schaltliste. Hier bitte nichts verändern!;" #
-            "Zuordnung der Räume aus der Ressourcenverwaltung;" #
+            "Zuordnung der Ressourcen in ChurchTools;" #
             "Sicherheitstoken für ChurchTools;" #
             "Liste der HK-Raum-Variablen;";
 
