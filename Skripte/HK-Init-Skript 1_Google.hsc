@@ -55,7 +55,7 @@ string nm=  "HK1-Schaltliste;" #
 string be=  "Schaltliste. Hier bitte nichts verändern!;" #
             "API-Key für den Google-Kalender;" #
             "ID des Google-Kalender;" #
-            "Namensliste der Gruppen";
+            "Zuordnung der Räume aus der Ressourcenverwaltung";
             
 !// Typen
 string tp=  "string;" #                                                          
