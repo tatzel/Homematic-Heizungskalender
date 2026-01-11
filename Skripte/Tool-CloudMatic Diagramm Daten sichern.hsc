@@ -39,6 +39,18 @@ string stdout;
 string stderr;
 string dateiname;
 
+!// Prüfen ob USB1 überhaupt verfügbar ist
+dateiname = pfad;
+if (dateiname.EndsWith("/")) {
+  !// Ausgabe in mount hat kein endenden Slash
+  dateiname = dateiname.Substr(0,dateiname.Length()-1);
+}
+system.Exec("mount | grep " # dateiname, &stdout, &stderr);
+if (!stdout) {
+    WriteLine(pfad # " is NOT available.");
+    quit;
+}
+
 !// Lade die Diagrammliste
 object logVar = dom.GetObject("_CM_diagrams_");
 if (!logVar){
