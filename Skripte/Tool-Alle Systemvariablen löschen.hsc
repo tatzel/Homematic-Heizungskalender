@@ -50,5 +50,7 @@ foreach(vrp,vrps.Split(";")){
   }
 }
 
-WriteLine("Alles fertig...");
+!// Alles aktualisieren
+dom.RTUpdate(0);
 
+WriteLine("Alles fertig...");
