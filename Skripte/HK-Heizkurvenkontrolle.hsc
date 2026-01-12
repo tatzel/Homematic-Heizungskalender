@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    03.01.2026
+!// Stand:    12.01.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -38,10 +38,6 @@ boolean log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
-
-!// Aktoren müssen einen Namen länger als diesen Wert haben, sonst werden Sie wie einen Parameter
-!// in der Raumvariable behandelt.
-integer minAktorNamenLaenge=10;
 
 !//-------------------------------------------------------------
 integer NOW=system.Date().ToTime().ToInteger();
