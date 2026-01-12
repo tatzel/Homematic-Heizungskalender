@@ -1,6 +1,6 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    01.01.2026 
+!// Stand:    12.01.2026 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -31,10 +31,6 @@
 !// Heizliste dekodieren und prüfen
 
 string vrp="";
-
-!// Aktoren müssen einen Namen länger als diesen Wert haben, sonst werden Sie wie einen Parameter
-!// in der Raumvariable behandelt.
-integer minAktorNamenLaenge=10;
 
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
@@ -294,26 +290,40 @@ foreach(RName,ListeRaumVariablen.Split(";")){
   elseif(stemp=="IT"){Param="SET_TEMPERATURE";}
   else{Param="";}
 
-  WriteLine("Aktoren:");
-  foreach(Aktor,RaumDef.Split(";")){
-  if (Aktor.Length()>minAktorNamenLaenge){
-      stemp = "\t" # Aktor;
-      if (Param!=""){
-        obj = dom.GetObject(Aktor);
-        if (obj){
-          obj=obj.DPByHssDP(Param);
-          if (obj){
-            stemp = stemp # " \t " # Param # "=" # obj.State();
-          }else{
-            stemp = stemp # " \t FEHLER!!! Param " # Param # " unbekannt im System!";
-          }
-        }else{
-          stemp = stemp # " \t FEHLER!!! Aktor unbekannt im System!";
-        }
-      }
-      WriteLine(stemp);
+  !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
+  !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
+  !// Das ein Aktorname eine Mindestlänge hat.
+  integer iPos = 0;
+  integer iEntry = 1;
+  string AktorenListe = "";
+  while (iPos<RaumDef.Length()) {
+    if (iEntry>6){
+      AktorenListe = AktorenListe # RaumDef.Substr(iPos,1);
+    } elseif (RaumDef.Substr(iPos,1)==";"){
+      iEntry=iEntry+1;
     }
+    iPos = iPos+1;
+  } 
+    
+  WriteLine("Aktoren:");
+  foreach(Aktor,AktorenListe.Split(";")){
+    stemp = "\t" # Aktor;
+    if (Param!=""){
+      obj = dom.GetObject(Aktor);
+      if (obj){
+        obj=obj.DPByHssDP(Param);
+        if (obj){
+          stemp = stemp # " \t " # Param # "=" # obj.State();
+        }else{
+          stemp = stemp # " \t FEHLER!!! Param " # Param # " unbekannt im System!";
+        }
+      }else{
+        stemp = stemp # " \t FEHLER!!! Aktor unbekannt im System!";
+      }
+    }
+    WriteLine(stemp);
   }
+
   ListeRaumVariablen = ListeRaumVariablen.Replace(";"# RName # ";", ";");
   if (ListeRaumVariablen.Length()>1){
     WriteLine("_____________________________");  

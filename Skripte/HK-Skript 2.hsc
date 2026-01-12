@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    05.01.2026
+!// Stand:    12.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2025-01-12 Bessere Behandlung von mehreren Aktoren in den Raumvars. minAktorNamenLaenge entfernt.
 !// MRi: 2025-01-05 Begrenzung der Berücksichtigung der Raumtemperatur, Schaltzeiten korrekt berücksichtigen
 !// MRi: 2026-01-01 Skript gegen fehlende Aktoren gesichert
 !// MRi: 2025-12-29 Berücksichtigung der aktuellen Raumtemperatur bei der Vorheizzeit
@@ -74,10 +75,6 @@ boolean log=0;
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
 
-!// Aktoren müssen einen Namen länger als diesen Wert haben, sonst werden Sie wie einen Parameter
-!// in der Raumvariable behandelt.
-integer minAktorNamenLaenge=10;
-
 !//-------------------------------------------------------------
 !// Schaltparameter Varablen
 
@@ -118,6 +115,7 @@ real AT=dom.GetObject(vrp+"HK2-Aussentemperatur").State().ToFloat();
 real GTStandard=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
 real GT=GTStandard;
 string AktAktor;
+string AktorenListe;
 object objAktor;
 string AGF;
 string AGFParam;
@@ -258,6 +256,21 @@ foreach(SLEintrag,SListe){
     string RVI=dom.GetObject(RVN).State();
     if(DEBUG){WriteLine("RVI=" # RVI);}
     if(log){logObj.State(AktSRName # " Raumvariable: "+RVN+"="+RVI);}
+    
+    !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
+    !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
+    !// Das ein Aktorname eine Mindestlänge hat.
+    iPos = 0;
+    iEntry = 1;
+    AktorenListe = "";
+    while (iPos<RVI.Length()) {
+      if (iEntry>6){
+        AktorenListe = AktorenListe # RVI.Substr(iPos,1);
+      } elseif (RVI.Substr(iPos,1)==";"){
+        iEntry=iEntry+1;
+      }
+      iPos = iPos+1;
+    }  
 
     !// Erzeuge einen Namen ohne prefixe
     string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
@@ -468,24 +481,21 @@ foreach(SLEintrag,SListe){
     if(SDFlag==-1){
       if(aktuellerSchaltZustand!=2){
         if (((EIN-160)<NOW) && ((EIN+160)>NOW)){
-          foreach(AktAktor,RVI.Split(";")){
-            !// Nummerische (kurze Einträge) in der Liste überspringen.
-            if(AktAktor.Length()>minAktorNamenLaenge){
-              objAktor = dom.GetObject(AktAktor);
-              if (objAktor){
-                if(HSFlag){
-                  objAktor.DPByHssDP(Param).State(GT);
-                  if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
-                  if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
-                }else{
-                  objAktor.DPByHssDP(Param).State(0);
-                  if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
-                  if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
-                }
+          foreach(AktAktor,AktorenListe.Split(";")){
+            objAktor = dom.GetObject(AktAktor);
+            if (objAktor){
+              if(HSFlag){
+                objAktor.DPByHssDP(Param).State(GT);
+                if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
+                if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
               }else{
-                if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-                if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+                objAktor.DPByHssDP(Param).State(0);
+                if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
+                if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
               }
+            }else{
+              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("2;"+RVI.Substr(2,RVI.Length()-2));
@@ -512,24 +522,21 @@ foreach(SLEintrag,SListe){
     if(SDFlag==-2){
       if(aktuellerSchaltZustand!=3){
         if (((EIN-160)<NOW) && ((EIN+160)>NOW)){
-          foreach(AktAktor,RVI.Split(";")){
-            !// Nummerische (kurze Einträge) in der Liste überspringen.
-            if(AktAktor.Length()>minAktorNamenLaenge){
-              objAktor = dom.GetObject(AktAktor);
-              if (objAktor){              
-                if(HSFlag){
-                  objAktor.DPByHssDP(Param).State(RTemp);
-                  if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
-                  if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
-                }else{
-                  objAktor.DPByHssDP(Param).State(1);
-                  if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet");}
-                  if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet");}
-                }
+          foreach(AktAktor,AktorenListe.Split(";")){
+            objAktor = dom.GetObject(AktAktor);
+            if (objAktor){              
+              if(HSFlag){
+                objAktor.DPByHssDP(Param).State(RTemp);
+                if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
+                if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
               }else{
-                if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-                if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+                objAktor.DPByHssDP(Param).State(1);
+                if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet");}
+                if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet");}
               }
+            }else{
+              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("3;"+RVI.Substr(2,RVI.Length()-2));
@@ -556,24 +563,21 @@ foreach(SLEintrag,SListe){
     if(SDFlag==-3){
       if((aktuellerSchaltZustand==2) || (aktuellerSchaltZustand==3)){
         if (((EIN-160)<NOW) && ((EIN+160)>NOW)){
-          foreach(AktAktor,RVI.Split(";")){
-            !// Nummerische (kurze Einträge) in der Liste überspringen.
-            if(AktAktor.Length()>minAktorNamenLaenge){
-              objAktor = dom.GetObject(AktAktor);
-              if (objAktor){              
-                if(HSFlag){
-                  objAktor.DPByHssDP(Param).State(GT);
-                  if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
-                  if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
-                }else{
-                  objAktor.DPByHssDP(Param).State(0);
-                  if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
-                  if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
-                }
+          foreach(AktAktor,AktorenListe.Split(";")){
+            objAktor = dom.GetObject(AktAktor);
+            if (objAktor){              
+              if(HSFlag){
+                objAktor.DPByHssDP(Param).State(GT);
+                if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
+                if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
               }else{
-                if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-                if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+                objAktor.DPByHssDP(Param).State(0);
+                if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
+                if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
               }
+            }else{
+              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
@@ -608,35 +612,32 @@ foreach(SLEintrag,SListe){
         !// Der Ausschaltzeitpunkt wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
         !// Das Skript sollte alle 5m,in laufen.
         if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
-          foreach(AktAktor,RVI.Split(";")){
-            !// Nummerische (kurze Einträge) in der Liste überspringen.
-            if(AktAktor.Length()>minAktorNamenLaenge){
-              objAktor = dom.GetObject(AktAktor);
-              if (objAktor){              
-                if(HSFlag){
-                  if(Flag_Hand_Temp!=false){
-                    real istTemperatur = objAktor.DPByHssDP(Param).State();
-                    if(istTemperatur==RTemp){
-                      objAktor.DPByHssDP(Param).State(GT);
-                      if(log) {logObj.State(AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-                      if(DEBUG)  {WriteLine(AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-                    }else{
-                      if(log){logObj.State(AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
-                    }
-                  }else{
+          foreach(AktAktor,AktorenListe.Split(";")){
+            objAktor = dom.GetObject(AktAktor);
+            if (objAktor){              
+              if(HSFlag){
+                if(Flag_Hand_Temp!=false){
+                  real istTemperatur = objAktor.DPByHssDP(Param).State();
+                  if(istTemperatur==RTemp){
                     objAktor.DPByHssDP(Param).State(GT);
-                    if(log) {logObj.State(AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
-                    if(DEBUG)  {WriteLine(AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                    if(log) {logObj.State(AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                    if(DEBUG)  {WriteLine(AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                  }else{
+                    if(log){logObj.State(AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
                   }
                 }else{
-                  objAktor.DPByHssDP(Param).State(0);
-                  if(log) {logObj.State(AktAktor+" Ausschalten. Parameter: "+Param);}
-                  if(DEBUG)  {WriteLine(AktAktor+" Ausschalten. Parameter: "+Param);}
+                  objAktor.DPByHssDP(Param).State(GT);
+                  if(log) {logObj.State(AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                  if(DEBUG)  {WriteLine(AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
                 }
               }else{
-                if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-                if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+                objAktor.DPByHssDP(Param).State(0);
+                if(log) {logObj.State(AktAktor+" Ausschalten. Parameter: "+Param);}
+                if(DEBUG)  {WriteLine(AktAktor+" Ausschalten. Parameter: "+Param);}
               }
+            }else{
+              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
@@ -673,36 +674,33 @@ foreach(SLEintrag,SListe){
             if (RVNListeAn.Find(RVN+";")<0){
               RVNListeAn=RVNListeAn+RVN+";";
             }
-            foreach(AktAktor,RVI.Split(";")){
-              !// Nummerische (kurze Einträge) in der Liste überspringen.
-              if(AktAktor.Length()>minAktorNamenLaenge){
-                objAktor = dom.GetObject(AktAktor);
-                if (objAktor){              
-                  if(HSFlag){
-                    if(Flag_Hand_Temp!=false){
-                      real istTemperatur = objAktor.DPByHssDP(Param).State();
-                      if(istTemperatur==GT){
-                        objAktor.DPByHssDP(Param).State(RTemp);
-                        if(log) {logObj.State(AktAktor+" Einschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # RTemp.ToString(1) #" Parameter: " # Param);}
-                        if(DEBUG)  {WriteLine(AktAktor+" Einschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # RTemp.ToString(1) #" Parameter: " # Param);}
-                      }else{
-                        if(log){logObj.State(AktAktor+" Reglervorrang bei EIN (Regeler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
-                        if(DEBUG) {WriteLine(AktAktor+" Reglervorrang bei EIN (Regeler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
-                      }
-                    }else{
+            foreach(AktAktor,AktorenListe.Split(";")){
+              objAktor = dom.GetObject(AktAktor);
+              if (objAktor){              
+                if(HSFlag){
+                  if(Flag_Hand_Temp!=false){
+                    real istTemperatur = objAktor.DPByHssDP(Param).State();
+                    if(istTemperatur==GT){
                       objAktor.DPByHssDP(Param).State(RTemp);
-                      if(log) {logObj.State(AktAktor+" Einschalten (ohne Funktion Reglervorrang) auf Temp.: "+RTemp.ToString(1)+" Parameter: "+Param);}
-                      if(DEBUG)  {WriteLine(AktAktor+" Einschalten (ohne Funktion Reglervorrang) auf Temp.: "+RTemp.ToString(1)+" Parameter: "+Param);}
+                      if(log) {logObj.State(AktAktor+" Einschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # RTemp.ToString(1) #" Parameter: " # Param);}
+                      if(DEBUG)  {WriteLine(AktAktor+" Einschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # RTemp.ToString(1) #" Parameter: " # Param);}
+                    }else{
+                      if(log){logObj.State(AktAktor+" Reglervorrang bei EIN (Regeler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
+                      if(DEBUG) {WriteLine(AktAktor+" Reglervorrang bei EIN (Regeler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
                     }
                   }else{
-                    objAktor.DPByHssDP(Param).State(1);
-                    if(log) {logObj.State(AktAktor+" Einschalten "+Param);}
-                    if(DEBUG)  {WriteLine(AktAktor+" Einschalten "+Param);}
+                    objAktor.DPByHssDP(Param).State(RTemp);
+                    if(log) {logObj.State(AktAktor+" Einschalten (ohne Funktion Reglervorrang) auf Temp.: "+RTemp.ToString(1)+" Parameter: "+Param);}
+                    if(DEBUG)  {WriteLine(AktAktor+" Einschalten (ohne Funktion Reglervorrang) auf Temp.: "+RTemp.ToString(1)+" Parameter: "+Param);}
                   }
                 }else{
-                  if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-                  if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+                  objAktor.DPByHssDP(Param).State(1);
+                  if(log) {logObj.State(AktAktor+" Einschalten "+Param);}
+                  if(DEBUG)  {WriteLine(AktAktor+" Einschalten "+Param);}
                 }
+              }else{
+                if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
+                if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
               }
             }
             dom.GetObject(RVN).State("1;"+RVI.Substr(2,RVI.Length()-2));
@@ -793,47 +791,57 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
         sollZustand = 0;
       }
 
-      !// Aktoren untersuchen schalten
-      foreach(AktAktor,RVI.Split(";")){
-        !// Nummerische (kurze Einträge) in der Liste überspringen.
-        if(AktAktor.Length()>minAktorNamenLaenge){
-          objAktor = dom.GetObject(AktAktor);
-          if (objAktor){              
-            if(HSFlag){
-              real istTemperatur = objAktor.DPByHssDP(Param).State();
-              if(istTemperatur==RTemp){
-                if(log){logObj.State(AktAktor+" Nachtschaltung für \"" #
-                                     ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                                     "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
-                if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung für \"" #
-                                     ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                                     "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
-              }else{
-                objAktor.DPByHssDP(Param).State(RTemp);
-                if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
-                        ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                        "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
-                if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
-                        ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                        "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
-              }
+      !// AktorenListe aufbauen.
+      iPos = 0;
+      iEntry = 1;
+      AktorenListe = "";
+      while (iPos<RVI.Length()) {
+        if (iEntry>6){
+          AktorenListe = AktorenListe # RVI.Substr(iPos,1);
+        } elseif (RVI.Substr(iPos,1)==";"){
+          iEntry=iEntry+1;
+        }
+        iPos = iPos+1;
+      }  
+
+      !// Aktoren schalten
+      foreach(AktAktor,AktorenListe.Split(";")){
+        objAktor = dom.GetObject(AktAktor);
+        if (objAktor){              
+          if(HSFlag){
+            real istTemperatur = objAktor.DPByHssDP(Param).State();
+            if(istTemperatur==RTemp){
+              if(log){logObj.State(AktAktor+" Nachtschaltung für \"" #
+                                   ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                                   "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
+              if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung für \"" #
+                                   ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                                   "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
             }else{
-              Param="STATE";
-              boolean istZustand = objAktor.DPByHssDP(Param).State(0)!=0;
-              if (istZustand!=(sollZustand!=0)){
-                objAktor.DPByHssDP(Param).State(sollZustand);
-                if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
-                        ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                        "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}
-                if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
-                        ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                        "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}
-              }
+              objAktor.DPByHssDP(Param).State(RTemp);
+              if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
+                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                      "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
+              if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
+                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                      "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
             }
           }else{
-            if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-            if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+            Param="STATE";
+            boolean istZustand = objAktor.DPByHssDP(Param).State(0)!=0;
+            if (istZustand!=(sollZustand!=0)){
+              objAktor.DPByHssDP(Param).State(sollZustand);
+              if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
+                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                      "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}
+              if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
+                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
+                      "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}
+            }
           }
+        }else{
+          if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
+          if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
         }
       }
     }
@@ -883,31 +891,42 @@ foreach(RVN,RVNListe.Split(";")) {
     dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
     if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
     if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
+    
+    !// AktorenListe aufbauen.
+    iPos = 0;
+    iEntry = 1;
+    AktorenListe = "";
+    while (iPos<RVI.Length()) {
+      if (iEntry>6){
+        AktorenListe = AktorenListe # RVI.Substr(iPos,1);
+      } elseif (RVI.Substr(iPos,1)==";"){
+        iEntry=iEntry+1;
+      }
+      iPos = iPos+1;
+    }  
+
     !// Aktoren zurücksetzen
-    foreach(AktAktor,RVI.Split(";")){
-      !// Nummerische (kurze Einträge) in der Liste überspringen.
-      if(AktAktor.Length()>minAktorNamenLaenge){
-        objAktor = dom.GetObject(AktAktor);
-        if (objAktor){              
-          if(HSFlag){
-            real istTemperatur = objAktor.DPByHssDP(Param).State();
-            objAktor.DPByHssDP(Param).State(GT);
-            if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-            if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-          }else{
-            Param="STATE";
-            boolean istZustand = objAktor.DPByHssDP(Param).State()!=0;
-            if (istZustand)
-            {
-              objAktor.DPByHssDP(Param).State(0);
-              if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Schalter - "+AktAktor+" ausschalten. Parameter: "+Param);}
-              if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Schalter - "+AktAktor+" ausschalten. Parameter: "+Param);}
-            }
-          }
+    foreach(AktAktor,AktorenListe.Split(";")){
+      objAktor = dom.GetObject(AktAktor);
+      if (objAktor){              
+        if(HSFlag){
+          real istTemperatur = objAktor.DPByHssDP(Param).State();
+          objAktor.DPByHssDP(Param).State(GT);
+          if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+          if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
         }else{
-          if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-          if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+          Param="STATE";
+          boolean istZustand = objAktor.DPByHssDP(Param).State()!=0;
+          if (istZustand)
+          {
+            objAktor.DPByHssDP(Param).State(0);
+            if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Schalter - "+AktAktor+" ausschalten. Parameter: "+Param);}
+            if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Schalter - "+AktAktor+" ausschalten. Parameter: "+Param);}
+          }
         }
+      }else{
+        if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
+        if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
       }
     }
   }
