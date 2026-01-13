@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    01.01.2026 
+!// Stand:    13.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
 !// MRi: 2025-12-10 Neue Sonderbefehle #GT# #NH# #NS#
 !// MRi: 2025-12-08 Altes Skript komplett überarbeitet
@@ -94,15 +95,13 @@ string gemeindeName = dom.GetObject(vrp # "HK1-CT-Gemeindename").State();
 string RIdListe=dom.GetObject(vrp#"HK1-R-Liste").State();
 string HKGListe=dom.GetObject(vrp#"HK2-HKG-Liste").State();
 
-!// Suche alle Ids der Ressourcen
+!// Suche alle Ids der Ressourcen. Achting es kann ein mit = abgetrennter Name vorhanden sein.
 string filter="";
 string RId;
 foreach(RId,RIdListe.Split(";")){
-  filter = filter # "&resource_ids[]=" # RId;
+  filter = filter # "&resource_ids[]=" # RId.StrValueByIndex("=",0);
 }
 
-!// Ab hier verwenden wir die RaumIdListe mit einem führenden und folgendem ";" um die Suche zu erleichtern
-RIdListe = ";" # RIdListe # ";";
 if(DEBUG){
   WriteLine("HKGListe=" # HKGListe);
   WriteLine("RIdListe=" # RIdListe);
@@ -162,11 +161,24 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     
     !// Id der Ressource bestimmen
     string resId=termin.Substr(iPos+13,10).ToInteger();
+
+    !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+    !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
+    !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
+    boolean bGefunden = false;
+    integer raumIndex = 0;
+    string RaumName="";
+    string RIdEintrag;
+    foreach(RIdEintrag,RIdListe.Split(";")){
+      RaumName = RIdEintrag.StrValueByIndex("=",1);
+      if (RIdEintrag.StrValueByIndex("=",0)==resId){
+        bGefunden = true;
+        break;
+      }
+      raumIndex = raumIndex+1;
+    }
     
-    !// Nun suchen wir den Raum Index mit einem Trick. Wir zählen einfach die
-    !// vorhandenen Semikolons im SubSTr
-    iPos = RIdListe.Find(";" # resId # ";");
-    if (iPos<0){
+    if (!bGefunden){
       !// Raum nicht in unserer Liste (dürfte eigentlich nicht passieren, da wir einen
       !// Filter für Resourcen haben.
       if(DEBUG){
@@ -174,7 +186,6 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }	
       continue;
     }
-    integer raumIndex = (RIdListe.Substr(0,iPos).Length())-(RIdListe.Substr(0,iPos).Replace(";","").Length());
     
     !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
     !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
@@ -183,6 +194,9 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     string RaumVar = RaumVarListe;
     if (multiRaumVariante){
       RaumVar=RaumVar.StrValueByIndex("+",0);
+    }
+    if (RaumName==""){
+      RaumName = RaumVarListe.Replace(vrp#"HKG-Raum-","");
     }
 
     object objVar = dom.GetObject(RaumVar);
@@ -294,7 +308,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
               cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
             }
           }
-          logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
+          logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " # 
                        toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
                        toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
                        " Parameter: " # cap # " " # 
@@ -303,7 +317,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }else{
         !// Wir haben den Sonderbefehl NH/NS
         if (log){
-          logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " # 
+          logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " # 
                        toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " # 
                        toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") # 
                        " Nicht Heizen/Schalten (#NH#/#NS#)");

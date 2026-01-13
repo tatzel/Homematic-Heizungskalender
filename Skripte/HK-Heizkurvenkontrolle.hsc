@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    12.01.2026
+!// Stand:    13.01.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//================================================================================================
@@ -21,6 +21,7 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript 
 !//
 
+!// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
@@ -145,19 +146,22 @@ foreach(SLEintrag,SListe){
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
   }
 
-  !// Zum Listenelement passende Raumvariable suchen
-  !// Wenn Variable gefunden innerer Schleife für diesen Durchgang beeenden
-
-  string RIDIsearch = ";" # RIDI # ";";
-  !// Nun suchen wir den Raum Index mit einem Trick. Wir zählen einfach die
-  !// vorhandenen Semikolons im SubSTr
-  iPos = RIDIsearch.Find(";" # AktSR # ";");
-  if (iPos<0){
-    !//Wird keine Raumvariable gefunden wir brechen das Script komplett ab
-    if(DEBUG)  {WriteLine(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
-    continue;
+  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+  !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
+  !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
+  boolean bGefunden = false;
+  integer raumIndex = 0;
+  string AktSRName="";
+  string RIDIEintrag;
+  foreach(RIDIEintrag,RIDI.Split(";")){
+    !// Optionalen Namen suchen (getrennt durch =)
+    AktSRName = RIDIEintrag.StrValueByIndex("=",1);
+    if (RIDIEintrag.StrValueByIndex("=",0)==AktSR){
+      bGefunden = true;
+      break;
+    }
+    raumIndex = raumIndex+1;
   }
-  integer raumIndex = (RIDIsearch.Substr(0,iPos).Length())-(RIDIsearch.Substr(0,iPos).Replace(";","").Length());
 
   !// Namen für das loggen ermitteln und Raumliste laden
   string RVNListe=VarNamen.StrValueByIndex(";",raumIndex);

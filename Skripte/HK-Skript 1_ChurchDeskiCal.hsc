@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    01.01.2026 
+!// Stand:    13.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
 !// MRi: 2025-12-09 Anpassung an ChurchDesk API
 !// MRi: 2025-11-24 MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
@@ -45,14 +46,14 @@ boolean DEBUG=0;
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
 
-!//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
-boolean log=0;
-
 !// Zeitfenster in dem nach Termine geschaut wird
 !// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit),
 !// plus zeitVorlauf (min = maximale Vorlaufzeit)
 integer zeitVorlauf=8*60;   !// 8 Stunden (default=12h)
 integer zeitNachlauf=30;    !// 30min Stunden (default = 120min)
+
+!//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
+boolean log=0;
 
 !//################################################################################################
 !//######------Skript Variablen und Skript Arbeitsteil. Vom Benutzer nicht zu verändern------######
@@ -84,18 +85,15 @@ string organizationId = dom.GetObject(vrp#"HK1-CD-OrganisationsId").State();
 string RIdListe=dom.GetObject(vrp#"HK1-R-Liste").State();
 string HKGListe=dom.GetObject(vrp#"HK2-HKG-Liste").State();
 
-!// Suche alle Ids der Ressourcen
+!// Suche alle Ids der Ressourcen. Achtung es kann ein mit = abgetrennter Name vorhanden sein.
 string filter="";
 string RId;
 foreach(RId,RIdListe.Split(";")){
   if (filter){
     filter = filter # "|";
   }
-  filter = filter # RId;
+  filter = filter # RId.StrValueByIndex("=",0);
 }
-
-!//Hier verwenden wir die RaumIdListe mit einem führenden und folgendem ";" um die Suche zu erleichtern
-string RIdListeSearch = ";" # RIdListe # ";";
 
 if(DEBUG){
   WriteLine("HKGListe=" # HKGListe);
@@ -113,9 +111,15 @@ string endDatum = (JETZT+172800).ToTime().ToString("%F");
 !// Neue Schaltliste
 string SLT="";
 
-string RId;
-foreach(RId,RIdListe.Split(";")){
-  !// Zugriff auf ChurchDesk iCal
+string RIdEintrag;
+integer raumIndex = 0;
+foreach(RIdEintrag,RIdListe.Split(";")){
+  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+  !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
+  string RId = RIdEintrag.StrValueByIndex("=",0);
+  string RaumName=RIdEintrag.StrValueByIndex("=",1);
+    
+  !// Zugriff auf ChurchDesk iCal  
   string cmd = "wget --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
   if(DEBUG){
     WriteLine("---------------------------------------------------------------------------------------");
@@ -146,18 +150,6 @@ foreach(RId,RIdListe.Split(";")){
       continue;
     }
 
-    !// Resource Id bestimmen
-    iPos = RIdListeSearch.Find(";" # RId # ";");
-    if (iPos<0){
-      !// Raum nicht in unserer Liste (dürfte eigentlich nicht passieren, da wir einen
-      !// Filter für Resourcen haben.
-      if(DEBUG){
-        WriteLine("Raum Resource Id konnte nicht gefunden werden!");
-      }
-      continue;
-    }
-    integer raumIndex = (RIdListeSearch.Substr(0,iPos).Length())-(RIdListeSearch.Substr(0,iPos).Replace(";","").Length());
-
     !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
     !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
     !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
@@ -165,6 +157,9 @@ foreach(RId,RIdListe.Split(";")){
     string RaumVar = RaumVarListe;
     if (multiRaumVariante){
       RaumVar=RaumVar.StrValueByIndex("+",0);
+    }
+    if (RaumName==""){
+      RaumName = RaumVarListe.Replace(vrp#"HKG-Raum-","");
     }
 
     object objVar = dom.GetObject(RaumVar);
@@ -254,7 +249,7 @@ foreach(RId,RIdListe.Split(";")){
                 cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
               }
             }
-            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " #
+            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
                          toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
                          toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
                          " Parameter: " # cap # " " #
@@ -263,7 +258,7 @@ foreach(RId,RIdListe.Split(";")){
         }else{
           !// Wir haben den Sonderbefehl NH/NS
           if (log){
-            logObj.State("Raum: " # RaumVarListe.Replace(vrp#"HKG-Raum-","") # " ("+toadd.StrValueByIndex(";",0)+") - " #
+            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
                          toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
                          toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
                          " Nicht Heizen/Schalten (#NH#/#NS#)");
@@ -272,6 +267,9 @@ foreach(RId,RIdListe.Split(";")){
       }
     }
   }
+  
+  !// Nächster Raum
+  raumIndex = raumIndex+1;
 }
 
 !//------------------------------------------------------------------------------------------------
