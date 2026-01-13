@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (ChurchDesk)
 !//================================================================================================
-!// Stand:    06.01.2026 
+!// Stand:    13.01.2026 
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -32,6 +32,8 @@
 !// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
+
+!// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
 !//                 manuell angelegt werden.
 
@@ -40,13 +42,13 @@
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
 string vrp="";
 
+!// Vorgegebene Orgnaisations ID
+string organizationId = "";
+
 !// Es ist möglich hier sofort ein API-Token für ChurchDesk anzugeben. Da mit werden gleich weitere
 !// Variablen für alle Ressourcen angelegt und die "HK1-R-Liste" befüllt. Ist ein API-Token bereits
 !// in den Variablen angelegt wird dieses verwendet
 string apiToken="";
-
-!// Vorgegebene Orgnaisations ID
-string organizationId = "";
 
 !// Weitere einzurichtende Räume, für die keine Ressourcen vorhanden sind- Für diese werden auch
 !// Raum Variablen angelegt.
@@ -190,7 +192,8 @@ if (apiToken && organizationId){
     if (stdout.StartsWith("[")){
       !// Zeichensatz fixen
       stdout = stdout.ToLatin();
-      !// Wir bauen nun die raumliste auf
+      
+      !// Wir bauen nun die raumliste auf. Diese erhält auch die Klartextnamen
       string raumListe = "";
       string raumNamen = "";
       !// Nun die Ressourcen separieren "{\"id\":"
@@ -230,12 +233,14 @@ if (apiToken && organizationId){
 
         !// Namen bereinigen
         name = res.Substr(0,iPosEnd);
-        name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","");
+        name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","").Replace("=","");
 
+        !// Die Raumliste bekommt zusätzlich die Raumnamen im Klartext abgetrennt mit =. Das erleichtert
+        !// dem Installer eine bessere Funktionalität für den Benutzer.
         if (raumListe){
           raumListe = raumListe # ";";
         }
-        raumListe = raumListe # resId;
+        raumListe = raumListe # resId # "=" # name ;
         if (raumNamen){
           raumNamen = raumNamen # ";";
         }
@@ -256,7 +261,7 @@ if (apiToken && organizationId){
       !// Weitere Räume hinzufügen, wenn diese nicht schon in der Liste sind
       foreach(name,zusaetzlicheRaumNamen.Split(";")){
         !// Namen bereinigen
-        name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","");
+        name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","").Replace("=","");
         if (name && ((";" # raumNamen # ";").Find(";" # name # ";")<0)){
           if(!raumNamen.EndsWith(";")){
             raumNamen = raumNamen # ";";

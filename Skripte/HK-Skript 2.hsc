@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    12.01.2026
+!// Stand:    13.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -29,6 +29,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-01-12 Bessere Behandlung von mehreren Aktoren in den Raumvars. minAktorNamenLaenge entfernt.
 !// MRi: 2025-01-05 Begrenzung der Berücksichtigung der Raumtemperatur, Schaltzeiten korrekt berücksichtigen
 !// MRi: 2026-01-01 Skript gegen fehlende Aktoren gesichert
@@ -107,7 +108,7 @@ integer GrundOffsetRaumAus=dom.GetObject(vrp+"HK2-VorzeitAus").State();
 integer GrundOffsetRaumEin=dom.GetObject(vrp+"HK2-Kurvenversatz").State();
 string SListe=dom.GetObject(vrp+"HK1-Schaltliste").State();
 string VarNamen=dom.GetObject(vrp+"HK2-HKG-Liste").State();
-string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State().ToUpper();
+string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State();
 integer ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
 boolean Flag_Hand_Temp=dom.GetObject(vrp+"HK2-Hand-Temp").State();
 boolean Flag_Hand_Grundtemp=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
@@ -188,6 +189,23 @@ foreach(SLEintrag,SListe){
   integer SDFlag  = SLEintrag.StrValueByIndex(";",3).ToInteger();
   real    RTemp   = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
+  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+  !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
+  !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
+  boolean bGefunden = false;
+  integer raumIndex = 0;
+  string AktSRName="";
+  string RIDIEintrag;
+  foreach(RIDIEintrag,RIDI.Split(";")){
+    !// Optionalen Namen suchen (getrennt durch =)
+    AktSRName = RIDIEintrag.StrValueByIndex("=",1);
+    if (RIDIEintrag.StrValueByIndex("=",0)==AktSR){
+      bGefunden = true;
+      break;
+    }
+    raumIndex = raumIndex+1;
+  }
+
   !// Dieser Code hat keine Schaltwirkung, er ist rein informativ.
   if(HSFlag){
     !// Sonderbefehl kontrollieren und Raumtemperatur Sonderbefehl bestimmen
@@ -201,9 +219,10 @@ foreach(SLEintrag,SListe){
         cap = RTemp.ToString(1);
       }
     }
-    if(log) {logObj.State("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
+    
+    if(log) {logObj.State("---Schaltlisteneintrag für Ressource " # AktSRName # " (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
-    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
+    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource " # AktSRName # " (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
   }else{
     !// Schalten kennt kein Offset
@@ -212,33 +231,28 @@ foreach(SLEintrag,SListe){
     if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Schalten: " # EIN.ToTime().Format("%X").Substr(0,5) # " - " #
                                             AUS.ToTime().Format("%X").Substr(0,5));}
   }
-
-  !// Zum Listenelement passende Raumvariable suchen
-  !// Wenn Variable gefunden innerer Schleife für diesen Durchgang beeenden
-
-  string RIDIsearch = ";" # RIDI # ";";
-  !// Nun suchen wir den Raum Index mit einem Trick. Wir zählen einfach die
-  !// vorhandenen Semikolons im SubSTr
-  iPos = RIDIsearch.Find(";" # AktSR # ";");
-  if (iPos<0){
+  
+  if (!bGefunden){
     !//Wird keine Raumvariable gefunden wir brechen das Script komplett ab
     if(log) {logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
     if(DEBUG)  {WriteLine(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
     continue;
-  }
-  integer raumIndex = (RIDIsearch.Substr(0,iPos).Length())-(RIDIsearch.Substr(0,iPos).Replace(";","").Length());
+  }  
 
-  !// Namen für das loggen ermitteln und Raumliste laden
+  !// Raumliste aus dem der HK2-HKG-Liste
   string RVNListe=VarNamen.StrValueByIndex(";",raumIndex);
-  string AktSRName=RIDINamen.StrValueByIndex(";",raumIndex);
-  !// Im Multiraum Fall nehmen wir nur den ersten / primären Raum
-  if(multiRaumVariante){
-    AktSRName=AktSRName.StrValueByIndex("+",0);
+  
+  !// Wenn wir keinen Raumnamen haben, dann bauen wir uns einen. Optional ist der in der HK1-R-Liste
+  !// getrennt mit =.
+  if (AktSRName=="") {
+    !// Namen für das loggen ermitteln und Raumliste laden
+    string AktSRName=RIDINamen.StrValueByIndex(";",raumIndex);
+    !// Im Multiraum Fall nehmen wir nur den ersten / primären Raum
+    if(multiRaumVariante){
+      AktSRName=AktSRName.StrValueByIndex("+",0);
+    }
+    AktSRName = AktSRName # " (" # AktSR # ")";
   }
-  if(AktSRName==""){
-    AktSRName = AktSR;
-  }
-  AktSRName = AktSRName # " (" # AktSR # ")";
 
   !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste dirch + getrennt.
   if(multiRaumVariante){
