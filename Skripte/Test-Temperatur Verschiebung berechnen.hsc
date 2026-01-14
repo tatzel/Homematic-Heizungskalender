@@ -3,6 +3,11 @@
 !// Stand:    18.12.2025;
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
+!//------------------------------------------------------------------------------------------------
+!// Copyright (C) 2026 Martin Richter (xMRi-Software)
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Version 3 (GPLv3) oder neuer veröffentlicht.
+!// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 
 !//

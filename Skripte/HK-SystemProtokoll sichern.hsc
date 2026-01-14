@@ -1,8 +1,13 @@
 !// Sichern des Systemprotokolls auf dem USB Stick
 !//================================================================================================
-!// Stand:    06.01.2026
+!// Stand:    14.01.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
+!//------------------------------------------------------------------------------------------------
+!// Copyright (C) 2026 Martin Richter (xMRi-Software)
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Version 3 (GPLv3) oder neuer veröffentlicht.
+!// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
 !// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Basis von Homematic
@@ -29,6 +34,8 @@
 !// Die Anzahl der zu erhaltenen LOG Dateien kann eingestellt werden.
 !// Eine Log-Datei wird ca. 250KB bis 1MB groß, je nach Anzahl der Schaltvorgänge.
 
+!// MRi: 2026-01-14 Wöchentliche oder tägliche Logs erlauben
+
 !// Der Pfad sollte keine Leerzeichen enthalten
 string pfad = "/media/usb1/";
 !// Prefix für den Namen, er wird dann mit dem Datum und der Extension .LOG erweitert:
@@ -39,6 +46,9 @@ integer AnzahlDateien=30;
 
 !// Debug Mouds, wir haben mehrere Levels 0
 integer DEBUG=0;
+
+!// Wöchentliche Logs = 1, Logs getrennt für jeden Tag = 0
+boolean bWoechentlicheLogs = true;
 
 !//#######---Ende Variabler Bereich---####################################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
@@ -169,7 +179,12 @@ while (true){
     string stmpDate = sDateTime.StrValueByIndex(" ",0);
     string stmpTime = sDateTime.StrValueByIndex(" ",1);
 
-    !// Wri loggen Tagesweise
+    !// Wir loggen tagesweise oder wochenweise
+    if (bWoechentlicheLogs){
+    
+      !// Wohenanfang suchen
+      stmpDate = (stmpDate.ToTime().ToInteger()-((stmpDate.ToTime().Format("%u").ToInteger()-1)*86400)).ToTime().Format("%F");
+    }
     !if(DEBUG){WriteLine("aktDatum=" # aktDatum # " stmpDate="#stmpDate);}
     if ((aktDatum=="") || (aktDatum!=stmpDate)){
       !// Start? Dann ist aktDatum leer. Ansonsten bestehende Daten speichern
