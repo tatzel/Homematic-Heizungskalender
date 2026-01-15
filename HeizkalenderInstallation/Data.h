@@ -1,0 +1,179 @@
+// Heizkalender-Installer
+// Copyright (C) 2026 Martin Richter (xMRi-Software) - heizkalender@m-ri.de
+//
+// Dieses Programm ist freie Software: Sie können es unter den Bedingungen
+// der GNU General Public License, wie von der Free Software Foundation
+// veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß
+// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.
+//
+// Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist,
+// jedoch OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung
+// der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+// Weitere Details finden Sie in der GNU General Public License.
+//
+// Sie sollten eine Kopie der GNU General Public License zusammen mit
+// diesem Programm erhalten haben. Falls nicht, siehe
+// <https://www.gnu.org/licenses/>.
+// 
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#pragma once
+#include "Helper.h"
+#include <list>
+#include <map>
+#include <set>
+
+//-----------------------------------------------------------------------------
+
+template<class TData> 
+class TDataList : public std::list<TData>
+{
+public:
+	using TBaseClass = list<TData>; 
+	using TBaseClass::TBaseClass;
+	// Achtung Test ist case sensitive
+	TData* Find(CString const& strName)
+	{
+		for (auto& e : *this)
+		{
+			if (!e.m_bDeleted && e.m_strName==strName)
+				return &e;
+		}
+		return nullptr;
+	}
+};
+
+class CDataEntry
+{
+public:
+	CDataEntry(){}
+	bool m_bNew{false},
+		 m_bModified{false},
+		 m_bDeleted{false};
+};
+
+enum class DataType { 
+	// Von Homematic Doku
+	vtUnknown = 0,
+	vtboolean = 2,
+	vtInteger = 4,		// In fact it is a real
+	// vtReal = 3,
+	vtString = 20,
+	// vtTime = 5,
+};
+
+//-----------------------------------------------------------------------------
+
+class CDataSystemVariable : public CDataEntry
+{
+public:
+	CDataSystemVariable()
+	{
+	}
+	CDataSystemVariable(CString const& strLine);
+	CDataSystemVariable(int id,CString const& strName,CString const& strContent,CString const& strDescription,
+						DataType dt,bool bProtocoll,bool bVisible);
+
+	int		m_id{};
+	CString m_strName;
+	CString m_strContent;
+	CString m_strContentOld;
+	CString m_strDescription;
+	DataType m_dataType{ DataType::vtUnknown };
+	bool m_bProtocoll{false}, 
+		 m_bVisible{false};		
+
+	// Funktionen
+	void ClearContent()
+	{
+		SetContent(CString{});
+	}
+
+	void SetContent(CString const& str);
+
+	CString GetDataAsLine();
+	void InitNeuerRaum(CString const &strName);
+};
+
+//-----------------------------------------------------------------------------
+
+struct SRaumDaten
+{
+	CString m_strName;
+	CString m_strMode;
+	double m_dblTemp{};
+	double m_dblTempG{};
+	int m_iVBegin{};
+	int m_iVEnde{};
+	double m_dblFaktor{};
+	CString m_strDevTyp;
+	CString m_strAktor;
+
+	SRaumDaten()
+	{ }
+	SRaumDaten(const CString& strName, const CString& str)
+	{
+		LoadFromString(strName,str);
+	}
+	void LoadFromString(CString const &strName, CString const &str);
+	void GetAsString(CString &strName, CString &str);
+};
+
+//-----------------------------------------------------------------------------
+
+class CListSystemVariables : public TDataList<CDataSystemVariable>
+{
+public:
+	// using TDataList<CDataSystemVariable>::TDataList<CDataSystemVariable>;
+	void LoadFromString(CStringA const &strOut);
+};
+
+//-----------------------------------------------------------------------------
+
+class CDataProgram : public CDataEntry
+{
+public:
+	CDataProgram(
+		CString const& strLine
+	);
+	CDataProgram(
+		int id,
+		CString const& strName,
+		CString const& strDescription
+	) : m_id{ id }
+		, m_strName{ strName }
+		, m_strDescription{ strDescription }
+	{
+	}
+
+	int		m_id{};
+	CString m_strName;
+	CString m_strDescription;
+	COleDateTime	m_date{ 0.0 };
+	bool	 m_bActive{};
+	CString m_strLine1;
+	CStringA m_strScript;
+	CDataProgram* m_pAppProg{};
+
+	CString GetDataAsLine();
+};
+
+//-----------------------------------------------------------------------------
+
+class CListPrograms : public TDataList<CDataProgram>
+{
+public:
+	// using TDataList<CDataProgram>::TDataList<CDataProgram>;
+	void LoadFromString(CStringA const &strOut);
+};
+
+//-----------------------------------------------------------------------------
+
+// Map von Ressource auf Raumliste. Die numerischen Ressourcen sollen
+// logisch sortiert werden, d,h, 10 kommt nach 2.
+struct SRaumDesc
+{
+	CString m_strResourceName;
+	std::list<CString> m_lstRaeume;
+};
+using CMapRaumListe = std::map<CString,SRaumDesc,COMPARE_LOGICAL>;
