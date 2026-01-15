@@ -1,2 +1,6 @@
 *.bak
 /.vs
+/HeizkalenderInstallation/.vs
+/HeizkalenderInstallation/x64
+/HeizkalenderInstallation/Bin
+*.aps
