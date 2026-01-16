@@ -378,7 +378,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 
 	// Wenn wir diesen Modus nicht kennen versuchen wir das Programm zu erkennen
 	auto const *pProg = m_lstPrograms.Find(AddPrefix(HK1_SKRIPT_1));
-	if (pProg)
+	if (m_modeScript1Installed==ModeScript1::Unknown && pProg)
 	{
 		// Wir haben ein Programm. Untersuche Zeile 1.
 		CString strLine1 = pProg->m_strSkript;
@@ -444,10 +444,11 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		{
 			if (pVar->m_dataType!=e.m_dataType || pVar->m_strDescription!=e.m_strDescription)
 			{
-				// Need a recreate. bNew==true && id!=0
+				// Neu erzeugen, aber Inhalt erhalten. bNew==true && id!=0
 				CDataSystemVariable data { e };
 				data.m_strName = strVarName;
 				data.m_id = pVar->m_id;
+				data.m_strContent = pVar->m_strContent;
 				data.m_bNew = true;
 				// Replace entry completely
 				*pVar = data;
@@ -551,6 +552,7 @@ void CHeizkalenderInstallationApp::ClearAll()
 	m_modeScript1 = m_modeScript1Installed = ModeScript1::Unknown;
 	m_lstSysVars.clear();
 	m_lstPrograms.clear();
+	m_lstDevices.clear();
 }
 
 bool CHeizkalenderInstallationApp::IsModeScript1Modified()
@@ -949,7 +951,8 @@ void CHeizkalenderInstallationApp::ReadResources()
 	{
 		// Suche den Raum in der alten Raumliste
 		auto it = mapRaeumeNeu.find(e.first);
-		if (it!=mapRaeumeNeu.end())
+		// Die Resource mag, da sein, aber evtl. ist die Raumliste einfach nur leer
+		if (it!=mapRaeumeNeu.end() && !e.second.m_lstRaeume.empty())
 		{
 			// Wir kennen die Raumvariable und übernehmen sie
 			it->second = e.second;
@@ -1088,7 +1091,8 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 			CString strVarName { AddRoomPrefix(e.m_strResourceName) };
 			e.m_lstRaeume.push_back(strVarName);
 		}
-	}}
+	}
+}
 
 void CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRaeume)
 {
