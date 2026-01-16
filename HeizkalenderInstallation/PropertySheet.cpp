@@ -388,6 +388,9 @@ void CPageConnect::OnCbnSelchangeCbMode()
 	// Set new mode
 	theApp.m_modeScript1 = newMode;
 
+	// Programme aktualisieren
+	theApp.FixScript1AfterModeChange();
+
 	// Daten noch mal einlesen, für die jetzt sichtbaren Controls
 	UpdateData(FALSE);
 }
@@ -642,7 +645,7 @@ void CPagePrograms::DoDataExchange(CDataExchange* pDX)
 			if (n>=0)
 			{
 				// Suche den eintrag in der originalen liste
-				m_lcData.SetItemText(n,COL_DATE_INSTALLED,DateToString(p.m_date));
+				m_lcData.SetItemText(n,COL_DATE_INSTALLED,!p.m_bNew ? DateToString(p.m_date) : _T(""));
 				m_lcData.SetItemText(n,COL_DATE_UPDATE,p.m_pAppProg ? DateToString(p.m_pAppProg->m_date) : _T(""));
 
 				bool bIsScript1 = p.m_strName==theApp.AddPrefix(HK1_SKRIPT_1);
@@ -678,9 +681,9 @@ BOOL CPagePrograms::OnInitDialog()
 
 	CString strTitle{ MAKEINTRESOURCE(IDS_TITLE_PROGRAMS) };
 
-	m_lcData.InsertColumn(COL_NAME,StrValueByIndex(strTitle,0,_T(';')), LVCFMT_LEFT, m_lcData.GetStringWidth(CString(_T('9'), 35)));
-	m_lcData.InsertColumn(COL_DATE_INSTALLED,StrValueByIndex(strTitle,1,_T(';')),LVCFMT_LEFT,m_lcData.GetStringWidth(CString(_T('9'),14)));
-	m_lcData.InsertColumn(COL_DATE_UPDATE,StrValueByIndex(strTitle,2,_T(';')),LVCFMT_LEFT,m_lcData.GetStringWidth(CString(_T('9'),14)));
+	m_lcData.InsertColumn(COL_NAME,StrValueByIndex(strTitle,COL_NAME,_T(';')), LVCFMT_LEFT, m_lcData.GetStringWidth(CString(_T('9'), 35)));
+	m_lcData.InsertColumn(COL_DATE_INSTALLED,StrValueByIndex(strTitle,COL_DATE_INSTALLED,_T(';')),LVCFMT_LEFT,m_lcData.GetStringWidth(CString(_T('9'),14)));
+	m_lcData.InsertColumn(COL_DATE_UPDATE,StrValueByIndex(strTitle,COL_DATE_UPDATE,_T(';')),LVCFMT_LEFT,m_lcData.GetStringWidth(CString(_T('9'),14)));
 
 	// Rest errechnen
 	for (int i=0; i<3; ++i)

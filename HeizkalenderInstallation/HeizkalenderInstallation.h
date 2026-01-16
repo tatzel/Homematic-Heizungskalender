@@ -65,7 +65,7 @@ public:
 	void UpdatePrograms();
 	
 	// Speichern der Daten
-	void FixScript1BeforeUpdate();
+	void FixScript1AfterModeChange();
 	void UpdateSimulation();
 	void UpdateCCU();
 
@@ -75,13 +75,14 @@ public:
 	bool IsSysVarCompatibeWithModeScript1(CString const& strName, ModeScript1 mode);
 	bool LoadSystemVariablesFromCCU();
 	bool LoadProgramsFromCCU(const CString &strPrefix);
+	bool LoadDevicesFromCCU();
 	double GetGrundTemperatur();
 
 	void ReadResources();
 	void ReadResourcesChurchTool(CMapRaumListe &mapNewRooms);
 	void ReadResourcesChurchDesk(CMapRaumListe &mapNewRooms);
 	void LoadRoomMapFromSysVars(CMapRaumListe &mapRaueme);
-	void SaveRoomMapToSysVars(CMapRaumListe const& mapRaeume);
+	bool SaveRoomMapToSysVars(CMapRaumListe const& mapRaeume);
 	CString GenerateNewRoomName(CString strTemplate);
 
 	CString RemovePrefix(CString const str) const;
@@ -101,6 +102,7 @@ public:
 public: 
 	// Applikationsdaten
 	CString m_strAppPath;
+	CString m_strAppName;
 	CString m_strScriptPath;
 	CString m_strAppVersion;
 	CString m_strScriptVersion;
@@ -133,6 +135,7 @@ public:
 	ModeScript1				m_modeScript1Installed;
 	CListSystemVariables	m_lstSysVars;				// Alle Varoablen. Man muss evtl. IsMatchingPrefix nutzen.
 	CListPrograms			m_lstPrograms;				// Nur Programme mit passendem Prefix.
+	CListDevices			m_lstDevices;				// Liste der Geräte
 
 	// Default data. Diese Daten enthalten, die Systemvariablen, wie sie durch die Skripte angelegt wurden.
 	// Diese zweite Liste dient dem Vergleich, ob die original Daten verwendet wurden.
