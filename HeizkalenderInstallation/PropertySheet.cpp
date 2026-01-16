@@ -460,6 +460,9 @@ void CPageConnect::OnBnClickedBtConnect()
 			// Aus den vorliegenden Daten, kann kein Modus ermittelt werden
 			AfxMessageBox(IDP_CHOOSE_MODE_MANUAL);
 	}
+
+	// Daten laden
+	UpdateData(FALSE);
 }
 
 void CPageConnect::OnBnClickedBtReadres()
