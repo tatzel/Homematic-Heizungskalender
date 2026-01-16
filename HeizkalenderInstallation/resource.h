@@ -47,6 +47,7 @@
 #define IDP_MODE_SWITCH_WARNING_RES     131
 #define IDP_QUERY_MODE_SWITCH_WARNING_RES 131
 #define IDP_RAUM_LISTEN_UNSYMETRISCH    132
+#define IDP_TEST_AKTOR_SCHALTEN         132
 #define IDP_NEED_MODE                   133
 #define IDP_FILE_INVALID                134
 #define IDP_DATA_MODIFIED               135
@@ -78,6 +79,10 @@
 #define IDP_RAUM_NAME_FEHLT             154
 #define IDP_RAUMVAR_NAMEN_KORREKTUR2    155
 #define IDP_RAUMVAR_NAMEN_FEHLEN        155
+#define IDP_TEST_AKTOR_HEIZEN           156
+#define IDP_RAUMLISTE_WURDE_AKTUALISIERT 157
+#define IDP_RAUMLISTE_WURDE_NICHT_AKTUALISIERT 158
+#define IDS_AN_AUS                      159
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001

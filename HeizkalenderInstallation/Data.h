@@ -52,6 +52,8 @@ public:
 		 m_bDeleted{false};
 };
 
+//-----------------------------------------------------------------------------
+
 enum class DataType { 
 	// Von Homematic Doku
 	vtUnknown = 0,
@@ -61,8 +63,6 @@ enum class DataType {
 	vtString = 20,
 	// vtTime = 5,
 };
-
-//-----------------------------------------------------------------------------
 
 class CDataSystemVariable : public CDataEntry
 {
@@ -133,9 +133,7 @@ public:
 class CDataProgram : public CDataEntry
 {
 public:
-	CDataProgram(
-		CString const& strLine
-	);
+	CDataProgram(CString const& strLine);
 	CDataProgram(
 		int id,
 		CString const& strName,
@@ -151,10 +149,35 @@ public:
 	CString m_strDescription;
 	COleDateTime	m_date{ 0.0 };
 	bool	 m_bActive{};
-	CString m_strLine1;
+	CString m_strSkript;
 	CStringA m_strScript;
 	CDataProgram* m_pAppProg{};
 
+	CString GetDataAsLine();
+};
+
+//-----------------------------------------------------------------------------
+
+enum class ChannelType
+{
+	ictUnknown =0,
+	ictHSS = 17, 
+	ictHSSBinaryActuator = 3, 
+	ictBinaryActuator = 26,
+};
+
+class CDataDevice : public CDataEntry
+{
+public:
+	CDataDevice(CString const& strLine);
+
+	CString		m_strName;			// Benutzer Channel Name!
+	CString		m_strDevName;
+	CString		m_strDevType;
+	CString		m_strDataPoint;
+	ChannelType	m_channelType{ChannelType::ictUnknown};
+	bool ChannelTypeHeizung() const		{ return m_channelType==ChannelType::ictHSS; }
+	bool ChannelTypeSchalten() const	{ return !ChannelTypeHeizung(); }
 	CString GetDataAsLine();
 };
 
@@ -166,6 +189,16 @@ public:
 	// using TDataList<CDataProgram>::TDataList<CDataProgram>;
 	void LoadFromString(CStringA const &strOut);
 };
+
+//-----------------------------------------------------------------------------
+
+class CListDevices : public TDataList<CDataDevice>
+{
+public:
+	// using TDataList<CDataProgram>::TDataList<CDataProgram>;
+	void LoadFromString(CStringA const &strOut);
+};
+
 
 //-----------------------------------------------------------------------------
 

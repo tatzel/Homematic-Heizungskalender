@@ -413,6 +413,15 @@ CString BoolToString(bool bVal)
 	return bVal ? _T("true") : _T("false");
 }
 
+bool IsBool(CString strText)
+{
+	strText.MakeLower();
+	return	strText==_T("0") ||
+			strText==_T("1") ||
+			strText==_T("false") ||
+			strText==_T("true");
+}
+
 static inline void DATEToSystemTime(DATE dDate, SYSTEMTIME &st)
 {
 	COleDateTime date(dDate);

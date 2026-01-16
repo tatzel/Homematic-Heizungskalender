@@ -11,5 +11,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArgumentsHistory>/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
 </Project>

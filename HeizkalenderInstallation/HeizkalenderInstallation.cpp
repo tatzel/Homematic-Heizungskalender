@@ -103,6 +103,8 @@ CHeizkalenderInstallationApp::CHeizkalenderInstallationApp()
 	// Version bestimmen
 	auto *pName = m_strAppPath.GetBuffer(_MAX_PATH);
 	::GetModuleFileName(NULL, pName, _MAX_PATH);
+	::PathRemoveExtension(pName);
+	m_strAppName = ::PathFindFileName(pName);
 	::PathRemoveFileSpec(pName);
 	m_strAppPath.ReleaseBuffer();
 
@@ -206,7 +208,7 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 		{
 			CDataProgram data{ 0, strName, CString{} };
 			data.m_strScript = CStringA{ str };
-			data.m_strLine1 = StrValueByIndex(str,0,_T('\n'));
+			data.m_strSkript = StrValueByIndex(str,0,_T('\n'));
 			int iPos = data.m_strScript.Find("Stand:");
 			if (iPos>=0)
 			{
@@ -217,7 +219,7 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 			}
 			// Manche Skripte müssen für den Prefix dieses Statement enthalten!
 			//		string vrp="";
-			if (data.m_strLine1.IsEmpty() || !IsDateValid(data.m_date) ||
+			if (data.m_strSkript.IsEmpty() || !IsDateValid(data.m_date) ||
 				(e.m_bNeedsPrefixClause && data.m_strScript.Find("string vrp=\"\";")<0)) 
 			{
 				CString strError;
@@ -328,7 +330,7 @@ bool CHeizkalenderInstallationApp::ConnectToSimulation()
 bool CHeizkalenderInstallationApp::ConnectToCCU()
 {
 	ClearAll();
-	return LoadSystemVariablesFromCCU() && LoadProgramsFromCCU(m_strPrefix);
+	return LoadSystemVariablesFromCCU() && LoadProgramsFromCCU(m_strPrefix) && LoadDevicesFromCCU();
 }
 
 bool CHeizkalenderInstallationApp::AnalyseLoadedData()
@@ -366,7 +368,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		// Nur anhand der Tokens können wir nicht die Zugriffsart bestimmen. Wir
 		// brauchen aus dem Skript 1 die erste Zeile.
 		auto pProg = m_lstPrograms.Find(GetScript1Name());
-		CString strLine1 = pProg ? pProg->m_strLine1 : CString{};
+		CString strLine1 = pProg ? pProg->m_strSkript : CString{};
 		strLine1.MakeUpper();
 		if (strLine1.Find(_T("CHURCHDESK"))>=0 && strLine1.Find(_T("API"))>=0)
 			m_modeScript1Installed = ModeScript1::ChurchDeskAPI;
@@ -379,7 +381,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 	if (pProg)
 	{
 		// Wir haben ein Programm. Untersuche Zeile 1.
-		CString strLine1 = pProg->m_strLine1;
+		CString strLine1 = pProg->m_strSkript;
 		strLine1.MakeUpper();
 		if (strLine1.Find(_T("CHURCHTOOLS"))>=0)
 			m_modeScript1Installed = ModeScript1::ChurchToolsAPI;
@@ -569,7 +571,7 @@ bool CHeizkalenderInstallationApp::IsDataModified()
 	}
 	for (auto& sv : m_lstSysVars)
 	{
-		if (sv.m_bNew || sv.m_bModified || sv.m_bDeleted)
+		if ((sv.m_bNew || sv.m_bModified || sv.m_bDeleted) && IsSysVarCompatibeWithModeScript1(theApp.RemovePrefix(sv.m_strName),theApp.m_modeScript1))
 			return true;
 	}
 	return false;
@@ -617,6 +619,23 @@ foreach(vid, dom.GetObject(ID_SYSTEM_VARIABLES).EnumIDs()){
 	if (engine.ExecuteScript(strEnumVars, strOut))
 	{
 		m_lstSysVars.LoadFromString(strOut);
+
+		// Nun die Daten protokollieren
+		try
+		{
+			CString strPath;
+			GetTempPath2(_MAX_PATH,CStrBuf(strPath,_MAX_PATH));
+			::PathAppend(CStrBuf(strPath,_MAX_PATH),m_strAppName);
+			strPath += _T("_SysVars.log");
+
+			CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
+			file.WriteString(CString{ strOut });
+		}
+		catch (CException* e)
+		{
+			e->ReportError();
+			e->Delete();
+		}
 		return true;
 	}
 	else
@@ -630,7 +649,7 @@ bool CHeizkalenderInstallationApp::LoadProgramsFromCCU(const CString &strPrefix)
 {
 	CStringA strEnumProgs = 
 R"x(
-!// Ausgabe alle Programme: Id, Name, Beschreibung, Aktiv, Zeile1, Stand
+!// Ausgabe alle Programme: Id, Name, Beschreibung, Aktiv, Script
 string vrp="%1%";
 string sProgramId;
 foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
@@ -661,25 +680,17 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
               if(iDestinationValueType == ivtString)
               {
                 string sScript = oRuleSingleDestination.DestinationValue();
-                string sLine1 = sScript.StrValueByIndex("\n",0).Trim();
-                integer i=0;
-                string sLine2 = sLine1;
-                while (sLine2){
-                  i = i+1;
-                  sLine2 = sScript.StrValueByIndex("\n",i).Trim();
-                  integer iPos = sLine2.ToUpper().Find("Stand:".ToUpper());
-                  if (iPos>=0){
-                    sLine2 = sLine2.Substr(iPos+6).Trim();
-                    break;
-                  }
-                }
+				sScript = sScript.Replace("\r\n", "\n")
+								 .Replace("%", "%25")
+								 .Replace("\n", "%0A")
+								 .Replace("\t", "%09");									 	
               }
             }
           }
         }
       }
     }
-    WriteLine(sProgramId # "\t" # sName # "\t" # sDesc # "\t" # bActive # "\t" # sLine1 # "\t" # sLine2);
+    WriteLine(sProgramId # "\t" # sName # "\t" # sDesc # "\t" # bActive # "\t" # sScript );
   }
 }
 )x";
@@ -691,6 +702,23 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
 	if (engine.ExecuteScript(strEnumProgs, strOut))
 	{
 		m_lstPrograms.LoadFromString(strOut);
+
+		// Nun die Daten protokollieren
+		try
+		{
+			CString strPath;
+			GetTempPath2(_MAX_PATH,CStrBuf(strPath,_MAX_PATH));
+			::PathAppend(CStrBuf(strPath,_MAX_PATH),m_strAppName);
+			strPath += _T("_Programs.log");
+
+			CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
+			file.WriteString(CString{ strOut });
+		}
+		catch (CException* e)
+		{
+			e->ReportError();
+			e->Delete();
+		}
 		return true;
 	}
 	else
@@ -701,6 +729,66 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
 	return false;
 }
 
+bool CHeizkalenderInstallationApp::LoadDevicesFromCCU()
+{
+	CStringA strEnumDevices = 
+		R"x(
+!//  ChannelType ictHSS 17, ictHSSBinaryActuator 3, ictBinaryActuator 26
+!// Ausgabe: DevName, Gerätetyp, Channelname, ChannelType DataPoint
+string datapoint;
+foreach (datapoint, dom.GetObject(ID_DATAPOINTS).EnumUsedNames())
+{
+  !// Wir suchen nur die Schlüsselworte SET_POINT_TEMPERATURE, SET_TEMPERATURE, SETPOINT, STATE
+  if (datapoint.EndsWith(".SET_POINT_TEMPERATURE") ||
+      datapoint.EndsWith(".SET_TEMPERATURE") ||
+      datapoint.EndsWith(".SETPOINT") ||
+      datapoint.EndsWith(".STATE")) {
+    ! WriteLine(datapoint);
+    var dp = dom.GetObject(datapoint);
+    var ch = dom.GetObject(dp.Channel());
+    var dv = dom.GetObject(ch.Device());
+    if ((ch.ChannelType()==ictHSS) || (ch.ChannelType()==ictHSSBinaryActuator) || (ch.ChannelType()==ictBinaryActuator))
+    {
+      WriteLine(dv.Name() # "\t" # dv.Label() # "\t" # ch.Name() # "\t" # ch.ChannelType() # "\t" # datapoint);
+    }
+  }
+}
+)x";
+
+	CStringA strOut;
+	CScriptEngine engine;
+	m_lstDevices.clear();
+	if (engine.ExecuteScript(strEnumDevices, strOut))
+	{
+		m_lstDevices.LoadFromString(strOut);
+
+		// Nun die Daten protokollieren
+		try
+		{
+			CString strPath;
+			GetTempPath2(_MAX_PATH,CStrBuf(strPath,_MAX_PATH));
+			::PathAppend(CStrBuf(strPath,_MAX_PATH),m_strAppName);
+			strPath += _T("_Devices.log");
+
+			CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
+			file.WriteString(CString{ strOut });
+		}
+		catch (CException* e)
+		{
+			e->ReportError();
+			e->Delete();
+		}
+		return true;
+	}
+	else
+	{
+		AfxMessageBox(engine.GetLastErrorText(),MB_OK|MB_ICONERROR);
+		return false;
+	}
+	return false;
+}
+
+
 double CHeizkalenderInstallationApp::GetGrundTemperatur()
 {
 	auto *pVar = m_lstSysVars.Find(AddPrefix(HK2_GRUNDTEMP));
@@ -709,7 +797,7 @@ double CHeizkalenderInstallationApp::GetGrundTemperatur()
 	return StringToDouble(pVar->m_strContent);
 }
 
-void CHeizkalenderInstallationApp::SaveRoomMapToSysVars(CMapRaumListe const& mapRaeume)
+bool CHeizkalenderInstallationApp::SaveRoomMapToSysVars(CMapRaumListe const& mapRaeume)
 {
 	auto *pVarRaumListe1 = m_lstSysVars.Find(AddPrefix(HK1_RAUMLISTE));
 	auto *pVarRaumListe2 = m_lstSysVars.Find(AddPrefix(HK2_RAUMLISTE));
@@ -732,21 +820,23 @@ void CHeizkalenderInstallationApp::SaveRoomMapToSysVars(CMapRaumListe const& map
 	pVarRaumListe1->SetContent(strListe1);
 	pVarRaumListe2->SetContent(strListe2);		
 
-	// Die Liste 1 ändert sich eigentlich nicht. Aber, da wir einen Set benutzen kann sich die Reihenfolge ändern. 
+	auto CreateSetFromList = [](CString const& strList)
+		{
+			std::set<CString> setRes;
+			CString str;
+			for (int i=0; !(str=StrValueByIndex(strList,i,_T(';'))).IsEmpty(); ++i)
+				setRes.emplace(str);
+			return setRes;
+		};
+
+	// Die Liste 1+2 ändert sich eigentlich nicht. Aber, da wir einen Set benutzen kann sich die Reihenfolge ändern. 
 	// Deshalb bilden wir aus altem Inhalt einen set nd aus dem neuen Inhalt und alten Inhalt. 
 	// Ist der identisch dann löschen iwr das Modified flag. 
 	if (pVarRaumListe1->m_bModified)
-	{
-		auto CreateSetFromList = [](CString const& strList)
-			{
-				std::set<CString> setRes;
-				CString str;
-				for (int i=0; !(str=StrValueByIndex(strList,i,_T(';'))).IsEmpty(); ++i)
-					setRes.emplace(str);
-				return setRes;
-			};
 		pVarRaumListe1->m_bModified = CreateSetFromList(pVarRaumListe1->m_strContent)!=CreateSetFromList(pVarRaumListe1->m_strContentOld);
-	}
+	if (pVarRaumListe2->m_bModified)
+		pVarRaumListe2->m_bModified = CreateSetFromList(pVarRaumListe2->m_strContent)!=CreateSetFromList(pVarRaumListe2->m_strContentOld);
+	return pVarRaumListe1->m_bModified || pVarRaumListe2->m_bModified;
 }
 
 CString CHeizkalenderInstallationApp::GenerateNewRoomName(CString strTemplate)
@@ -874,6 +964,7 @@ void CHeizkalenderInstallationApp::ReadResources()
 		for (auto& strRaum : lst)
 		{
 			auto* pVar = m_lstSysVars.Find(strRaum);
+			if (!pVar)
 			{
 				// Neuen Raum erzeugen.
 				CDataSystemVariable data{};
@@ -884,7 +975,10 @@ void CHeizkalenderInstallationApp::ReadResources()
 	}
 
 	// Jetzt bauen wir die neue Raumvariable zusammen.
-	SaveRoomMapToSysVars(mapRaeumeNeu);
+	if (SaveRoomMapToSysVars(mapRaeumeNeu))
+		AfxMessageBox(IDP_RAUMLISTE_WURDE_AKTUALISIERT);
+	else
+		AfxMessageBox(IDP_RAUMLISTE_WURDE_NICHT_AKTUALISIERT);
 }
 
 void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRaeume)
@@ -1091,11 +1185,8 @@ void CHeizkalenderInstallationApp::UpdatePrograms()
 
 		// Wir suchen das passende Programm
 		auto *pInst = m_lstPrograms.Find(AddPrefix(bIsScript1 ? strScript1Prefix : pApp.m_strName));
-		ASSERT(
-			!pApp.m_bNew && !pApp.m_bModified && !pApp.m_bDeleted &&
-			(!pInst || (!pInst->m_bNew && !pInst->m_bModified && !pInst->m_bDeleted))
-		);
-		if (pInst && !pInst->m_strLine1.IsEmpty() && IsDateValid(pInst->m_date))
+		ASSERT(!pApp.m_bNew && !pApp.m_bModified && !pApp.m_bDeleted);
+		if (pInst && !pInst->m_strSkript.IsEmpty() && IsDateValid(pInst->m_date))
 		{
 			// Fall 1: Wir können die Version komplett bestimmen. Nun zählt das Datum
 			// Oder wir haben Skript 1 und der Modus wurde getauscht.
@@ -1136,7 +1227,7 @@ void CHeizkalenderInstallationApp::UpdatePrograms()
 	}
 }
 
-void CHeizkalenderInstallationApp::FixScript1BeforeUpdate()
+void CHeizkalenderInstallationApp::FixScript1AfterModeChange()
 {
 	// Wir müssen evtl. noch das Skript 1 ändern oder himnzufügen
 	if (IsModeScript1Modified() && m_modeScript1!=ModeScript1::Unknown)
@@ -1156,6 +1247,7 @@ void CHeizkalenderInstallationApp::FixScript1BeforeUpdate()
 			// Update Skript
 			pInst->m_bModified = true;
 			pInst->m_strScript = pApp->m_strScript;
+			pInst->m_pAppProg = pApp;
 		}
 		else
 		{
@@ -1164,6 +1256,7 @@ void CHeizkalenderInstallationApp::FixScript1BeforeUpdate()
 			ASSERT(dataProg.m_id==0);
 			dataProg.m_strName = AddPrefix(strScript1Prefix);
 			dataProg.m_bNew = true;
+			dataProg.m_pAppProg = pApp;
 			ASSERT(!dataProg.m_bModified);
 			m_lstPrograms.push_back(dataProg);
 		}
@@ -1173,7 +1266,7 @@ void CHeizkalenderInstallationApp::FixScript1BeforeUpdate()
 void CHeizkalenderInstallationApp::UpdateSimulation()
 {
 	// Vor dem Update müssen wir das Skript 1 setzen
-	FixScript1BeforeUpdate();
+	FixScript1AfterModeChange();
 
 	CRegKey regKey{ GetSectionKey(_T("Simulation")) };
 
@@ -1216,7 +1309,7 @@ void CHeizkalenderInstallationApp::UpdateSimulation()
 void CHeizkalenderInstallationApp::UpdateCCU()
 {
 	// Vor dem Update müssen wir das Skript 1 setzen
-	FixScript1BeforeUpdate();
+	FixScript1AfterModeChange();
 
 	// Baue ein Skript auf, dass nmun die Programmänderungen übernimmt.
 	CStringA strScriptForUpdate;
@@ -1432,7 +1525,8 @@ if (oSV) {
 		};
 		for (auto const *pName : aFields)
 		{
-			auto* pVar = m_lstSysVars.Find(AddPrefix(pName));
+			CString strName{ AddPrefix(pName) };
+			auto* pVar = m_lstSysVars.Find(strName);
 			if (pVar && pVar->m_bVisible)
 			{
 				CStringA strUpdateVar = R"x(	
@@ -1443,7 +1537,7 @@ if (oSV) {
 !//--------------------
 )x";
 				// Variablen Liste einsetzen
-				strUpdateVar.Replace("%1%", CStringA(pName));
+				strUpdateVar.Replace("%1%", CStringA(strName));
 				strScriptForUpdate += strUpdateVar;
 			}
 		}
@@ -1454,6 +1548,23 @@ if (oSV) {
 	strScriptForUpdate += R"x(
 dom.RTUpdate(0);
 )x";
+
+	// Nun das Skript speichern
+	try
+	{
+		CString strPath;
+		GetTempPath2(_MAX_PATH,CStrBuf(strPath,_MAX_PATH));
+		::PathAppend(CStrBuf(strPath,_MAX_PATH),m_strAppName);
+		strPath += _T("_update.log");
+
+		CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
+		file.WriteString(CString{ strScriptForUpdate });
+	}
+	catch (CException* e)
+	{
+		e->ReportError();
+		e->Delete();
+	}
 
 	// Finally we update the CCU and execute the script
 	CStringA strOut;

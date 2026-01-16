@@ -67,6 +67,7 @@ double RoundDouble(double dVal, int iPrec);
 
 bool StringToBool(CString const &strText);
 CString BoolToString(bool bVal);
+bool IsBool(CString strText);
 
 //-----------------------------------------------------------------------------
 

@@ -42,7 +42,7 @@ public:
 	CEditInt m_edVBegin;
 	CEditInt m_edVEnde;
 	CEditDouble m_edFaktor;
-	CComboBox m_cbAktor;
+	CComboBox m_cbChannel;
 	CComboBox m_cbDevTyp;
 
 	CString m_strNameAlt;
@@ -53,8 +53,9 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnBnClickedBtTest();
 	virtual BOOL OnInitDialog();
-	afx_msg void OnCbnSelchangeCbMode();
 	virtual void OnOK();
+	afx_msg void OnCbnSelchangeCbChannel();
+	afx_msg void OnCbnSelchangeCbMode();
+	afx_msg void OnBnClickedBtTest();
 };

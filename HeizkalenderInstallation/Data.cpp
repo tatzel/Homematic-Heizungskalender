@@ -21,6 +21,26 @@
 #include "HeizkalenderInstallation.h"
 #include "Data.h"
 
+//-----------------------------------------------------------------------------
+
+void CListDevices::LoadFromString(CStringA const& strOut)
+{
+	for (int iStart = 0; iStart<strOut.GetLength(); )
+	{
+		int iPos = strOut.Find('\n', iStart);
+		if (iPos<0)
+			iPos = strOut.GetLength();
+		CString strLine{ strOut.Mid(iStart,iPos-iStart) };
+
+		// Werte übernehmen
+		CDataDevice data{ strLine };
+		iStart = iPos+1;
+		push_back(data);
+	}
+}
+
+//-----------------------------------------------------------------------------
+
 void CListSystemVariables::LoadFromString(CStringA const &strOut)
 {
 	for (int iStart = 0; iStart<strOut.GetLength(); )
@@ -37,6 +57,7 @@ void CListSystemVariables::LoadFromString(CStringA const &strOut)
 	}
 }
 
+//-----------------------------------------------------------------------------
 
 void CListPrograms::LoadFromString(CStringA const &strOut)
 {
@@ -138,17 +159,35 @@ void CDataSystemVariable::InitNeuerRaum(CString const& strName)
 
 CDataProgram::CDataProgram(CString const& strLine) 
 	: CDataProgram(
-		// Id, Name, Beschreibung, Aktiv, Zeile1, Stand
+		// Id, Name, Beschreibung, Aktiv, Script
 		StringToInt(StrValueByIndex(strLine, 0)),
 		StrValueByIndex(strLine, 1),
 		StrValueByIndex(strLine, 2)
 	)
 {
 	m_bActive = StringToBool(StrValueByIndex(strLine, 3));
-	m_strLine1 = StrValueByIndex(strLine, 4);
-	m_date = ParseDate(StrValueByIndex(strLine, 5));
-}
+	m_strSkript = StrValueByIndex(strLine, 4);
 
+	// Kodieren mit sowas wie UrlEncode
+	//	test.Replace(_T("%"), _T("%25"));
+	//	test.Replace(_T("\n"), _T("%0A"));
+	//	test.Replace( _T("\t"), _T("%09'"));
+	// Dekodieren mit sowas wie UrlDecode
+	//	test.Replace(_T("%0A"),	_T("\n"));
+	//	test.Replace(_T("%09'"), _T("\t"));
+	//	test.Replace(_T("%25"),	_T("%"));	
+
+	// Skript wiederherstellen
+	m_strSkript.Replace(_T("%0A"),	_T("\n"));
+	m_strSkript.Replace(_T("%09'"), _T("\t"));
+	m_strSkript.Replace(_T("%25"),	_T("%"));
+	// Nun das Datum bestimmen.
+	auto strTmp{ m_strSkript };
+	strTmp.MakeUpper();
+	int iPos = strTmp.Find(_T("STAND: "));
+	if (iPos>=0)
+		m_date = ParseDate(strTmp.Mid(iPos+6,20));
+}
 
 CString CDataProgram::GetDataAsLine()
 {
@@ -157,7 +196,7 @@ CString CDataProgram::GetDataAsLine()
 		m_strName + _T('\t') +
 		m_strDescription + _T('\t') +
 		BoolToString(m_bActive) + _T('\t') +
-		m_strLine1 + _T('\t') +
+		m_strSkript + _T('\t') +
 		DateToString(m_date, DATE_FORMAT_DEU);
 }
 
@@ -199,7 +238,7 @@ void SRaumDaten::GetAsString(CString &strName, CString &str)
 		m_strDevTyp + _T(";") +
 		DoubleToString(m_dblTemp,-1);
 	if (m_dblTempG!=theApp.GetGrundTemperatur())
-		str += _T("/") + DoubleToString(m_dblTemp,-1);
+		str += _T("/") + DoubleToString(m_dblTempG,-1);
 	str += _T(";") +
 		IntToString(m_iVBegin);
 	if (m_dblFaktor!=1.0)
@@ -219,4 +258,26 @@ void SRaumDaten::GetAsString(CString &strName, CString &str)
 			iPos=iPos+1;
 	}
 	m_strAktor = str.Mid(iPos);;
+}
+
+//-----------------------------------------------------------------------------
+
+CDataDevice::CDataDevice(CString const& strLine)
+{
+	// DevName, Gerätetyp, Channelname, DataPoint
+	m_strDevName = StrValueByIndex(strLine, 0);
+	m_strDevType = StrValueByIndex(strLine, 1);
+	m_strName = StrValueByIndex(strLine, 2);
+	m_channelType = static_cast<ChannelType>(StringToInt(StrValueByIndex(strLine, 3)));
+	m_strDataPoint = StrValueByIndex(strLine, 4);
+}
+
+
+CString CDataDevice::GetDataAsLine()
+{
+	return	m_strDevName + _T("\t") +
+			m_strDevType + _T("\t") +
+			m_strName + _T("\t") +
+			IntToString(static_cast<int>(m_channelType)) + _T("\t") +
+			m_strDataPoint;
 }
