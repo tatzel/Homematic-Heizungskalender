@@ -4,12 +4,12 @@
     <RESOURCE_FILE>HeizkalenderInstallation.rc</RESOURCE_FILE>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>/scripts:"C:\Users\Martin\Documents\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArgumentsHistory>/script:"D:\GitHub\HomeMatic-Heizungskalender\Skripte"|/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte"|/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulation|/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx|</LocalDebuggerCommandArgumentsHistory>
+    <LocalDebuggerCommandArgumentsHistory>/script:"D:\GitHub\HomeMatic-Heizungskalender\Skripte"|/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte"|/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulation|/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx|/scripts:"C:\Users\Martin\Documents\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>/scripts:"C:\Users\Martin\Documents\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArgumentsHistory>/scripts:"D:\GitHub\HomeMatic-Heizungskalender\Skripte" /simulationx|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
