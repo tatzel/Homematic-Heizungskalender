@@ -1,0 +1,627 @@
+﻿// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+#include "verrsrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// German (Germany) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""verrsrc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#include ""res\\HeizkalenderInstallation.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
+    "#include ""afxres.rc""      // Standardkomponenten\r\n"
+    "#if !defined(_AFXDLL)\r\n"
+    "#include ""afxribbon.rc""   // Ressourcen für MFC-Menüband und -Steuerleiste\r\n"
+    "#endif\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\HeizkalenderInstallation.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_WARNING DIALOGEX 0, 0, 321, 118
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Informationen zur Nutzung der Heizkalender Installation"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
+    LTEXT           "Dieses Programm wird als Freeware zur Verfügung gestellt.",IDC_STATIC,48,20,266,11
+    LTEXT           "Die Nutzung erfolgt auf eigene Verantwortung. Eine Gewährleistung sowie eine Haftung für direkte oder indirekte Schäden sind ausgeschlossen.",IDC_STATIC,7,42,304,20
+    LTEXT           "Bitte nutzen Sie das Programm ausschließlich unter dieser Voraussetzung.",IDC_STATIC,7,63,307,8
+    CONTROL         "Warnung nicht erneut anzeigen",IDC_CH_DONT_SHOW_AGAIN,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,78,307,10
+    DEFPUSHBUTTON   "OK",IDOK,264,96,50,14,WS_GROUP
+END
+
+IDD_PAGE_CONNECT DIALOGEX 0, 0, 377, 240
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Verbinden"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "IP-Adresse der CCU3:",IDC_STATIC,7,10,135,8
+    EDITTEXT        IDC_ED_HOST,168,8,173,12,ES_AUTOHSCROLL
+    LTEXT           "Benutzername:",IDC_STATIC,7,28,135,8
+    EDITTEXT        IDC_ED_USERNAME,168,26,173,12,ES_AUTOHSCROLL
+    LTEXT           "Kennwort:",IDC_STATIC,7,46,135,8
+    EDITTEXT        IDC_ED_PASSWORD,168,44,173,12,ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "Prefix für Variablen und Skripte",IDC_STATIC,7,62,135,8
+    EDITTEXT        IDC_ED_PREFIX,168,60,173,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Verbinden mit der CCU",IDC_BT_CONNECT,168,78,92,14
+    LTEXT           "Einlesen der Termine über:",IDC_STATIC,7,100,135,8
+    COMBOBOX        IDC_CB_MODE,168,98,173,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Name der Gemeinde in Churchtools:",IDC_ST_CHURCHTOOL1,7,118,135,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_ED_CHURCHNAME,168,116,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
+    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHTOOL2,7,138,135,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_ED_LOGINTOKEN,168,136,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
+    PUSHBUTTON      "&Ressourcen einlesen",IDC_BT_READRES,168,154,92,14,NOT WS_VISIBLE | WS_DISABLED
+    PUSHBUTTON      "Info über...",IDC_ABOUT,314,218,55,14
+    ICON            IDR_MAINFRAME,IDC_STATIC,346,7,21,20,SS_SUNKEN,WS_EX_STATICEDGE
+    LTEXT           "Version %1 - Softwarestand vom: %2",IDC_ST_VERSION,7,224,214,8,SS_NOPREFIX
+    LTEXT           "Churchdesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,118,135,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_ED_ORGAID,168,116,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
+    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHDESK2,7,138,135,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_ED_APITOKEN,168,136,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
+END
+
+IDD_PAGE_SETTINGS DIALOGEX 0, 0, 377, 240
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Einstellungen"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "&Protokollierung im Systemprotokoll",IDC_STATIC,7,7,363,78
+    CONTROL         "Allgemeine Protokollierung der Heizkalenderfunktionen",IDC_CH_LOG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,21,346,10
+    CONTROL         "Protokollierung für Skript 1 (Termindaten lesen und in Schaltliste eintragen) ",IDC_CH_LOG1,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,37,346,10
+    CONTROL         "Protokollierung für Skript 2 (Heizung nach erzeugter Schalliste schalten)",IDC_CH_LOG2,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,53,346,10
+    CONTROL         "Protokollierung für die Heizkurvenkontrolle",IDC_CH_LOG_HEIZKURVE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,69,346,10
+    GROUPBOX        "Rückstellungsverhalten",IDC_STATIC,7,89,363,46
+    CONTROL         "Alle Räume Nachts um 01:00 Uhr auf Grundtemperatur zurückgestellt werden",IDC_CH_HANDGRUNDTEMP,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,103,346,10
+    CONTROL         "Am Ende eines Termines eine manuell eingestellte/abweichende Temperatur für den Raum beibehalten",IDC_CH_HANDTEMP,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,119,346,10
+    GROUPBOX        "Rückstellungsverhalten",IDC_STATIC,7,139,363,46
+    LTEXT           "Grundtemperatur für alle Räume, wenn kein Heizvorgang läuft:",IDC_STATIC,12,153,258,8
+    EDITTEXT        IDC_ED_GRUNDTEMP,277,151,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,328,153,12,8
+    LTEXT           "Außentemperaturgrenze ab der kein Heizvorgang mehr ausgeführt werden soll:",IDC_STATIC,11,169,260,8
+    EDITTEXT        IDC_ED_ATEMPGRENZE,277,167,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,328,169,12,8
+    GROUPBOX        "Heizkurve / Vorlaufzeiten bei entsprechenden Außentemperaturen",IDC_STATIC,7,187,363,46
+    RTEXT           "-10 °C",IDC_STATIC,12,202,35,8
+    RTEXT           "-5 °C",IDC_STATIC,57,202,35,8
+    RTEXT           "0 °C",IDC_STATIC,102,202,35,8
+    RTEXT           "8°C",IDC_STATIC,147,202,35,8
+    RTEXT           "10 °C",IDC_STATIC,192,202,35,8
+    RTEXT           "12 °C",IDC_STATIC,237,202,35,8
+    RTEXT           "15 °C",IDC_STATIC,282,202,35,8
+    RTEXT           "17.5°C",IDC_STATIC,327,202,35,8
+    EDITTEXT        IDC_ED_KURVE_1,12,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_2,57,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_3,102,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_4,147,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_5,192,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_6,237,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_7,282,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_8,327,212,35,14,ES_AUTOHSCROLL
+END
+
+IDD_PAGE_PROGRAMS DIALOGEX 0, 0, 377, 244
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Programme"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "Programme des Heizkalenders:",IDC_STATIC,7,11,173,8
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,26,361,205
+END
+
+IDD_PAGE_SYSVARS DIALOGEX 0, 0, 377, 240
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Systemvariablen"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "Liste der Systemvariablen im Heizkalender:",IDC_STATIC,7,11,173,8
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,26,361,205
+END
+
+IDD_PAGE_ROOMS DIALOGEX 0, 0, 377, 244
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Räume"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "Räume im Heizkalenders:",IDC_STATIC,7,14,173,8
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,28,308,204
+    PUSHBUTTON      "&Neu...",IDC_BT_NEW,321,29,50,14
+    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,321,50,50,14
+    PUSHBUTTON      "Löschen...",IDC_BT_DELETE,321,69,50,14
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 271, 180
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Informationen zur Heizkalender Installation"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
+    LTEXT           "Heizkalender Installation",IDC_STATIC,41,14,214,8,SS_NOPREFIX
+    LTEXT           "Version %1 - Softwarestand vom: %2",IDC_ST_VERSION,41,28,214,8,SS_NOPREFIX
+    LTEXT           "Copyright © 2026 Martin Richter (xMRi-Software)",IDC_ST_COPYRIGHT,42,42,214,8
+    LTEXT           "Dieses Programm ist freie Software im Sinne der\nGNU General Public License (GPL) Version 3 oder neuer.\n\nSie dürfen dieses Programm verwenden, verändern und weiterverbreiten, sofern die Bedingungen der GPL eingehalten werden.",IDC_STATIC,15,56,247,44
+    LTEXT           "Dieses Programm wird OHNE JEGLICHE GEWÄHRLEISTUNG bereitgestellt.\nDie Nutzung erfolgt auf eigene Verantwortung.\n\nWeitere Informationen zur Lizenz finden Sie unter:",IDC_STATIC,15,102,247,36
+    CONTROL         "https://www.gnu.org/licenses/",IDC_LINK,"MfcLink",0x0,14,139,105,12
+    DEFPUSHBUTTON   "OK",IDOK,110,159,50,14,WS_GROUP
+END
+
+IDD_ROOM DIALOGEX 0, 0, 274, 173
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Raum: "
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Name des Raumes:",IDC_STATIC,7,8,99,8
+    EDITTEXT        IDC_ED_NAME,120,6,144,14,ES_AUTOHSCROLL
+    LTEXT           "Modus:",IDC_STATIC,7,24,99,8
+    COMBOBOX        IDC_CB_MODE,120,22,144,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Wohlfühltemp.:",IDC_STATIC,7,40,99,8
+    EDITTEXT        IDC_ED_TEMP,120,38,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,166,40,9,8
+    LTEXT           "Abweichende Grundtemp.:",IDC_STATIC,7,56,99,8
+    EDITTEXT        IDC_ED_GRUNDTEMP,120,54,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,166,56,9,8
+    LTEXT           "Vorzeitiger Heitbeginn:",IDC_STATIC,7,72,99,8
+    EDITTEXT        IDC_ED_VORZEIT_AN,120,70,40,12,ES_AUTOHSCROLL
+    LTEXT           "min",IDC_STATIC,166,72,12,8
+    LTEXT           "Vorzeitiges Heizende:",IDC_STATIC,7,88,99,8
+    EDITTEXT        IDC_ED_VORZEIT_AUS,120,86,40,12,ES_AUTOHSCROLL
+    LTEXT           "min",IDC_STATIC,166,88,12,8
+    LTEXT           "Faktor Heizkurve:",IDC_STATIC,7,104,99,8
+    EDITTEXT        IDC_ED_FAKTOR,120,102,40,12,ES_AUTOHSCROLL
+    LTEXT           "Aktor/Kanal/Datenpunkt:",IDC_STATIC,7,120,99,8
+    COMBOBOX        IDC_CB_AKTOR,120,118,144,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Gerätetyp:",IDC_STATIC,7,136,99,8
+    COMBOBOX        IDC_CB_GERAETETYP,120,134,144,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,44,152,50,14
+    PUSHBUTTON      "Abbrechen",IDCANCEL,110,152,50,14
+    PUSHBUTTON      "Test",IDC_BT_TEST,176,152,50,14
+END
+
+IDD_PAGE_RESOURCES DIALOGEX 0, 0, 377, 244
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Kalenderzuordnung"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "Zuordnungen der Räume zu den Resourcekalendern:",IDC_STATIC,7,14,173,8
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,28,308,204
+    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,321,29,50,14
+END
+
+IDD_RESSOURCE DIALOGEX 0, 0, 195, 196
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Raumzuordnung für:"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,39,175,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,105,175,50,14
+    LISTBOX         IDC_LB_DATA,7,21,181,149,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Raumzuordnungen:",IDC_STATIC,7,10,181,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,1,0,1
+ PRODUCTVERSION 1,1,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040704b0"
+        BEGIN
+            VALUE "CompanyName", "xMRi-Software"
+            VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
+            VALUE "FileVersion", "1.1.0.1"
+            VALUE "InternalName", "HeizkalenderInstallation.exe"
+            VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
+            VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
+            VALUE "ProductName", "Heizkalender"
+            VALUE "ProductVersion", "1.1.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x407, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_WARNING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 314
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 110
+    END
+
+    IDD_PAGE_CONNECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        VERTGUIDE, 168
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 192
+    END
+
+    IDD_PAGE_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 370
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 233
+    END
+
+    IDD_PAGE_PROGRAMS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 274
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 139
+    END
+
+    IDD_PAGE_SYSVARS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 153
+    END
+
+    IDD_PAGE_ROOMS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 73
+    END
+
+    IDD_ROOM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 6
+    END
+
+    IDD_PAGE_RESOURCES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+    END
+
+    IDD_RESSOURCE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 188
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 189
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PAGE_CONNECT AFX_DIALOG_LAYOUT
+BEGIN
+    0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 100, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+END
+
+IDD_PAGE_SETTINGS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_PAGE_PROGRAMS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_PAGE_SYSVARS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_PAGE_ROOMS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_WARNING AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0,
+    0, 0, 0, 0,
+    0, 100, 0, 0,
+    0, 100, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+END
+
+IDD_ROOM AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_PAGE_RESOURCES AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_RESSOURCE AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_ABOUTBOX DLGINIT
+BEGIN
+    IDC_LINK, 0x37c, 186, 0
+0x4d3c, 0x4346, 0x694c, 0x6b6e, 0x555f, 0x6c72, 0x683e, 0x7474, 0x7370, 
+0x2f3a, 0x772f, 0x7777, 0x672e, 0x756e, 0x6f2e, 0x6772, 0x6c2f, 0x6369, 
+0x6e65, 0x6573, 0x2f73, 0x2f3c, 0x464d, 0x4c43, 0x6e69, 0x5f6b, 0x7255, 
+0x3e6c, 0x4d3c, 0x4346, 0x694c, 0x6b6e, 0x555f, 0x6c72, 0x7250, 0x6665, 
+0x7869, 0x3c3e, 0x4d2f, 0x4346, 0x694c, 0x6b6e, 0x555f, 0x6c72, 0x7250, 
+0x6665, 0x7869, 0x3c3e, 0x464d, 0x4c43, 0x6e69, 0x5f6b, 0x6f54, 0x6c6f, 
+0x6974, 0x3e70, 0x2f3c, 0x464d, 0x4c43, 0x6e69, 0x5f6b, 0x6f54, 0x6c6f, 
+0x6974, 0x3e70, 0x4d3c, 0x4346, 0x694c, 0x6b6e, 0x465f, 0x6c75, 0x546c, 
+0x7865, 0x5474, 0x6f6f, 0x746c, 0x7069, 0x463e, 0x4c41, 0x4553, 0x2f3c, 
+0x464d, 0x4c43, 0x6e69, 0x5f6b, 0x7546, 0x6c6c, 0x6554, 0x7478, 0x6f54, 
+0x6c6f, 0x6974, 0x3e70, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_ABOUTBOX            "&Informationen zu HeizkalenderInstallation..."
+    IDS_TITLE               "Homematic Heizkalender Installations Assistent"
+    IDP_SOCKETS_INIT_FAILED "Fehler beim Initialisieren der Windows-Sockets."
+    IDS_PAGE_CONNECT        "Verbindung zur CCU"
+    IDS_PAGE_SETTINGS       "Einstellungen"
+    IDP_NEED_CONNECTION     "Um weitere Einstellungen sehen oder Ändern zu können muss zuerst eine Verbindung aufgebaut werden!"
+    IDS_PAGE_SYSVAR         "Systemvariablen"
+    IDS_PAGE_PROGRAMS       "Programme"
+    IDS_PAGE_ROOMS          "Räume"
+    IDS_MODE_CHURCHTOOLS    "ChurchTools-API"
+    IDS_MODE_CHURCHDESK_ICAL "ChurchDesk-iCal"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MODE_CHURCHDESK_API "ChurchDesk-API"
+    IDP_FILES_MISSING       "Eine oder mehrere Dateien für die Installation fehlen für die Installation. Das Programm wird kann nicht ausgeführt werden und wird beendet!\n\t%1"
+    IDP_UNKNOWN_PROGRAMS    "Die Installation enthält folgende unbekannte Programme:\n\t%1\nDie Installation kann nicht fortgesetzt werden.\nLöschen Sie diese Programme sofern, diese nicht mehr benötigt werden.\nAlternativ können Sie dem Programm einen neuen Namen geben, der nicht vom Heizkalender reserviert ist."
+    IDP_NEWER_PROGRAMS      "Die aktuelle Installation enthält neuere Programme als dieses Installationspaket:\n\t%1\nDie Installation kann nicht fortgesetzt werden da es zu einem Downgrade kommen würde.\nSollten Sie dennoch diese Version installieren wollen löschen Sie manuell diese Programme in der CCU."
+    IDP_CHOOSE_MODE_MANUAL  "Aus den vorliegenden Daten und Programmen kann nicht ermittelt werden, auf welche Art (ChurchDesk, ChurchTools etc.) die Termine ermittelt werden sollen. Wählen Sie bitte den entsprechenden Modus manuell aus!"
+    IDP_CHOOSE_NEW_MODE     "Dies ist eine neue Installation!\nWählen Sie bitte den entsprechenden Modus aus, mit dem die Heiztermine ermittelt werden sollen."
+    IDP_CCU_UPDATE_SUCCESSFUL 
+                            "Die CCU konnte erfolgreich aktualisiert werden!"
+    IDP_CCU_UPDATE_FAILED   "Das CCU Update ist fehlgeschlagen!\n\t%1"
+    IDP_CCU_NO_UPDATE       "Es sind keine Änderungen an der CCU Erforderlich!"
+    IDP_QUERY_UPDATE_SIMUATION 
+                            "Sollen die Änderungen der Smulation gespeichert werden?"
+    IDS_TITLE_PROGRAMS      "Name;Datum akt.; Datum neu;Info"
+    IDS_INST_NEW            "Programm wird neu installiert"
+    IDS_INST_REPLACED       "Programm wird gelöscht und neu angelegt"
+    IDS_INST_UPDATED        "Programm wird aktualisiert"
+    IDS_INST_NOACTION       "Keine Aktion notwendig"
+    IDP_KURVEN_WERTE_AUFSTEIGEND 
+                            "Die Werte der Heizkurve in Minuten müssen jeweils größere Verzögerungen für kältere Temperaturen enthalten!"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "Heizkalender Installation"
+END
+
+STRINGTABLE
+BEGIN
+    IDP_NO_ROOMS            "Es wurden bisher keine Ressourcen/Raumdaten eingelesen oder definiert. Aktualisieren Sie die Raumliste für die Verbindung!"
+    IDP_LOGIN_DATA_REQUIERED 
+                            "Es werden Zugangsdaten benötigt um die Ressourcen einlesen zu können!"
+    IDP_QUERY_MODE_SWITCH_WARNING 
+                            "Sie haben bereits Zugangsdaten für den aktuellen Modus eingetragen. Diese gehen verloren, wenn Sie einen neue Terminquelle wählen!\nWollen Sie dennoch fortfahren?"
+    IDP_QUERY_MODE_SWITCH_WARNING_RES 
+                            "Es wurden bereits Raumdaten eingelesen und eine Raumliste angelegt. Wenn Sie die Quelle für die Termindaten ändern, wird die aktuelle Raumliste gelöscht. Die Variablen für die einzelnen Räume bleiben erhalten und können wiederverwendet werden. Aber alle Räume müssen neu zugeordnet.\nWollen Sie dennoch fortfahren?"
+    IDP_TEST_AKTOR_SCHALTEN "Test für Kanal ""%1""\nSchaltzustand:\t%2"
+    IDP_NEED_MODE           "Um weitere Einstellungen sehen und Ändern zu können muss die Art festegelgt werden, wie Heiztermine eingelesen werden!"
+    IDP_FILE_INVALID        "Eine der Programmdateien im Anwednungsverzeichnis hat ein falsches bzw. unerwartetes Format!\n\t%1"
+    IDP_QUERY_DATA_MODIFIED "Es wurden bereits Daten für die Installations erfasst, eventuelle Änderungen würden veroren gehen!\nEs wurden bisher keine Änderungen an der CCU Installation vorgenommen!\nWollen Sie das Programm dennoch beenden?"
+    IDP_QUERY_RAUMLISTEN_NICHT_LEER 
+                            "Die Raumlisten sind bereits gefüllt. Diese Werte und Zuordnungen bleiben erhalten. Ungültige Zuordnungen werden entfernt. Neue Räume oder Zuordnungen werden angelegt.\nWollen Sie fortfahren?"
+    IDP_LESEN_VON_CHURCHTOOLS_FEHLGESCHLAGEN 
+                            "Das Einlesen der Daten aus Churchtools ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!"
+    IDS_TITLE_SYSVARS       "Name;Inhalt;Info"
+    IDS_NEW                 "Neu"
+    IDS_UPDATE              "Geändert"
+    IDS_TITLE_ROOMS         "Name;S/H;Temp.;Einsch.;Aussch.;Heizgr.;Info"
+    IDS_SIMULATION          "Simulation"
+    IDP_SIMULATION_GESTARTET 
+                            "Sie haben die Heizkalender-Installation im Simulationsmodus gestartet.\nEs wird keine Verbindung zu einer CCU benötigt. Die Änderungen werden lokal in der Registry gespeichert und können später wieder geladen und bearbeitet werden."
+END
+
+STRINGTABLE
+BEGIN
+    IDP_QUERY_SIMULATION_LADEN 
+                            "Wollen Sie die eine bestehende Simulation aus der Registry laden?\nWenn Sie mit Nein antworten, werden sie bisherigen Simulationsdaten verworfen und eine neue Simulation, mit einer leeren Konfiguration wird gestartet!"
+    IDP_QUERY_UPDATE_CCU    "Sollen die Änderungen jetzt an die CCU übertragen werden?\nAchtung! Dieser Vorgang kann nur durch das Einspielen eines aktuellen Backups rückgängig gemacht werden!"
+    IDP_RAUMVAR_NAMEN_KORREKTUR 
+                            "Eine oder mehrere Raumvariablen stimmen nicht mit der Namenskovention für den Heizkalender überein. Die folgenden Raumvariablen, werden kopiert und neu angelegt:\n\t%1"
+    IDS_TITLE_RESOURCES     "Id;Name;Zugeordnete Räume"
+    IDS_PAGE_RESOURCES      "Kalenderzuordnungen"
+    IDS_RAUM_MODUS          "Heizen;Schalten"
+    IDS_RAUM_DEVTYP         "IP - Homematic IP;RT- Klassik-Thermostate-Gerätetyp;TC - Klassik-Thermostate-Gerätetyp;IT - Klassik-Thermostate-Gerätetyp;SW - Sonstige"
+    IDS_NEW_ROOM            "NeuerRaum"
+    IDP_QUERY_DELETE_ROOM   "Soll der selektierte Raum ""%1"" gelöscht werden? Damit werden alle Kalenderzuordnungen für diesen Raum entfernt!\nWollen Sie fortfahren?"
+    IDP_RAUM_NAME_EXISTIERT "Ein Raum mit dem Namen ""%1"" existiert bereits!"
+    IDP_RAUM_NAME_FEHLT     "Es muss ein Raumname angegeben werden!"
+    IDP_RAUMVAR_NAMEN_FEHLEN 
+                            "Eine oder mehrere Raumvariablen fehlen. Die folgenden Raumvariablen, werden neu angelegt:\n\t%1"
+    IDP_TEST_AKTOR_HEIZEN   "Test für Kanal ""%1""\nAktuelle Zieltemperatur:\t%2\nAktuelle Raumtemperatur:\t%3"
+    IDP_RAUMLISTE_WURDE_AKTUALISIERT 
+                            "Die Liste der Räume bzw. Ressourcen wurde aktualisiert.\nKontrollieren Sie evtl. neue vorhandene Raumvariablen!"
+    IDP_RAUMLISTE_WURDE_NICHT_AKTUALISIERT 
+                            "Die Liste der Räume bzw. Ressourcen wurde nicht verändert."
+    IDS_AN_AUS              "AUS;AN"
+END
+
+#endif    // German (Germany) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#include "res\HeizkalenderInstallation.rc2"  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen
+#include "afxres.rc"      // Standardkomponenten
+#if !defined(_AFXDLL)
+#include "afxribbon.rc"   // Ressourcen für MFC-Menüband und -Steuerleiste
+#endif
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="HeizkalenderInstallation.vcxproj" Id="cf08a1d9-6d3c-957f-732e-e2e370f8f0f3" />
+</Solution>
