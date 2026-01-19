@@ -1,8 +1,7 @@
 *.bak
+*.aps
+*.user
 /.vs
 /HeizkalenderInstallation/.vs
 /HeizkalenderInstallation/x64
 /HeizkalenderInstallation/Bin
-*.aps
-/HeizkalenderInstallation/enc_temp_folder
-HeizkalenderInstallation/HeizkalenderInstallation.vcxproj.user
