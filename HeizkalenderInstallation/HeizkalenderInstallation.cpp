@@ -231,7 +231,7 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 		}
 		else
 		{
-			AppendTextWithDelimiter(str,strMissing,_T('\n'));
+			AppendTextWithDelimiter(strMissing,strName,_T("; "));
 		}
 	}
 
@@ -422,7 +422,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		if (bProgramIsNewer)
 			AppendTextWithDelimiter(strProgs,p.m_strName,_T("; "));
 	}
-
+		
 	if (!strProgs.IsEmpty())
 	{
 		// Sollten wir nicht alle Programme kennen, melden wir einen Fehler und brechen ab.
@@ -431,6 +431,26 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		AfxMessageBox(strError,MB_ICONWARNING|MB_OK);
 		return false;
 	}
+
+//---------------------------------------------------------------------------
+
+	{
+		// Wenn es die alte Variable existiert und die neue nicht, benenne die 
+		// alte Variable um.
+		auto *pVarAlt = m_lstSysVars.Find(AddPrefix(_T("HK1-ICS-CD-Churchdesk-ID"))),
+			 *pVarNeu = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-OrganisationsId")));
+		if (pVarAlt && !pVarNeu)
+		{
+			// Setze den neuen Namen und setze das Modified-Flag. Dadurch
+			// wird die Variable umbenannt.
+			pVarAlt->m_strName = AddPrefix(_T("HK1-CD-OrganisationsId"));
+			pVarAlt->m_bModified = true;
+			// Wir müssen erzwingen, dass die Variable als modified weiter 
+			// behandelt wird.
+			pVarAlt->m_strContentOld.Insert(0,_T("x"));
+		}
+	}
+
 
 //-----------------------------------------------------------------------------
 
