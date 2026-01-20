@@ -58,7 +58,8 @@ void CInstallerCommandLineInfo::ParseParam(const char* pszParam, BOOL bFlag, BOO
 {
 	if (bFlag)
 	{
-		if (_strnicmp(pszParam, "scripts:", 8)==0)
+		if (_strnicmp(pszParam, "scripts:", 8)==0 ||
+		    _strnicmp(pszParam, "skripte:", 8)==0)
 		{
 			// Pfad auf scripte
 			pszParam += 8;
@@ -231,7 +232,7 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 		}
 		else
 		{
-			AppendTextWithDelimiter(str,strMissing,_T('\n'));
+			AppendTextWithDelimiter(strMissing,strName,_T("; "));
 		}
 	}
 
@@ -422,7 +423,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		if (bProgramIsNewer)
 			AppendTextWithDelimiter(strProgs,p.m_strName,_T("; "));
 	}
-
+		
 	if (!strProgs.IsEmpty())
 	{
 		// Sollten wir nicht alle Programme kennen, melden wir einen Fehler und brechen ab.
@@ -431,6 +432,26 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		AfxMessageBox(strError,MB_ICONWARNING|MB_OK);
 		return false;
 	}
+
+//---------------------------------------------------------------------------
+
+	{
+		// Wenn es die alte Variable existiert und die neue nicht, benenne die 
+		// alte Variable um.
+		auto *pVarAlt = m_lstSysVars.Find(AddPrefix(_T("HK1-ICS-CD-Churchdesk-ID"))),
+			 *pVarNeu = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-OrganisationsId")));
+		if (pVarAlt && !pVarNeu)
+		{
+			// Setze den neuen Namen und setze das Modified-Flag. Dadurch
+			// wird die Variable umbenannt.
+			pVarAlt->m_strName = AddPrefix(_T("HK1-CD-OrganisationsId"));
+			pVarAlt->m_bModified = true;
+			// Wir müssen erzwingen, dass die Variable als modified weiter 
+			// behandelt wird.
+			pVarAlt->m_strContentOld.Insert(0,_T("x"));
+		}
+	}
+
 
 //-----------------------------------------------------------------------------
 
@@ -1086,6 +1107,8 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 				continue;
 			}
 			CString strName{ strRes.Mid(0,iPosEnd) };
+
+			// In die Map Eintragen
 			auto &e = mapRaeume[IntToString(resId)];
 			e.m_strResourceName = CleanupNameForRoom(strName);
 			CString strVarName { AddRoomPrefix(e.m_strResourceName) };
@@ -1097,6 +1120,127 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 void CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRaeume)
 {
 	mapRaeume.clear();
+
+	// Token bestimmen
+	auto *pVarOrgaId = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-OrganisationsId")));
+	ASSERT(pVarOrgaId);
+	auto *pVarApiKey = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-Token")));
+	ASSERT(pVarApiKey);
+
+	// Resource Daten von Churchtools lesen
+	CWGetEngine engine;
+	CString strURL = 
+		_T("https://api2.churchdesk.com/api/v3.0.0/events/resources?partnerToken=") +
+		pVarApiKey->m_strContent + _T("&organizationId=") + 
+		pVarOrgaId->m_strContent;
+	CString strResult;
+
+	// Prüfen 
+	if (!engine.Get(strURL, strResult, true) || strResult.Left(1)!=_T("["))
+	{
+		AfxMessageBox(IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN);
+		return;
+	}
+
+	CString strResources { strResult };
+	strResources.Replace(_T("{\"id\":"),_T("\t"));
+	CString strRes;
+	for (int i = 0; !(strRes = StrValueByIndex(strResources, i)).IsEmpty(); ++i)
+	{
+		// Bei Color 0 ist das der Gemeinde-Eintrag, den überspringen wir.
+		int iPos = strRes.Find(_T("\"color\":"));
+		if (iPos<0 || StringToInt(strRes.Mid(iPos+8,10))==0){
+			// Den Gemeinde-Eintrag kann man beim buchen nicht benutzen.
+			// Einen anderen Indikator als die Farbe habe ich nicht gefunden.
+			continue;
+		}
+		
+		// OK gültiger Eintrag, Ressource Id laden
+		int resId = StringToInt(strRes);
+
+		// Namen suchen
+		iPos = strRes.Find(_T(",\"name\":\""));
+		if (iPos<0)
+			continue;
+		int iPosEnd = strRes.Find(_T("\",\""),iPos);
+		if (iPosEnd<0)
+			continue;
+		CString strName = strRes.Mid(iPos+9,iPosEnd-iPos-9);
+
+		// In die Map eintragen
+		auto &e = mapRaeume[IntToString(resId)];
+		e.m_strResourceName = CleanupNameForRoom(strName);
+		CString strVarName { AddRoomPrefix(e.m_strResourceName) };
+		e.m_lstRaeume.push_back(strVarName);
+	}
+
+#ifdef SCHROTT
+		!// Wir bauen nun die raumliste auf. Diese erhält auch die Klartextnamen
+			string raumListe = "";
+		string raumNamen = "";
+		!// Nun die Ressourcen separieren "{\"id\":"
+			string res;
+		!// Achtung der Split ersetzt nur das erste Zeichen durch \t
+			foreach(res,stdout.Split("{\"id\":")){
+			if (!res.StartsWith("\"id\":")){
+				!// Fehler, falsches format
+					continue;
+			}
+
+			!// Bei Color 0 ist das der Gemeinde-Eintrag, den überspringen wir.
+				integer iPos = res.Find("\"color\":");
+			if (iPos && res.Substr(iPos+8,10).ToInteger()==0){
+				!// Den Gemeinde-Eintrag kann man beim buchen nicht benutzen.
+					!// Einen anderen Indikator als die Farbe habe ich nicht gefunden.
+					continue;
+			}
+
+			!// Id holen
+				integer resId = res.Substr(5,10).ToInteger();
+
+			!// Namen suchen
+				integer iPos = res.Find(",\"name\":\"");
+			if (iPos<0){
+				!// Fehler
+					continue;
+			}
+
+			!// Namen finden
+				res = res.Substr(iPos+9,res.Length()-9);
+			integer iPosEnd = res.Find("\",\"");;
+			if (iPos<0){
+				!// Fehler
+					continue;
+			}
+
+			!// Namen bereinigen
+				name = res.Substr(0,iPosEnd);
+			name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","").Replace("=","");
+
+			!// Die Raumliste bekommt zusätzlich die Raumnamen im Klartext abgetrennt mit =. Das erleichtert
+				!// dem Installer eine bessere Funktionalität für den Benutzer.
+				if (raumListe){
+					raumListe = raumListe # ";";
+				}
+			raumListe = raumListe # resId # "=" # name ;
+			if (raumNamen){
+				raumNamen = raumNamen # ";";
+			}
+			raumNamen = raumNamen # name;
+		}
+
+		!// Wenn wir eine Raumliste haben dann setzen wir, wenn diese nicht leer ist
+			svObj = dom.GetObject(vrp#"HK1-R-Liste");
+		if(svObj.State()!=""){
+			!// Ist schon gesetzt
+				WriteLine("Variable HK1-R-Liste ist bereits gefüllt: " # svObj.State());
+			WriteLine("Ermittelte Daten: " # raumListe);
+		}else{
+			svObj.State(raumListe);
+			WriteLine("Variable HK1-R-Liste wird gesetzt auf: " # raumListe);
+		}
+
+#endif
 }
 
 static CStringA CreateUpdateScriptForProgram(int id, CStringA& strScript)
@@ -1508,12 +1652,20 @@ oSV.Variable(%2%);
 			CStringA strUpdateVar = R"x(
 object oSV = dom.GetObject (ID_SYSTEM_VARIABLES).Get(%1%);
 if (oSV) {
-  oSV.Name("%2%");
+  if (%1%!="%2%")
+  {
+    oSV.Name("%2%");
+  }
   oSV.State(%3%);
 }
 !//--------------------
 )x";
-			strUpdateVar.Replace("%1%", CStringA{ IntToString(e.m_id) });
+			// Es besteht die Mögliochkeit, dass die Variable schon da ist, wenn 
+			// nicht müssen wir über den Namen die Variable aktualisieren
+			if (e.m_id)
+				strUpdateVar.Replace("%1%", CStringA{ IntToString(e.m_id) });
+			else 
+				strUpdateVar.Replace("%1%", CStringA{ QuoteString(e.m_strName) });
 			strUpdateVar.Replace("%2%", CStringA{ e.m_strName });
 			strUpdateVar.Replace("%3%", CStringA{ e.m_dataType==DataType::vtString ? QuoteString(e.m_strContent) : e.m_strContent });
 
