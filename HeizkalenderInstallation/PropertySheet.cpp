@@ -178,7 +178,10 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 				CString strText = pVar->m_strContent;
 				DDX_Text(pDX, e.m_uiId, strText);
 				if (pDX->m_bSaveAndValidate)
+				{
+					strText.Trim();
 					pVar->SetContent(strText);
+				}
 			}
 		}
 	}

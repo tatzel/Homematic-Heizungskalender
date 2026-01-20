@@ -1,5 +1,7 @@
-﻿// Microsoft Visual C++ generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
+#pragma code_page(65001)
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -563,7 +565,7 @@ BEGIN
     IDP_QUERY_RAUMLISTEN_NICHT_LEER 
                             "Die Raumlisten sind bereits gefüllt. Diese Werte und Zuordnungen bleiben erhalten. Ungültige Zuordnungen werden entfernt. Neue Räume oder Zuordnungen werden angelegt.\nWollen Sie fortfahren?"
     IDP_LESEN_VON_CHURCHTOOLS_FEHLGESCHLAGEN 
-                            "Das Einlesen der Daten aus Churchtools ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!"
+                            "Das Einlesen der Daten aus ChurchTools ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!"
     IDS_TITLE_SYSVARS       "Name;Inhalt;Info"
     IDS_NEW                 "Neu"
     IDS_UPDATE              "Geändert"
@@ -596,6 +598,12 @@ BEGIN
     IDP_RAUMLISTE_WURDE_NICHT_AKTUALISIERT 
                             "Die Liste der Räume bzw. Ressourcen wurde nicht verändert."
     IDS_AN_AUS              "AUS;AN"
+END
+
+STRINGTABLE
+BEGIN
+    IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN 
+                            "Das Einlesen der Daten aus ChurchDesk ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!"
 END
 
 #endif    // German (Germany) resources
