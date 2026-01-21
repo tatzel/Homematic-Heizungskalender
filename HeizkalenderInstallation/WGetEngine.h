@@ -23,7 +23,7 @@ class CWGetEngine : public CObject
 {
 public:
 	CWGetEngine::CWGetEngine();
-	bool Get(CString strURL, CStringW& strOut);
+	bool Get(CString strURL, CStringW& strOut, bool bUtf8=false);
 
 	CString GetLastErrorText();
 	DWORD GetLastError() 

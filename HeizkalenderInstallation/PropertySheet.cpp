@@ -178,7 +178,10 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 				CString strText = pVar->m_strContent;
 				DDX_Text(pDX, e.m_uiId, strText);
 				if (pDX->m_bSaveAndValidate)
+				{
+					strText.Trim();
 					pVar->SetContent(strText);
+				}
 			}
 		}
 	}
@@ -460,6 +463,9 @@ void CPageConnect::OnBnClickedBtConnect()
 			// Aus den vorliegenden Daten, kann kein Modus ermittelt werden
 			AfxMessageBox(IDP_CHOOSE_MODE_MANUAL);
 	}
+
+	// Daten laden
+	UpdateData(FALSE);
 }
 
 void CPageConnect::OnBnClickedBtReadres()
