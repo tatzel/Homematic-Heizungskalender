@@ -58,7 +58,8 @@ void CInstallerCommandLineInfo::ParseParam(const char* pszParam, BOOL bFlag, BOO
 {
 	if (bFlag)
 	{
-		if (_strnicmp(pszParam, "scripts:", 8)==0)
+		if (_strnicmp(pszParam, "scripts:", 8)==0 ||
+		    _strnicmp(pszParam, "skripte:", 8)==0)
 		{
 			// Pfad auf scripte
 			pszParam += 8;
@@ -1106,6 +1107,8 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 				continue;
 			}
 			CString strName{ strRes.Mid(0,iPosEnd) };
+
+			// In die Map Eintragen
 			auto &e = mapRaeume[IntToString(resId)];
 			e.m_strResourceName = CleanupNameForRoom(strName);
 			CString strVarName { AddRoomPrefix(e.m_strResourceName) };
@@ -1117,6 +1120,59 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 void CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRaeume)
 {
 	mapRaeume.clear();
+
+	// Token bestimmen
+	auto *pVarOrgaId = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-OrganisationsId")));
+	ASSERT(pVarOrgaId);
+	auto *pVarApiKey = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-Token")));
+	ASSERT(pVarApiKey);
+
+	// Resource Daten von Churchtools lesen
+	CWGetEngine engine;
+	CString strURL = 
+		_T("https://api2.churchdesk.com/api/v3.0.0/events/resources?partnerToken=") +
+		pVarApiKey->m_strContent + _T("&organizationId=") + 
+		pVarOrgaId->m_strContent;
+	CString strResult;
+
+	// Prüfen 
+	if (!engine.Get(strURL, strResult, true) || strResult.Left(1)!=_T("["))
+	{
+		AfxMessageBox(IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN);
+		return;
+	}
+
+	CString strResources { strResult };
+	strResources.Replace(_T("{\"id\":"),_T("\t"));
+	CString strRes;
+	for (int i = 0; !(strRes = StrValueByIndex(strResources, i)).IsEmpty(); ++i)
+	{
+		// Bei Color 0 ist das der Gemeinde-Eintrag, den überspringen wir.
+		int iPos = strRes.Find(_T("\"color\":"));
+		if (iPos<0 || StringToInt(strRes.Mid(iPos+8,10))==0){
+			// Den Gemeinde-Eintrag kann man beim buchen nicht benutzen.
+			// Einen anderen Indikator als die Farbe habe ich nicht gefunden.
+			continue;
+		}
+		
+		// OK gültiger Eintrag, Ressource Id laden
+		int resId = StringToInt(strRes);
+
+		// Namen suchen
+		iPos = strRes.Find(_T(",\"name\":\""));
+		if (iPos<0)
+			continue;
+		int iPosEnd = strRes.Find(_T("\",\""),iPos);
+		if (iPosEnd<0)
+			continue;
+		CString strName = strRes.Mid(iPos+9,iPosEnd-iPos-9);
+
+		// In die Map eintragen
+		auto &e = mapRaeume[IntToString(resId)];
+		e.m_strResourceName = CleanupNameForRoom(strName);
+		CString strVarName { AddRoomPrefix(e.m_strResourceName) };
+		e.m_lstRaeume.push_back(strVarName);
+	}
 }
 
 static CStringA CreateUpdateScriptForProgram(int id, CStringA& strScript)
@@ -1528,12 +1584,20 @@ oSV.Variable(%2%);
 			CStringA strUpdateVar = R"x(
 object oSV = dom.GetObject (ID_SYSTEM_VARIABLES).Get(%1%);
 if (oSV) {
-  oSV.Name("%2%");
+  if (%1%!="%2%")
+  {
+    oSV.Name("%2%");
+  }
   oSV.State(%3%);
 }
 !//--------------------
 )x";
-			strUpdateVar.Replace("%1%", CStringA{ IntToString(e.m_id) });
+			// Es besteht die Mögliochkeit, dass die Variable schon da ist, wenn 
+			// nicht müssen wir über den Namen die Variable aktualisieren
+			if (e.m_id)
+				strUpdateVar.Replace("%1%", CStringA{ IntToString(e.m_id) });
+			else 
+				strUpdateVar.Replace("%1%", CStringA{ QuoteString(e.m_strName) });
 			strUpdateVar.Replace("%2%", CStringA{ e.m_strName });
 			strUpdateVar.Replace("%3%", CStringA{ e.m_dataType==DataType::vtString ? QuoteString(e.m_strContent) : e.m_strContent });
 
