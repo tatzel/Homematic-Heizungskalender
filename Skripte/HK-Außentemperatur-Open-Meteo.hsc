@@ -133,5 +133,5 @@ temp = summe/n;
 
 !// Ergebnis schreiben
 if (n!=0){
-  dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp);
+  dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp.ToString(1));
 }
