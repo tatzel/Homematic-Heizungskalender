@@ -127,11 +127,10 @@ if (DEBUG){
   WriteLine("---------");
   WriteLine(summe);
   WriteLine(n);
-  WriteLine((temp/n)+"\n");
 }
-temp = summe/n;
-
+temp = (summe/n).ToString(1);
+WriteLine(temp)
 !// Ergebnis schreiben
 if (n!=0){
-  dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp.ToString(1));
+  dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp);
 }
