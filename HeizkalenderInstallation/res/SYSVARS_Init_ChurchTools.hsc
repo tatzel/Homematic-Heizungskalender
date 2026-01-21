@@ -12,7 +12,7 @@ boolean barchive= true; !- false: immer restore mit DPArchive (false), true: res
 string sID; object oSV; string svName; object oCHN; object rSV= dom.GetObject (ID_SYSTEM_VARIABLES);
 string neut=" neu angelegt"; string altt=" exisitiert schon";integer act= 0; integer neu= 0;
 !------------
-svName= "CT_HK1-CT-Gemeindename"; oSV=rSV.Get (svName);
+svName= "%1%HK1-CT-Gemeindename"; oSV=rSV.Get (svName);
 if (oSV) { 
 	if ((oSV.ValueType()==20) && (oSV.ValueSubType()==11) && bupdate && (oSV.Type()!=OT_ALARMDP)) { 
 		WriteLine (svName # altt);act=act+1;
@@ -24,7 +24,7 @@ if (oSV) {
 		oSV.Variable ("");
 	WriteLine (svName # neut);}
 !------------
-svName= "CT_HK1-CT-Token"; oSV=rSV.Get (svName);
+svName= "%1%HK1-CT-Token"; oSV=rSV.Get (svName);
 if (oSV) { 
 	if ((oSV.ValueType()==20) && (oSV.ValueSubType()==11) && bupdate && (oSV.Type()!=OT_ALARMDP)) { 
 		WriteLine (svName # altt);act=act+1;

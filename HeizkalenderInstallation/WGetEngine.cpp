@@ -27,7 +27,7 @@ CWGetEngine::CWGetEngine()
 {
 }
 
-bool CWGetEngine::Get(CString strURL, CStringW& strOut)
+bool CWGetEngine::Get(CString strURL, CStringW& strOut, bool bUtf8)
 {
     try
     {
@@ -55,7 +55,11 @@ bool CWGetEngine::Get(CString strURL, CStringW& strOut)
             strTemp.ReleaseBufferSetLength(iSize);
             str += strTemp;
         }
-        strOut = str;
+        
+        if (bUtf8)
+            strOut = UTF8toUnicode(str);
+        else
+            strOut = str;
 
         pFile->Close();
         pFile = nullptr;
