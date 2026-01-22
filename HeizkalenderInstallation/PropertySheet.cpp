@@ -486,6 +486,9 @@ void CPageConnect::OnBnClickedBtReadres()
 		AfxMessageBox(IDP_LOGIN_DATA_REQUIERED);
 		return;
 	}
+
+	// Daten umladen
+	UpdateData(TRUE);
 	theApp.ReadResources();
 }
 
