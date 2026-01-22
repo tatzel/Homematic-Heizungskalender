@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    13.01.2026
+!// Stand:    23.01.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -39,8 +39,9 @@ boolean DEBUG=0;
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
 
-!//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
-boolean log=0;
+!// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
+!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
@@ -65,11 +66,18 @@ string AGF;
 var logObj=dom.GetObject(vrp+"HK-LogHeizkurvenkontrolle");
 var loggingObj=dom.GetObject(vrp+"HK-LoggingHeizkurvenkontrolle");
 
-!// Prüfe logging erwartet wird
-if ((!log) && loggingObj){
-  if (loggingObj.State()!=0){
+!// Prüfe ob logging erwartet wird
+if (log<0) {
+  !// Zwingend kein logging
+  log = false;
+} elseif (log==0) {
+!// Einstellung der Logging Variable prüfen
+  if (loggingObj && loggingObj.State()!=0){
     log = true;
   }
+} else {
+  !// Logging einschalten
+  log = true;
 }
 
 !// Logging auschalten, wenn keine Variable vorhanden

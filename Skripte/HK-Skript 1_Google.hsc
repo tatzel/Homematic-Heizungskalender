@@ -1,6 +1,6 @@
 !// UNGETESTET!!! Skript 1 um die Termine aus Google auszulesen
 !//================================================================================================
-!// Stand:    24.11.2025; 
+!// Stand:    23.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -43,8 +43,9 @@ boolean DEBUG=0;
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
 
-!//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
-boolean log=0;
+!// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
+!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+integer log=0;
 
 !// Zeitfenster in dem nach Termine geschaut wird 
 !// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit), 
@@ -80,16 +81,23 @@ string toadd;
 var logObj=dom.GetObject(vrp+"HK1-Log");
 var loggingObj=dom.GetObject(vrp+"HK1-Logging");
 
-!// Prüfe logging erwartet wird
-if ((!log) && loggingObj){
-  if (loggingObj.State()!=0){
-	  log = true;
+!// Prüfe ob logging erwartet wird
+if (log<0) {
+  !// Zwingend kein logging
+  log = false;
+} elseif (log==0) {
+!// Einstellung der Logging Variable prüfen
+  if (loggingObj && loggingObj.State()!=0){
+    log = true;
   }
+} else {
+  !// Logging einschalten
+  log = true;
 }
-	
-!// Logging auschalten, wenn keine Variable vorhanden
+
+!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
 if (!logObj){
-	log = false;
+  log = false;
 }
 
 if(log){logObj.State("Beginn Google-Skriptlauf");}

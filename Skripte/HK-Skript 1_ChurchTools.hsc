@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    13.01.2026 
+!// Stand:    23.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -61,8 +61,9 @@ boolean multiRaumVariante=true;
 integer zeitVorlauf=12*60;		!// 12 Stunden (default=12h)
 integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
 
-!//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
-boolean log=0;
+!// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
+!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+integer log=0;
 
 !//################################################################################################
 !//######------Skript Variablen und Skript Arbeitsteil. Vom Benutzer nicht zu verändern------######
@@ -71,16 +72,23 @@ boolean log=0;
 var logObj=dom.GetObject(vrp+"HK1-Log");
 var loggingObj=dom.GetObject(vrp+"HK1-Logging");
 
-!// Prüfe logging erwartet wird
-if ((!log) && loggingObj){
-  if (loggingObj.State()!=0){
-	  log = true;
+!// Prüfe ob logging erwartet wird
+if (log<0) {
+  !// Zwingend kein logging
+  log = false;
+} elseif (log==0) {
+!// Einstellung der Logging Variable prüfen
+  if (loggingObj && loggingObj.State()!=0){
+    log = true;
   }
+} else {
+  !// Logging einschalten
+  log = true;
 }
-	
-!// Logging auschalten, wenn keine Variable vorhanden
+
+!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
 if (!logObj){
-	log = false;
+  log = false;
 }
 
 if(log){logObj.State("Beginn ChurchTools-Skriptlauf");}

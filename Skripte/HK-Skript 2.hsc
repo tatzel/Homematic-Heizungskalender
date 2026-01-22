@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    13.01.2026
+!// Stand:    23.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -70,8 +70,9 @@ boolean DEBUG=0;
 !//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
 boolean multiRaumVariante=true;
 
-!//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
-boolean log=0;
+!// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
+!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
@@ -122,18 +123,25 @@ string AGF;
 string AGFParam;
 string Param;
 
-!// Logging bestimmen
+!// Logging vorbereiten
 var logObj=dom.GetObject(vrp+"HK2-Log");
 var loggingObj=dom.GetObject(vrp+"HK2-Logging");
 
-!// Prüfe logging erwartet wird
-if ((!log) && loggingObj){
-  if (loggingObj.State()!=0){
+!// Prüfe ob logging erwartet wird
+if (log<0) {
+  !// Zwingend kein logging
+  log = false;
+} elseif (log==0) {
+!// Einstellung der Logging Variable prüfen
+  if (loggingObj && loggingObj.State()!=0){
     log = true;
   }
+} else {
+  !// Logging einschalten
+  log = true;
 }
 
-!// Logging auschalten, wenn keine Variable vorhanden
+!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
 if (!logObj){
   log = false;
 }
