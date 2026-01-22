@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    21.01.2025;
+!// Stand:    23.01.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -45,8 +45,36 @@ boolean DEBUG=0;
 !// berechnet.
 integer stundenZurueck = 36;
 
+!// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
+!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+integer log=0;
+
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
+
+!// Logging vorbereiten
+var logObj=dom.GetObject(vrp+"HK-Log");
+var loggingObj=dom.GetObject(vrp+"HK-Logging");
+
+!// Prüfe ob logging erwartet wird
+if (log<0) {
+  !// Zwingend kein logging
+  log = false;
+} elseif (log==0) {
+!// Einstellung der Logging Variable prüfen
+  if (loggingObj && loggingObj.State()!=0){
+    log = true;
+  }
+} else {
+  !// Logging einschalten
+  log = true;
+}
+
+!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
+if (!logObj){
+  log = false;
+}
+
 
 !//Variablen
 string error="kein";
@@ -90,8 +118,10 @@ if (h==0){
   h = 24;
 }
 
+!// Begrenzungen festlegen
 stundenZurueck = stundenZurueck.Min(48).Max(1);
 integer ueberspringen = h+48-stundenZurueck;
+
 if (DEBUG){
   WriteLine("Stunden zurück: " # stundenZurueck);
   WriteLine("Überspringen: " # ueberspringen);
@@ -106,8 +136,9 @@ if (DEBUG){
   WriteLine("---------");
 }
 
-
+!// Werte berechnen
 integer i=0;
+real letzterWert;
 foreach (temp, stemp.Split(","))
 {
   !// Werte bis zur aktuellen Stunde überspringen wir.
@@ -115,7 +146,8 @@ foreach (temp, stemp.Split(","))
     if (DEBUG){
       WriteLine((i % 24) # ": "# temp);
     }
-    summe = summe+temp.ToFloat();
+    letzterWert = temp.ToFloat();
+    summe = summe+letzterWert;
     n = n+1;
     if (n>=stundenZurueck) {
        break;
@@ -123,6 +155,9 @@ foreach (temp, stemp.Split(","))
   }
   i = i+1;
 }
+
+!// Letzter Wert = Aktuell gemeldete Temperatur
+
 if (DEBUG){
   WriteLine("---------");
   WriteLine(summe);
@@ -130,7 +165,12 @@ if (DEBUG){
 }
 temp = (summe/n).ToString(1);
 WriteLine(temp)
+
 !// Ergebnis schreiben
 if (n!=0){
   dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp);
 }
+
+if (log) {
+  logObj.State("Akt. Aussentemp.= " # letzterWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
+} 

@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Google)
 !//================================================================================================
-!// Stand:    25.11.2025; 
+!// Stand:    23.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -100,7 +100,7 @@ while(true){
     svObj.Name(name);
     svObj.DPInfo(be.StrValueByIndex(";",i));
     svObj.ValueUnit(vu.StrValueByIndex(";",i));
-    svObj.DPArchive(pr.StrValueByIndex(";",i).StrValueByIndex("+",0).ToInteger()!=0);
+    svObj.DPArchive(pr.StrValueByIndex(";",i).ToInteger()!=0);
     svObj.Internal(false);
     svObj.Visible(true);
 
