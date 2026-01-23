@@ -665,9 +665,12 @@ void CPagePrograms::DoDataExchange(CDataExchange* pDX)
 					uiText = IDS_INST_REPLACED;
 				else if (p.m_bModified || (bIsScript1 && theApp.IsModeScript1Modified()))
 					uiText = IDS_INST_UPDATED;
-				else 
+				else if (p.m_pAppProg)
 					uiText = IDS_INST_NOACTION;
-				m_lcData.SetItemText(n,COL_INFO,CStringRes(uiText));
+				else if (!p.m_pAppProg)
+					uiText = IDS_INST_IGNORED;
+				if (uiText)
+					m_lcData.SetItemText(n,COL_INFO,CStringRes(uiText));
 			}
 		}
 	}

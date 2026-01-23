@@ -345,14 +345,14 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		if (m_setProgramNames.find(RemovePrefix(e.m_strName))==m_setProgramNames.end())
 			AppendTextWithDelimiter(strProgs,e.m_strName,_T("; "));
 	}
-	if (!strProgs.IsEmpty())
-	{
-		// Sollten wir nicht alle Programme kennen, melden wir einen Fehler und brechen ab.
-		CString strError;
-		strError.FormatMessage(IDP_UNKNOWN_PROGRAMS, strProgs.GetString());
-		AfxMessageBox(strError,MB_ICONWARNING|MB_OK);
-		return false;
-	}
+	//if (!strProgs.IsEmpty())
+	//{
+	//	// Sollten wir nicht alle Programme kennen, melden wir einen Fehler und brechen ab.
+	//	CString strError;
+	//	strError.FormatMessage(IDP_UNKNOWN_PROGRAMS, strProgs.GetString());
+	//	AfxMessageBox(strError,MB_ICONWARNING|MB_OK);
+	//	return false;
+	//}
 
 	// Versuche den aktuellen Modus für Skript 1 zu bestimmen.
 	// Als erstes versuchen wir das die Variablen zu erkennen.
@@ -975,8 +975,12 @@ void CHeizkalenderInstallationApp::ReadResources()
 		// Die Resource mag, da sein, aber evtl. ist die Raumliste einfach nur leer
 		if (it!=mapRaeumeNeu.end() && !e.second.m_lstRaeume.empty())
 		{
-			// Wir kennen die Raumvariable und übernehmen sie
+			// Wir kennen die Raumvariable und übernehmen sie, aber wir ergänzen evtl. den 
+			// Ressourcennamen, wenn er in den neuen Daten drin steckt.
+			CString strResName{ it->second.m_strResourceName };
 			it->second = e.second;
+			if (it->second.m_strResourceName.IsEmpty())
+				it->second.m_strResourceName = strResName;			
 		}
 	}
 
@@ -1575,11 +1579,12 @@ oSV.Variable(%2%);
 		}
 	}
 
-	// Jetzt bauen wir das Script auf, um die Systemvariablen ändern, dass schließt 
-	// Namensänderungen ein.
+	// Jetzt bauen wir das Script auf, um die Systemvariablen ändern, dass schließt Namensänderungen 
+	// ein. Hier ist es wichtig, dass auchneu angelegte Varoablen hier erst Ihren eigentlichn
+	// Inhalt bekommen. Die SYSVARS-Init-Skripte zuvor haben die Variablen nur angelegt.
 	for (auto const& e : m_lstSysVars)
 	{
-		if (e.m_bModified && !e.m_bDeleted)
+		if ((e.m_bNew || e.m_bModified) && !e.m_bDeleted)
 		{
 			CStringA strUpdateVar = R"x(
 object oSV = dom.GetObject (ID_SYSTEM_VARIABLES).Get(%1%);
@@ -1594,7 +1599,7 @@ if (oSV) {
 )x";
 			// Es besteht die Mögliochkeit, dass die Variable schon da ist, wenn 
 			// nicht müssen wir über den Namen die Variable aktualisieren
-			if (e.m_id)
+			if (e.m_id && !e.m_bNew)
 				strUpdateVar.Replace("%1%", CStringA{ IntToString(e.m_id) });
 			else 
 				strUpdateVar.Replace("%1%", CStringA{ QuoteString(e.m_strName) });

@@ -85,6 +85,7 @@
 #define IDS_AN_AUS                      159
 #define IDP_LESEN_VON_CHURCHTOOLS_FEHLGESCHLAGEN2 160
 #define IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN 160
+#define IDS_INST_IGNORED                161
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001
