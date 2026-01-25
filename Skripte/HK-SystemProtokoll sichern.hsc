@@ -168,7 +168,7 @@ string aktDateTime="";
 while (true){
   string zuSchreiben="";
 
-  !// Wir	durchlaufen jetzt das Protokoll, entweder suchen wir oder wir schreiben
+  !// Wir durchlaufen jetzt das Protokoll, entweder suchen wir oder wir schreiben
   string sDatensatz;
   string logLine;
   foreach(sDatensatz, dom.GetHistoryData(start,cnt-start,&rCount)){

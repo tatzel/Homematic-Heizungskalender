@@ -1,3 +1,59 @@
+# HomeMatic-Heizungskalender
+Heizkalender für die Steuerung der HomeMatic über ChurchTool, ChurchDesk, iCal oder Google
+
+## Lizenz
+
+Der Heizkalender-Installer ist freie Software.
+
+Copyright (C) 2026  
+Martin Richter (xMRi-Software)
+
+Dieses Programm wird unter den Bedingungen der
+**GNU General Public License Version 3 (GPLv3)**
+oder – nach Ihrer Wahl – jeder späteren Version veröffentlicht.
+
+Sie dürfen das Programm verwenden, verändern und weiterverbreiten,
+sofern alle abgeleiteten Werke ebenfalls unter der GPL lizenziert
+werden und der Quellcode verfügbar bleibt.
+
+Dieses Programm wird OHNE JEGLICHE GEWÄHRLEISTUNG bereitgestellt,
+auch ohne die implizite Gewährleistung der Marktfähigkeit oder
+Eignung für einen bestimmten Zweck.
+
+Der vollständige Text der Lizenz ist in der Datei `LICENSE`
+enthalten oder unter folgender Adresse abrufbar:
+https://www.gnu.org/licenses/
+
+
+## Hinweis zur Nutzung mit Homematic / CCU / IoT-Systemen
+
+Diese Software wurde für die unterstützende Konfiguration und
+Verwaltung von zeitbasierten Heizungssteuerungen entwickelt,
+insbesondere im Umfeld von Homematic-, CCU- und vergleichbaren
+IoT-Systemen.
+
+Der Heizkalender-Installer steht in keiner Verbindung zur
+eQ-3 AG oder anderen Herstellern von Smart-Home-Komponenten.
+
+Die Software:
+- ersetzt keine sicherheitsrelevanten Schutzmechanismen
+- greift nicht eigenständig in Regelungs- oder Notfallfunktionen ein
+- übernimmt keine Überwachung von Temperatur-, Frost- oder
+  Sicherheitsgrenzwerten
+
+Skripte, Programme oder Konfigurationen, die durch diese Software
+erstellt oder verändert werden, sollten vor dem Einsatz in
+produktiven Systemen sorgfältig geprüft werden.
+
+Der Autor übernimmt keine Haftung für Schäden an:
+- Homematic-Zentralen (CCU, RaspberryMatic, debmatic)
+- Aktoren, Sensoren oder Heizungsanlagen
+- angebundene IoT- oder Smart-Home-Systeme
+
+Die Nutzung erfolgt ausschließlich auf eigene Verantwortung.
+Vor jeder Änderung wird dringend empfohlen, ein vollständiges
+Backup der CCU-Konfiguration anzufertigen.
+
 # Skripte
 
 Dieser Ordner enthält alle Skripte für den Heizkalender in der MRi-Variante.
@@ -24,7 +80,7 @@ Es gibt keine feste Regel für Erweiterungen der Skripte. In den Foren und in **
 
 ## Ursprünglicher Code 
 
-Der ursprüngliche Code, der mit ausgehändigt wurde findet sich [in diesem Ordner](Backup-Originale/3.2.1)
+Der ursprüngliche Code, der mit ausgehändigt wurde findet sich [in diesem Ordner](/Backup-Originale/3.2.1)
 Dies ist der Code mit dem ich meine ersten Schritte mit der CCU3 machte.
 
 ### Alte und neue Dateinamen
@@ -32,7 +88,7 @@ Dies ist der Code mit dem ich meine ersten Schritte mit der CCU3 machte.
 Die Namensgebung der alten Skripte war mir zu kompliziert und übersichtlich. Ich habe deshalb die Namensgebung vereinfacht und auch grundsätzlich immer alle Skripte im Paket gesendet. Damit kann ich gewährleisten, dass die entsprechenden Skripte untereinander kompatibel sind.
 Die nachfolgende Tabelle zeigt wie ich die Namen der alten Skripte, auf denen meine Version basiert, verändert habe.
 
-Diese Dateien befinden sich alle [in diesem Ordner](Backup-Originale/3.2.1)
+Diese Dateien befinden sich alle [in diesem Ordner](/Backup-Originale/3.2.1)
 
 | Alter Name | Neuer Name |
 | :--------- | :--------- |
