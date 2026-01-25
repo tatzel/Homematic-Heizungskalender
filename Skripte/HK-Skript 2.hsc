@@ -1,9 +1,15 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    23.01.2026
+!// Stand:    25.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
+!//------------------------------------------------------------------------------------------------
+!// Copyright (C) 2026 by Team Heizkalender:
+!//   Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Version 3 (GPLv3) oder neuer veröffentlicht.
+!// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
 !// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Basis von Homematic
@@ -259,9 +265,9 @@ foreach(SLEintrag,SListe){
     if(multiRaumVariante){
       AktSRName=AktSRName.StrValueByIndex("+",0);
     }
-    AktSRName = AktSRName # " (" # AktSR # ")";
   }
-
+  AktSRName = AktSRName # " (" # AktSR # ")";
+ 
   !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste dirch + getrennt.
   if(multiRaumVariante){
     if(log){logObj.State(AktSRName # " Raumliste: "+RVNListe);}

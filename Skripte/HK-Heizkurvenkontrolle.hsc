@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    23.01.2026
+!// Stand:    25.01.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ integer NOW=system.Date().ToTime().ToInteger();
 string  OffsetAT=dom.GetObject(vrp+"HK2-Kurve").State();
 string SListe=dom.GetObject(vrp+"HK1-Schaltliste").State();
 string VarNamen=dom.GetObject(vrp+"HK2-HKG-Liste").State();
-string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State().ToUpper();
+string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State();
 integer ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
 boolean Flag_Hand_Temp=dom.GetObject(vrp+"HK2-Hand-Temp").State();
 boolean Flag_Hand_Grundtemp=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
@@ -176,18 +176,29 @@ foreach(SLEintrag,SListe){
     raumIndex = raumIndex+1;
   }
 
+  if (!bGefunden){
+    !//Wird keine Raumvariable gefunden wir brechen das Script komplett ab
+    if(log) {logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
+    if(DEBUG)  {WriteLine(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
+    continue;
+  }  
+
   !// Namen für das loggen ermitteln und Raumliste laden
   string RVNListe=VarNamen.StrValueByIndex(";",raumIndex);
-  string AktSRName=RIDINamen.StrValueByIndex(";",raumIndex);
-  !// Im Multiraum Fall nehmen wir nur den ersten / primären Raum
-  if(multiRaumVariante){
-    AktSRName=AktSRName.StrValueByIndex("+",0);
-  }
-  if(AktSRName==""){
-    AktSRName = AktSR;
+  if (AktSRName==""){
+    AktSRName=RIDINamen.StrValueByIndex(";",raumIndex);
+    !// Im Multiraum Fall nehmen wir nur den ersten / primären Raum
+    if(multiRaumVariante){
+      AktSRName=AktSRName.StrValueByIndex("+",0);
+    }
+    if(AktSRName==""){
+      AktSRName = AktSR;
+    }
   }
   AktSRName = AktSRName # " (" # AktSR # ")";
+  if(DEBUG)  {WriteLine("AktSRName=" # AktSRName);}
 
+  
   !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste dirch + getrennt.
   if(multiRaumVariante){
     if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
@@ -291,6 +302,8 @@ foreach(SLEintrag,SListe){
 
     !// Prüfen ob Heizbeginn erkannt wird. Nur wenn bit 0 = aus
     if ((aktuellerSchaltZustand==1) && ((status & 1)==0)){
+      !// Sollten wir einen neuen Heizbeginn haben, setzen wir die maxTemperatur wieder auf istTemperatur
+      maxTemperatur = istTemperatur; 
       !// Heizbeginn erkannt
       sTemp = ((NOW-EIN)/60).ToString();
       if (!sTemp.StartsWith("-")){
