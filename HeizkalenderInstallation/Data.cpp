@@ -182,6 +182,9 @@ CDataProgram::CDataProgram(CString const& strLine)
 	m_strSkript.Replace("%09", "\t");
 	m_strSkript.Replace("%25", "%");
 
+	// Kopie speichern, damit wir Änderungen erkennen können
+	m_strSkriptAlt = m_strSkript;
+
 	// Erste Zeile als Beschreibung übernehmen
 	m_strSkriptBeschreibung = StrValueByIndex(CString{ m_strSkript }, 0, _T('\n'));
 
