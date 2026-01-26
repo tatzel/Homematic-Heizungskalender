@@ -11,8 +11,8 @@
 4340	HK-RäumeHeizkurvenkontrolle		Aktuelle Raumdaten in der Heizkurvenkontrlle	20	true	true
 4330	HK1-Log		Variable um ein einfaches Log im System Protokoll zu erzeugen	20	true	true
 4328	HK1-Logging	true	Flag um das Logging für Skript 1 ein- und auszuschalten	2	true	true
-4310	HK2-A.Temp.Grenze	19.000000	Aussentemperatur-Grenzwert	4	true	true
-4312	HK2-Aussentemperatur	0.000000	Aussentemperatur	4	true	true
+4310	HK2-A.Temp.Grenze	19.000000	Außentemperatur-Grenzwert für das Heizen	4	true	true
+4312	HK2-Aussentemperatur	0.000000	Zu verwendende Außentemperatur	4	true	true
 4308	HK2-Grundtemperatur	16.000000	Grundtemperatur	4	true	true
 4316	HK2-Hand-Grundtemp	true	Rückstellung auf Grundtemperatur	2	true	true
 4314	HK2-Hand-Temp	false	Vorrang manuell eingestellte Temperatur beim Ausschalten	2	true	true

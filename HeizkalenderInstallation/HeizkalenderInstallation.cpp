@@ -496,7 +496,9 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		auto *pVar = m_lstSysVars.Find(strVarName);
 		if (pVar)
 		{
-			if (pVar->m_dataType!=e.m_dataType || pVar->m_strDescription!=e.m_strDescription)
+			// Wir legen die Variable nur neu an wenn der Datentyp nicht stimmt.
+			// DIe Beschreibung wird später bei einem Update korrigiert.
+			if (pVar->m_dataType!=e.m_dataType)
 			{
 				// Neu erzeugen, aber Inhalt erhalten. bNew==true && id!=0
 				// Name, Id, Inhalt werden übernommen.
@@ -1597,6 +1599,7 @@ foreach(sId,sIds) {
 	}
 
 	// Skript zum Anlegen aller normalen Variablen ablaufen lasse, wenn es was zu tun gibt
+	// Dieses Skript legt nur an, ändert aber nichts.
 	bool bAnyNew = false;
 	for (auto& e : m_lstSysVars)
 	{
@@ -1614,7 +1617,6 @@ foreach(sId,sIds) {
 			// Zu ändernde Daten einfügen.
 			CStringA strUpdate = strUpdateTemplate;
 			strUpdate.Replace("%1%", CStringA{ m_strPrefix });
-			strUpdate.Replace("%2%", CStringA{ strSVids });
 
 			strScriptForUpdate += strUpdate;
 			strScriptForUpdate += "\n!//##########################################################\n";
@@ -1625,7 +1627,7 @@ foreach(sId,sIds) {
 		}
 	}
 
-	// Lade script für Variablen des Modus
+	// Lade Skript für Variablen des Modus für Skript 1
 	CString strName;
 	if (m_modeScript1==ModeScript1::ChurchToolsAPI)
 		strName = _T("ChurchTools");
@@ -1651,7 +1653,7 @@ foreach(sId,sIds) {
 		}
 	}
 
-	// Jetzt bauen wir das Script auf, um die Systemvariablen zu löschen
+	// Jetzt bauen wir das Script auf, um die nicht benutzen Systemvariablen zu löschen
 	for (auto const& e : m_lstSysVars)
 	{
 		if (e.m_bDeleted && e.m_id)
@@ -1700,20 +1702,28 @@ oSV.Variable(%2%);
 	}
 
 	// Jetzt bauen wir das Script auf, um die Systemvariablen ändern, dass schließt Namensänderungen 
-	// ein. Hier ist es wichtig, dass auchneu angelegte Varoablen hier erst Ihren eigentlichn
-	// Inhalt bekommen. Die SYSVARS-Init-Skripte zuvor haben die Variablen nur angelegt.
+	// ein und auch Änderungen der Beschreibung ein. Hier ist es wichtig, dass auch neu angelegte 
+	// Variablen hier erst Ihren eigentlichn Inhalt bekommen. 
+	// Die SYSVARS-Init-Skripte zuvor haben die Variablen nur angelegt.
 	for (auto const& e : m_lstSysVars)
 	{
-		if ((e.m_bNew || e.m_bModified) && !e.m_bDeleted)
+		auto const *pSysVarDefault = m_lstSysVarsDefault.Find(RemovePrefix(e.m_strName));
+		bool bBeschreibungGeaendert = (pSysVarDefault && e.m_strDescription!=pSysVarDefault->m_strDescription);
+		CString strNeueBeschreibung{ bBeschreibungGeaendert ? pSysVarDefault->m_strDescription : _T("") };
+		if (((e.m_bNew || e.m_bModified) || bBeschreibungGeaendert) && !e.m_bDeleted)
 		{
 			CStringA strUpdateVar = R"x(
 object oSV = dom.GetObject (ID_SYSTEM_VARIABLES).Get(%1%);
 if (oSV) {
-  if (%1%!="%2%")
-  {
+  if (%1%!="%2%") {
     oSV.Name("%2%");
   }
-  oSV.State(%3%);
+  if (%4%!="") {
+	oSV.DPInfo(%4%);
+  }
+  if (oSV.State()!=%3%) {
+    oSV.State(%3%);
+  }
 }
 !//--------------------
 )x";
@@ -1725,6 +1735,7 @@ if (oSV) {
 				strUpdateVar.Replace("%1%", CStringA{ QuoteString(e.m_strName) });
 			strUpdateVar.Replace("%2%", CStringA{ e.m_strName });
 			strUpdateVar.Replace("%3%", CStringA{ e.m_dataType==DataType::vtString ? QuoteString(e.m_strContent) : e.m_strContent });
+			strUpdateVar.Replace("%4%",CStringA{ QuoteString(strNeueBeschreibung) });
 
 			// An die Liste aller Statements anfügen
 			strScriptForUpdate += strUpdateVar;

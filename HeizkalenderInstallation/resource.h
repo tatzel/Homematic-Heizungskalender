@@ -25,6 +25,7 @@
 #define IDS_MODE_CHURCHDESK_API         112
 #define IDP_FILES_MISSING               113
 #define IDP_UNKNOWN_PROGRAMS            114
+#define IDS_UNVERAENDERT                114
 #define IDP_NEWER_PROGRAMS              115
 #define IDP_CHOOSE_MODE_MANUAL          116
 #define IDP_CHOOSE_NEW_MODE             117
@@ -62,6 +63,7 @@
 #define IDD_RESSOURCE                   138
 #define IDS_NEW                         139
 #define IDS_UPDATE                      140
+#define IDD_SYSVAR                      140
 #define IDS_TITLE_ROOMS                 141
 #define IDS_SIMULATION                  142
 #define IDP_SIMULATION_GESTARTET        143
@@ -145,17 +147,25 @@
 #define IDC_ED_TEMP                     1036
 #define IDC_ED_NAME                     1037
 #define IDC_LINK                        1038
+#define IDC_ED_WERT_NEU                 1038
 #define IDC_LC_DATA                     1039
 #define IDC_LB_DATA                     1040
+#define IDC_ED_STATUS                   1040
 #define IDC_BT_WINMERGE                 1041
+#define IDC_ED_STATUS2                  1041
+#define IDC_ED_PROTOKOLLIERT            1041
+#define IDC_ED_ID                       1043
+#define IDC_BT_INFO                     1044
+#define IDC_ED_TYP                      1045
+#define IDC_ED_WERT_ALT                 1046
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        140
+#define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1042
+#define _APS_NEXT_CONTROL_VALUE         1047
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
