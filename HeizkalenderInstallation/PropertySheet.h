@@ -94,15 +94,20 @@ public:
 	enum { IDD = IDD_PAGE_PROGRAMS };
 #endif
 	CListCtrl m_lcData;
+	CButton m_btWinMerge;
 
 	static int const COL_NAME = 0;
 	static int const COL_DATE_INSTALLED = 1;
 	static int const COL_DATE_UPDATE = 2;
 	static int const COL_INFO = 3;
 
+	void EnableControls();
+
 	DECLARE_MESSAGE_MAP()
 	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL OnInitDialog();
+	afx_msg void OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedBtWinmerge();
 };
 
 //-----------------------------------------------------------------------------

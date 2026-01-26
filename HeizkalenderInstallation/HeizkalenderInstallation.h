@@ -79,8 +79,8 @@ public:
 	double GetGrundTemperatur();
 
 	void ReadResources();
-	void ReadResourcesChurchTool(CMapRaumListe &mapNewRooms);
-	void ReadResourcesChurchDesk(CMapRaumListe &mapNewRooms);
+	bool ReadResourcesChurchTool(CMapRaumListe &mapNewRooms);
+	bool ReadResourcesChurchDesk(CMapRaumListe &mapNewRooms);
 	void LoadRoomMapFromSysVars(CMapRaumListe &mapRaueme);
 	bool SaveRoomMapToSysVars(CMapRaumListe const& mapRaeume);
 	CString GenerateNewRoomName(CString strTemplate);
@@ -155,8 +155,9 @@ public:
 	//		HK-Skript 2
 	//		HK-Systemprotokoll sichern
 	COleDateTime	m_dateMaxPrograms;
-	CListPrograms   m_lstAppPrograms;		 // Id = 0, Keine Prefixe, geladen bei Programmstart
-
+	CListPrograms   m_lstAppPrograms;		 // Id = 0, Keine Prefixe, geladen bei Programmstart (HK-Skripte)
+	CListPrograms	m_lstAppTools;			// Optionale (zus‰tzliche Tools) Keine Prefixe, geladen bei Programmstart 
+	
 	//  Liste der erlaubten Programmnamen
 	//		HK-Auﬂentemperatur-Open-Meteo
 	//		HK-Heizkurvenkontrolle

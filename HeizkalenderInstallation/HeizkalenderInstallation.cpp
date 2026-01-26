@@ -208,20 +208,20 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 		if (GetFileContent(strFileName, str))
 		{
 			CDataProgram data{ 0, strName, CString{} };
-			data.m_strScript = CStringA{ str };
-			data.m_strSkript = StrValueByIndex(str,0,_T('\n'));
-			int iPos = data.m_strScript.Find("Stand:");
+			data.m_strSkript = CStringA{ str };
+			data.m_strSkriptBeschreibung = StrValueByIndex(str,0,_T('\n'));
+			int iPos = data.m_strSkript.Find("Stand:");
 			if (iPos>=0)
 			{
-				auto date = ParseDate(data.m_strScript.GetString()+iPos+6);
+				auto date = ParseDate(data.m_strSkript.GetString()+iPos+6);
 				data.m_date = date;
 				if (date>dateMax)
 					dateMax = date;
 			}
 			// Manche Skripte müssen für den Prefix dieses Statement enthalten!
 			//		string vrp="";
-			if (data.m_strSkript.IsEmpty() || !IsDateValid(data.m_date) ||
-				(e.m_bNeedsPrefixClause && data.m_strScript.Find("string vrp=\"\";")<0)) 
+			if (data.m_strSkriptBeschreibung.IsEmpty() || !IsDateValid(data.m_date) ||
+				(e.m_bNeedsPrefixClause && data.m_strSkript.Find("string vrp=\"\";")<0)) 
 			{
 				CString strError;
 				strError.FormatMessage(IDP_FILE_INVALID,::PathFindFileName(strFileName));
@@ -248,6 +248,46 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 		m_strScriptVersion = DateToString(dateMax);
 	m_dateMaxPrograms = dateMax;
 
+	// Optionale Skripte finden (beginnen alle mit Tool)
+	CFileFind finder;
+	BOOL bWorking = finder.FindFile(m_strScriptPath + _T("\\Tool-*.hsc"));
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+
+		// . und .. überspringen
+		if (finder.IsDots())
+			continue;
+
+		// Nur Dateien (keine Verzeichnisse)
+		if (!finder.IsDirectory())
+		{
+			CString strFileName = finder.GetFilePath(), str;    
+			if (GetFileContent(strFileName, str))
+			{
+				CString strName = ::PathFindFileName(strFileName);
+				::PathRemoveExtension(CStrBuf(strName, 0));
+				CDataProgram data{ 0, strName, CString{} };
+				data.m_strSkript = CStringA{ str };
+				data.m_strSkriptBeschreibung = StrValueByIndex(str,0,_T('\n'));
+				int iPos = data.m_strSkript.Find("Stand:");
+				if (iPos>=0)
+				{
+					auto date = ParseDate(data.m_strSkript.GetString()+iPos+6);
+					data.m_date = date;
+					if (date>dateMax)
+						dateMax = date;
+				}
+				// Typ und Stand sollten wir ermitteln können
+				if (data.m_strSkriptBeschreibung.IsEmpty() || !IsDateValid(data.m_date)) 
+					continue;
+
+				m_lstAppTools.push_back(data);
+			}
+		}
+	}
+	finder.Close();
+	
 	// Default Daten laden. D.h die Daten aus der Vorgabe
 	{
 		CStringA strData;
@@ -345,14 +385,6 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		if (m_setProgramNames.find(RemovePrefix(e.m_strName))==m_setProgramNames.end())
 			AppendTextWithDelimiter(strProgs,e.m_strName,_T("; "));
 	}
-	//if (!strProgs.IsEmpty())
-	//{
-	//	// Sollten wir nicht alle Programme kennen, melden wir einen Fehler und brechen ab.
-	//	CString strError;
-	//	strError.FormatMessage(IDP_UNKNOWN_PROGRAMS, strProgs.GetString());
-	//	AfxMessageBox(strError,MB_ICONWARNING|MB_OK);
-	//	return false;
-	//}
 
 	// Versuche den aktuellen Modus für Skript 1 zu bestimmen.
 	// Als erstes versuchen wir das die Variablen zu erkennen.
@@ -369,7 +401,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		// Nur anhand der Tokens können wir nicht die Zugriffsart bestimmen. Wir
 		// brauchen aus dem Skript 1 die erste Zeile.
 		auto pProg = m_lstPrograms.Find(GetScript1Name());
-		CString strLine1 = pProg ? pProg->m_strSkript : CString{};
+		CString strLine1 = pProg ? pProg->m_strSkriptBeschreibung : CString{};
 		strLine1.MakeUpper();
 		if (strLine1.Find(_T("CHURCHDESK"))>=0 && strLine1.Find(_T("API"))>=0)
 			m_modeScript1Installed = ModeScript1::ChurchDeskAPI;
@@ -382,7 +414,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 	if (m_modeScript1Installed==ModeScript1::Unknown && pProg)
 	{
 		// Wir haben ein Programm. Untersuche Zeile 1.
-		CString strLine1 = pProg->m_strSkript;
+		CString strLine1 = pProg->m_strSkriptBeschreibung;
 		strLine1.MakeUpper();
 		if (strLine1.Find(_T("CHURCHTOOLS"))>=0)
 			m_modeScript1Installed = ModeScript1::ChurchToolsAPI;
@@ -455,8 +487,9 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 
 //-----------------------------------------------------------------------------
 
-	// Nun geht es an die Systemvariablen. Wir übertragen alle benötigten Systemvariablen, 
-	// in die Liste, die wir haben.
+	// Nun geht es an die Systemvariablen. Wir übertragen alle benötigten 
+	// Systemvariablen, in die Liste, die wir haben. Bei einer Änderung 	
+	// der Definition (Datentyp, Beschreibung) wird die Variable neu angelegt
 	for (auto const& e : m_lstSysVarsDefault)
 	{
 		auto strVarName = AddPrefix(e.m_strName);
@@ -466,6 +499,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 			if (pVar->m_dataType!=e.m_dataType || pVar->m_strDescription!=e.m_strDescription)
 			{
 				// Neu erzeugen, aber Inhalt erhalten. bNew==true && id!=0
+				// Name, Id, Inhalt werden übernommen.
 				CDataSystemVariable data { e };
 				data.m_strName = strVarName;
 				data.m_id = pVar->m_id;
@@ -477,7 +511,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		}
 		else
 		{
-			// Add all missing variables.
+			// Fehlende Variable anlegen
 			CDataSystemVariable data { e };
 			data.m_strName = strVarName;
 			data.m_bNew = true;
@@ -663,7 +697,9 @@ foreach(vid, dom.GetObject(ID_SYSTEM_VARIABLES).EnumIDs()){
 	}
 	else
 	{
-		AfxMessageBox(engine.GetLastErrorText(),MB_OK|MB_ICONERROR);
+		CString strError;
+		strError.FormatMessage(IDS_VERBINDUNGSAUGBAU_FEHLGESCHLAGEN,engine.GetLastErrorText().GetString());
+		AfxMessageBox(strError,MB_OK|MB_ICONERROR);
 		return false;
 	}
 }
@@ -960,9 +996,15 @@ void CHeizkalenderInstallationApp::ReadResources()
 
 	CMapRaumListe mapRaeumeNeu;
 	if (m_modeScript1==ModeScript1::ChurchToolsAPI)
-		ReadResourcesChurchTool(mapRaeumeNeu);
+	{
+		if (!ReadResourcesChurchTool(mapRaeumeNeu))
+			return;
+	}
 	else if (m_modeScript1==ModeScript1::ChurchDeskAPI || m_modeScript1==ModeScript1::ChurchDeskiCal)
-		ReadResourcesChurchDesk(mapRaeumeNeu);
+	{
+		if (!ReadResourcesChurchDesk(mapRaeumeNeu))
+			return;
+	}
 
 	CMapRaumListe mapRaeumeAlt;
 	LoadRoomMapFromSysVars(mapRaeumeAlt);
@@ -1009,9 +1051,12 @@ void CHeizkalenderInstallationApp::ReadResources()
 		AfxMessageBox(IDP_RAUMLISTE_WURDE_NICHT_AKTUALISIERT);
 }
 
-void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRaeume)
+bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRaeume)
 {
 	mapRaeume.clear();
+
+	// Gemeinde bestimmen
+	auto *pVarGemeinde = m_lstSysVars.Find(AddPrefix(_T("HK1-CT-Gemeindename")));
 
 	// Token bestimmen
 	auto *pVarToken = m_lstSysVars.Find(AddPrefix(_T("HK1-CT-Token")));
@@ -1019,25 +1064,48 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 	
 	// Resource Daten von Churchtools lesen
 	CWGetEngine engine;
-	CString strURL = _T("https://baptisten-hu.church.tools/api/resource/masterdata?login_token=") + pVarToken-> m_strContent;
+	CString strURL = _T("https://") + pVarGemeinde->m_strContent +_T(".church.tools/api/resource/masterdata?login_token=") + pVarToken->m_strContent;
 	CString strResult;
 
 	// Prüfen 
 	CString strToken(_T("{\"data\":{\"resourceTypes\":["));
 	if (!engine.Get(strURL, strResult) || strResult.Left(strToken.GetAllocLength())!=strToken)
 	{
-		AfxMessageBox(IDP_LESEN_VON_CHURCHTOOLS_FEHLGESCHLAGEN);
-		return;
+		CString strError;
+		strError.FormatMessage(IDP_LESEN_VON_CHURCHTOOLS_FEHLGESCHLAGEN,engine.GetLastErrorText().GetString());
+		AfxMessageBox(strError,MB_OK|MB_ICONERROR);
+		return false;
 	}
 
-	// Umlaute 
-	strResult.Replace(_T("\\u00e4"),_T("ä"));
-	strResult.Replace(_T("\\u00c4"),_T("Ä"));
-	strResult.Replace(_T("\\u00f6"),_T("ö"));
-	strResult.Replace(_T("\\u00d6"),_T("Ö"));
-	strResult.Replace(_T("\\u00fc"),_T("ü"));
-	strResult.Replace(_T("\\u00dc"),_T("Ü"));
-	strResult.Replace(_T("\\u00df"),_T("ß"));
+	// Umlaute aus ISO-8859-1 tauschen, dazu sind nur die letzten 2 Bytes nötig
+	//	strResult.Replace(_T("\\u00e4"),_T("ä"));
+	//	strResult.Replace(_T("\\u00c4"),_T("Ä"));
+	//	strResult.Replace(_T("\\u00f6"),_T("ö"));
+	//	strResult.Replace(_T("\\u00d6"),_T("Ö"));
+	//	strResult.Replace(_T("\\u00fc"),_T("ü"));
+	//	strResult.Replace(_T("\\u00dc"),_T("Ü"));
+	//	strResult.Replace(_T("\\u00df"),_T("ß"));
+	auto IsHex = [](TCHAR c)
+		{
+			return (c>=_T('0') && c<=_T('9')) || ((c>=_T('a') && c<=_T('f')) || (c>=_T('A') && c<=_T('F')));
+		};
+	auto ToHex = [](TCHAR c)
+		{
+			return (c>=_T('0') && c<=_T('9')) ? c-_T('0') :
+				   (c>=_T('a') && c<=_T('f')) ? c-_T('a')+10 : c-_T('A')+10;
+		};
+	for (int iPos = strResult.Find(_T("\\u00")); iPos>=0; iPos=strResult.Find(_T("\\u00"), iPos+1))
+	{
+		if (iPos+5<strResult.GetLength())
+		{
+			if (IsHex(strResult[iPos+4]) && IsHex(strResult[iPos+5]))
+			{
+				// Zeichen aus Hex kodieren und ersetzen
+				TCHAR c = (ToHex(strResult[iPos+4])<<4) | ToHex(strResult[iPos+5]);
+				strResult = strResult.Mid(0,iPos) + c + strResult.Mid(iPos+6); 
+			}
+		}
+	}
 
 	// Erst müssen wir die Ressource Typ Id für Räume finden!
 	int iPosRes = strResult.Find(_T("\"resources\":["));
@@ -1119,9 +1187,10 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 			e.m_lstRaeume.push_back(strVarName);
 		}
 	}
+	return true;
 }
 
-void CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRaeume)
+bool CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRaeume)
 {
 	mapRaeume.clear();
 
@@ -1142,8 +1211,10 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRae
 	// Prüfen 
 	if (!engine.Get(strURL, strResult, true) || strResult.Left(1)!=_T("["))
 	{
-		AfxMessageBox(IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN);
-		return;
+		CString strError;
+		strError.FormatMessage(IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN,engine.GetLastErrorText().GetString());
+		AfxMessageBox(strError,MB_OK|MB_ICONERROR);
+		return false;
 	}
 
 	CString strResources { strResult };
@@ -1177,6 +1248,8 @@ void CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRae
 		CString strVarName { AddRoomPrefix(e.m_strResourceName) };
 		e.m_lstRaeume.push_back(strVarName);
 	}
+
+	return true;
 }
 
 static CStringA CreateUpdateScriptForProgram(int id, CStringA& strScript)
@@ -1244,7 +1317,7 @@ CString CHeizkalenderInstallationApp::GetNameFromScrip1Mode(ModeScript1 mode)
 
 void CHeizkalenderInstallationApp::UpdatePrograms()
 {
-	// Wir laufen über alle Programme und bestimmen was wir machen müssen-
+	// Wir laufen über alle Hauptprogramme und bestimmen was wir machen müssen-
 	// 1. Update, wenn Line1 und Datum gesetzt ist, und Datum neuer ist
 	//    m_bModified = true, Id!=0
 	// 2. Insert, wenn Eintrag fehlt (id=0)
@@ -1270,7 +1343,7 @@ void CHeizkalenderInstallationApp::UpdatePrograms()
 		// Wir suchen das passende Programm
 		auto *pInst = m_lstPrograms.Find(AddPrefix(bIsScript1 ? strScript1Prefix : pApp.m_strName));
 		ASSERT(!pApp.m_bNew && !pApp.m_bModified && !pApp.m_bDeleted);
-		if (pInst && !pInst->m_strSkript.IsEmpty() && IsDateValid(pInst->m_date))
+		if (pInst && !pInst->m_strSkriptBeschreibung.IsEmpty() && IsDateValid(pInst->m_date))
 		{
 			// Fall 1: Wir können die Version komplett bestimmen. Nun zählt das Datum
 			// Oder wir haben Skript 1 und der Modus wurde getauscht.
@@ -1279,7 +1352,7 @@ void CHeizkalenderInstallationApp::UpdatePrograms()
 			{
 				// Update Skript
 				pInst->m_bModified = true;
-				pInst->m_strScript = pApp.m_strScript;
+				pInst->m_strSkript = pApp.m_strSkript;
 			}
 		}
 		else
@@ -1309,6 +1382,53 @@ void CHeizkalenderInstallationApp::UpdatePrograms()
 			}
 		}
 	}
+
+	// Jetzt laufen wir noch über alle Nebenprogramme und bestimmen was wir machen müssen-
+	// 1. Update, wenn Line1 und Datum gesetzt ist, und Datum neuer ist
+	//    m_bModified = true, Id!=0
+	// 2. In allen anderen Fällen (Fehlen, oder es stimmt was nicht) ignorieren wir 
+	//    das Programm
+	for (auto& pApp : m_lstAppTools)
+	{
+		// Wir suchen das passende Programm
+		auto *pInst = m_lstPrograms.Find(AddPrefix(pApp.m_strName));
+		ASSERT(!pApp.m_bNew && !pApp.m_bModified && !pApp.m_bDeleted);
+		if (pInst && !pInst->m_strSkriptBeschreibung.IsEmpty() && IsDateValid(pInst->m_date))
+		{
+			// Fall 1: Wir können die Version komplett bestimmen. Nun zählt das Datum
+			// und wir können updaten
+			pInst->m_pAppProg = &pApp;
+			if (pInst->m_date<pApp.m_date)
+			{
+				// Update Skript
+				pInst->m_bModified = true;
+				pInst->m_strSkript = pApp.m_strSkript;
+			}
+		}
+		else
+		{
+			// Das Tool ist nicht installiert oder fehlerhaft.
+			// Letzten Endes ignorieren wir es... 
+			// Der nachfolgende Code ist nur für die Vollständigkeit...
+			auto dataProg = pApp;
+			ASSERT(dataProg.m_id==0);
+			dataProg.m_strName = AddPrefix(dataProg.m_strName);
+			dataProg.m_bNew = true;
+			dataProg.m_pAppProg = &pApp;
+
+			// Haben wir überhaupt was gefunden? Wenn ja stimmte das Datum nicht, oder Zeile 1 war leer
+			if (!pInst)
+			{
+				// Fall 2:  Neu
+				//	Also ignorieren wir es!
+			}
+			else
+			{
+				// Fall 3: Irgendwas stimmt nicht mit dem installierten Programm. 
+				//	Also ignorieren wir es!
+			}
+		}
+	}
 }
 
 void CHeizkalenderInstallationApp::FixScript1AfterModeChange()
@@ -1330,7 +1450,7 @@ void CHeizkalenderInstallationApp::FixScript1AfterModeChange()
 		{
 			// Update Skript
 			pInst->m_bModified = true;
-			pInst->m_strScript = pApp->m_strScript;
+			pInst->m_strSkript = pApp->m_strSkript;
 			pInst->m_pAppProg = pApp;
 		}
 		else
@@ -1401,11 +1521,11 @@ void CHeizkalenderInstallationApp::UpdateCCU()
 	// Laufe über alle Programme.
 	for (auto& p : m_lstPrograms)
 	{
-		auto strScript = p.m_strScript;
+		auto strScript = p.m_strSkript;
 		if (!m_strPrefix.IsEmpty())
 			// Achtung! Manche Skripte wie das Sichern des Systemprotokolls haben keinen vrp Eintrag!
-			strScript.Replace("string vrp=\"\";", "string vrp=\"" + CStringA{ m_strPrefix } + "\";"),		
-		strScript.Replace("\\", "\\\\");	// Backslah 
+			strScript.Replace("string vrp=\"\";", "string vrp=\"" + CStringA{ m_strPrefix } + "\";");
+		strScript.Replace("\\", "\\\\");	// Backslash 
 		strScript.Replace("\r\n", "\n");	// Unix newline
 		strScript.Replace("\n", "\\n");		// Newline
 		strScript.Replace("\t", "\\t");		// Tab
