@@ -57,7 +57,7 @@ BEGIN
     "#include ""res\\HeizkalenderInstallation.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
     "#include ""afxres.rc""      // Standardkomponenten\r\n"
     "#if !defined(_AFXDLL)\r\n"
-    "#include ""afxribbon.rc""   // Ressourcen fÃ¼r MFC-MenÃ¼band und -Steuerleiste\r\n"
+    "#include ""afxribbon.rc""   // Ressourcen fÃƒÂ¼r MFC-MenÃƒÂ¼band und -Steuerleiste\r\n"
     "#endif\r\n"
     "#endif\r\n"
     "\0"
@@ -276,8 +276,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,5,0,1
- PRODUCTVERSION 1,5,0,1
+ FILEVERSION 1,6,0,1
+ PRODUCTVERSION 1,6,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -294,12 +294,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "1.5.0.1"
+            VALUE "FileVersion", "1.6.0.1"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
             VALUE "ProductName", "Heizkalender"
-            VALUE "ProductVersion", "1.5.0.1"
+            VALUE "ProductVersion", "1.6.0.1"
         END
     END
     BLOCK "VarFileInfo"
