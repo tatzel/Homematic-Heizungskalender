@@ -1,7 +1,6 @@
 !- Anpassung bupdate = false    Wenn die Variable existiert, wird sie nicht verändert
 !- Anpassungen barchive = true  Archive Flag immer setzen
 !- Anpassung an den Prefix %1%
-!- Weiter eine Löschliste %2% von Systemvariablen, die einen Recreate brauchen
 !//======================================================
 !-          Backup SystemVariablen vom 05.01.2026 17:10:16
 !-        Erstellt vom Script Developer V5.04.06 LCL by Black
@@ -107,7 +106,7 @@ if (oSV) {
 		oSV.Variable ("19.000000".ToFloat());}
 } elseif (bcreate) {
 	neu=neu+1;oSV = dom.CreateObject (1089); rSV.Add (oSV.ID()); oSV.Name (svName); oSV.ValueType (4); oSV.ValueSubType (0);
-	oSV.DPInfo("Aussentemperatur-Grenzwert"); oSV.ValueUnit("°C"); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
+	oSV.DPInfo("Außentemperatur-Grenzwert für das Heizen"); oSV.ValueUnit("°C"); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
 	oSV.DPArchive (true && barchive);
 	oSV.Variable ("19.000000".ToFloat ()); oSV.ValueMin ("-50".ToFloat()); oSV.ValueMax ("50".ToFloat ());
 	WriteLine (svName # neut);}
@@ -119,7 +118,7 @@ if (oSV) {
 		oSV.Variable ("0.000000".ToFloat());}
 } elseif (bcreate) {
 	neu=neu+1;oSV = dom.CreateObject (1089); rSV.Add (oSV.ID()); oSV.Name (svName); oSV.ValueType (4); oSV.ValueSubType (0);
-	oSV.DPInfo("Aussentemperatur"); oSV.ValueUnit("°C"); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
+	oSV.DPInfo("Zu verwendende Außentemperatur"); oSV.ValueUnit("°C"); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
 	oSV.DPArchive (true && barchive);
 	oSV.Variable ("0.000000".ToFloat ()); oSV.ValueMin ("-50".ToFloat()); oSV.ValueMax ("50".ToFloat ());
 	WriteLine (svName # neut);}

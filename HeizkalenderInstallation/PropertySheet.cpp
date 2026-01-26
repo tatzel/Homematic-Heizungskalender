@@ -23,6 +23,7 @@
 #include "HeizkalenderInstallation.h"
 #include "RessourceDlg.h"
 #include "RaumDlg.h"
+#include "SysVarDlg.h"
 #include "AboutDlg.h"
 #include "PropertySheet.h"
 
@@ -640,6 +641,7 @@ CPagePrograms::CPagePrograms()
 BEGIN_MESSAGE_MAP(CPagePrograms, CPageBase)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LC_DATA, &CPagePrograms::OnLvnItemchangedLcData)
 	ON_BN_CLICKED(IDC_BT_WINMERGE, &CPagePrograms::OnBnClickedBtWinmerge)
+	ON_NOTIFY(NM_DBLCLK, IDC_LC_DATA, &CPagePrograms::OnNMDblclkLcData)
 END_MESSAGE_MAP()
 
 static CString GetWinMergePath()
@@ -820,6 +822,13 @@ void CPagePrograms::OnBnClickedBtWinmerge()
 		e->Delete();
 		return;
 	}
+}
+
+void CPagePrograms::OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	OnBnClickedBtWinmerge();
+	*pResult = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1091,7 +1100,15 @@ CPageSysvar::CPageSysvar()
 }
 
 BEGIN_MESSAGE_MAP(CPageSysvar, CPageBase)
+	ON_BN_CLICKED(IDC_BT_INFO, &CPageSysvar::OnBnClickedBtInfo)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LC_DATA, &CPageSysvar::OnLvnItemchangedLcData)
+	ON_NOTIFY(NM_DBLCLK, IDC_LC_DATA, &CPageSysvar::OnNMDblclkLcData)
 END_MESSAGE_MAP()
+
+void CPageSysvar::EnableControls()
+{
+	m_btInfo.EnableWindow(m_lcData.GetSelectedCount()>0);
+}
 
 void CPageSysvar::DoDataExchange(CDataExchange* pDX)
 {
@@ -1113,6 +1130,9 @@ void CPageSysvar::DoDataExchange(CDataExchange* pDX)
 			int n = m_lcData.InsertItem(m_lcData.GetItemCount(),e.m_strName);
 			if (n>=0)
 			{
+				// Zeiger setzen
+				m_lcData.SetItemData(n, reinterpret_cast<DWORD_PTR>(&e));
+
 				// Suche den eintrag in der originalen liste
 				m_lcData.SetItemText(n,COL_CONTENT,e.m_strContent);
 				UINT uiText=0;
@@ -1127,6 +1147,7 @@ void CPageSysvar::DoDataExchange(CDataExchange* pDX)
 	}
 
 	DDX_Control(pDX, IDC_LC_DATA, m_lcData);
+	DDX_Control(pDX, IDC_BT_INFO, m_btInfo);
 }
 
 BOOL CPageSysvar::OnInitDialog()
@@ -1158,6 +1179,35 @@ BOOL CPageSysvar::OnInitDialog()
 	UpdateData(FALSE);
 	
 	return TRUE;
+}
+
+void CPageSysvar::OnBnClickedBtInfo()
+{
+	// Aktuelles Skrip laden und in eine Temp Datei schreiben
+	int nSel = m_lcData.GetNextItem(-1, LVNI_SELECTED);
+	if (nSel<0)
+		return;
+	auto* pSysVar = reinterpret_cast<CDataSystemVariable const *>(m_lcData.GetItemData(nSel));
+	if (!pSysVar)
+		return;
+
+	CSysVarDlg dlg;
+	dlg.m_pSysVar = pSysVar;
+	dlg.DoModal();
+}
+
+void CPageSysvar::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	EnableControls();
+	*pResult = 0;
+}
+
+void CPageSysvar::OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	OnBnClickedBtInfo();
+	*pResult = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1266,9 +1316,7 @@ BOOL CPageResources::OnInitDialog()
 void CPageResources::OnNMDblclkLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-
 	OnBnClickedBtModify();
-
 	*pResult = 0;
 }
 
@@ -1332,5 +1380,4 @@ void CPageResources::OnBnClickedBtModify()
 	UpdateData(FALSE);
 	m_lcData.SetItemState(nSel,LVIS_SELECTED, LVNI_SELECTED);
 }
-
 

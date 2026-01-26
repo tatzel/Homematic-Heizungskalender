@@ -108,6 +108,7 @@ public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBnClickedBtWinmerge();
+	afx_msg void OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 //-----------------------------------------------------------------------------
@@ -188,14 +189,20 @@ public:
 	enum { IDD = IDD_PAGE_SYSVARS };
 #endif
 	CListCtrl m_lcData;
+	CButton m_btInfo;
 
 	static int const COL_NAME = 0;
 	static int const COL_CONTENT = 1;
 	static int const COL_INFO = 2;
 
+	void EnableControls();
+
 	DECLARE_MESSAGE_MAP()
 	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL OnInitDialog();
+	afx_msg void OnBnClickedBtInfo();
+	afx_msg void OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 //-----------------------------------------------------------------------------

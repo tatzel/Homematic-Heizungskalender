@@ -63,6 +63,9 @@
     <ClInclude Include="RessourceDlg.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="SysVarDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HeizkalenderInstallation.cpp">
@@ -102,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RessourceDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SysVarDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

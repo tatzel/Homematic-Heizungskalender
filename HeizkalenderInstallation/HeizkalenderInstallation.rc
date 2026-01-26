@@ -57,7 +57,7 @@ BEGIN
     "#include ""res\\HeizkalenderInstallation.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
     "#include ""afxres.rc""      // Standardkomponenten\r\n"
     "#if !defined(_AFXDLL)\r\n"
-    "#include ""afxribbon.rc""   // Ressourcen fÃƒÂ¼r MFC-MenÃƒÂ¼band und -Steuerleiste\r\n"
+    "#include ""afxribbon.rc""   // Ressourcen fÃƒÆ’Ã‚Â¼r MFC-MenÃƒÆ’Ã‚Â¼band und -Steuerleiste\r\n"
     "#endif\r\n"
     "#endif\r\n"
     "\0"
@@ -186,7 +186,8 @@ CAPTION "Systemvariablen"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "Liste der Systemvariablen im Heizkalender:",IDC_STATIC,7,11,173,8
-    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,26,361,205
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,26,299,205
+    PUSHBUTTON      "&Änderungen...",IDC_BT_INFO,311,26,60,14
 END
 
 IDD_PAGE_ROOMS DIALOGEX 0, 0, 377, 244
@@ -269,6 +270,28 @@ BEGIN
     LTEXT           "Raumzuordnungen:",IDC_STATIC,7,10,181,8
 END
 
+IDD_SYSVAR DIALOGEX 0, 0, 267, 124
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Systemvariable: "
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,108,104,50,14
+    LTEXT           "Id:",IDC_STATIC,7,10,43,8
+    EDITTEXT        IDC_ED_ID,82,8,48,12,ES_AUTOHSCROLL | ES_READONLY
+    CTEXT           "Typ:",IDC_STATIC,142,10,31,8
+    EDITTEXT        IDC_ED_TYP,181,8,78,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Name:",IDC_STATIC,7,26,43,8
+    EDITTEXT        IDC_ED_NAME,82,24,125,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "NeuerInhalt:",IDC_STATIC,7,42,64,8
+    EDITTEXT        IDC_ED_WERT_NEU,82,40,178,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Alter Inhalt:",IDC_STATIC,7,58,42,8
+    EDITTEXT        IDC_ED_WERT_ALT,82,56,178,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Status:",IDC_STATIC,7,74,42,9
+    EDITTEXT        IDC_ED_STATUS,82,72,178,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Protokolliert:",IDC_STATIC,7,90,42,9
+    EDITTEXT        IDC_ED_PROTOKOLLIERT,82,88,178,12,ES_AUTOHSCROLL | ES_READONLY
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -276,8 +299,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,6,0,1
- PRODUCTVERSION 1,6,0,1
+ FILEVERSION 1,7,0,1
+ PRODUCTVERSION 1,7,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -294,12 +317,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "1.6.0.1"
+            VALUE "FileVersion", "1.7.0.1"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
             VALUE "ProductName", "Heizkalender"
-            VALUE "ProductVersion", "1.6.0.1"
+            VALUE "ProductVersion", "1.7.0.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -387,6 +410,14 @@ BEGIN
         RIGHTMARGIN, 188
         TOPMARGIN, 7
         BOTTOMMARGIN, 189
+    END
+
+    IDD_SYSVAR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 266
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 117
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -478,6 +509,11 @@ BEGIN
     0
 END
 
+IDD_SYSVAR AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -526,6 +562,7 @@ STRINGTABLE
 BEGIN
     IDS_MODE_CHURCHDESK_API "ChurchDesk-API"
     IDP_FILES_MISSING       "Eine oder mehrere Dateien für die Installation fehlen für die Installation. Das Programm wird kann nicht ausgeführt werden und wird beendet!\n\t%1"
+    IDS_UNVERAENDERT        "Unverändert"
     IDP_NEWER_PROGRAMS      "Die aktuelle Installation enthält neuere Programme als dieses Installationspaket:\n\t%1\nDie Installation kann nicht fortgesetzt werden da es zu einem Downgrade kommen würde.\nSollten Sie dennoch diese Version installieren wollen löschen Sie manuell diese Programme in der CCU."
     IDP_CHOOSE_MODE_MANUAL  "Aus den vorliegenden Daten und Programmen kann nicht ermittelt werden, auf welche Art (ChurchDesk, ChurchTools etc.) die Termine ermittelt werden sollen. Wählen Sie bitte den entsprechenden Modus manuell aus!"
     IDP_CHOOSE_NEW_MODE     "Dies ist eine neue Installation!\nWählen Sie bitte den entsprechenden Modus aus, mit dem die Heiztermine ermittelt werden sollen."
@@ -633,7 +670,7 @@ LANGUAGE 9, 1
 #include "res\HeizkalenderInstallation.rc2"  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen
 #include "afxres.rc"      // Standardkomponenten
 #if !defined(_AFXDLL)
-#include "afxribbon.rc"   // Ressourcen fÃ¼r MFC-MenÃ¼band und -Steuerleiste
+#include "afxribbon.rc"   // Ressourcen fÃƒÆ’Ã‚Â¼r MFC-MenÃƒÆ’Ã‚Â¼band und -Steuerleiste
 #endif
 #endif
 

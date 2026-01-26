@@ -64,8 +64,8 @@ string nm=  "HK2-HKG-Liste;" #
 !// Beschreibungstexte
 string be=  "Liste der HK-Raum-Variablen;" #
             "Grundtemperatur;" #
-            "Aussentemperatur-Grenzwert;" #
-            "Aussentemperatur;" #
+            "Außentemperatur-Grenzwert für das Heizen;" #
+            "Zu verwendende Außentemperatur;" #
             "Vorrang manuell eingestellte Temperatur beim Ausschalten;" #
             "Rückstellung auf Grundtemperatur;" #
             "Grundoffsetzeit Ausschalten;" #
