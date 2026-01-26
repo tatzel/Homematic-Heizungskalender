@@ -37,6 +37,9 @@ CScriptEngine::CScriptEngine()
 
 bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
 {
+	m_strLastError.Empty();
+	m_dwStatus = 0;
+
     try
     {
         CInternetSession session(_T("HeizkalenderInstallation/1.0"));
@@ -115,13 +118,17 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             } 
             else
             {
-                m_dwStatus = HTTP_STATUS_BAD_REQUEST;
+				if (m_dwStatus == HTTP_STATUS_OK)
+                    m_dwStatus = HTTP_STATUS_BAD_REQUEST;
+                AfxThrowInternetException(pConn->GetContext());
             }
         }
         else
         {
             // Skript error. Wir haben keinen Fehler aber der XML Block ist nicht da.
-            m_dwStatus = HTTP_STATUS_BAD_REQUEST;
+            if (m_dwStatus == HTTP_STATUS_OK)
+                m_dwStatus = HTTP_STATUS_BAD_REQUEST;
+            AfxThrowInternetException(pConn->GetContext());
         }
 
         pFile->Close();
@@ -129,10 +136,18 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
         pConn->Close();
         pConn = nullptr;
 
-        return (m_dwStatus == HTTP_STATUS_OK);
+        if (m_dwStatus == HTTP_STATUS_OK)
+            return true;
+        else
+        {
+            AfxThrowInternetException(pConn->GetContext());
+            return false;
+        }
     }
     catch (CInternetException* e)
     {
+		m_dwLastError = e->m_dwError;
+		e->GetErrorMessage(CStrBuf(m_strLastError,512), 512);
         e->Delete();
         return false;
     }
@@ -140,7 +155,71 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
 
 CString CScriptEngine::GetLastErrorText()
 {
-    CString result;
-    result.Format(_T("HTTP_STATUS=%d"),m_dwStatus);
-    return result.Trim();
+    if (m_dwLastError==0)
+        m_strLastError = GetHTTPStatusText(m_dwStatus);
+    return m_strLastError;
+}
+
+//------------------------------------------------------------------------
+
+
+#define DECL_ELEMENT(x, y)	{x, _T(#x) y}
+
+static struct {
+    DWORD   dwSTatus;
+    PCTSTR  pText;
+} const aHTTPStatus[] = 
+{
+    DECL_ELEMENT(HTTP_STATUS_CONTINUE            ,  _T(" (100 = OK to continue with request)")),
+    DECL_ELEMENT(HTTP_STATUS_SWITCH_PROTOCOLS    ,  _T(" (101 = server has switched protocols in upgrade header)")),
+    DECL_ELEMENT(HTTP_STATUS_OK                  ,  _T(" (200 = request completed)")  ),
+    DECL_ELEMENT(HTTP_STATUS_CREATED             ,  _T(" (201 = object created, reason = new URI)")   ),
+    DECL_ELEMENT(HTTP_STATUS_ACCEPTED            ,  _T(" (202 = async completion (TBS))") ),
+    DECL_ELEMENT(HTTP_STATUS_PARTIAL             ,  _T(" (203 = partial completion)") ),
+    DECL_ELEMENT(HTTP_STATUS_NO_CONTENT          ,  _T(" (204 = no info to return)")  ),
+    DECL_ELEMENT(HTTP_STATUS_RESET_CONTENT       ,  _T(" (205 = request completed, but clear form)")  ),
+    DECL_ELEMENT(HTTP_STATUS_PARTIAL_CONTENT     ,  _T(" (206 = partial GET furfilled)")  ),
+    DECL_ELEMENT(HTTP_STATUS_AMBIGUOUS           ,  _T(" (300 = server couldn't decide what to return)")  ),
+    DECL_ELEMENT(HTTP_STATUS_MOVED               ,  _T(" (301 = object permanently moved)")   ),
+    DECL_ELEMENT(HTTP_STATUS_REDIRECT            ,  _T(" (302 = object temporarily moved)")   ),
+    DECL_ELEMENT(HTTP_STATUS_REDIRECT_METHOD     ,  _T(" (303 = redirection w/ new access method)")   ),
+    DECL_ELEMENT(HTTP_STATUS_NOT_MODIFIED        ,  _T(" (304 = if-modified-since was not modified)") ),
+    DECL_ELEMENT(HTTP_STATUS_USE_PROXY           ,  _T(" (305 = redirection to proxy, location header specifies proxy to use)")   ),
+    DECL_ELEMENT(HTTP_STATUS_REDIRECT_KEEP_VERB  ,  _T(" (307 = HTTP/1.1: keep same verb)")   ),
+    DECL_ELEMENT(HTTP_STATUS_PERMANENT_REDIRECT  ,  _T(" (308 = Object permanently moved keep verb)") ),
+    DECL_ELEMENT(HTTP_STATUS_BAD_REQUEST         ,  _T(" (400 = invalid syntax)") ),
+    DECL_ELEMENT(HTTP_STATUS_DENIED              ,  _T(" (401 = access denied)")  ),
+    DECL_ELEMENT(HTTP_STATUS_PAYMENT_REQ         ,  _T(" (402 = payment required)")   ),
+    DECL_ELEMENT(HTTP_STATUS_FORBIDDEN           ,  _T(" (403 = request forbidden)")  ),
+    DECL_ELEMENT(HTTP_STATUS_NOT_FOUND           ,  _T(" (404 = object not found)")   ),
+    DECL_ELEMENT(HTTP_STATUS_BAD_METHOD          ,  _T(" (405 = method is not allowed)")  ),
+    DECL_ELEMENT(HTTP_STATUS_NONE_ACCEPTABLE     ,  _T(" (406 = no response acceptable to client found)") ),
+    DECL_ELEMENT(HTTP_STATUS_PROXY_AUTH_REQ      ,  _T(" (407 = proxy authentication required)")  ),
+    DECL_ELEMENT(HTTP_STATUS_REQUEST_TIMEOUT     ,  _T(" (408 = server timed out waiting for request)")   ),
+    DECL_ELEMENT(HTTP_STATUS_CONFLICT            ,  _T(" (409 = user should resubmit with more info)")),
+    DECL_ELEMENT(HTTP_STATUS_GONE                ,  _T(" (410 = the resource is no longer available)")),
+    DECL_ELEMENT(HTTP_STATUS_LENGTH_REQUIRED     ,  _T(" (411 = the server refused to accept request w/o a length)")  ),
+    DECL_ELEMENT(HTTP_STATUS_PRECOND_FAILED      ,  _T(" (412 = precondition given in request failed)")   ),
+    DECL_ELEMENT(HTTP_STATUS_REQUEST_TOO_LARGE   ,  _T(" (413 = request entity was too large)")   ),
+    DECL_ELEMENT(HTTP_STATUS_URI_TOO_LONG        ,  _T(" (414 = request URI too long)")   ),
+    DECL_ELEMENT(HTTP_STATUS_UNSUPPORTED_MEDIA   ,  _T(" (415 = unsupported media type)") ),
+    DECL_ELEMENT(HTTP_STATUS_MISDIRECTED_REQUEST ,  _T(" (421 = misdirected request)")),
+    DECL_ELEMENT(HTTP_STATUS_RETRY_WITH          ,  _T(" (449 = retry after doing the appropriate action.)")  ),
+    DECL_ELEMENT(HTTP_STATUS_SERVER_ERROR        ,  _T(" (500 = internal server error)")  ),
+    DECL_ELEMENT(HTTP_STATUS_NOT_SUPPORTED       ,  _T(" (501 = required not supported)") ),
+    DECL_ELEMENT(HTTP_STATUS_BAD_GATEWAY         ,  _T(" (502 = error response received from gateway)")   ),
+    DECL_ELEMENT(HTTP_STATUS_SERVICE_UNAVAIL     ,  _T(" (503 = temporarily overloaded)") ),
+    DECL_ELEMENT(HTTP_STATUS_GATEWAY_TIMEOUT     ,  _T(" (504 = timed out waiting for gateway)")  ),
+    DECL_ELEMENT(HTTP_STATUS_VERSION_NOT_SUP     ,  _T(" (505 = HTTP version not supported)") ),
+    0,
+};
+
+CString GetHTTPStatusText(DWORD dwStatus)
+{
+    for (auto const &e : aHTTPStatus)
+    {
+        if (e.dwSTatus==dwStatus)
+            return CString(e.pText);
+	}
+    return CString();
 }

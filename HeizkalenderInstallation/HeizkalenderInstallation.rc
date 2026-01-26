@@ -176,7 +176,8 @@ CAPTION "Programme"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "Programme des Heizkalenders:",IDC_STATIC,7,11,173,8
-    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,26,361,205
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,26,299,205
+    PUSHBUTTON      "&Änderungen...",IDC_BT_WINMERGE,311,26,60,14
 END
 
 IDD_PAGE_SYSVARS DIALOGEX 0, 0, 377, 240
@@ -525,7 +526,6 @@ STRINGTABLE
 BEGIN
     IDS_MODE_CHURCHDESK_API "ChurchDesk-API"
     IDP_FILES_MISSING       "Eine oder mehrere Dateien für die Installation fehlen für die Installation. Das Programm wird kann nicht ausgeführt werden und wird beendet!\n\t%1"
-    IDP_UNKNOWN_PROGRAMS    "Die Installation enthält folgende unbekannte Programme:\n\t%1\nDie Installation kann nicht fortgesetzt werden.\nLöschen Sie diese Programme sofern, diese nicht mehr benötigt werden.\nAlternativ können Sie dem Programm einen neuen Namen geben, der nicht vom Heizkalender reserviert ist."
     IDP_NEWER_PROGRAMS      "Die aktuelle Installation enthält neuere Programme als dieses Installationspaket:\n\t%1\nDie Installation kann nicht fortgesetzt werden da es zu einem Downgrade kommen würde.\nSollten Sie dennoch diese Version installieren wollen löschen Sie manuell diese Programme in der CCU."
     IDP_CHOOSE_MODE_MANUAL  "Aus den vorliegenden Daten und Programmen kann nicht ermittelt werden, auf welche Art (ChurchDesk, ChurchTools etc.) die Termine ermittelt werden sollen. Wählen Sie bitte den entsprechenden Modus manuell aus!"
     IDP_CHOOSE_NEW_MODE     "Dies ist eine neue Installation!\nWählen Sie bitte den entsprechenden Modus aus, mit dem die Heiztermine ermittelt werden sollen."
@@ -565,7 +565,7 @@ BEGIN
     IDP_QUERY_RAUMLISTEN_NICHT_LEER 
                             "Die Raumlisten sind bereits gefüllt. Diese Werte und Zuordnungen bleiben erhalten. Ungültige Zuordnungen werden entfernt. Neue Räume oder Zuordnungen werden angelegt.\nWollen Sie fortfahren?"
     IDP_LESEN_VON_CHURCHTOOLS_FEHLGESCHLAGEN 
-                            "Das Einlesen der Daten aus ChurchTools ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!"
+                            "Das Einlesen der Daten aus ChurchTools ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!\n%1"
     IDS_TITLE_SYSVARS       "Name;Inhalt;Info"
     IDS_NEW                 "Neu"
     IDS_UPDATE              "Geändert"
@@ -603,8 +603,14 @@ END
 STRINGTABLE
 BEGIN
     IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN 
-                            "Das Einlesen der Daten aus ChurchDesk ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!"
+                            "Das Einlesen der Daten aus ChurchDesk ist fehlgeschlagen! Kontrollieren Sie die Zugangsdaten!\n%1"
     IDS_INST_IGNORED        "Programm wird ignoriert"
+    IDP_WINMERGE_NICHT_GEFUNDEN 
+                            "Um diese Funktion nutzen zu können muss WinMerge ind er Unicode Version installiert sein!"
+    IDS_VERSION_ALT         "Alte Version"
+    IDS_VERSION_NEU         "Neue Version"
+    IDS_VERBINDUNGSAUGBAU_FEHLGESCHLAGEN 
+                            "Derr Verbindungsaufbau zur CCU ist fehlgeschlagen, kontrollieren Sie die Zugangsdaten!\n%1"
 END
 
 #endif    // German (Germany) resources

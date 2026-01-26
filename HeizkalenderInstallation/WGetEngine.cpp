@@ -29,6 +29,9 @@ CWGetEngine::CWGetEngine()
 
 bool CWGetEngine::Get(CString strURL, CStringW& strOut, bool bUtf8)
 {
+	m_strLastError.Empty();
+	m_dwLastError = 0;
+
     try
     {
         CInternetSession session { _T("HeizkalenderInstallation/1.0"),
@@ -68,15 +71,14 @@ bool CWGetEngine::Get(CString strURL, CStringW& strOut, bool bUtf8)
     }
     catch (CInternetException* e)
     {
+        m_dwLastError = e->m_dwError;
+        e->GetErrorMessage(CStrBuf(m_strLastError,512), 512);
         e->Delete();
-        m_dwLastError = ::GetLastError();
         return false;
     }
 }
 
 CString CWGetEngine::GetLastErrorText()
 {
-    CString result;
-    result.Format(_T("Last Errror=%d"),m_dwLastError);
-    return result.Trim();
+    return m_strLastError;
 }

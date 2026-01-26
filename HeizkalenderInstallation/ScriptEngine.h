@@ -38,5 +38,9 @@ public:
 	}
 private:
 	CStringA m_strStartToken, m_strEndeToken;
-	DWORD m_dwStatus;
+	CString m_strLastError;
+	DWORD m_dwStatus{}, m_dwLastError{};
 };
+
+
+CString GetHTTPStatusText(DWORD dwStatus);

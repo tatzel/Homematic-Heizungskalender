@@ -86,6 +86,10 @@
 #define IDP_LESEN_VON_CHURCHTOOLS_FEHLGESCHLAGEN2 160
 #define IDP_LESEN_VON_CHURCHDESK_FEHLGESCHLAGEN 160
 #define IDS_INST_IGNORED                161
+#define IDP_WINMERGE_NICHT_GEFUNDEN     162
+#define IDS_VERSION_ALT                 163
+#define IDS_VERSION_NEU                 164
+#define IDS_VERBINDUNGSAUGBAU_FEHLGESCHLAGEN 165
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001
@@ -143,6 +147,7 @@
 #define IDC_LINK                        1038
 #define IDC_LC_DATA                     1039
 #define IDC_LB_DATA                     1040
+#define IDC_BT_WINMERGE                 1041
 
 // Next default values for new objects
 // 
@@ -150,7 +155,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1041
+#define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
