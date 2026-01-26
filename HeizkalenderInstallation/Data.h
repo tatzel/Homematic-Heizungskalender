@@ -151,10 +151,11 @@ public:
 	bool	 m_bActive{};			// Flag ob das Programm aktiv ist
 
 	CString m_strSkriptBeschreibung; // Zeile 1
-	CStringA m_strSkript;			// Das Skript selbst (Programmcode)
+	CStringA m_strSkript;			// Das Skript selbst bzw. neues Skript das gespeichert werden soll
+									// Wird hier durch UpdatePrograms ersetzt. 
+	CStringA m_strSkriptAlt;		// Kopie des alten Skripts bevor UpdatePrograms läuft. (Benötigt um Änderungen zu erkennen)
 	CDataProgram* m_pAppProg{};		// Referenz auf das Applikationsprogramm (m_lstAppPrograms),
-									// dass für ein Update benutzt wird. SOnst nullptr
-
+									// dass für ein Update benutzt wird. Sonst nullptr
 	CString GetDataAsLine();
 };
 

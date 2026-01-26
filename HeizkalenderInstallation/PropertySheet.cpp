@@ -764,17 +764,17 @@ void CPagePrograms::OnBnClickedBtWinmerge()
 	// Copy des aktuellen Inhalts speichern
 	try
 	{
-		auto Write = [&](CString const& strFileNamePrefix, CDataProgram const *pProg, CString const &strProgPrefix)
+		auto Write = [](CString const& strFileNamePrefix, CString const& strFileName, CStringA const &strSkriptA, CString const &strProgPrefix)
 		{
 			CString strPath;
 			GetTempPath2(_MAX_PATH, CStrBuf(strPath, _MAX_PATH));
-			::PathAppend(CStrBuf(strPath, _MAX_PATH), strFileNamePrefix+pProg->m_strName+_T(".hsc"));
+			::PathAppend(CStrBuf(strPath, _MAX_PATH), strFileNamePrefix+strFileName+_T(".hsc"));
 
 			CFile file;
 			if (file.Open(strPath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
 			{
 				// 2. Calculate the required buffer size for UTF-8 (CP_UTF8)
-				CString strSkript{ pProg->m_strSkript };
+				CString strSkript{ strSkriptA };
 
 				// Programmmpräfix einfügen
 				if (!strProgPrefix.IsEmpty())
@@ -799,8 +799,8 @@ void CPagePrograms::OnBnClickedBtWinmerge()
 			return strPath;
 		};
 
-		CString strPathNew{Write(_T("New_"), pProg->m_pAppProg, theApp.m_strPrefix)},
-				strPathOld{Write(_T("Old_"), pProg, _T("")) };
+		CString strPathNew{Write(_T("New_"), pProg->m_strName, pProg->m_pAppProg->m_strSkript, theApp.m_strPrefix)},
+				strPathOld{Write(_T("Old_"), pProg->m_strName, pProg->m_strSkriptAlt, _T("")) };
 
 		// Nun Winmerge starten
 		// Exit auf Escape, Schreibgeschützt links+rechts, eigene Beschreibung, Keine MRU
