@@ -638,7 +638,34 @@ CPagePrograms::CPagePrograms()
 }
 
 BEGIN_MESSAGE_MAP(CPagePrograms, CPageBase)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LC_DATA, &CPagePrograms::OnLvnItemchangedLcData)
+	ON_BN_CLICKED(IDC_BT_WINMERGE, &CPagePrograms::OnBnClickedBtWinmerge)
 END_MESSAGE_MAP()
+
+static CString GetWinMergePath()
+{
+	CString strPath;
+
+	// Open HKLM key (64-bit aware)
+	CRegKey regKey;
+	LONG result = regKey.Open(
+		HKEY_LOCAL_MACHINE,
+		_T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\WinMerge.exe"),
+		KEY_READ | KEY_WOW64_64KEY
+	);
+
+	if (result != ERROR_SUCCESS)
+		return strPath;
+
+	// Read default value (the exe path)
+	ULONG bufferSize = _MAX_PATH;
+	VERIFY(regKey.QueryStringValue(nullptr,CStrBuf(strPath,_MAX_PATH),&bufferSize)==ERROR_SUCCESS);
+	return strPath;
+}
+void CPagePrograms::EnableControls()
+{
+	m_btWinMerge.EnableWindow(m_lcData.GetSelectedCount()>0);
+}
 
 void CPagePrograms::DoDataExchange(CDataExchange* pDX)
 {
@@ -647,18 +674,19 @@ void CPagePrograms::DoDataExchange(CDataExchange* pDX)
 	if (!pDX->m_bSaveAndValidate && m_lcData.GetSafeHwnd())
 	{
 		m_lcData.DeleteAllItems();
-		auto &lst = theApp.m_lstPrograms;
+		auto& lst = theApp.m_lstPrograms;
 		for (auto const& p : lst)
 		{
-			int n = m_lcData.InsertItem(m_lcData.GetItemCount(),p.m_strName);
+			int n = m_lcData.InsertItem(m_lcData.GetItemCount(), p.m_strName);
 			if (n>=0)
 			{
 				// Suche den eintrag in der originalen liste
-				m_lcData.SetItemText(n,COL_DATE_INSTALLED,!p.m_bNew ? DateToString(p.m_date) : _T(""));
-				m_lcData.SetItemText(n,COL_DATE_UPDATE,p.m_pAppProg ? DateToString(p.m_pAppProg->m_date) : _T(""));
+				m_lcData.SetItemData(n, reinterpret_cast<DWORD_PTR>(&p));
+				m_lcData.SetItemText(n, COL_DATE_INSTALLED, !p.m_bNew ? DateToString(p.m_date) : _T(""));
+				m_lcData.SetItemText(n, COL_DATE_UPDATE, p.m_pAppProg ? DateToString(p.m_pAppProg->m_date) : _T(""));
 
 				bool bIsScript1 = p.m_strName==theApp.AddPrefix(HK1_SKRIPT_1);
-				UINT uiText=0;
+				UINT uiText = 0;
 				if (p.m_bNew && p.m_id==0)
 					uiText = IDS_INST_NEW;
 				else if (p.m_bNew && p.m_id!=0)
@@ -670,12 +698,14 @@ void CPagePrograms::DoDataExchange(CDataExchange* pDX)
 				else if (!p.m_pAppProg)
 					uiText = IDS_INST_IGNORED;
 				if (uiText)
-					m_lcData.SetItemText(n,COL_INFO,CStringRes(uiText));
+					m_lcData.SetItemText(n, COL_INFO, CStringRes(uiText));
 			}
 		}
 	}
-	
+
 	DDX_Control(pDX, IDC_LC_DATA, m_lcData);
+	DDX_Control(pDX, IDC_BT_WINMERGE, m_btWinMerge);
+	EnableControls();
 }
 
 
@@ -705,6 +735,91 @@ BOOL CPagePrograms::OnInitDialog()
 
 	UpdateData(FALSE);
 	return TRUE;  
+}
+
+void CPagePrograms::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	EnableControls();
+	*pResult = 0;
+}
+
+void CPagePrograms::OnBnClickedBtWinmerge()
+{
+	CString strWinMergePath = GetWinMergePath();
+	if (strWinMergePath.IsEmpty() || !PathFileExists(strWinMergePath))
+	{
+		AfxMessageBox(IDP_WINMERGE_NICHT_GEFUNDEN);
+		return;
+	}
+
+	// Aktuelles Skrip laden und in eine Temp Datei schreiben
+	int nSel = m_lcData.GetNextItem(-1, LVNI_SELECTED);
+	if (nSel<0)
+		return;
+	auto* pProg = reinterpret_cast<CDataProgram*>(m_lcData.GetItemData(nSel));
+	if (!pProg || !pProg->m_pAppProg)
+		return;
+
+	// Copy des aktuellen Inhalts speichern
+	try
+	{
+		auto Write = [&](CString const& strFileNamePrefix, CDataProgram const *pProg, CString const &strProgPrefix)
+		{
+			CString strPath;
+			GetTempPath2(_MAX_PATH, CStrBuf(strPath, _MAX_PATH));
+			::PathAppend(CStrBuf(strPath, _MAX_PATH), strFileNamePrefix+pProg->m_strName+_T(".hsc"));
+
+			CFile file;
+			if (file.Open(strPath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
+			{
+				// 2. Calculate the required buffer size for UTF-8 (CP_UTF8)
+				CString strSkript{ pProg->m_strSkript };
+
+				// Programmmpräfix einfügen
+				if (!strProgPrefix.IsEmpty())
+					// Achtung! Manche Skripte wie das Sichern des Systemprotokolls haben keinen vrp Eintrag!
+					strSkript.Replace(_T("string vrp=\"\";"), _T("string vrp=\"") + strProgPrefix + _T("\";"));
+				// Zeilenenden anpassen
+				strSkript.Replace(_T("\n"), _T("\r\n")); 
+				int nLen = WideCharToMultiByte(CP_UTF8, 0, strSkript, strSkript.GetLength(), NULL, 0, NULL, NULL);
+
+				if (nLen > 0)
+				{
+					// 3. Perform the conversion to a temporary byte buffer
+					CStringA strUTF8;
+					WideCharToMultiByte(CP_UTF8, 0, strSkript, strSkript.GetLength(), CStrBufA(strUTF8, nLen), nLen, NULL, NULL);
+
+					// 4. Write the raw bytes directly to the file (No BOM is written)
+					file.Write(strUTF8.GetString(), nLen);
+				}
+
+				file.Close();
+			}
+			return strPath;
+		};
+
+		CString strPathNew{Write(_T("New_"), pProg->m_pAppProg, theApp.m_strPrefix)},
+				strPathOld{Write(_T("Old_"), pProg, _T("")) };
+
+		// Nun Winmerge starten
+		// Exit auf Escape, Schreibgeschützt links+rechts, eigene Beschreibung, Keine MRU
+		ShellExecute(
+			nullptr, 
+			_T("open"), 
+			strWinMergePath, 
+			_T("/e /u /wl /wr /dl \"") + CStringRes(IDS_VERSION_NEU) + _T(": ")+ pProg->m_strName + _T("\" ") +
+				_T("/dr \"") + CStringRes(IDS_VERSION_ALT) + _T(": ") + pProg->m_strName +
+				_T("\" \"") + strPathNew + _T("\" \"") + strPathOld + _T("\""), 
+			nullptr, 
+			SW_SHOWNORMAL);
+		}
+	catch (CException* e)
+	{
+		e->ReportError();
+		e->Delete();
+		return;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1217,4 +1332,5 @@ void CPageResources::OnBnClickedBtModify()
 	UpdateData(FALSE);
 	m_lcData.SetItemState(nSel,LVIS_SELECTED, LVNI_SELECTED);
 }
+
 

@@ -140,18 +140,20 @@ public:
 		CString const& strDescription
 	) : m_id{ id }
 		, m_strName{ strName }
-		, m_strDescription{ strDescription }
+		, m_strProgBeschreibung{ strDescription }
 	{
 	}
 
 	int		m_id{};
-	CString m_strName;
-	CString m_strDescription;
-	COleDateTime	m_date{ 0.0 };
-	bool	 m_bActive{};
-	CString m_strSkript;
-	CStringA m_strScript;
-	CDataProgram* m_pAppProg{};
+	CString m_strName;				// Name des Programmes in der CCU
+	CString m_strProgBeschreibung;	// Beschreibung im Programmkopf der CCU
+	COleDateTime	m_date{ 0.0 };	// Stanbddatum
+	bool	 m_bActive{};			// Flag ob das Programm aktiv ist
+
+	CString m_strSkriptBeschreibung; // Zeile 1
+	CStringA m_strSkript;			// Das Skript selbst (Programmcode)
+	CDataProgram* m_pAppProg{};		// Referenz auf das Applikationsprogramm (m_lstAppPrograms),
+									// dass für ein Update benutzt wird. SOnst nullptr
 
 	CString GetDataAsLine();
 };

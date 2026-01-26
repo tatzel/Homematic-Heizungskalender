@@ -178,13 +178,17 @@ CDataProgram::CDataProgram(CString const& strLine)
 	//	test.Replace(_T("%25"),	_T("%"));	
 
 	// Skript wiederherstellen
-	m_strSkript.Replace(_T("%0A"),	_T("\n"));
-	m_strSkript.Replace(_T("%09'"), _T("\t"));
-	m_strSkript.Replace(_T("%25"),	_T("%"));
+	m_strSkript.Replace("%0A", "\n");
+	m_strSkript.Replace("%09", "\t");
+	m_strSkript.Replace("%25", "%");
+
+	// Erste Zeile als Beschreibung übernehmen
+	m_strSkriptBeschreibung = StrValueByIndex(CString{ m_strSkript }, 0, _T('\n'));
+
 	// Nun das Datum bestimmen.
 	auto strTmp{ m_strSkript };
 	strTmp.MakeUpper();
-	int iPos = strTmp.Find(_T("STAND: "));
+	int iPos = strTmp.Find("STAND: ");
 	if (iPos>=0)
 		m_date = ParseDate(strTmp.Mid(iPos+6,20));
 }
@@ -194,9 +198,9 @@ CString CDataProgram::GetDataAsLine()
 	return
 		IntToString(m_id) + _T('\t') +
 		m_strName + _T('\t') +
-		m_strDescription + _T('\t') +
+		m_strProgBeschreibung + _T('\t') +
 		BoolToString(m_bActive) + _T('\t') +
-		m_strSkript + _T('\t') +
+		CString{ m_strSkript } + _T('\t') +
 		DateToString(m_date, DATE_FORMAT_DEU);
 }
 
