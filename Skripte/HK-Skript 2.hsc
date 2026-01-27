@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    25.01.2026
+!// Stand:    27.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,6 +35,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2026-01-27 Begrenzung der Vorheizzeit nach unten auf mindestens 10%
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-01-12 Bessere Behandlung von mehreren Aktoren in den Raumvars. minAktorNamenLaenge entfernt.
 !// MRi: 2025-01-05 Begrenzung der Berücksichtigung der Raumtemperatur, Schaltzeiten korrekt berücksichtigen
@@ -426,11 +427,8 @@ foreach(SLEintrag,SListe){
         real faktor1 = RVI.StrValueByIndex(";",4).StrValueByIndex("*",1).ToFloat();
         if (faktor1==0){
           faktor1 = 1.0;
-        }elseif(faktor1<0.25){
-          faktor1 = 0.25;
-        }elseif (faktor1>3){
-          faktor1 = 3.0;
         }
+        faktor1 = faktor1.Max(0.25).Min(3.0);
         if(DEBUG)  {WriteLine("faktor1=" # faktor1.ToString(2));}
 
         !// Bestimme nun einen weiteren Faktor aus der ISTTemperatur und der Solltemperatur RTemp
@@ -448,13 +446,11 @@ foreach(SLEintrag,SListe){
           if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
         }
 
-        !// faktor2 wird auf 1.0 gesetzt, wenn wir bereits in der Heizphase sein. Sonst verschiebt sich
-        !// Die EIN Zeit immer weiter auf die AUS-Zeit zu. Was dazu führen könnte das die Heizung ausgeschaltet 
-        !// wird.
+        !// faktor2 wird nach unten auf 0.1 begrenzt. Besonders wenn wir bereits in der Heizphase sind. 
+        !// Sonst verschiebt sich die EIN Zeit immer weiter auf die AUS-Zeit zu. Was dazu führen könnte, 
+        !// dass die Heizung ausgeschaltet wird. faktor2 ist also ein Wert >=0.1
         real faktor2 = 1.0-((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT));
-        if (aktuellerSchaltZustand==1){
-          faktor2 = 1.0;
-        }
+        faktor2 = faktor2.Max(0.1);
         offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
         offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
         if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
