@@ -1,12 +1,12 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    23.01.2026
+!// Stand:    26.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
@@ -34,6 +34,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-01-26 Sonderbefehle auch für das iCal Skript in der Terminbeschreibung
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
 !// MRi: 2025-12-09 Anpassung an ChurchDesk API
@@ -127,12 +128,12 @@ string SLT="";
 string RIdEintrag;
 integer raumIndex = 0;
 foreach(RIdEintrag,RIdListe.Split(";")){
-  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
   !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
   string RId = RIdEintrag.StrValueByIndex("=",0);
   string RaumName=RIdEintrag.StrValueByIndex("=",1);
-    
-  !// Zugriff auf ChurchDesk iCal  
+
+  !// Zugriff auf ChurchDesk iCal
   string cmd = "wget --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
   if(DEBUG){
     WriteLine("---------------------------------------------------------------------------------------");
@@ -241,8 +242,53 @@ foreach(RIdEintrag,RIdListe.Split(";")){
         continue;
       }
 
-      !// Wir haben keine Raumbeschreibung
+      !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung
+      iPos = termin.Find("\nDESCRIPTION:");
+      string strTemp = termin.Substr(iPos+13);
+      iPos = strTemp.Find("\n");
+      strTemp = strTemp.Substr(0,iPos);
+      if (DEBUG){
+        WriteLine("Beschreibung:" # strTemp);
+      }
+
+      !// Nun nach Sonderbefehlen suchen
+      !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
       string cap = "0";
+      iPos = strTemp.Find("#");
+      if (iPos>=0){
+        strTemp = strTemp.Substr(iPos+1,strTemp.Length()-iPos-1);
+        iPos = strTemp.Find("#");
+        !// Ende vorhanden?
+        if (iPos>=0){
+          !// Englische (Dezimalpunkt) Deutsche (Dezimalkomma) Konvertierung
+          strTemp = strTemp.Substr(0,iPos).ToUpper();
+          strTemp.Replace(",",".");
+          if (strTemp=="EIN"){
+            !// Dauer EIN
+            cap = "-2";
+          }elseif(strTemp=="AUS"){
+            !// Dauer AUS
+            cap = "-1";
+          }elseif((strTemp=="NORMAL") || (strTemp=="RESET")){
+            !// Zurücksetzen RESET AUS/EIN
+            cap = "-3";
+          }elseif((strTemp=="GT")){
+            !// Grundtemperatur GT
+            cap = dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat().ToString(1);
+          }elseif((strTemp=="NH") || (strTemp=="NS")){
+            !// Nicht schalten/heizen (Es wird kein Listeneintrag erzeugt)
+            cap = "";
+          }else{
+            !// Nimm die Zahl, die hier kommt.
+            cap = strTemp.ToInteger();
+            if ((cap>0) && (cap<30)){
+              cap = cap.ToString();
+            }else{
+              cap = "0";
+            }
+          }
+        }
+      }
 
       !// Verhindern, dass doppelte Einträge erzeugt werden.
       string toadd = RId # ";" # startDatum # ";" # endDatum # ";" # cap # ";" # SHFlag # ";";
@@ -280,7 +326,7 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       }
     }
   }
-  
+
   !// Nächster Raum
   raumIndex = raumIndex+1;
 }

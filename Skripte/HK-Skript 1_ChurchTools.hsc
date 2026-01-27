@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    25.01.2026
+!// Stand:    26.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -261,12 +261,18 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     }
     
     !// Beschreibung muss noch auf Tokens geprüft werden.
-    !// #EIN#, #AUS#, #NORMAL#, #RESET#, #<zahl><text>#
+    !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
     string cap="0";
     iPos=termin.Find("\"description\":\"");
     if (iPos>=0){
-      !// Start und ende finden
-      strTemp = termin.Substr(iPos+15,50);
+      !// Ende der Beschreibung finden
+      strTemp = termin.Substr(iPos+15);
+      iPos = strTemp.Find("\",\"");
+      if (iPos>=0) {
+        strTemp = strTemp.Substr(0,iPos);
+      }
+      
+      !// Sonderbefehl suchen
       iPos = strTemp.Find("#");
       if (iPos>=0){
         strTemp = strTemp.Substr(iPos+1,strTemp.Length()-iPos-1);
