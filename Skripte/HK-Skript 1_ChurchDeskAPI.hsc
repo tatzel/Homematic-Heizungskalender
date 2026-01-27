@@ -164,12 +164,18 @@ if (stdout=="[]"){
     }
 
     !// Aus der diese speziellen Features laden
-    !// #EIN#, #AUS#, #NORMAL#, #RESET#, #<zahl><text>#
+    !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
     string cap="0";
     iPos=termin.Find(",\"summary\":\"");
     if (iPos>=0){
-      !// Start und ende finden
-      string strTemp = termin.Substr(iPos+11,50);
+      !// Ende der Beschreibung finden
+      string strTemp = termin.Substr(iPos+12);
+      iPos = strTemp.Find("\",\"");
+      if (iPos>=0) {
+        strTemp = strTemp.Substr(0,iPos);
+      }
+      
+      !// Sonderbefehl suchen
       iPos = strTemp.Find("#");
       if (iPos>=0){
         strTemp = strTemp.Substr(iPos+1,strTemp.Length()-iPos-1);
