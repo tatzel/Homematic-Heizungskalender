@@ -467,23 +467,34 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 
 //---------------------------------------------------------------------------
 
+	// Einige Variablen können neue Namen bekommen haben. Wir benennen diese
+	// Variablen um, erhalten aber den Inhalt, und auch die Id ändert sich nicht.
+	struct 
+	{
+		PCTSTR pszOld, pszNew;
+	} 
+	const aVarsZumUmbenennen[] = 
+	{
+		_T("HK1-ICS-CD-Churchdesk-ID"),	_T("HK1-CD-OrganisationsId"),
+	};
+
+	for (auto const &e : aVarsZumUmbenennen)
 	{
 		// Wenn es die alte Variable existiert und die neue nicht, benenne die 
 		// alte Variable um.
-		auto *pVarAlt = m_lstSysVars.Find(AddPrefix(_T("HK1-ICS-CD-Churchdesk-ID"))),
-			 *pVarNeu = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-OrganisationsId")));
+		auto *pVarAlt = m_lstSysVars.Find(AddPrefix(e.pszOld)),
+				*pVarNeu = m_lstSysVars.Find(AddPrefix(e.pszNew));
 		if (pVarAlt && !pVarNeu)
 		{
 			// Setze den neuen Namen und setze das Modified-Flag. Dadurch
 			// wird die Variable umbenannt.
-			pVarAlt->m_strName = AddPrefix(_T("HK1-CD-OrganisationsId"));
+			pVarAlt->m_strName = AddPrefix(e.pszNew);
 			pVarAlt->m_bModified = true;
 			// Wir müssen erzwingen, dass die Variable als modified weiter 
-			// behandelt wird.
+			// behandelt wird, deshalb manipulieren, wir den alten Inhalt.
 			pVarAlt->m_strContentOld.Insert(0,_T("x"));
 		}
 	}
-
 
 //-----------------------------------------------------------------------------
 

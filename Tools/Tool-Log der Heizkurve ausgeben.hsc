@@ -36,6 +36,6 @@ string vrp="";
 
 string stdout;
 string stderr;
-system.Exec("grep \"" # vrp # "HK-LogHeizkurvenkontrolle\" /media/usb1/HK-*.log | sort",&stdout,&stderr);
+system.Exec("grep -h \"" # vrp # "HK-LogHeizkurvenkontrolle\" /media/usb1/HK-*.log | sort",&stdout,&stderr);
 
 WriteLine(stdout);
