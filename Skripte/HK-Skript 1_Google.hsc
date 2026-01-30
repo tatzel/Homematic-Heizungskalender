@@ -1,42 +1,41 @@
-!// UNGETESTET!!! Skript 1 um die Termine aus Google auszulesen
+!// Skript 1 um die Termine aus Google auszulesen
 !//================================================================================================
-!// Stand:    25.01.2026
+!// Stand:    30.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 by Team Heizkalender:
 !//   Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der 
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic 
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten. 
+!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
 !// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde 
+!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
 !// Hanau von Martin Richter optimiert.
 !// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen 
+!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 !// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
 !// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte 
+!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
-!// Der Code basiert in großen Teilen auf der Datei: 
+!// Der Code basiert in großen Teilen auf der Datei:
 !//  HKP-GK-3.2.1 Googlekalender_V3_4_4.c
 !// Der ursprüngliche Code wurde geschrieben von:
-!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
+!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
 !// Skript sollte alle 30min laufen
 !//
 
-!// MRi: 2025-11-24	MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
-!//					        korrektur nochmal für doppelte Schaltlisteneinträge
+!// MRi: 2026-01-28 Komplettes Neuschreiben und Anpssen an neue Version
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
@@ -53,35 +52,14 @@ boolean multiRaumVariante=true;
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
 integer log=0;
 
-!// Zeitfenster in dem nach Termine geschaut wird 
-!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit), 
+!// Zeitfenster in dem nach Termine geschaut wird
+!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit),
 !// plus zeitVorlauf (min = maximale Vorlaufzeit)
 integer zeitVorlauf=8*60;		!// 8 Stunden (default=12h)
 integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
 
 
-!//#######---Ende Variabler Bereich---#############################################################################################################
-!//Stript Variablen. Von Benutzer nicht zu verändern !!!!
-string url;
-string TimemaxT2="%3A00%3A00-00%3A00";
-string data;
-string dataTemp;
-string error="non";
-integer EventPosID=0;
-string sRaumliste;
-string sRaumVarListe;
-string sRaumVar;
-string SLA=dom.GetObject(vrp+"HK1-Schaltliste").State();
-string SLN;
-string SLT;
-string AktRaum;
-string start;
-string stop;
-string EventID;
-integer frRID=0;
-string SHFlag;
-string cap;
-string toadd;
+!// Der Code wurde in weiten teilen von der ChurchDesk iCal Variante genommen
 
 !// Logging vorbereiten
 var logObj=dom.GetObject(vrp+"HK1-Log");
@@ -107,168 +85,285 @@ if (!logObj){
 }
 
 if(log){logObj.State("Beginn Google-Skriptlauf");}
+WriteLine("Beginn Google-Skriptlauf");
 
-!//Aufbau der gesamt URL
-string globaldate=system.Date();
-string to=(((globaldate.ToTime().ToInteger())+25200).ToTime().ToString().Substr(0,10)+"T"+((globaldate.ToTime().ToInteger())+25200).ToTime().ToString().Substr(11,8)+"Z");
-string from=(((globaldate.ToTime().ToInteger())).ToTime().ToString().Substr(0,10)+"T"+((globaldate.ToTime().ToInteger())).ToTime().ToString().Substr(11,8)+"Z");
-url="wget --timeout=3 -O - 'https://www.googleapis.com/calendar/v3/calendars/" #
-        dom.GetObject(vrp+"HK1-GK-Kalender-ID").Value() # 
-        "@group.calendar.google.com/events?orderBy=startTime&singleEvents=true&timeMax="+to #
-        "&timeMin="+from+"&key="+dom.GetObject(vrp+"HK1-GK-API-Key").Value()+"'";
+!// Filter für Resourcen setzen
+string RIdListe=dom.GetObject(vrp#"HK1-R-Liste").State();
+string HKGListe=dom.GetObject(vrp#"HK2-HKG-Liste").State();
 
-!//URL abfragen
-system.Exec(url,&data,&error);
-data=data.ToUpper();
+if(DEBUG){
+  WriteLine("HKGListe=" # HKGListe);
+  WriteLine("RIdListe=" # RIdListe);
+}
 
-!// Irgendwas muss gelesen worden sein
-if(data==""){
-  if (log){ logObj.State("Fehler beim Lesen der Termin-Daten von Google!"); }
+!// Start und Enddatum setzen, End Datum = 1+Tage
+integer versatzGMT=(system.Date("%z").Substr(1,2)).ToInteger()*3600;
+integer JETZT=system.Date().ToTime().ToInteger();
+string startDatum = JETZT.ToTime().ToString("%FT00:00:00Z");
+string endDatum = (JETZT+(86400*10)).ToTime().ToString("%FT23:59:59Z");
+
+
+!// Neue Schaltliste
+string SLT="";
+
+!// Zugriff auf Google
+string strKalId = dom.GetObject(vrp+"HK1-GK-Kalender-ID").State();
+string strApiKey = dom.GetObject(vrp+"HK1-GK-API-Key").State();
+!// evtl. doppelten Teil, des API-Keys entfernen. Relativ Zeitzone Berlin. prettyPrint=false!
+strKalId = strKalId.Replace("@group.calendar.google.com","");
+string cmd = "wget --timeout=5 -O - 'https://www.googleapis.com/calendar/v3/calendars/" # strKalId #
+                "@group.calendar.google.com/events?" #
+                "orderBy=startTime&singleEvents=true&prettyPrint=false&timeZone=Europe/Berlin" #
+                "&timeMin=" # startDatum #
+                "&timeMax=" # endDatum #
+                "&key=" # strApiKey # "'";
+if(DEBUG){
+  WriteLine("---------------------------------------------------------------------------------------");
+  WriteLine("Cmd:" # cmd);
+}
+string stdout;
+string stderr;
+system.Exec(cmd, &stdout, &stderr);
+
+if(DEBUG){
+  !WriteLine("stdout:" # stdout);
+  !WriteLine("stderr:" # stderr);
+}
+
+!// Tabs entfernen, sollten welche drin sein. Newlines setzen
+stdout = stdout.Replace("\t"," ").Replace("\r\n","\n");
+
+if (!stdout.StartsWith("{\"kind\":\"calendar#events\"")){
+  if (log){ logObj.State("Fehler beim Lesen der Event-Daten von Google!"); }
   if(DEBUG){
-    WriteLine("Fehler beim Lesen der Termin-Daten von Google!");
-  }	
+    WriteLine("Fehler beim Lesen der Event-Daten von Google!");
+  }
   quit;
 }
 
-!//Raumliste auslesen
-sRaumliste=dom.GetObject(vrp+"HK1-R-Liste").Value().ToUpper();
-sRaumVarListe=dom.GetObject(vrp+"HK2-HKG-Liste").Value();
+integer iPos;
+iPos = stdout.Find(",\"items\":[");
+if (iPos<=0) {
+  if(DEBUG){
+    WriteLine("Keine Termindaten gefunden!");
+  }
+} else {
+  !// Termindaten abschneiden
+  stdout = stdout.Substr(iPos+10);
 
-if(data.Find("CALENDAR#EVENT")>-1){
+  !// Schleife über alle Räume
+  string RIdEintrag;
+  integer raumIndex = 0;
+  foreach(RIdEintrag,RIdListe.Split(";")) {
+    !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
+    !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
+    string RId = RIdEintrag.StrValueByIndex("=",0);
+    string RaumName=RIdEintrag.StrValueByIndex("=",1);
+    if(DEBUG){
+      WriteLine("---------------------------------------------------------------------------------------");
+      WriteLine("Raum: " # RId # " / " # RaumName );
+    }
 
-  !//Die Raumliste druchgehen und Prüfen ob für den jeweiligen Raum ein Termin vorliegt.
-  !//Liegt ein Termin vor dann die Daten des Termin aufbereiten und auf die NEUE Schaltliste setzen.
-  foreach(AktRaum,sRaumliste.Split(";")){
-    dataTemp=data;
-    if(AktRaum!=""){
-      EventPosID=dataTemp.Find(AktRaum);
-      if(EventPosID>-1){
-        
-        sRaumVar = sRaumVarListe.StrValueByIndex(";",frRID);
-        if (multiRaumVariante){
-            sRaumVar=sRaumVar.StrValueByIndex("+",0);
-        }	        
-        if(dom.GetObject(dom.GetObject(sRaumVar)).Value().StrValueByIndex(";",1)=="S"){
-          SHFlag="0;";
-        }else{
-          SHFlag="1;";
-        };
-        
-        dataTemp=dataTemp.Substr(EventPosID,dataTemp.Length()-EventPosID);
+    !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
+    !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
+    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+    string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
+    string RaumVar = RaumVarListe;
+    if (multiRaumVariante){
+      RaumVar=RaumVar.StrValueByIndex("+",0);
+    }
+    if (RaumName==""){
+      RaumName = RaumVarListe.Replace(vrp # "HKG-Raum-","");
+    }
 
-       cap=dataTemp.Substr(dataTemp.Find("DESCRIP")+15,6);
-       if (cap.Contains("#")==true){
-          cap=cap.Replace("#","").Replace(",","").Replace("G","").Replace("D","").Replace(".","").Replace("\"","").Replace("V","");
-          cap=cap.Replace("D","").Replace("E","").Replace(" ","").Replace("R","").Replace("A","").Replace("C","").Replace("°","").Replace("\r\n","");
-          if(cap.Length()==3){cap=cap.Substr(0,2)+".5;";}
-          if(cap=="US"){cap="-1;";}
-          if(cap=="IN"){cap="-2;";}
-          if(cap=="NOML"){cap="-3;";}
-        }else{
-          cap="0;";
+    object objVar = dom.GetObject(RaumVar);
+    if (!objVar){
+      !// Raumvariable nicht vorhanden
+      if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+      if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+      continue;
+    }
+
+    string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
+    string SHFlag;
+    if(SchaltenHeizen=="H"){
+      SHFlag="1";
+    }else{
+      SHFlag="0";
+    };
+
+    !// Laufe über alle Termine. Wir müssen das Newline erhalten, damit wir alle Tokens finden..
+    string termine = stdout.Replace("{\"kind\":\"calendar#event\"","\t");
+    string termin;
+    foreach(termin,termine){
+      !// Schleife über all einzelnen Termine
+      if(DEBUG){
+        !WriteLine("Termin Daten: " # termin);
+      }
+
+      !// Jetzt prüfen wir, ob dieser Raum in diesem Termin vorkommt.
+      iPos = termin.Find(",\"summary\":\"");
+      if (iPos<0){
+        !// Keine Summary vorhanden
+        continue;
+      }
+      string strTemp = termin.Substr(iPos+12);
+      iPos = strTemp.Find("\",\"");
+      strTemp = strTemp.Substr(0,iPos);
+      if (DEBUG){
+        WriteLine("Titel:" # strTemp);
+      }
+
+      !// Prüfen ob der Raum mit einem Hashtag im Titel vorkommt.
+      !// Dabei erlauben wir, dass der RIdEintrag keinen HashTag hat
+      if ((!strTemp.ToUpper().Contains("#" # RId.Trim("#").ToUpper())) && (!strTemp.ToUpper().Contains("#" # RaumName.Trim("#").ToUpper()))){
+        !// Dieser Raum kommt nicht in der Beschreibung vorbereiten
+        if (DEBUG){
+          WriteLine("Termin ist nicht für diesen Raum");
         }
+        continue;
+      }
 
-        start=dataTemp.Substr(dataTemp.Find("START\":")+27,19);
-        start=start.Replace("T"," ");
-        stop=dataTemp.Substr(dataTemp.Find("END\":")+25,19);
-        stop=stop.Replace("T"," ");
-        toadd=AktRaum+";"+(start.ToTime().ToInteger().ToString())+";"+(stop.ToTime().ToInteger().ToString())+";"+cap+SHFlag;
+      !// Start und Enddatum holen.
+      iPos = termin.Find(",\"start\":{\"dateTime\":\"");
+      startDatum=termin.Substr(iPos+22,19).Replace("T"," ");
+      startDatum=startDatum.ToTime().ToInteger();
+      if (DEBUG){
+        WriteLine(startDatum.ToInteger().ToTime());
+      }
 
-        !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist        
-        if (SLN.Find(toadd)<0){
-          SLN=SLN+toadd;
+      iPos = termin.Find(",\"end\":{\"dateTime\":\"");
+      endDatum=termin.Substr(iPos+20,19).Replace("T"," ");
+      endDatum=endDatum.ToTime().ToInteger();
+      if (DEBUG){
+        WriteLine(endDatum.ToInteger().ToTime());
+      }
+
+      !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
+      if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
+        !// Termin liegt in der Zukunft
+        if (DEBUG){
+          WriteLine("Termin liegt in der Zukunft");
+        }
+        continue;
+      }
+      if ((endDatum.ToInteger()+(zeitNachlauf*60))<JETZT){
+        !// Termin liegt in der Vergangenheit
+        if (DEBUG){
+          WriteLine("Termin liegt in der Vergangenheit");
+        }
+        continue;
+      }
+
+      !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung
+      iPos = termin.Find(",\"description\":\"");
+      string strTemp = termin.Substr(iPos+16);
+      iPos = strTemp.Find("\",\"");
+      strTemp = strTemp.Substr(0,iPos);
+      if (DEBUG){
+        WriteLine("Beschreibung:" # strTemp);
+      }
+
+      !// Nun nach Sonderbefehlen suchen
+      !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
+      string cap = "0";
+      iPos = strTemp.Find("#");
+      if (iPos>=0){
+        strTemp = strTemp.Substr(iPos+1,strTemp.Length()-iPos-1);
+        iPos = strTemp.Find("#");
+        !// Ende vorhanden?
+        if (iPos>=0){
+          !// Englische (Dezimalpunkt) Deutsche (Dezimalkomma) Konvertierung
+          strTemp = strTemp.Substr(0,iPos).ToUpper();
+          strTemp.Replace(",",".");
+          if (strTemp=="EIN"){
+            !// Dauer EIN
+            cap = "-2";
+          }elseif(strTemp=="AUS"){
+            !// Dauer AUS
+            cap = "-1";
+          }elseif((strTemp=="NORMAL") || (strTemp=="RESET")){
+            !// Zurücksetzen RESET AUS/EIN
+            cap = "-3";
+          }elseif((strTemp=="GT")){
+            !// Grundtemperatur GT
+            cap = dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat().ToString(1);
+          }elseif((strTemp=="NH") || (strTemp=="NS")){
+            !// Nicht schalten/heizen (Es wird kein Listeneintrag erzeugt)
+            cap = "";
+          }else{
+            !// Nimm die Zahl, die hier kommt.
+            cap = strTemp.ToFloat();
+            if ((cap>0) && (cap<30)){
+              cap = cap.ToString(1);
+            }else{
+              cap = "0";
+            }
+          }
+        }
+      }
+
+      !// Verhindern, dass doppelte Einträge erzeugt werden.
+      string toadd = RId # ";" # startDatum # ";" # endDatum # ";" # cap # ";" # SHFlag # ";";
+      !WriteLine(toadd);
+      if (SLT.Find(toadd)<0){
+        if (cap){
+          !// Schalt Eintrag setzen
+          SLT=SLT+toadd;
           if (log){
-            logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
+            cap = toadd.StrValueByIndex(";",3).ToInteger();
+            if (toadd.StrValueByIndex(";",4).ToInteger()!=0){
+              if (cap<0){
+                cap = ("AUS;EIN;NORMAL").StrValueByIndex(";",(1+cap)*(-1));
+              }elseif(cap==0){
+                cap = "Normaltemperatur";
+              }else{
+                cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
+              }
+            }
+            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         " Parameter: " # cap # " " #
+                         ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
+          }
+        }else{
+          !// Wir haben den Sonderbefehl NH/NS
+          if (log){
+            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         " Nicht Heizen/Schalten (#NH#/#NS#)");
           }
         }
       }
     }
-    frRID=frRID+1;
+
+    !// Nächster Raum
+    raumIndex = raumIndex+1;
   }
-  frRID=0;
 }
 
 !//------------------------------------------------------------------------------------------------
-!// Ab hier haben wir Standard Code. Die Variablen SLN, SLA und SLT müssen belegt werden.
-!// Der Rest ist in allen Skripten vom Typ1 gleich. 
-!// SLT enthält unser gewünschtes Ergebnis
 
-  !// Alte Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
-  integer whileID=0;
-  while (true){
-    if(SLA.StrValueByIndex(";",whileID)!=""){
-	  !//noch zeitNachlauf min nach Ausschaltezeit in der Liste lassen, wegen Nachlaufzeit.
-      !WriteLine("???? "+SLA.StrValueByIndex(";",whileID+2)+"  "+system.Date().ToTime().ToInteger().ToString()+"  "+SLA.StrValueByIndex(";",whileID+1).ToInteger().ToString());
-      if((SLA.StrValueByIndex(";",whileID+2).ToInteger()+(zeitNachlauf*60))>system.Date().ToTime().ToInteger()){
-        if(SLA.StrValueByIndex(";",whileID+1).ToInteger()<system.Date().ToTime().ToInteger()){
-	        toadd = SLA.StrValueByIndex(";",whileID)+";"+SLA.StrValueByIndex(";",whileID+1)+";"+SLA.StrValueByIndex(";",whileID+2)+";"+SLA.StrValueByIndex(";",whileID+3)+";"+SLA.StrValueByIndex(";",whileID+4)+";";
-          !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
-		      if(DEBUG){
-			      WriteLine("add: "+toadd);
-		      }
-		      if (SLT.Find(toadd)<0){
-            SLT=SLT+toadd;
-		      	if (log){
-			        logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
-	  	      }
-          }  
-		    }
-      }
-      whileID=whileID+5;
-    }else{
-      break;
-    }
-  }
+!// Geänderte Schaltliste schreiben
 
-  !// Neue Liste SLN nach noch gültigen Einträgen durchsuchen und übernehmen
-  whileID=0;
-  while (true){
-    if(SLN.StrValueByIndex(";",whileID)!=""){
-	    !// zeitVorlauf min vor Einschalttermin in Schaltliste aufnehmen
-      if(SLN.StrValueByIndex(";",whileID+1).ToInteger()>(system.Date().ToTime().ToInteger()-300)){
-        if(SLN.StrValueByIndex(";",whileID+1).ToInteger()<(system.Date().ToTime().ToInteger()+(zeitVorlauf*60))){
-          toadd = SLN.StrValueByIndex(";",whileID)+";"+SLN.StrValueByIndex(";",whileID+1)+";"+SLN.StrValueByIndex(";",whileID+2)+";"+SLN.StrValueByIndex(";",whileID+3)+";"+SLN.StrValueByIndex(";",whileID+4)+";";
-          !// MRi: Wir fügen diesen Termin nur hinzu, wenn er nicht schon in der Liste vorhanden ist
-		      if(DEBUG){
-			      WriteLine("add: "+toadd);
-		      }
-	     	  if (SLT.Find(toadd)<0){
-            SLT=SLT+toadd;
-	      		if (log){
-			        logObj.State("Raum "+toadd.StrValueByIndex(";",0)+": "+toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X")+" / "+toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X")+" Heizen/Schalten: "+toadd.StrValueByIndex(";",4));
-	  	      }
-          }  
-        }
-      }
-      whileID=whileID+5;
-    }else{
-      break;
-    }
-  }
-
-  if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
-    dom.GetObject(vrp+"HK1-Schaltliste").State(SLT);
-    if (SLT==""){
-	    if (log){ logObj.State("Neue Schaltliste: Keine Termine"); }
-    }else{
-      if (log){ logObj.State("Neue Schaltliste: "+SLT); }
-    }
-  } else {
-    if (log){ logObj.State("Schaltliste unverändert"); }
-  }
-
-!Debugausgaben
 if(DEBUG){
-  WriteLine(sRaumliste+"\n");
-  WriteLine("\n"+EventID);
-  WriteLine("\n"+url+"\n");
-  WriteLine(error+"\n");
-  WriteLine(data);
-  WriteLine("SLN: " +SLN);
-  WriteLine("SLA: " +SLA);
-  WriteLine("SLT: " +SLT);
+  WriteLine("SLT=" # SLT);
+}
+
+if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
+  dom.GetObject(vrp+"HK1-Schaltliste").State(SLT);
+  if (SLT==""){
+    if (log){ logObj.State("Neue Schaltliste: Keine Termine"); }
+  }else{
+    if (log){ logObj.State("Neue Schaltliste: "+SLT); }
+  }
+} else {
+  if (log){ logObj.State("Schaltliste unverändert"); }
 }
 
 !//------------------------------------------------------------------------------------------------
 
 if(log){logObj.State("Ende Google-Skriptlauf");}
+WriteLine("Ende Google-Skriptlauf");

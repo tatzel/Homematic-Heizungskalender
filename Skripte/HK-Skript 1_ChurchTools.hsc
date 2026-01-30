@@ -299,9 +299,9 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
             cap = "";
           }else{
             !// Nimm die Zahl, die hier kommt.
-            cap = strTemp.ToInteger();
+            cap = strTemp.ToFloat();
             if ((cap>0) && (cap<30)){
-              cap = cap.ToString();
+              cap = cap.ToString(1);
             }else{
               cap = "0";
             }
