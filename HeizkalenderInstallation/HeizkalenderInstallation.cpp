@@ -193,6 +193,8 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 		"HK-Skript 1_ChurchDeskAPI",		true,
 		"HK-Skript 1_ChurchDeskiCal",		true,
 		"HK-Skript 1_ChurchTools",			true,
+		"HK-Skript 1_iCal",					true,
+		"HK-Skript 1_Google",				true,
 		"HK-Skript 2",						true,
 		"HK-Systemprotokoll sichern",		false,
 	};
@@ -392,6 +394,9 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 	auto *pVarCTToken = m_lstSysVars.Find(AddPrefix(_T("HK1-CT-Token")));
 	auto *pVarCDOrganisationsId = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-OrganisationsId")));
 	auto *pVarCDToken = m_lstSysVars.Find(AddPrefix(_T("HK1-CD-Token")));
+	auto *pVarICalUrl = m_lstSysVars.Find(AddPrefix(_T("HK1-ICS-Url")));
+	auto *pVarGoogleApiKey = m_lstSysVars.Find(AddPrefix(_T("HK1-GK-API-Key")));
+	auto *pVarGoogleCalId = m_lstSysVars.Find(AddPrefix(_T("HK1-GK-Kalender-ID")));
 	if (pVarCTGemeineName && pVarCTToken)
 	{
 		m_modeScript1Installed = ModeScript1::ChurchToolsAPI;
@@ -407,6 +412,14 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 			m_modeScript1Installed = ModeScript1::ChurchDeskAPI;
 		else if (strLine1.Find(_T("CHURCHDESK"))>=0 && strLine1.Find(_T("ICAL"))>=0)
 			m_modeScript1Installed = ModeScript1::ChurchDeskiCal;
+	}
+	else if (pVarICalUrl)
+	{
+		m_modeScript1Installed = ModeScript1::iCal;
+	}
+	else if (pVarGoogleApiKey && pVarGoogleCalId)
+	{
+		m_modeScript1Installed = ModeScript1::Google;
 	}
 
 	// Wenn wir diesen Modus nicht kennen versuchen wir das Programm zu erkennen
@@ -424,6 +437,14 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 				m_modeScript1Installed = ModeScript1::ChurchDeskAPI;
 			else if (strLine1.Find(_T("ICAL"))>=0)
 				m_modeScript1Installed = ModeScript1::ChurchDeskiCal;
+		}
+		else if (strLine1.Find(_T("ICAL"))>=0)
+		{
+			m_modeScript1Installed = ModeScript1::iCal;
+		}
+		else if (strLine1.Find(_T("GGOGLE"))>=0)
+		{
+			m_modeScript1Installed = ModeScript1::Google;
 		}
 	}
 
@@ -983,16 +1004,16 @@ bool CHeizkalenderInstallationApp::IsMatchingRoomPrefix(CString str) const
 
 void CHeizkalenderInstallationApp::ReadResources()
 {
-	auto *pVarRaumListe1 = m_lstSysVars.Find(AddPrefix(HK1_RAUMLISTE));
-	auto *pVarRaumListe2 = m_lstSysVars.Find(AddPrefix(HK2_RAUMLISTE));
+	auto* pVarRaumListe1 = m_lstSysVars.Find(AddPrefix(HK1_RAUMLISTE));
+	auto* pVarRaumListe2 = m_lstSysVars.Find(AddPrefix(HK2_RAUMLISTE));
 	ASSERT(pVarRaumListe1 && pVarRaumListe2);
-	CString strListe1 { pVarRaumListe1->m_strContent };
-	CString strListe2 { pVarRaumListe2->m_strContent };
+	CString strListe1{ pVarRaumListe1->m_strContent };
+	CString strListe2{ pVarRaumListe2->m_strContent };
 
 	// Warnung anzeigen
 	if (!pVarRaumListe1->m_strContent.IsEmpty() || !pVarRaumListe2->m_strContent.IsEmpty())
 	{
-		if (AfxMessageBox(IDP_QUERY_RAUMLISTEN_NICHT_LEER,MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)!=IDYES)
+		if (AfxMessageBox(IDP_QUERY_RAUMLISTEN_NICHT_LEER, MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)!=IDYES)
 			return;
 	}
 
@@ -1007,6 +1028,16 @@ void CHeizkalenderInstallationApp::ReadResources()
 		if (!ReadResourcesChurchDesk(mapRaeumeNeu))
 			return;
 	}
+	else if (m_modeScript1==ModeScript1::iCal || m_modeScript1==ModeScript1::Google)
+	{
+		// Eigentlich ist gemäß des Syntaxes nichts zu tun, da es keine Raumressourcen gibt, die wir lesen können.
+	}
+	else
+	{
+		ASSERT(FALSE);
+
+	}
+
 
 	CMapRaumListe mapRaeumeAlt;
 	LoadRoomMapFromSysVars(mapRaeumeAlt);
@@ -1306,6 +1337,12 @@ CString CHeizkalenderInstallationApp::GetNameFromScrip1Mode(ModeScript1 mode)
 		break;
 	case ModeScript1::ChurchToolsAPI:
 		return _T("ChurchTools");
+		break;
+	case ModeScript1::iCal:
+		return _T("iCal");
+		break;
+	case ModeScript1::Google:
+		return _T("Google");
 		break;
 	case ModeScript1::Unknown:
 		return _T("Unknown");
@@ -1633,6 +1670,10 @@ foreach(sId,sIds) {
 		strName = _T("ChurchTools");
 	else if (m_modeScript1==ModeScript1::ChurchDeskAPI || m_modeScript1==ModeScript1::ChurchDeskiCal)
 		strName = _T("ChurchDesk");
+	else if (m_modeScript1==ModeScript1::iCal)
+		strName = _T("iCal");
+	else if (m_modeScript1==ModeScript1::Google)
+		strName = _T("Google");
 
 	// Skript zum anlegen aller normalen Variablen ablaufen lassen.
 	if (!strName.IsEmpty() && bAnyNew)

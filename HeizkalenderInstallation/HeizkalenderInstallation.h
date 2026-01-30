@@ -30,12 +30,14 @@
 #include "Data.h"
 
 // Modis für Skript 1
-enum ModeScript1 
+enum class ModeScript1 
 {
 	Unknown = 0,
 	ChurchToolsAPI = 1,
 	ChurchDeskAPI = 2,
 	ChurchDeskiCal = 3,
+	iCal = 4,
+	Google = 5,
 };
 
 #define HK1_SKRIPT_1		_T("HK-Skript 1")

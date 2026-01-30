@@ -44,7 +44,8 @@ public:
 #endif
 	CComboBox	m_cbScript1Mode;
 	CEditText	m_edHost, m_edUserName, m_edPassword, m_edPrefix, 
-				m_edCTChurchName, m_edCTLoginToken,
+				m_edCTChurchName, m_edCTLoginToken, 
+				m_ediCalUrl, m_edGoogleApiKey, m_edGoogleKalId, m_edRaumListe,
 				m_edCDOrgaId, m_edCDApiToken;
 
 private:

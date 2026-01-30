@@ -151,6 +151,10 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ED_LOGINTOKEN, m_edCTLoginToken);
 	DDX_Control(pDX, IDC_ED_ORGAID, m_edCDOrgaId);
 	DDX_Control(pDX, IDC_ED_APITOKEN, m_edCDApiToken);
+	DDX_Control(pDX, IDC_ED_ICALURL, m_ediCalUrl);
+	DDX_Control(pDX, IDC_ED_GOOGLE_APIKEY, m_edGoogleApiKey);
+	DDX_Control(pDX, IDC_ED_GOOGLE_KALID, m_edGoogleKalId);
+	DDX_Control(pDX, IDC_ED_RAUMLISTE, m_edRaumListe);
 	DDX_Text(pDX, IDC_ED_HOST, theApp.m_strCCU_host);
 	DDX_Text(pDX, IDC_ED_USERNAME, theApp.m_strCCU_username);
 	DDX_Text(pDX, IDC_ED_PASSWORD, theApp.m_strCCU_password);
@@ -164,11 +168,29 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 		}
 		const aVarListText[] =
 		{
-			IDC_ED_CHURCHNAME,	_T("HK1-CT-Gemeindename"), 
-			IDC_ED_LOGINTOKEN,	_T("HK1-CT-Token"),
-			IDC_ED_ORGAID,		_T("HK1-CD-OrganisationsId"),
-			IDC_ED_APITOKEN,	_T("HK1-CD-Token"),
+			IDC_ED_CHURCHNAME,		_T("HK1-CT-Gemeindename"), 
+			IDC_ED_LOGINTOKEN,		_T("HK1-CT-Token"),
+			IDC_ED_ORGAID,			_T("HK1-CD-OrganisationsId"),
+			IDC_ED_APITOKEN,		_T("HK1-CD-Token"),
+			IDC_ED_ICALURL,			_T("HK1-ICS-Url"),
+			IDC_ED_GOOGLE_APIKEY,	_T("HK1-GK-API-Key"),
+			IDC_ED_GOOGLE_KALID,	_T("HK1-GK-Kalender-ID"),
+			IDC_ED_RAUMLISTE,		_T("HK1-R-Liste"),
 		};
+		// Wenn wir eine RaumListe haben, dann müssen wir die Validieren.
+		if (pDX->m_bSaveAndValidate && m_edRaumListe.IsWindowVisible())
+		{
+			pDX->PrepareEditCtrl(IDC_ED_RAUMLISTE);
+			CString strRaumListe;
+			GetDlgItemText(IDC_ED_RAUMLISTE, strRaumListe);
+			if (strRaumListe.Find(_T(";"))==-1)
+			{
+				AfxMessageBox(IDP_RAUMLISTE_UNGUELTIG);
+				pDX->Fail();        // throws exception
+			}
+			return;
+		}
+		// Process text fields
 		for (auto const& e : aVarListText)
 		{
 			if (theApp.m_bConnected && GetDlgItem(e.m_uiId)->IsWindowVisible())
@@ -189,34 +211,76 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 
 }
 
+static UINT auiCtrlsChurchTools[] = 
+{ 
+	IDC_ST_CHURCHTOOL1, IDC_ED_CHURCHNAME, IDC_ST_CHURCHTOOL2, IDC_ED_LOGINTOKEN, IDC_BT_READRES, 0
+};
+static UINT auiCtrlsChurchDesk[] = 
+{ 
+	IDC_ST_CHURCHDESK1, IDC_ED_ORGAID, IDC_ST_CHURCHDESK2, IDC_ED_APITOKEN, IDC_BT_READRES, 0
+};
+static UINT auiCtrlsiCal[] = 
+{ 
+	IDC_ST_ICALURL, IDC_ED_ICALURL, IDC_ST_RAUMLISTE, IDC_ED_RAUMLISTE, IDC_BT_READRES, 0
+};
+static UINT auiCtrlsGoogle[] = 
+{ 
+	IDC_ST_GOOGLE1, IDC_ED_GOOGLE_APIKEY, IDC_ST_GOOGLE2, IDC_ED_GOOGLE_KALID, IDC_ST_RAUMLISTE, IDC_ED_RAUMLISTE, IDC_BT_READRES, 0
+};
+
+struct {
+	ModeScript1 m_mode;
+	UINT const	*m_puiCtrls;
+} const aCtrlsForModes[] = {
+	ModeScript1::ChurchToolsAPI,	auiCtrlsChurchTools,
+	ModeScript1::ChurchDeskAPI,		auiCtrlsChurchDesk,
+	ModeScript1::ChurchDeskiCal,	auiCtrlsChurchDesk,
+	ModeScript1::Google,			auiCtrlsGoogle,
+	ModeScript1::iCal,				auiCtrlsiCal,
+};
+
+
 BOOL CPageConnect::OnInitDialog()
 {
 	CPageBase::OnInitDialog();
 
 	m_cbScript1Mode.EnableWindow(FALSE);
 
+	// Keine Leerzeichen für Raumliste erlauben
+	m_edRaumListe.SetEditType(CEditText::fTypeNumeric | CEditText::fTypeAlpha | CEditText::fTypePunct | CEditText::fTypeUnderscore);
+
 	CString strMask, strText;
 	GetDlgItemText(IDC_ST_VERSION,strMask);
 	strText.FormatMessage(strMask, theApp.m_strAppVersion, theApp.m_strScriptVersion);
 	SetDlgItemText(IDC_ST_VERSION,strText);
 
+	// Alle COntrols disdablen
+	for (auto const& e : aCtrlsForModes)
+	{
+		for (auto const *p = e.m_puiCtrls; *p; ++p)
+		{
+			CWnd* pWnd = GetDlgItem(*p);
+			pWnd->EnableWindow(FALSE);
+			pWnd->ShowWindow(SW_HIDE);
+		}
+	}
+
 	// Fill combo box
 	struct {
 		ModeScript1 m_mode;
 		UINT	m_uiIdText;
-	} aListModes[] = {
-		ModeScript1::ChurchToolsAPI,
-		IDS_MODE_CHURCHTOOLS,
-		ModeScript1::ChurchDeskAPI,
-		IDS_MODE_CHURCHDESK_API,
-		ModeScript1::ChurchDeskiCal,
-		IDS_MODE_CHURCHDESK_ICAL,
+	} aListModesForCombo[] = {
+		ModeScript1::ChurchToolsAPI,	IDS_MODE_CHURCHTOOLS,
+		ModeScript1::ChurchDeskAPI,		IDS_MODE_CHURCHDESK_API,
+		ModeScript1::ChurchDeskiCal,	IDS_MODE_CHURCHDESK_ICAL,
+		ModeScript1::iCal,				IDS_MODE_ICAL,
+		ModeScript1::Google,			IDS_MODE_GOOGLE,
 	};
-	for (auto const& e : aListModes)
+	for (auto const& e : aListModesForCombo)
 	{
 		auto n = m_cbScript1Mode.AddString(CStringRes(e.m_uiIdText));
 		if (n>=0)
-			m_cbScript1Mode.SetItemData(n,e.m_mode);
+			m_cbScript1Mode.SetItemData(n,static_cast<int>(e.m_mode));
 	}
 
 	// Falls dies eine Simulation ist eine Warnung anzeigen.
@@ -229,28 +293,6 @@ BOOL CPageConnect::OnInitDialog()
 	}
 	return TRUE;  
 }
-
-static UINT uiArrayChurchTools[] = 
-{ 
-	IDC_ST_CHURCHTOOL1, IDC_ST_CHURCHTOOL2, IDC_ED_CHURCHNAME, IDC_ED_LOGINTOKEN, IDC_BT_READRES, 0
-};
-static UINT uiArrayChurchDesk[] = 
-{ 
-	IDC_ST_CHURCHDESK1, IDC_ST_CHURCHDESK2, IDC_ED_ORGAID, IDC_ED_APITOKEN, IDC_BT_READRES, 0
-};
-
-struct {
-	ModeScript1 m_mode;
-	UINT const	*m_puiCtrls;
-} const aListModes[] = {
-	ModeScript1::ChurchToolsAPI,
-	uiArrayChurchTools,
-	ModeScript1::ChurchDeskAPI,
-	uiArrayChurchDesk,
-	ModeScript1::ChurchDeskiCal,
-	uiArrayChurchDesk,
-};
-
 
 BOOL CPageConnect::OnKillActive()
 {
@@ -284,7 +326,7 @@ void SwitchToMode(CComboBox& cb, ModeScript1 mode)
 {
 	for (int i = 0, n = cb.GetCount(); i<n; ++i)
 	{
-		if (cb.GetItemData(i)==theApp.m_modeScript1)
+		if (cb.GetItemData(i)==static_cast<int>(theApp.m_modeScript1))
 		{
 			cb.SetCurSel(i);
 			return;
@@ -310,7 +352,7 @@ void CPageConnect::OnCbnSelchangeCbMode()
 	std::set<UINT> setCtrls;
 	UINT const *pCtrlsNew=nullptr;
 	UINT const *pCtrlsOld=nullptr;
-	for (auto const &e : aListModes)
+	for (auto const &e : aCtrlsForModes)
 	{
 		if (e.m_mode==newMode)
 			pCtrlsNew = e.m_puiCtrls;
@@ -436,7 +478,7 @@ void CPageConnect::OnBnClickedBtConnect()
 	theApp.m_modeScript1 = theApp.m_modeScript1Installed;
 	for (int i = 0, n = m_cbScript1Mode.GetCount(); i<n; ++i)
 	{
-		if (m_cbScript1Mode.GetItemData(i)==theApp.m_modeScript1Installed)
+		if (m_cbScript1Mode.GetItemData(i)==static_cast<int>(theApp.m_modeScript1Installed))
 		{
 			m_cbScript1Mode.SetCurSel(i);
 			break;
