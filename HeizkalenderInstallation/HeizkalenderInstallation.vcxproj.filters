@@ -144,6 +144,12 @@
     <None Include="res\Create_HK-Systemprotokoll sichern.hsc">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\SYSVARS_Init_iCal.hsc">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\SYSVARS_Init_Google.hsc">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\HeizkalenderInstallation.ico">

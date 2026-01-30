@@ -57,7 +57,7 @@ BEGIN
     "#include ""res\\HeizkalenderInstallation.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
     "#include ""afxres.rc""      // Standardkomponenten\r\n"
     "#if !defined(_AFXDLL)\r\n"
-    "#include ""afxribbon.rc""   // Ressourcen fÃƒÆ’Ã‚Â¼r MFC-MenÃƒÆ’Ã‚Â¼band und -Steuerleiste\r\n"
+    "#include ""afxribbon.rc""   // Ribbons\r\n"
     "#endif\r\n"
     "#endif\r\n"
     "\0"
@@ -95,7 +95,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,264,96,50,14,WS_GROUP
 END
 
-IDD_PAGE_CONNECT DIALOGEX 0, 0, 377, 240
+IDD_PAGE_CONNECT DIALOGEX 0, 0, 377, 244
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Verbinden"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
@@ -110,19 +110,27 @@ BEGIN
     EDITTEXT        IDC_ED_PREFIX,168,60,173,12,ES_AUTOHSCROLL
     PUSHBUTTON      "&Verbinden mit der CCU",IDC_BT_CONNECT,168,78,92,14
     LTEXT           "Einlesen der Termine über:",IDC_STATIC,7,100,135,8
-    COMBOBOX        IDC_CB_MODE,168,98,173,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Name der Gemeinde in Churchtools:",IDC_ST_CHURCHTOOL1,7,118,135,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_ED_CHURCHNAME,168,116,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
-    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHTOOL2,7,138,135,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_ED_LOGINTOKEN,168,136,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
-    PUSHBUTTON      "&Ressourcen einlesen",IDC_BT_READRES,168,154,92,14,NOT WS_VISIBLE | WS_DISABLED
-    PUSHBUTTON      "Info über...",IDC_ABOUT,314,218,55,14
-    ICON            IDR_MAINFRAME,IDC_STATIC,346,7,21,20,SS_SUNKEN,WS_EX_STATICEDGE
+    COMBOBOX        IDC_CB_MODE,168,98,173,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Ressourcen/Räume einlesen",IDC_BT_READRES,168,172,103,14
+    LTEXT           "Name der Gemeinde in Churchtools:",IDC_ST_CHURCHTOOL1,7,118,135,8
+    EDITTEXT        IDC_ED_CHURCHNAME,168,116,173,12,ES_AUTOHSCROLL
+    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHTOOL2,7,138,135,8
+    EDITTEXT        IDC_ED_LOGINTOKEN,168,136,173,12,ES_AUTOHSCROLL
+    LTEXT           "Churchdesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,118,135,8
+    EDITTEXT        IDC_ED_ORGAID,168,116,173,12,ES_AUTOHSCROLL
+    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHDESK2,7,138,135,8
+    EDITTEXT        IDC_ED_APITOKEN,168,136,173,12,ES_AUTOHSCROLL
+    LTEXT           "Google API-Key:",IDC_ST_GOOGLE1,7,118,135,8
+    EDITTEXT        IDC_ED_GOOGLE_APIKEY,168,116,173,12,ES_AUTOHSCROLL
+    LTEXT           "Google Kalender-Id:",IDC_ST_GOOGLE2,7,138,135,8
+    EDITTEXT        IDC_ED_GOOGLE_KALID,168,136,173,12,ES_AUTOHSCROLL
+    LTEXT           "URL für iCal-Kalender:",IDC_ST_ICALURL,7,118,135,8
+    EDITTEXT        IDC_ED_ICALURL,168,116,173,12,ES_AUTOHSCROLL
+    LTEXT           "Raumliste:",IDC_ST_RAUMLISTE,7,156,135,8
+    EDITTEXT        IDC_ED_RAUMLISTE,168,154,173,12,ES_AUTOHSCROLL
     LTEXT           "Version %1 - Softwarestand vom: %2",IDC_ST_VERSION,7,224,214,8,SS_NOPREFIX
-    LTEXT           "Churchdesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,118,135,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_ED_ORGAID,168,116,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
-    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHDESK2,7,138,135,8,NOT WS_VISIBLE
-    EDITTEXT        IDC_ED_APITOKEN,168,136,173,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED
+    PUSHBUTTON      "Info über...",IDC_ABOUT,314,218,55,14
+    ICON            IDR_MAINFRAME,IDC_STATIC,346,7,20,20,SS_SUNKEN,WS_EX_STATICEDGE
 END
 
 IDD_PAGE_SETTINGS DIALOGEX 0, 0, 377, 240
@@ -217,36 +225,36 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,110,159,50,14,WS_GROUP
 END
 
-IDD_ROOM DIALOGEX 0, 0, 274, 173
+IDD_ROOM DIALOGEX 0, 0, 279, 173
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Raum: "
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "Name des Raumes:",IDC_STATIC,7,8,99,8
-    EDITTEXT        IDC_ED_NAME,120,6,144,14,ES_AUTOHSCROLL
-    LTEXT           "Modus:",IDC_STATIC,7,24,99,8
-    COMBOBOX        IDC_CB_MODE,120,22,144,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Wohlfühltemp.:",IDC_STATIC,7,40,99,8
-    EDITTEXT        IDC_ED_TEMP,120,38,40,12,ES_AUTOHSCROLL
-    LTEXT           "°C",IDC_STATIC,166,40,9,8
-    LTEXT           "Abweichende Grundtemp.:",IDC_STATIC,7,56,99,8
-    EDITTEXT        IDC_ED_GRUNDTEMP,120,54,40,12,ES_AUTOHSCROLL
-    LTEXT           "°C",IDC_STATIC,166,56,9,8
-    LTEXT           "Vorzeitiger Heitbeginn:",IDC_STATIC,7,72,99,8
-    EDITTEXT        IDC_ED_VORZEIT_AN,120,70,40,12,ES_AUTOHSCROLL
-    LTEXT           "min",IDC_STATIC,166,72,12,8
-    LTEXT           "Vorzeitiges Heizende:",IDC_STATIC,7,88,99,8
-    EDITTEXT        IDC_ED_VORZEIT_AUS,120,86,40,12,ES_AUTOHSCROLL
-    LTEXT           "min",IDC_STATIC,166,88,12,8
-    LTEXT           "Faktor Heizkurve:",IDC_STATIC,7,104,99,8
-    EDITTEXT        IDC_ED_FAKTOR,120,102,40,12,ES_AUTOHSCROLL
-    LTEXT           "Aktor/Kanal/Datenpunkt:",IDC_STATIC,7,120,99,8
-    COMBOBOX        IDC_CB_AKTOR,120,118,144,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Gerätetyp:",IDC_STATIC,7,136,99,8
-    COMBOBOX        IDC_CB_GERAETETYP,120,134,144,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,44,152,50,14
-    PUSHBUTTON      "Abbrechen",IDCANCEL,110,152,50,14
-    PUSHBUTTON      "Test",IDC_BT_TEST,176,152,50,14
+    LTEXT           "Name des Raumes:",IDC_STATIC,7,8,91,8
+    EDITTEXT        IDC_ED_NAME,105,6,164,14,ES_AUTOHSCROLL
+    LTEXT           "Modus:",IDC_STATIC,7,24,91,8
+    COMBOBOX        IDC_CB_MODE,105,22,164,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Wohlfühltemp.:",IDC_STATIC,7,40,91,8
+    EDITTEXT        IDC_ED_TEMP,105,38,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,151,40,9,8
+    LTEXT           "Abweichende Grundtemp.:",IDC_STATIC,7,56,91,8
+    EDITTEXT        IDC_ED_GRUNDTEMP,105,54,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,151,56,9,8
+    LTEXT           "Vorzeitiger Heitbeginn:",IDC_STATIC,7,72,91,8
+    EDITTEXT        IDC_ED_VORZEIT_AN,105,70,40,12,ES_AUTOHSCROLL
+    LTEXT           "min",IDC_STATIC,151,72,12,8
+    LTEXT           "Vorzeitiges Heizende:",IDC_STATIC,7,88,91,8
+    EDITTEXT        IDC_ED_VORZEIT_AUS,105,86,40,12,ES_AUTOHSCROLL
+    LTEXT           "min",IDC_STATIC,151,88,12,8
+    LTEXT           "Faktor Heizkurve:",IDC_STATIC,7,104,91,8
+    EDITTEXT        IDC_ED_FAKTOR,105,102,40,12,ES_AUTOHSCROLL
+    LTEXT           "Aktor/Kanal/Datenpunkt:",IDC_STATIC,7,120,91,8
+    COMBOBOX        IDC_CB_AKTOR,105,118,164,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Gerätetyp:",IDC_STATIC,7,136,91,8
+    COMBOBOX        IDC_CB_GERAETETYP,105,134,164,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,48,152,50,14
+    PUSHBUTTON      "Abbrechen",IDCANCEL,114,152,50,14
+    PUSHBUTTON      "Test",IDC_BT_TEST,180,152,50,14
 END
 
 IDD_PAGE_RESOURCES DIALOGEX 0, 0, 377, 244
@@ -351,7 +359,7 @@ BEGIN
     IDD_PAGE_CONNECT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 304
+        RIGHTMARGIN, 302
         VERTGUIDE, 168
         TOPMARGIN, 7
         BOTTOMMARGIN, 192
@@ -395,6 +403,7 @@ BEGIN
     IDD_ROOM, DIALOG
     BEGIN
         LEFTMARGIN, 7
+        RIGHTMARGIN, 274
         TOPMARGIN, 6
     END
 
@@ -449,7 +458,15 @@ BEGIN
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
     0, 100, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
@@ -648,6 +665,9 @@ BEGIN
     IDS_VERSION_NEU         "Neue Version"
     IDS_VERBINDUNGSAUGBAU_FEHLGESCHLAGEN 
                             "Derr Verbindungsaufbau zur CCU ist fehlgeschlagen, kontrollieren Sie die Zugangsdaten!\n%1"
+    IDS_MODE_ICAL           "iCal-Kalender"
+    IDS_MODE_GOOGLE         "Google-Kalender"
+    IDP_RAUMLISTE_UNGUELTIG "Die Raumliste ist ungültig oder leer. Die Raumliste sollte mehrere durch Semikolon abgetrennte Raumnamen enthalten. Diese dürfen keine Leerzeichen enthalten!"
 END
 
 #endif    // German (Germany) resources
@@ -670,7 +690,7 @@ LANGUAGE 9, 1
 #include "res\HeizkalenderInstallation.rc2"  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen
 #include "afxres.rc"      // Standardkomponenten
 #if !defined(_AFXDLL)
-#include "afxribbon.rc"   // Ressourcen fÃƒÆ’Ã‚Â¼r MFC-MenÃƒÆ’Ã‚Â¼band und -Steuerleiste
+#include "afxribbon.rc"   // Ribbons
 #endif
 #endif
 
