@@ -188,7 +188,6 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 				AfxMessageBox(IDP_RAUMLISTE_UNGUELTIG);
 				pDX->Fail();        // throws exception
 			}
-			return;
 		}
 		// Process text fields
 		for (auto const& e : aVarListText)
