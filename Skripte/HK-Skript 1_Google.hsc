@@ -49,7 +49,7 @@ boolean DEBUG=0;
 boolean multiRaumVariante=true;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
-!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+!// Mit 0 wird die Einstellung aus der HKx-Logging übernommen
 integer log=0;
 
 !// Zeitfenster in dem nach Termine geschaut wird
@@ -134,9 +134,9 @@ if(DEBUG){
 stdout = stdout.Replace("\t"," ").Replace("\r\n","\n");
 
 if (!stdout.StartsWith("{\"kind\":\"calendar#events\"")){
-  if (log){ logObj.State("Fehler beim Lesen der Event-Daten von Google!"); }
+  if (log){ logObj.State("Fehler beim Lesen der Event-Daten von Google! Ursachen: API-Key falsch, Kalender-ID falsch, Kalender nicht öffentlich."); }
   if(DEBUG){
-    WriteLine("Fehler beim Lesen der Event-Daten von Google!");
+    WriteLine("Fehler beim Lesen der Event-Daten von Google! Ursachen: API-Key falsch, Kalender-ID falsch, Kalender nicht öffentlich.");
   }
   quit;
 }
@@ -147,9 +147,14 @@ if (iPos<=0) {
   if(DEBUG){
     WriteLine("Keine Termindaten gefunden!");
   }
+} elseif (stdout.Substr(iPos+10,1)=="]") {
+  !// Keine Termine vorhanden
+  if(DEBUG){
+    WriteLine("Keine Termine vorhanden!");
+  }
 } else {
-  !// Termindaten abschneiden
-  stdout = stdout.Substr(iPos+10);
+  !// Termindaten abschneiden und von UTF8 umwandeln 
+  stdout = stdout.Substr(iPos+10).ToLatin();
 
   !// Schleife über alle Räume
   string RIdEintrag;
@@ -192,6 +197,15 @@ if (iPos<=0) {
       SHFlag="0";
     };
 
+    !// In den Terminen muss eine Summary vorhanden sein.
+    iPos = stdout.Find(",\"summary\":\"");
+    if (iPos<0) {
+      if (log){ logObj.State("Fehler beim Lesen der Event-Daten von Google! Ursachen: Termindetails nicht freigegeben."); }
+      if(DEBUG){
+        WriteLine("Fehler beim Lesen der Event-Daten von Google! Ursachen: Termindetails nicht freigegeben.");
+      }
+      quit;      
+    }
     !// Laufe über alle Termine. Wir müssen das Newline erhalten, damit wir alle Tokens finden..
     string termine = stdout.Replace("{\"kind\":\"calendar#event\"","\t");
     string termin;
@@ -204,7 +218,7 @@ if (iPos<=0) {
       !// Jetzt prüfen wir, ob dieser Raum in diesem Termin vorkommt.
       iPos = termin.Find(",\"summary\":\"");
       if (iPos<0){
-        !// Keine Summary vorhanden
+        !// Keine Summary vorhanden.
         continue;
       }
       string strTemp = termin.Substr(iPos+12);
