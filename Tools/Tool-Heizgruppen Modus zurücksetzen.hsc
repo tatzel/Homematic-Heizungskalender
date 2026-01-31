@@ -1,6 +1,6 @@
 !// Alle Heizgruppen auf Auto Modus zu setzen
 !//================================================================================================
-!// Stand:    30.01.2026
+!// Stand:    31.01.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -29,6 +29,7 @@
 !//   https://github.com/jollyjinx/homematic/blob/master/ThermostatModeSwitch.hms
 !//   https://homematic-forum.de/forum/viewtopic.php?f=26&t=86909
 !//
+!// MRi: 2026-01-31 Raumliste mit Wildcard eingebaut
 !// MRi: 2025-11-27 Individuelles Schalten eingebaut. Urlaubsmodus wurde nicht korrekt berücksichtigt
 
 string vrp="";
@@ -43,7 +44,7 @@ boolean automode                = false;
 boolean debug                   = false;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
-!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+!// Mit 0 wird die Einstellung aus der HKx-Logging übernommen
 integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
@@ -109,7 +110,8 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
         skip=true;
       } else {
         !// Lade den Eintrag für den Wildcard.
-        newMode = RaumListe.Substr(iPos+3,5).ToInteger()!=0;      
+        newMode = RaumListe.Substr(iPos+3,5).ToInteger()!=0;
+        if(debug){WriteLine("\t Neuer Modus aus RaumListe="#newMode);}
       }
     }else{
       newMode = RaumListe.Substr(iPos+1+device.Name().Length()+1,5).ToInteger()!=0;

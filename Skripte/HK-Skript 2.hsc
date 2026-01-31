@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    27.01.2026
+!// Stand:    31.01.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -438,8 +438,9 @@ foreach(SLEintrag,SListe){
         !// auf die Grundtemperatur.
         real ISTTemperatur = GT;
         AktAktor = RVI.StrValueByIndex(";",6);
+        if(DEBUG) { WriteLine("AktAktor=" # AktAktor); }
         objAktor = dom.GetObject(AktAktor);
-        if (objAktor){
+        if (AktAktor && objAktor){
           ISTTemperatur = objAktor.DPByHssDP("ACTUAL_TEMPERATURE").State().ToFloat();
         }else{
           if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}

@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    25.01.2026
+!// Stand:    31.01.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -40,7 +40,8 @@ boolean DEBUG=0;
 boolean multiRaumVariante=true;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
-!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+!// Mit 0 wird die Einstellung aus der HKx-Logging übernommen.
+!// log -1 macht hier keinen Sinn und beendet das Skript.
 integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
@@ -70,6 +71,8 @@ var loggingObj=dom.GetObject(vrp+"HK-LoggingHeizkurvenkontrolle");
 if (log<0) {
   !// Zwingend kein logging
   log = false;
+  if(DEBUG)  {WriteLine("Logging ist nicht aktiviert. Abbruch!!!");}
+  quit;
 } elseif (log==0) {
 !// Einstellung der Logging Variable prüfen
   if (loggingObj && loggingObj.State()!=0){
@@ -178,7 +181,7 @@ foreach(SLEintrag,SListe){
 
   if (!bGefunden){
     !//Wird keine Raumvariable gefunden wir brechen das Script komplett ab
-    if(log) {logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
+    logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");
     if(DEBUG)  {WriteLine(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
     continue;
   }  
@@ -216,6 +219,7 @@ foreach(SLEintrag,SListe){
 
     !// Erzeuge einen Namen ohne prefixe
     string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
+    if(DEBUG)  {WriteLine("RVNName=" # RVNName);}
 
     !// Unser Skript macht nur Sinn für Modus Heizen
     HSFlag = RVI.StrValueByIndex(";",1)=="H";
@@ -290,11 +294,13 @@ foreach(SLEintrag,SListe){
     !// istTemperatur bestimmen, wir benutzen nur den ersten Aktor dafür
     real istTemperatur = GT;
     AktAktor = RVI.StrValueByIndex(";",6);
+    if(DEBUG) { WriteLine("AktAktor=" # AktAktor); }
     objAktor = dom.GetObject(AktAktor);
-    if (objAktor){
+    if (AktAktor && objAktor){
       istTemperatur = objAktor.DPByHssDP("ACTUAL_TEMPERATURE").State().ToFloat();
     }else{
       if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+      continue;
     }
     
     !// Neues maximum bestimmen
