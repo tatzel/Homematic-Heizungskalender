@@ -234,7 +234,7 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 		}
 		else
 		{
-			AppendTextWithDelimiter(strMissing,strName,_T("; "));
+			AppendTextWithDelimiter(strMissing,strName,_T("\n\t"));
 		}
 	}
 
@@ -379,14 +379,14 @@ bool CHeizkalenderInstallationApp::ConnectToCCU()
 bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 {
 //-----------------------------------------------------------------------------
-	// Prüfen ob wir alle Programme kennen
-	CString strProgs;
-	for (auto const& e : m_lstPrograms)
-	{
-		// Prüfe ob wir den Namen kennen
-		if (m_setProgramNames.find(RemovePrefix(e.m_strName))==m_setProgramNames.end())
-			AppendTextWithDelimiter(strProgs,e.m_strName,_T("; "));
-	}
+	//// Prüfen ob wir alle Programme kennen
+	//CString strProgs;
+	//for (auto const& e : m_lstPrograms)
+	//{
+	//	// Prüfe ob wir den Namen kennen
+	//	if (m_setProgramNames.find(RemovePrefix(e.m_strName))==m_setProgramNames.end())
+	//		AppendTextWithDelimiter(strProgs,e.m_strName,_T("\n\t"));
+	//}
 
 	// Versuche den aktuellen Modus für Skript 1 zu bestimmen.
 	// Als erstes versuchen wir das die Variablen zu erkennen.
@@ -449,6 +449,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 	}
 
 	// Suche ob alle Programme eine Version haben
+	CString strProgs;
 	strProgs.Empty();
 	// Get a temporary copy, rename the Script1 into the standard name
 	auto lstAppScripts = m_lstAppPrograms;
@@ -474,7 +475,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 			}
 		}
 		if (bProgramIsNewer)
-			AppendTextWithDelimiter(strProgs,p.m_strName,_T("; "));
+			AppendTextWithDelimiter(strProgs,p.m_strName,_T("\n\t"));
 	}
 		
 	if (!strProgs.IsEmpty())
@@ -558,7 +559,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		for (auto strRaum : lstRaumListe)
 		{
 			auto *pVar = m_lstSysVars.Find(strRaum);
-			if (strRaum!=AddRoomPrefix(RemoveRoomPrefix(strRaum)))
+			if (strRaum!=AddRoomPrefix(CleanupNameForRoom(RemoveRoomPrefix(strRaum))))
 				// Hier stimmt was nicht. Diese Variablen müssen neu aufgebaut werden.
 				setZuKorrigieren.emplace(strRaum);
 			else if (!pVar)
@@ -576,7 +577,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		{
 			CString strVars;
 			for (auto const &n : lst)
-				AppendTextWithDelimiter(strVars,n,_T("; "));
+				AppendTextWithDelimiter(strVars,n,_T("\n\t"));
 			return strVars;
 		};
 	if (!setFehlen.empty())
@@ -598,7 +599,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 			// SUche den alten Inhalt und erzeuge eine Kopie
 			auto *pVar = m_lstSysVars.Find(n);
 			CDataSystemVariable data;
-			data.InitNeuerRaum(AddRoomPrefix(GenerateNewRoomName(n)));
+			data.InitNeuerRaum(AddRoomPrefix(GenerateNewRoomName(RemoveRoomPrefix(n))));
 			if (pVar && !pVar->m_strContent.IsEmpty())
 				data.SetContent(pVar->m_strContent);
 			m_lstSysVars.push_back(data);
@@ -638,17 +639,37 @@ bool CHeizkalenderInstallationApp::IsModeScript1Modified()
 	return (m_modeScript1Installed!=m_modeScript1);
 }
 
+bool CHeizkalenderInstallationApp::IsRaumListeModified()
+{
+	auto *pVarRaumListe1 = m_lstSysVars.Find(AddPrefix(HK1_RAUMLISTE));
+	return pVarRaumListe1 && pVarRaumListe1->m_bModified;
+}
+
 bool CHeizkalenderInstallationApp::IsDataModified()
 {
 	if (IsModeScript1Modified())
 		return true;
 	if (m_modeScript1Installed!=m_modeScript1)
 		return true;
+	if (IsProgramsModified())
+		return true;
+	if (IsSysVarsModified())
+		return true;
+	return false;
+}
+
+bool CHeizkalenderInstallationApp::IsProgramsModified()
+{
 	for (auto& p : m_lstPrograms)
 	{
 		if (p.m_bNew || p.m_bModified || p.m_bDeleted)
 			return true;
 	}
+	return false;
+}
+
+bool CHeizkalenderInstallationApp::IsSysVarsModified()
+{
 	for (auto& sv : m_lstSysVars)
 	{
 		if ((sv.m_bNew || sv.m_bModified || sv.m_bDeleted) && IsSysVarCompatibeWithModeScript1(theApp.RemovePrefix(sv.m_strName),theApp.m_modeScript1))
@@ -664,14 +685,21 @@ bool CHeizkalenderInstallationApp::IsSysVarCompatibeWithModeScript1(CString cons
 		modeField  = ModeScript1::ChurchToolsAPI;
 	else if (strName==_T("HK1-CD-OrganisationsId") || strName==_T("HK1-CD-Token"))
 		modeField  = ModeScript1::ChurchDeskAPI;
+	else if (strName==_T("HK1-ICS-Url"))
+		modeField  = ModeScript1::iCal;
+	else if (strName==_T("HK1-GK-API-Key") || strName==_T("HK1-GK-Kalender-ID"))
+		modeField  = ModeScript1::Google;
 
-	if (mode==ModeScript1::ChurchToolsAPI && modeField==ModeScript1::ChurchDeskAPI)
-		return false;
-	if ((mode==ModeScript1::ChurchDeskAPI || mode==ModeScript1::ChurchDeskiCal) && modeField==ModeScript1::ChurchToolsAPI)
-		return false;
+	if (modeField==ModeScript1::Unknown)
+		// Unbekannte Felder sind immer erlaubt
+		return true; 
 
-	// Alle anderen Kombintation sind erlaubt.
-	return true;
+	if (mode==ModeScript1::ChurchDeskAPI || mode==ModeScript1::ChurchDeskiCal)
+		// ChurchDesk ist immer ChurchDeskAPI
+		mode = ModeScript1::ChurchDeskAPI;
+
+	// Alle anderen Kombintation müssen passen
+	return mode==modeField;
 }
 
 bool CHeizkalenderInstallationApp::LoadSystemVariablesFromCCU()
@@ -1031,13 +1059,13 @@ void CHeizkalenderInstallationApp::ReadResources()
 	else if (m_modeScript1==ModeScript1::iCal || m_modeScript1==ModeScript1::Google)
 	{
 		// Eigentlich ist gemäß des Syntaxes nichts zu tun, da es keine Raumressourcen gibt, die wir lesen können.
+		LoadRoomMapFromSysVars(mapRaeumeNeu);
 	}
 	else
 	{
 		ASSERT(FALSE);
-
+		return;
 	}
-
 
 	CMapRaumListe mapRaeumeAlt;
 	LoadRoomMapFromSysVars(mapRaeumeAlt);

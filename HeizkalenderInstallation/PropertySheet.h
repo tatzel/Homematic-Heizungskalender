@@ -26,9 +26,13 @@
 
 class CPageBase : public CMFCPropertyPage
 {
+public:
 	using CMFCPropertyPage::CMFCPropertyPage;
 	virtual BOOL OnQueryCancel() override;
 	virtual BOOL OnApply() override;
+	virtual BOOL OnSetActive() override;
+protected:
+	bool m_bSeiteBesucht{};
 };
 
 //-----------------------------------------------------------------------------
@@ -211,7 +215,7 @@ public:
 class CInstallationsWizard : public CMFCPropertySheet
 {
 	DECLARE_DYNAMIC(CInstallationsWizard)
-
+	friend class CPageBase;
 public:
 	CInstallationsWizard();
 	virtual ~CInstallationsWizard();

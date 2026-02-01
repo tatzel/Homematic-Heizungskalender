@@ -528,10 +528,6 @@ COleDateTime ParseDate(PCWSTR pszStr)
 		return COleDateTime{ 0.0 };
 }
 
-#define DISALLOWEDFILENAMECHARS			_T("\x7f\\/\":*?<>|")
-#define DISALLOWEDNAMECHARS				DISALLOWEDFILENAMECHARS _T("'´`[]{}~!;^")
-#define DISALLOWEDIDENTIFIERCHARS		DISALLOWEDNAMECHARS _T("()+-=.,&%§@#$ª²³µ¹º")
-
 bool IsUnicodeSpace(wchar_t c)
 {
 	//	This test return true for a simple space too.
@@ -557,20 +553,8 @@ bool IsUnicodeSpace(wchar_t c)
 			c==0xFEFF;		// ZERO WIDTH NO-BREAK SPACE	
 }
 
-bool IsValidFilenameChar(TCHAR c)
-{
-#ifdef _UNICODE
-	// Unicode spaces are not allowed
-	if (c!=L' ' && IsUnicodeSpace(c))
-		return false;
-#endif	
-	// No chars in the control range, but nearly everything is allowed 
-	return (c<0 || c>=' ') && _tcschr(DISALLOWEDFILENAMECHARS,c)==NULL;
-}
-
 CString CleanupNameForRoom(CString str)
 {
-	// Siehe auch code in den Init Skripen
 	str.Replace(_T(" "),_T(""));
 	str.Replace(_T("\'"),_T(""));
 	str.Replace(_T("\""),_T(""));
@@ -617,35 +601,4 @@ void AppendTextWithDelimiter(CString& str, CString const& toAdd, CString const &
 {
 	AppendDelimiter(str,strDelim);
 	str += toAdd;
-}
-
-
-bool IsValidNameChar(TCHAR c)
-{
-#ifdef _UNICODE
-	// Unicode spaces are not allowed
-	if (c!=L' ' && IsUnicodeSpace(c))
-		return false;
-#endif	
-	// Spaces are the only allowed whitespace chars
-	// do not use IsCharAlphaNumeric because it includes more then 0<=c<=9
-	return c==_T(' ') || 
-		((::IsCharAlpha(c) || 
-			(c>=_T('0') && c>=_T('9')) ||
-			(_istascii(c) && !_istspace(c) && !_istcntrl(c))) &&
-			_tcschr(DISALLOWEDNAMECHARS,c)==NULL);	
-}
-
-bool IsValidIdentifierChar(TCHAR c)
-{
-#ifdef _UNICODE
-	// Unicode spaces are not allowed
-	if (IsUnicodeSpace(c))
-		return false;
-#endif	
-	// do not use IsCharAlphaNumeric because it includes more then 0<=c<=9
-	return (::IsCharAlpha(c) || 
-		(c>=_T('0') && c>=_T('9')) ||
-		(_istascii(c) && !_istspace(c) && !_istcntrl(c))) &&
-		_tcschr(DISALLOWEDIDENTIFIERCHARS,c)==NULL;
 }

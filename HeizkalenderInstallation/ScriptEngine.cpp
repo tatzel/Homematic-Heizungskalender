@@ -42,6 +42,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
 
     try
     {
+	    CWaitCursor wait;
         CInternetSession session(_T("HeizkalenderInstallation/1.0"));
         session.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 5000);
         session.SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 5000);

@@ -95,6 +95,10 @@
 #define IDS_MODE_ICAL                   166
 #define IDS_MODE_GOOGLE                 167
 #define IDP_RAUMLISTE_UNGUELTIG         168
+#define IDP_PROGRAMME_KONTROLLIEREN     169
+#define IDP_SYSVARS_KONTROLLIEREN       170
+#define IDP_RAUMLISTE_KONTROLLIEREN     171
+#define IDS_LEERER_NAME                 172
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001

@@ -43,7 +43,28 @@ BOOL CPageBase::OnApply()
 	// bevor der Dialog geschlossen wird.
 	if (theApp.IsDataModified())
 	{
-		// SOllen die Änderungen wirklich ausgeführt werden?
+		// Prüfe ob alle Seiten besucht wurden. Wenn es Änderngen gab, diese sollten nie unkontrolliert	bleiben.
+		auto *pParent = STATIC_DOWNCAST(CInstallationsWizard,GetParent());
+		if (theApp.IsRaumListeModified() && !pParent->m_pageRooms.m_bSeiteBesucht)
+		{
+			AfxMessageBox(IDP_RAUMLISTE_KONTROLLIEREN);
+			pParent->SetActivePage(&pParent->m_pageResources);
+			return FALSE;
+		}
+		if (theApp.IsProgramsModified() && !pParent->m_pagePrograms.m_bSeiteBesucht)
+		{
+			AfxMessageBox(IDP_PROGRAMME_KONTROLLIEREN);
+			pParent->SetActivePage(&pParent->m_pagePrograms);
+			return FALSE;
+		}
+		if (theApp.IsSysVarsModified() && !pParent->m_pageSysVar.m_bSeiteBesucht)
+		{
+			AfxMessageBox(IDP_SYSVARS_KONTROLLIEREN);
+			pParent->SetActivePage(&pParent->m_pageSysVar);
+			return FALSE;
+		}
+
+		// Sollen die Änderungen wirklich ausgeführt werden?
 		if (AfxMessageBox(theApp.m_bSimulation ? IDP_QUERY_UPDATE_SIMUATION : IDP_QUERY_UPDATE_CCU,MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)==IDYES)
 		{
 			if (theApp.m_bSimulation)
@@ -67,6 +88,12 @@ BOOL CPageBase::OnApply()
 		theApp.ClearAll();
 	}
 	return TRUE;
+}
+
+BOOL CPageBase::OnSetActive()
+{
+	m_bSeiteBesucht = true;
+	return __super::OnSetActive();
 }
 
 //-----------------------------------------------------------------------------
@@ -180,11 +207,28 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 		// Wenn wir eine RaumListe haben, dann müssen wir die Validieren.
 		if (pDX->m_bSaveAndValidate && m_edRaumListe.IsWindowVisible())
 		{
+			// Überprüfe das format der eingegebenen Raumliste
 			pDX->PrepareEditCtrl(IDC_ED_RAUMLISTE);
-			CString strRaumListe;
-			GetDlgItemText(IDC_ED_RAUMLISTE, strRaumListe);
-			if (strRaumListe.Find(_T(";"))==-1)
+			CString strRaumListeAlt;
+			GetDlgItemText(IDC_ED_RAUMLISTE, strRaumListeAlt);
+
+			// Leere Namen sind nicht erlaubt.
+			CString strTemp, strId, strRaumListeNeu;
+			strTemp = strRaumListeAlt;
+			strTemp.Trim(UNERLAUBTE_ZEICHEN_FUER_RAEUME);
+			// Leere Abschnitte erstetzen durch einen Dummy
+			strTemp.Replace(_T(";;"), _T(";") + CStringRes(IDS_LEERER_NAME) + _T(";"));
+			for (int i = 0; !(strId = StrValueByIndex(strTemp, i, _T(';'))).IsEmpty(); ++i)
 			{
+				CString s1 = CleanupNameForRoom(StrValueByIndex(strId, 0, _T('='))),
+						s2 = CleanupNameForRoom(StrValueByIndex(strId, 1, _T('=')));
+				if (!s2.IsEmpty())
+					AppendTextWithDelimiter(s1,s2,_T("="));
+				AppendTextWithDelimiter(strRaumListeNeu, s1, _T(';'));
+			}
+			if (strRaumListeNeu.IsEmpty() || strRaumListeAlt!=strRaumListeNeu)
+			{
+				SetDlgItemText(IDC_ED_RAUMLISTE, strRaumListeNeu);
 				AfxMessageBox(IDP_RAUMLISTE_UNGUELTIG);
 				pDX->Fail();        // throws exception
 			}

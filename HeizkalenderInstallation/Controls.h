@@ -223,12 +223,8 @@ public:
 		fTypePunct		= 0x0008,
 		fTypeUnderscore	= 0x0010,
 		fTypeSpecial	= 0x0020,	// Sonderzeichen °§ etc...
-		fTypeIgnoreCtrlChar	= 0x0400,	// No tabs no new line, no backspace
-		fTypeIdentifier	= 0x0800,	// Like name but no spaces and no %.,
-		fTypeName		= 0x1000,	// Like filename but excludes '()[]~!;
-		fTypeFilename	= 0x2000,	// All chars except some punctations
 		fTypeUpperCase	= 0x4000,
-		fTypeKey		= fTypeAlpha|fTypeNumeric|fTypeUnderscore|fTypeIgnoreCtrlChar,
+		fTypeKey		= fTypeAlpha|fTypeNumeric|fTypeUnderscore,
 		fTypeAll		= 0x00ff,
 	};
 	int SetEditType(int iStyle)
@@ -246,6 +242,8 @@ public:
 	bool IsValid();	
 	void SetAllowedCharList(PCTSTR pszAllowedChars);
 	const CString &GetAllowedCharList();
+	void SetDisallowedCharList(PCTSTR pszAllowedChars);
+	const CString &GetDisallowedCharList();
 
 // Get/Set Value of the Control
 	void SetValue(PCTSTR pszStr);
@@ -262,7 +260,7 @@ protected:
 protected:
 	int m_cInputLength;
 	int	m_iEditType;
-	CString m_strAllowedChars;
+	CString m_strAllowedChars, m_strDisallowedChars;
 
 protected:                                         
 	DECLARE_MESSAGE_MAP()

@@ -131,10 +131,9 @@ int NumberOfStrValues(PCTSTR pszFullString, TCHAR chSep=_T('\t'));
 //-----------------------------------------------------------------------------
 
 // Some static character testing routines
-bool IsValidIdentifierChar(TCHAR c);
-bool IsValidNameChar(TCHAR c);
-bool IsValidFilenameChar(TCHAR c);
+bool IsUnicodeSpace(wchar_t c);
 
+#define UNERLAUBTE_ZEICHEN_FUER_RAEUME	_T(" ;+=\'\"#.")
 CString CleanupNameForRoom(CString str);
 
 //-----------------------------------------------------------------------------
