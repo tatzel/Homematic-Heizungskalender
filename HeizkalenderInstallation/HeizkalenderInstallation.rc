@@ -667,7 +667,14 @@ BEGIN
                             "Derr Verbindungsaufbau zur CCU ist fehlgeschlagen, kontrollieren Sie die Zugangsdaten!\n%1"
     IDS_MODE_ICAL           "iCal-Kalender"
     IDS_MODE_GOOGLE         "Google-Kalender"
-    IDP_RAUMLISTE_UNGUELTIG "Die Raumliste ist ungültig oder leer. Die Raumliste sollte mehrere durch Semikolon abgetrennte Raumnamen enthalten. Diese dürfen keine Leerzeichen enthalten!"
+    IDP_RAUMLISTE_UNGUELTIG "Die Raumliste ist ungültig oder leer. Die Raumliste sollte mehrere durch Semikolon abgetrennte Raumnamen enthalten. Ein einzelner Raumname darf nicht leer sein. Raumnamen dürfen keine Leerzeichen enthalten!"
+    IDP_PROGRAMME_KONTROLLIEREN 
+                            "Programme werden geändert. Kontrollieren Sie ob diese Änderungen korrekt und gewünscht sind!"
+    IDP_SYSVARS_KONTROLLIEREN 
+                            "Systemvariablen wurden geändert. Kontrollieren Sie ob diese Änderungen korrekt und gewünscht sind!"
+    IDP_RAUMLISTE_KONTROLLIEREN 
+                            "Die Liste der Raum-Ressourcen wurde geändert. Kontrollieren Sie ob die Änderungen so korrekt und gewünscht sind!"
+    IDS_LEERER_NAME         "RAUM_NAME_FEHLT"
 END
 
 #endif    // German (Germany) resources

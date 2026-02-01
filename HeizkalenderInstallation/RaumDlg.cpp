@@ -164,6 +164,7 @@ BOOL CRaumDlg::OnInitDialog()
 	}	
 
 	m_edName.LimitText(25);
+	m_edName.SetDisallowedCharList(UNERLAUBTE_ZEICHEN_FUER_RAEUME);	
 	m_edTemp.SetMinMax(0,30);
 	m_edTemp.SetPrecision(1);
 	m_edTemp.CreateSpinBtnCtrl();

@@ -73,7 +73,10 @@ public:
 
 	void ClearAll();
 	bool IsModeScript1Modified();
+	bool IsRaumListeModified();
 	bool IsDataModified();
+	bool IsProgramsModified();
+	bool IsSysVarsModified();
 	bool IsSysVarCompatibeWithModeScript1(CString const& strName, ModeScript1 mode);
 	bool LoadSystemVariablesFromCCU();
 	bool LoadProgramsFromCCU(const CString &strPrefix);
