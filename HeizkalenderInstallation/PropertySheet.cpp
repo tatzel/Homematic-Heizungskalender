@@ -291,6 +291,10 @@ BOOL CPageConnect::OnInitDialog()
 
 	// Keine Leerzeichen für Raumliste erlauben
 	m_edRaumListe.SetEditType(CEditText::fTypeNumeric | CEditText::fTypeAlpha | CEditText::fTypePunct | CEditText::fTypeUnderscore);
+	CString strDisallowedChars{ UNERLAUBTE_ZEICHEN_FUER_RAEUME };
+	strDisallowedChars.Remove(_T('='));
+	strDisallowedChars.Remove(_T(';')); 
+	m_edRaumListe.SetDisallowedCharList(strDisallowedChars);
 
 	CString strMask, strText;
 	GetDlgItemText(IDC_ST_VERSION,strMask);
