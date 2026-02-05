@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    26.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -34,6 +34,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-26 Sonderbefehle auch für das iCal Skript in der Terminbeschreibung
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
@@ -137,6 +138,40 @@ foreach(RIdEintrag,RIdListe.Split(";")){
     WriteLine("Raum: " # RId # " / " # RaumName );
   }
 
+  !// Zuerst Ramzuordnung ermitteln.
+  !// Ohne Raumzuordnung überspringen wir hier die Terminabfrage.
+  string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
+  string RaumVar = RaumVarListe;
+  if (!RaumVarListe){
+    if (DEBUG) { WriteLine("Keine Raumzuordnung!"); }
+    continue;
+  }
+  if (multiRaumVariante){
+    RaumVar=RaumVar.StrValueByIndex("+",0);
+  }
+  if (RaumName==""){
+    RaumName = RaumVarListe.Replace(vrp#"HKG-Raum-","");
+  }
+
+  object objVar = dom.GetObject(RaumVar);
+  if ((!RaumVar) || (!objVar)){
+    !// Raumvariable nicht vorhanden
+    if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+    if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+    continue;
+  }
+
+  !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
+  !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
+  !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+  string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
+  string SHFlag;
+  if(SchaltenHeizen=="H"){
+    SHFlag="1";
+  }else{
+    SHFlag="0";
+  };
+
   !// Zugriff auf ChurchDesk iCal
   string cmd = "wget --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
   if(DEBUG){
@@ -166,34 +201,6 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       !// Termindaten fehlerhaft
       continue;
     }
-
-    !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
-    !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
-    string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
-    string RaumVar = RaumVarListe;
-    if (multiRaumVariante){
-      RaumVar=RaumVar.StrValueByIndex("+",0);
-    }
-    if (RaumName==""){
-      RaumName = RaumVarListe.Replace(vrp#"HKG-Raum-","");
-    }
-
-    object objVar = dom.GetObject(RaumVar);
-    if (!objVar){
-      !// Raumvariable nicht vorhanden
-      if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
-      if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
-      continue;
-    }
-
-    string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
-    string SHFlag;
-    if(SchaltenHeizen=="H"){
-      SHFlag="1";
-    }else{
-      SHFlag="0";
-    };
 
     !// Laufe über alle Termine. Wir müssen das Newline erhalten, damit wir alle Tokens finden..
     string termine = stdout.Substr(iPos,stdout.Length()-iPos).Replace("\nEND:VEVENT\n","\t\n");
@@ -249,7 +256,11 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       if (DEBUG){
         WriteLine("Beschreibung:" # strTemp);
       }
-
+      
+      if (DEBUG){
+        WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
+      }
+      
       !// Nun nach Sonderbefehlen suchen
       !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
       string cap = "0";

@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus iCal auszulesen
 !//================================================================================================
-!// Stand:    30.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -34,6 +34,8 @@
 !//
 !// Skript sollte alle 30min laufen
 !//
+
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-28 Komplettes Neuschreiben und Anpssen an neue Version
 !// MRi: 2025-11-24 MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
 
@@ -160,6 +162,10 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
   !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
   string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
   string RaumVar = RaumVarListe;
+  if (!RaumVarListe){
+    if (DEBUG) { WriteLine("Keine Raumzuordnung!"); }
+    continue;
+  }
   if (multiRaumVariante){
     RaumVar=RaumVar.StrValueByIndex("+",0);
   }
@@ -168,7 +174,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
   }
 
   object objVar = dom.GetObject(RaumVar);
-  if (!objVar){
+  if ((!RaumVar) || (!objVar)){
     !// Raumvariable nicht vorhanden
     if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
     if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
@@ -267,6 +273,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       WriteLine(endDatum.ToInteger().ToTime());
     }
 
+
     !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
     if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
       !// Termin liegt in der Zukunft
@@ -281,6 +288,10 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
         WriteLine("Termin liegt in der Vergangenheit");
       }
       continue;
+    }
+
+    if (DEBUG){
+      WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
     }
 
     !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung

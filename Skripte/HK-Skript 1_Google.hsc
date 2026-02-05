@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus Google auszulesen
 !//================================================================================================
-!// Stand:    30.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,6 +35,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-28 Komplettes Neuschreiben und Anpssen an neue Version
 
 !//Eingabe eines Namens Präfix
@@ -174,6 +175,10 @@ if (iPos<=0) {
     !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
     string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
     string RaumVar = RaumVarListe;
+    if (!RaumVarListe){
+      if (DEBUG) { WriteLine("Keine Raumzuordnung!"); }
+      continue;
+    }
     if (multiRaumVariante){
       RaumVar=RaumVar.StrValueByIndex("+",0);
     }
@@ -182,7 +187,7 @@ if (iPos<=0) {
     }
 
     object objVar = dom.GetObject(RaumVar);
-    if (!objVar){
+    if ((!RaumVar) || (!objVar)){
       !// Raumvariable nicht vorhanden
       if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
       if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
@@ -267,6 +272,10 @@ if (iPos<=0) {
           WriteLine("Termin liegt in der Vergangenheit");
         }
         continue;
+      }
+
+      if (DEBUG){
+        WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
       }
 
       !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung
