@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    31.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -26,6 +26,7 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript 
 !//
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 
 !//Eingabe eines Namens Präfix
@@ -200,9 +201,8 @@ foreach(SLEintrag,SListe){
   }
   AktSRName = AktSRName # " (" # AktSR # ")";
   if(DEBUG)  {WriteLine("AktSRName=" # AktSRName);}
-
   
-  !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste dirch + getrennt.
+  !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste durch + getrennt.
   if(multiRaumVariante){
     if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
     RVNListe=RVNListe.Split("+");

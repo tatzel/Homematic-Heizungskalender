@@ -1,6 +1,6 @@
 !// Heizkurven Log ausgeben
 !//================================================================================================
-!// Stand:    25.01.2026; 
+!// Stand:    04.02.2026; 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -36,6 +36,7 @@ string vrp="";
 
 string stdout;
 string stderr;
-system.Exec("grep \"" # vrp # "HK-LogHeizkurvenkontrolle\" /media/usb1/HK-*.log | sort",&stdout,&stderr);
+!// Keine Dateinamen ausgeben. Nur die Fundstellen
+system.Exec("grep -h \"" # vrp # "HK-LogHeizkurvenkontrolle\" /media/usb1/HK-*.log | sort",&stdout,&stderr);
 
 WriteLine(stdout);
