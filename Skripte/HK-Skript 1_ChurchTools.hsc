@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    26.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,6 +35,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
 !// MRi: 2025-12-10 Neue Sonderbefehle #GT# #NH# #NS#
@@ -206,6 +207,10 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.   
     string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
     string RaumVar = RaumVarListe;
+    if (!RaumVarListe){
+      if (DEBUG) { WriteLine("Keine Raumzuordnung!"); }
+      continue;
+    }
     if (multiRaumVariante){
       RaumVar=RaumVar.StrValueByIndex("+",0);
     }
@@ -214,7 +219,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     }
 
     object objVar = dom.GetObject(RaumVar);
-    if (!objVar){
+    if ((!RaumVar) || (!objVar)){
       !// Raumvariable nicht vorhanden
       if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
       if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
@@ -259,6 +264,10 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }
       continue;
     }
+
+    if (DEBUG){
+      WriteLine("Termin:\t" # resId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
+    }
     
     !// Beschreibung muss noch auf Tokens geprüft werden.
     !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
@@ -299,9 +308,9 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
             cap = "";
           }else{
             !// Nimm die Zahl, die hier kommt.
-            cap = strTemp.ToInteger();
+            cap = strTemp.ToFloat();
             if ((cap>0) && (cap<30)){
-              cap = cap.ToString();
+              cap = cap.ToString(1);
             }else{
               cap = "0";
             }

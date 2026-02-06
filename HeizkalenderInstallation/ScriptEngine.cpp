@@ -42,6 +42,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
 
     try
     {
+	    CWaitCursor wait;
         CInternetSession session(_T("HeizkalenderInstallation/1.0"));
         session.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, 5000);
         session.SetOption(INTERNET_OPTION_RECEIVE_TIMEOUT, 5000);
@@ -51,7 +52,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             session.GetHttpConnection(
                 theApp.m_strCCU_host,
                 0,
-                theApp.m_iCCU_port,
+                static_cast<INTERNET_PORT>(theApp.m_iCCU_port),
                 !theApp.m_strCCU_username.IsEmpty() || !theApp.m_strCCU_password.IsEmpty() ? theApp.m_strCCU_username.GetString() : nullptr,
                 !theApp.m_strCCU_username.IsEmpty() || !theApp.m_strCCU_password.IsEmpty() ? theApp.m_strCCU_password.GetString() : nullptr
             )

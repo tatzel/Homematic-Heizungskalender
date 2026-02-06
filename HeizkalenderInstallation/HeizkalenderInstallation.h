@@ -30,12 +30,14 @@
 #include "Data.h"
 
 // Modis für Skript 1
-enum ModeScript1 
+enum class ModeScript1 
 {
 	Unknown = 0,
 	ChurchToolsAPI = 1,
 	ChurchDeskAPI = 2,
 	ChurchDeskiCal = 3,
+	iCal = 4,
+	Google = 5,
 };
 
 #define HK1_SKRIPT_1		_T("HK-Skript 1")
@@ -71,7 +73,10 @@ public:
 
 	void ClearAll();
 	bool IsModeScript1Modified();
+	bool IsRaumListeModified();
 	bool IsDataModified();
+	bool IsProgramsModified();
+	bool IsSysVarsModified();
 	bool IsSysVarCompatibeWithModeScript1(CString const& strName, ModeScript1 mode);
 	bool LoadSystemVariablesFromCCU();
 	bool LoadProgramsFromCCU(const CString &strPrefix);

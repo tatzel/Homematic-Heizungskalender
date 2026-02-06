@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    25.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -26,6 +26,7 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript 
 !//
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 
 !//Eingabe eines Namens Präfix
@@ -40,7 +41,8 @@ boolean DEBUG=0;
 boolean multiRaumVariante=true;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
-!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+!// Mit 0 wird die Einstellung aus der HKx-Logging übernommen.
+!// log -1 macht hier keinen Sinn und beendet das Skript.
 integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
@@ -70,6 +72,8 @@ var loggingObj=dom.GetObject(vrp+"HK-LoggingHeizkurvenkontrolle");
 if (log<0) {
   !// Zwingend kein logging
   log = false;
+  if(DEBUG)  {WriteLine("Logging ist nicht aktiviert. Abbruch!!!");}
+  quit;
 } elseif (log==0) {
 !// Einstellung der Logging Variable prüfen
   if (loggingObj && loggingObj.State()!=0){
@@ -178,7 +182,7 @@ foreach(SLEintrag,SListe){
 
   if (!bGefunden){
     !//Wird keine Raumvariable gefunden wir brechen das Script komplett ab
-    if(log) {logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
+    logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");
     if(DEBUG)  {WriteLine(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
     continue;
   }  
@@ -197,9 +201,8 @@ foreach(SLEintrag,SListe){
   }
   AktSRName = AktSRName # " (" # AktSR # ")";
   if(DEBUG)  {WriteLine("AktSRName=" # AktSRName);}
-
   
-  !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste dirch + getrennt.
+  !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste durch + getrennt.
   if(multiRaumVariante){
     if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
     RVNListe=RVNListe.Split("+");
@@ -216,6 +219,7 @@ foreach(SLEintrag,SListe){
 
     !// Erzeuge einen Namen ohne prefixe
     string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
+    if(DEBUG)  {WriteLine("RVNName=" # RVNName);}
 
     !// Unser Skript macht nur Sinn für Modus Heizen
     HSFlag = RVI.StrValueByIndex(";",1)=="H";
@@ -290,11 +294,13 @@ foreach(SLEintrag,SListe){
     !// istTemperatur bestimmen, wir benutzen nur den ersten Aktor dafür
     real istTemperatur = GT;
     AktAktor = RVI.StrValueByIndex(";",6);
+    if(DEBUG) { WriteLine("AktAktor=" # AktAktor); }
     objAktor = dom.GetObject(AktAktor);
-    if (objAktor){
+    if (AktAktor && objAktor){
       istTemperatur = objAktor.DPByHssDP("ACTUAL_TEMPERATURE").State().ToFloat();
     }else{
       if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+      continue;
     }
     
     !// Neues maximum bestimmen

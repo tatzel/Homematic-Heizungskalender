@@ -2,13 +2,16 @@
 4324	HK-Logging	true	Flag um das Logging für Tools ein- und auszuschalten	2	true	true
 4336	HK-LoggingHeizkurvenkontrolle	true	Flag um das Logging für die Heizkurvenkontrolle ein- und auszuschalten	2	true	true
 4338	HK-LogHeizkurvenkontrolle		Variable um ein einfaches Log im System Protokoll zu erzeugen	20	true	true
+4340	HK-RäumeHeizkurvenkontrolle		Aktuelle Raumdaten in der Heizkurvenkontrlle	20	true	true
 4363	HK1-R-Liste		Zuordnung der Räume aus der Ressourcenverwaltung	20	true	true
 4361	HK1-Schaltliste		Schaltliste. Hier bitte nichts verändern!	20	true	true
 4365	HK1-CD-OrganisationsId		Organisations ID in ChurchDesk	20	true	true
 4367	HK1-CD-Token		API-Token für ChurchDesk	20	true	true
 4351	HK1-CT-Gemeindename		Name der Gemeinde in Churchtools	20	true	true
 4357	HK1-CT-Token		Sicherheitstoken für ChurchTools	20	true	true
-4340	HK-RäumeHeizkurvenkontrolle		Aktuelle Raumdaten in der Heizkurvenkontrlle	20	true	true
+6194	HK1-ICS-Url		URL des iCal Kalender	20	true	true
+6216	HK1-GK-API-Key		API-Key für den Google-Kalender	20	true	true
+6218	HK1-GK-Kalender-ID		ID des Google-Kalender	20	true	true
 4330	HK1-Log		Variable um ein einfaches Log im System Protokoll zu erzeugen	20	true	true
 4328	HK1-Logging	true	Flag um das Logging für Skript 1 ein- und auszuschalten	2	true	true
 4310	HK2-A.Temp.Grenze	19.000000	Außentemperatur-Grenzwert für das Heizen	4	true	true

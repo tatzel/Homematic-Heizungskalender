@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (API)
 !//================================================================================================
-!// Stand:    23.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -30,6 +30,7 @@
 !// "öffentlich" werden aktuell von der API zurückgegegeben.
 !// ***********************************************************************************************
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
 !// MRi: 2025-12-09 Anpassung an ChurchDesk API
@@ -202,9 +203,9 @@ if (stdout=="[]"){
             cap = "";
           }else{
             !// Nimm die Zahl, die hier kommt.
-            cap = strTemp.ToInteger();
+            cap = strTemp.ToFloat();
             if ((cap>0) && (cap<30)){
-              cap = cap.ToString();
+              cap = cap.ToString(1);
             }else{
               cap = "0";
             }
@@ -286,11 +287,17 @@ if (stdout=="[]"){
         continue;
       }
 
+      !// Zuerst Ramzuordnung ermitteln.
+      !// Ohne Raumzuordnung überspringen wir hier die Terminabfrage
       !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
       !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
       !// MRi: Nach meinem Dafürhalten ist diese Information in der Schaltliste redundant.
       string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
       string RaumVar = RaumVarListe;
+      if (!RaumVarListe){
+        if (DEBUG) { WriteLine("Keine Raumzuordnung!"); }
+        continue;
+      }
       if (multiRaumVariante){
         RaumVar=RaumVar.StrValueByIndex("+",0);
       }
@@ -299,7 +306,7 @@ if (stdout=="[]"){
       }
 
       object objVar = dom.GetObject(RaumVar);
-      if (!objVar){
+      if ((!RaumVar) || (!objVar)){
         !// Raumvariable nicht vorhanden
         if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
         if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }

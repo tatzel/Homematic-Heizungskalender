@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    26.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -34,6 +34,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-26 Sonderbefehle auch für das iCal Skript in der Terminbeschreibung
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
@@ -132,11 +133,48 @@ foreach(RIdEintrag,RIdListe.Split(";")){
   !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
   string RId = RIdEintrag.StrValueByIndex("=",0);
   string RaumName=RIdEintrag.StrValueByIndex("=",1);
+  if(DEBUG){
+    WriteLine("---------------------------------------------------------------------------------------");
+    WriteLine("Raum: " # RId # " / " # RaumName );
+  }
+
+  !// Zuerst Ramzuordnung ermitteln.
+  !// Ohne Raumzuordnung überspringen wir hier die Terminabfrage.
+  string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
+  string RaumVar = RaumVarListe;
+  if (!RaumVarListe){
+    if (DEBUG) { WriteLine("Keine Raumzuordnung!"); }
+    continue;
+  }
+  if (multiRaumVariante){
+    RaumVar=RaumVar.StrValueByIndex("+",0);
+  }
+  if (RaumName==""){
+    RaumName = RaumVarListe.Replace(vrp#"HKG-Raum-","");
+  }
+
+  object objVar = dom.GetObject(RaumVar);
+  if ((!RaumVar) || (!objVar)){
+    !// Raumvariable nicht vorhanden
+    if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+    if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
+    continue;
+  }
+
+  !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
+  !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
+  !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+  string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
+  string SHFlag;
+  if(SchaltenHeizen=="H"){
+    SHFlag="1";
+  }else{
+    SHFlag="0";
+  };
 
   !// Zugriff auf ChurchDesk iCal
   string cmd = "wget --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
   if(DEBUG){
-    WriteLine("---------------------------------------------------------------------------------------");
     WriteLine("Cmd:" # cmd);
   }
   string stdout;
@@ -164,36 +202,8 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       continue;
     }
 
-    !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
-    !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
-    string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
-    string RaumVar = RaumVarListe;
-    if (multiRaumVariante){
-      RaumVar=RaumVar.StrValueByIndex("+",0);
-    }
-    if (RaumName==""){
-      RaumName = RaumVarListe.Replace(vrp#"HKG-Raum-","");
-    }
-
-    object objVar = dom.GetObject(RaumVar);
-    if (!objVar){
-      !// Raumvariable nicht vorhanden
-      if(log) { logObj.State("Raumvariable " # RaumVar # " nicht vorhanden!"); }
-      if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
-      continue;
-    }
-
-    string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
-    string SHFlag;
-    if(SchaltenHeizen=="H"){
-      SHFlag="1";
-    }else{
-      SHFlag="0";
-    };
-
-    !// Laufe über alle Termine
-    string termine = stdout.Substr(iPos,stdout.Length()-iPos).Replace("\nEND:VEVENT\n","\t");
+    !// Laufe über alle Termine. Wir müssen das Newline erhalten, damit wir alle Tokens finden..
+    string termine = stdout.Substr(iPos,stdout.Length()-iPos).Replace("\nEND:VEVENT\n","\t\n");
     string termin;
     foreach(termin,termine){
       !// Schleife über all einzelnen Termine
@@ -209,22 +219,18 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       }
       startDatum=termin.Substr(iPos+9,13).Replace("T"," ");
       startDatum=startDatum.Substr(0,4)#"-"#startDatum.Substr(4,2)#"-"#startDatum.Substr(6,2)#" "#startDatum.Substr(9,2)#":"#startDatum.Substr(11,2);
-      if (DEBUG){
-        WriteLine(startDatum);
-      }
-      !WriteLine(startDatum.ToTime());
       startDatum=(startDatum.ToTime().ToInteger()+versatzGMT).ToString();
-      !WriteLine(startDatum.ToInteger().ToTime());
+      if (DEBUG){
+        WriteLine(startDatum.ToInteger().ToTime());
+      }
 
       iPos = termin.Find("\nDTEND:");
       endDatum=termin.Substr(iPos+7,13).Replace("T"," ");
       endDatum=endDatum.Substr(0,4)#"-"#endDatum.Substr(4,2)#"-"#endDatum.Substr(6,2)#" "#endDatum.Substr(9,2)#":"#endDatum.Substr(11,2);
-      if (DEBUG){
-        WriteLine(endDatum);
-      }
-      !WriteLine(endDatum.ToTime());
       endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
-      !WriteLine(endDatum.ToInteger().ToTime());
+      if (DEBUG){
+        WriteLine(endDatum.ToInteger().ToTime());
+      }
 
       !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
       if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
@@ -250,7 +256,11 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       if (DEBUG){
         WriteLine("Beschreibung:" # strTemp);
       }
-
+      
+      if (DEBUG){
+        WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
+      }
+      
       !// Nun nach Sonderbefehlen suchen
       !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
       string cap = "0";
@@ -280,9 +290,9 @@ foreach(RIdEintrag,RIdListe.Split(";")){
             cap = "";
           }else{
             !// Nimm die Zahl, die hier kommt.
-            cap = strTemp.ToInteger();
+            cap = strTemp.ToFloat();
             if ((cap>0) && (cap<30)){
-              cap = cap.ToString();
+              cap = cap.ToString(1);
             }else{
               cap = "0";
             }

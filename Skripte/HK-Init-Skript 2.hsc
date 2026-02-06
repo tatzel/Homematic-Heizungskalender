@@ -92,7 +92,7 @@ string vl=  ";" #
             "1;" #
             "0;" #
             "0;" #
-            "360,300,240,180,150,120,90,60";    !// Komma wird ersetzt durch Semikolon
+            "162,130,100,59,50,41,30,20;";    !// Komma wird ersetzt durch Semikolon
 
 !// Einheit (z.B. °C)
 string vu=  ";" #

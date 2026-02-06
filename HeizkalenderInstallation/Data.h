@@ -80,7 +80,8 @@ public:
 	CString m_strContentOld;
 	CString m_strDescription;
 	DataType m_dataType{ DataType::vtUnknown };
-	bool m_bProtocoll{false}, 
+	bool m_bModifiedName{false},
+		 m_bProtocoll{false}, 
 		 m_bVisible{false};		
 
 	// Funktionen

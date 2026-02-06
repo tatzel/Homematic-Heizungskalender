@@ -371,7 +371,7 @@ bool CEditBase::CreateSpinBtnCtrl(bool bInplace)
 
 	// Create the Button
 	CEditSpinButtonCtrl *pButton = new CEditSpinButtonCtrl(TRUE);
-	if (pButton->Create(WS_CHILD|UDS_WRAP|UDS_ARROWKEYS|(GetStyle() & WS_VISIBLE),rect,pParent,-1))
+	if (pButton->Create(WS_CHILD|UDS_WRAP|UDS_ARROWKEYS|(GetStyle() & WS_VISIBLE),rect,pParent,static_cast<UINT>(-1)))
 	{	
 		// Set Buddy if we set the buddy to this and, the edit control is the 
 		// parent of the Updown Control it will cause a crash in W2K on destroying
@@ -1188,45 +1188,29 @@ LPARAM CEditText::OnPaste(WPARAM /*wParam*/, LPARAM /*lParam*/)
 
 TCHAR CEditText::Filter(TCHAR c)
 {   	
+#ifdef _UNICODE
+	// Unicode Space berücksichtigen
+	if (IsUnicodeSpace(c))
+		c = _T(' ');
+#endif 
+
 	// If this character is explicitly not allowed we stop here.
 	// If it is allowed it must match the other styles too!
 	if (!m_strAllowedChars.IsEmpty() && m_strAllowedChars.Find(c)==-1)
 		// Character is not in the list.
 		return _T('\0');
+	// Check if disallowed char
+	if (m_strDisallowedChars.Find(c)!=-1)
+		// Character is in the list and not allowed.
+		return _T('\0');
+
+	// Check for special control chars. 
+	if (_tcschr(_T("\x7f\n\r\t\b\f\a"),c)!=NULL)
+		return _T('\0');
 
 	// Need Uppercase ?
 	if (IsCharAlpha(c) && (m_iEditType & fTypeUpperCase)!=0)
 		c = static_cast<TCHAR>(reinterpret_cast<DWORD_PTR>(CharUpper(reinterpret_cast<LPTSTR>((TCHAR)c))));
-
-	// Check for special control chars. They are not allowed for identifiers and 
-	// not allowed if they are blocked by a the style
-	if (m_iEditType & (fTypeIgnoreCtrlChar|fTypeIdentifier))
-	{
-		if (_tcschr(_T("\x7f\n\r\t\b\f\a"),c)!=NULL)
-			return _T('\0');
-	}
-
-	// Identifier
-	if (m_iEditType & fTypeIdentifier)
-	{
-		// everything is allowed except: \/\":*?<>|'.()[]
-		ASSERT((m_iEditType & fTypeAll)==0);
-		return IsValidIdentifierChar(c) ? c : _T('\0');		
-	}
-	// Name
-	if (m_iEditType & fTypeName)
-	{
-		// everything is allowed except: \/\":*?<>|'.()[]
-		ASSERT((m_iEditType & fTypeAll)==0);
-		return IsValidNameChar(c) ? c : _T('\0');		
-	}
-	// Filename
-	if (m_iEditType & fTypeFilename) 
-	{
-		// everything is allowed except: \/:*?<>|"
-		ASSERT((m_iEditType & fTypeAll)==0);
-		return IsValidFilenameChar(c) ? c : _T('\0');		
-	}
 
 	// check all others
 	if (_istascii(c) && _istspace(c))     
@@ -1280,7 +1264,7 @@ CString CEditText::Filter(PCTSTR pszStr)
 	while (l-- && pszStr) 
 	{
 		// Nimm das nächste Zeichen
-		if (c = Filter(*pszStr)) 
+		if ((c = Filter(*pszStr))!=0) 
 			*pBuff++ = c;
 		++pszStr;
 	}
@@ -1318,6 +1302,16 @@ void CEditText::SetAllowedCharList(PCTSTR pszAllowedChars)
 const CString &CEditText::GetAllowedCharList()
 {
 	return m_strAllowedChars;
+}
+
+void CEditText::SetDisallowedCharList(PCTSTR pszDisallowedChars)
+{
+	m_strDisallowedChars = pszDisallowedChars;
+}
+
+const CString &CEditText::GetDisallowedCharList()
+{
+	return m_strDisallowedChars;
 }
 
 void CEditText::InitControl()
