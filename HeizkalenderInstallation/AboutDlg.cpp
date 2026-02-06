@@ -57,7 +57,7 @@ BOOL CAboutDlg::OnInitDialog()
 	
 	CString strVersion, strMask;
 	GetDlgItemText(IDC_ST_VERSION,strMask);
-	strVersion.FormatMessage(strMask,theApp.m_strAppVersion, theApp.m_strScriptVersion);
+	strVersion.FormatMessage(strMask,theApp.m_strAppVersion.GetString(), theApp.m_strScriptVersion.GetString());
 	SetDlgItemText(IDC_ST_VERSION,strVersion);
 	SetDlgItemText(IDC_ST_COPYRIGHT,fvi.GetLegalCopyright());
 

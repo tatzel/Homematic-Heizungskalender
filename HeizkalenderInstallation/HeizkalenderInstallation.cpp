@@ -1164,7 +1164,7 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 			if (IsHex(strResult[iPos+4]) && IsHex(strResult[iPos+5]))
 			{
 				// Zeichen aus Hex kodieren und ersetzen
-				TCHAR c = (ToHex(strResult[iPos+4])<<4) | ToHex(strResult[iPos+5]);
+				TCHAR c = static_cast<TCHAR>((ToHex(strResult[iPos+4])<<4) | ToHex(strResult[iPos+5]));
 				strResult = strResult.Mid(0,iPos) + c + strResult.Mid(iPos+6); 
 			}
 		}
