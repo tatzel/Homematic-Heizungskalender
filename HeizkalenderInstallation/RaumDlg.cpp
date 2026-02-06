@@ -137,7 +137,7 @@ BOOL CRaumDlg::OnInitDialog()
 	SetWindowText(strTitle + m_raum.m_strName);
 
 	CString strMode{ CStringRes(IDS_RAUM_MODUS) }, str;
-	for (int i=0; !(str=StrValueByIndex(strMode,i,_T(';'))).IsEmpty(); ++i)
+	for (auto str : SplitString(strMode, _T(';')))
 	{
 		int n = m_cbMode.AddString(str);
 		if (n>=0)
@@ -153,7 +153,7 @@ BOOL CRaumDlg::OnInitDialog()
 	//		Kennung Kanal IP-Schalter-Aktoren-Gerätetyp (Kanal 1)
 	//		SW  Noch unerprobt
 	CString strDevTyp{ CStringRes(IDS_RAUM_DEVTYP) };
-	for (int i = 0; !(str = StrValueByIndex(strDevTyp, i, _T(';'))).IsEmpty(); ++i)
+	for (auto str : SplitString(strDevTyp,_T(';')))
 	{
 		int n = m_cbDevTyp.AddString(str);
 		if (n>=0)
@@ -163,7 +163,7 @@ BOOL CRaumDlg::OnInitDialog()
 		}
 	}	
 
-	m_edName.LimitText(25);
+	m_edName.LimitText(64);
 	m_edName.SetDisallowedCharList(UNERLAUBTE_ZEICHEN_FUER_RAEUME);	
 	m_edTemp.SetMinMax(0,30);
 	m_edTemp.SetPrecision(1);
@@ -212,7 +212,7 @@ void CRaumDlg::OnBnClickedBtTest()
 	// Es können mehrere Aktoren durch Semikolon getrennt werden
 	CString strAllMessages;
 	CString strCh;
-	for (int i=0; !(strCh=StrValueByIndex(strChannel,i,_T(';'))).IsEmpty(); ++i)
+	for (auto strCh : SplitString(strChannel, _T(';')))
 	{
 		// Suche den Channel
 		auto const* pDev = theApp.m_lstDevices.Find(strCh);

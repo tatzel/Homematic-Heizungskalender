@@ -82,7 +82,7 @@ BOOL CPageBase::OnApply()
 	else if (!theApp.m_lstPrograms.empty() || !theApp.m_lstSysVars.empty())
 	{
 		// Informaieren wenn da Daten waren und es ist nicht zu tun.
-		AfxMessageBox(IDP_CCU_NO_UPDATE);;
+		AfxMessageBox(IDP_CCU_NO_UPDATE);
 		// Wir löschen alles, weil wir wieder hier bei OnOK vorbeikommen und weil
 		// nun alle Listen leer sind, können wir das Programm sofort verlassen.
 		theApp.ClearAll();
@@ -216,9 +216,7 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 			CString strTemp, strId, strRaumListeNeu;
 			strTemp = strRaumListeAlt;
 			strTemp.Trim(UNERLAUBTE_ZEICHEN_FUER_RAEUME);
-			// Leere Abschnitte erstetzen durch einen Dummy
-			strTemp.Replace(_T(";;"), _T(";") + CStringRes(IDS_LEERER_NAME) + _T(";"));
-			for (int i = 0; !(strId = StrValueByIndex(strTemp, i, _T(';'))).IsEmpty(); ++i)
+			for (auto strId : SplitString(strTemp, _T(';')))
 			{
 				CString s1 = CleanupNameForRoom(StrValueByIndex(strId, 0, _T('='))),
 						s2 = CleanupNameForRoom(StrValueByIndex(strId, 1, _T('=')));
@@ -933,6 +931,7 @@ BEGIN_MESSAGE_MAP(CPageRooms, CPageBase)
 	ON_BN_CLICKED(IDC_BT_DELETE, &CPageRooms::OnBnClickedBtDelete)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LC_DATA, &CPageRooms::OnLvnItemchangedLcData)
 	ON_NOTIFY(NM_DBLCLK, IDC_LC_DATA, &CPageRooms::OnNMDblclkLcRooms)
+	ON_NOTIFY(LVN_KEYDOWN, IDC_LC_DATA, &CPageRooms::OnKeydownLcData)
 END_MESSAGE_MAP()
 
 void CPageRooms::EnableControls()
@@ -952,7 +951,7 @@ BOOL CPageRooms::OnSetActive()
 		pSheet->PostMessage(PSM_SETCURSEL,0);
 		return FALSE;
 	}
-	return __super::OnSetActive();;
+	return __super::OnSetActive();
 }
 
 void CPageRooms::DoDataExchange(CDataExchange* pDX)
@@ -982,7 +981,7 @@ void CPageRooms::DoDataExchange(CDataExchange* pDX)
 				UINT uiText = 0;
 				if (e.m_bNew)
 					uiText = IDS_NEW;
-				else if (e.m_bModified)
+				else if (e.m_bModified || e.m_bModifiedName)
 					uiText = IDS_UPDATE;
 				if (uiText)
 					m_lcData.SetItemText(n, COL_INFO, CStringRes(uiText));
@@ -1143,7 +1142,7 @@ void CPageRooms::OnBnClickedBtModify()
 
 	// Wenn es keinen Rename gab, die gleiche Zeile wieder selektieren
 	if (strRaumNameNeu==strRaumNameAlt)
-		m_lcData.SetItemState(nSel,LVIS_SELECTED, LVNI_SELECTED);
+		m_lcData.SetItemState(nSel,LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
 }
 
 void CPageRooms::OnBnClickedBtDelete()
@@ -1158,8 +1157,7 @@ void CPageRooms::OnBnClickedBtDelete()
 		return;
 
 	CString strMsg;
-	strMsg.FormatMessage(IDP_QUERY_DELETE_ROOM,theApp.RemoveRoomPrefix(pRaum->m_strName).GetString());	CString strRaumName { theApp.RemoveRoomPrefix(pRaum->m_strName) };
-	SRaumDaten raum{ strRaumName, pRaum->m_strContent };
+	strMsg.FormatMessage(IDP_QUERY_DELETE_ROOM,theApp.RemoveRoomPrefix(pRaum->m_strName).GetString());	
 	if (AfxMessageBox(strMsg,MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)!=IDYES)
 		return;
 
@@ -1178,7 +1176,17 @@ void CPageRooms::OnBnClickedBtDelete()
 
 	// Daten neu laden
 	UpdateData(FALSE);
-	m_lcData.SetItemState(max(0,nSel-1),LVIS_SELECTED, LVNI_SELECTED);
+	auto nMax = m_lcData.GetItemCount();
+	m_lcData.SetItemState(min(nSel,nMax-1),LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+	m_lcData.EnsureVisible(min(nSel,nMax-1),FALSE);
+}
+
+void CPageRooms::OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVKEYDOWN pLVKeyDow = reinterpret_cast<LPNMLVKEYDOWN>(pNMHDR);
+	if (pLVKeyDow->wVKey==VK_DELETE)
+		OnBnClickedBtDelete();
+	*pResult = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1227,7 +1235,7 @@ void CPageSysvar::DoDataExchange(CDataExchange* pDX)
 				UINT uiText=0;
 				if (e.m_bNew)
 					uiText = IDS_NEW;
-				else if (e.m_bModified)
+				else if (e.m_bModified || e.m_bModifiedName)
 					uiText = IDS_UPDATE;
 				if (uiText)
 					m_lcData.SetItemText(n,COL_INFO,CStringRes(uiText));
@@ -1310,6 +1318,10 @@ BEGIN_MESSAGE_MAP(CPageResources, CPageBase)
 	ON_BN_CLICKED(IDC_BT_MODIFY, &CPageResources::OnBnClickedBtModify)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LC_DATA, &CPageResources::OnLvnItemchangedLcRooms)
 	ON_NOTIFY(NM_DBLCLK, IDC_LC_DATA, &CPageResources::OnNMDblclkLcRooms)
+	ON_BN_CLICKED(IDC_BT_DELETE, &CPageResources::OnBnClickedBtDelete)
+	ON_NOTIFY(LVN_KEYDOWN, IDC_LC_DATA, &CPageResources::OnKeydownLcData)
+//	ON_NOTIFY(HDN_ITEMDBLCLICK, 0, &CPageResources::OnItemdblclickLcData)
+	ON_NOTIFY(HDN_ITEMCLICK, 0, &CPageResources::OnItemclickLcData)
 END_MESSAGE_MAP()
 
 void CPageResources::EnableControls()
@@ -1328,7 +1340,7 @@ BOOL CPageResources::OnSetActive()
 		pSheet->PostMessage(PSM_SETCURSEL,0);
 		return FALSE;
 	}
-	return __super::OnSetActive();;
+	return __super::OnSetActive();
 }
 
 static int CALLBACK SortFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
@@ -1336,7 +1348,12 @@ static int CALLBACK SortFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 	auto const &pData1 = reinterpret_cast<CMapRaumListe::value_type*>(lParam1);
 	auto const &pData2 = reinterpret_cast<CMapRaumListe::value_type*>(lParam2);
 
-	return ::StrCmpLogicalW(pData1->first,pData2->first);
+	if (lParamSort==CPageResources::COL_ID)
+		return ::StrCmpLogicalW(pData1->first,pData2->first);
+	else if (lParamSort==CPageResources::COL_NAME)
+		return ::StrCmpLogicalW(pData1->second.m_strResourceName,pData2->second.m_strResourceName);
+	else 
+		return ::StrCmpLogicalW(ListToString(pData1->second.m_lstRaeume,_T(";")), ListToString(pData2->second.m_lstRaeume,_T(";")));
 }
 
 void CPageResources::DoDataExchange(CDataExchange* pDX)
@@ -1347,24 +1364,22 @@ void CPageResources::DoDataExchange(CDataExchange* pDX)
 	{
 		m_lcData.DeleteAllItems();
 
-		CMapRaumListe mapRaeume;
-		theApp.LoadRoomMapFromSysVars(mapRaeume);
+		theApp.LoadRoomMapFromSysVars(m_mapRaeume);
 		
-		for (auto const& e : mapRaeume)
+		for (auto const& e : m_mapRaeume)
 		{
 			int n = m_lcData.InsertItem(m_lcData.GetItemCount(), e.first);
 			if (n>=0)
 			{
+				// Ist für das Sortieren nötig
 				m_lcData.SetItemData(n,reinterpret_cast<DWORD_PTR>(&e));
 				m_lcData.SetItemText(n, COL_NAME, e.second.m_strResourceName);
 				auto const &lst = e.second.m_lstRaeume;
-				CString strRaeume;
-				for (auto const &r : lst)
-					AppendTextWithDelimiter(strRaeume, theApp.RemoveRoomPrefix(r), _T("; "));
+				CString strRaeume{ ListToString(lst,_T("; ")) };
 				m_lcData.SetItemText(n, COL_ROOMS, strRaeume);
 			}
 		}
-		m_lcData.SortItems(SortFunc, 0);
+		m_lcData.SortItems(SortFunc, COL_ID);
 	}
 
 	DDX_Control(pDX, IDC_LC_DATA, m_lcData);
@@ -1414,6 +1429,32 @@ void CPageResources::OnLvnItemchangedLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
+}
+
+void CPageResources::OnBnClickedBtDelete()
+{
+	int nSel = m_lcData.GetNextItem(-1, LVNI_SELECTED);
+	if (nSel<0)
+		return;
+
+	CString strMsg, strRes, strName;
+	strRes = m_lcData.GetItemText(nSel, COL_ID);
+	strName = m_lcData.GetItemText(nSel, COL_NAME);
+
+	strMsg.FormatMessage(IDP_QUERY_DELETE_RESOURCE,strRes.GetString(),strName.GetString());	
+	if (AfxMessageBox(strMsg,MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)!=IDYES)
+		return;
+
+	CMapRaumListe mapRaumListe;
+	theApp.LoadRoomMapFromSysVars(mapRaumListe);
+	mapRaumListe.erase(strRes);
+	theApp.SaveRoomMapToSysVars(mapRaumListe);
+
+	// Anzeige aktualisieren
+	UpdateData(FALSE);
+	auto nMax = m_lcData.GetItemCount();
+	m_lcData.SetItemState(min(nSel,nMax-1),LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+	m_lcData.EnsureVisible(min(nSel,nMax-1),FALSE);
 }
 
 void CPageResources::OnBnClickedBtModify()
@@ -1467,6 +1508,25 @@ void CPageResources::OnBnClickedBtModify()
 
 	// Alles neu laden
 	UpdateData(FALSE);
-	m_lcData.SetItemState(nSel,LVIS_SELECTED, LVNI_SELECTED);
+	m_lcData.SetItemState(nSel,LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
 }
 
+void CPageResources::OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVKEYDOWN pLVKeyDow = reinterpret_cast<LPNMLVKEYDOWN>(pNMHDR);
+	if (pLVKeyDow->wVKey==VK_DELETE)
+		OnBnClickedBtDelete();
+	*pResult = 0;
+}
+
+
+
+void CPageResources::OnItemclickLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
+	if (phdr->iItem==COL_NAME || phdr->iItem==COL_ID || phdr->iItem==COL_ROOMS)
+	{
+		m_lcData.SortItems(SortFunc,phdr->iItem);
+	}
+	*pResult = 0;
+}

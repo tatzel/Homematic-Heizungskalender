@@ -99,6 +99,8 @@
 #define IDP_SYSVARS_KONTROLLIEREN       170
 #define IDP_RAUMLISTE_KONTROLLIEREN     171
 #define IDS_LEERER_NAME                 172
+#define IDP_QUERY_DELETE_ROOM2          173
+#define IDP_QUERY_DELETE_RESOURCE       173
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001
