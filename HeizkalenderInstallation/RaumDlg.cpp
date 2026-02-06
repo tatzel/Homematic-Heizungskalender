@@ -136,7 +136,7 @@ BOOL CRaumDlg::OnInitDialog()
 	GetWindowText(strTitle);
 	SetWindowText(strTitle + m_raum.m_strName);
 
-	CString strMode{ CStringRes(IDS_RAUM_MODUS) }, str;
+	CString strMode{ CStringRes(IDS_RAUM_MODUS) };
 	for (auto str : SplitString(strMode, _T(';')))
 	{
 		int n = m_cbMode.AddString(str);
@@ -211,7 +211,6 @@ void CRaumDlg::OnBnClickedBtTest()
 
 	// Es können mehrere Aktoren durch Semikolon getrennt werden
 	CString strAllMessages;
-	CString strCh;
 	for (auto strCh : SplitString(strChannel, _T(';')))
 	{
 		// Suche den Channel
@@ -273,7 +272,7 @@ if (!ch){
 			}
 			strMsg.FormatMessage(bModeHeizen ? IDP_TEST_AKTOR_HEIZEN : IDP_TEST_AKTOR_SCHALTEN,
 				strCh.GetString(), 
-				strResult1, strResult2
+				strResult1.GetString(), strResult2.GetString()
 			);
 			AppendTextWithDelimiter(strAllMessages,strMsg,_T("\n\n"));
 		}
@@ -334,7 +333,7 @@ void CRaumDlg::OnOK()
 		if (theApp.m_lstSysVars.Find(theApp.AddRoomPrefix(m_raum.m_strName)))
 		{
 			CString strMsg;
-			strMsg.FormatMessage(IDP_RAUM_NAME_EXISTIERT, m_raum.m_strName);
+			strMsg.FormatMessage(IDP_RAUM_NAME_EXISTIERT, m_raum.m_strName.GetString());
 			AfxMessageBox(strMsg);
 			return;
 		}

@@ -30,4 +30,9 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
+// warning C4100: 'lParam': unreferenced parameter
+#pragma warning(disable : 4100)
+// warning C4456: declaration of 'pName' hides previous local declaration
+#pragma warning(disable : 4456)
+
 #endif //PCH_H

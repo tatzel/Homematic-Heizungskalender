@@ -371,7 +371,7 @@ bool CEditBase::CreateSpinBtnCtrl(bool bInplace)
 
 	// Create the Button
 	CEditSpinButtonCtrl *pButton = new CEditSpinButtonCtrl(TRUE);
-	if (pButton->Create(WS_CHILD|UDS_WRAP|UDS_ARROWKEYS|(GetStyle() & WS_VISIBLE),rect,pParent,-1))
+	if (pButton->Create(WS_CHILD|UDS_WRAP|UDS_ARROWKEYS|(GetStyle() & WS_VISIBLE),rect,pParent,static_cast<UINT>(-1)))
 	{	
 		// Set Buddy if we set the buddy to this and, the edit control is the 
 		// parent of the Updown Control it will cause a crash in W2K on destroying
@@ -1264,7 +1264,7 @@ CString CEditText::Filter(PCTSTR pszStr)
 	while (l-- && pszStr) 
 	{
 		// Nimm das nächste Zeichen
-		if (c = Filter(*pszStr)) 
+		if ((c = Filter(*pszStr))!=0) 
 			*pBuff++ = c;
 		++pszStr;
 	}

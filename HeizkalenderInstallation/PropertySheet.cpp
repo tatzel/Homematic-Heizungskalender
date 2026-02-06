@@ -29,7 +29,6 @@
 
 BOOL CPageBase::OnQueryCancel()
 {
-	bool bDataModified = false;
 	// Prüfe auf Datenänderungen
 	if (!theApp.IsDataModified())
 		return TRUE;
@@ -296,7 +295,7 @@ BOOL CPageConnect::OnInitDialog()
 
 	CString strMask, strText;
 	GetDlgItemText(IDC_ST_VERSION,strMask);
-	strText.FormatMessage(strMask, theApp.m_strAppVersion, theApp.m_strScriptVersion);
+	strText.FormatMessage(strMask, theApp.m_strAppVersion.GetString(), theApp.m_strScriptVersion.GetString());
 	SetDlgItemText(IDC_ST_VERSION,strText);
 
 	// Alle COntrols disdablen
@@ -828,7 +827,7 @@ BOOL CPagePrograms::OnInitDialog()
 
 void CPagePrograms::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
 }
@@ -913,7 +912,7 @@ void CPagePrograms::OnBnClickedBtWinmerge()
 
 void CPagePrograms::OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtWinmerge();
 	*pResult = 0;
 }
@@ -1033,16 +1032,14 @@ BOOL CPageRooms::OnInitDialog()
 
 void CPageRooms::OnNMDblclkLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtModify();
-
 	*pResult = 0;
 }
 
 void CPageRooms::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
 }
@@ -1295,14 +1292,14 @@ void CPageSysvar::OnBnClickedBtInfo()
 
 void CPageSysvar::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
 }
 
 void CPageSysvar::OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtInfo();
 	*pResult = 0;
 }
@@ -1419,14 +1416,14 @@ BOOL CPageResources::OnInitDialog()
 
 void CPageResources::OnNMDblclkLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtModify();
 	*pResult = 0;
 }
 
 void CPageResources::OnLvnItemchangedLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
 }

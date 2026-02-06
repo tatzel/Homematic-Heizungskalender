@@ -52,7 +52,7 @@ int NumberOfStrValues(PCTSTR pszStr, TCHAR chSep)
 		return 0;
 	// Separatoren zählen. Damit haben wir mindestens einen substr
 	int iCount = 1;
-	while (pszStr = _tcschr(pszStr, chSep))
+	while ((pszStr = _tcschr(pszStr, chSep))!=nullptr)
 		++iCount;
 	return iCount;
 }
