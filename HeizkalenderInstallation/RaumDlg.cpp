@@ -136,8 +136,8 @@ BOOL CRaumDlg::OnInitDialog()
 	GetWindowText(strTitle);
 	SetWindowText(strTitle + m_raum.m_strName);
 
-	CString strMode{ CStringRes(IDS_RAUM_MODUS) }, str;
-	for (int i=0; !(str=StrValueByIndex(strMode,i,_T(';'))).IsEmpty(); ++i)
+	CString strMode{ CStringRes(IDS_RAUM_MODUS) };
+	for (auto str : SplitString(strMode, _T(';')))
 	{
 		int n = m_cbMode.AddString(str);
 		if (n>=0)
@@ -153,7 +153,7 @@ BOOL CRaumDlg::OnInitDialog()
 	//		Kennung Kanal IP-Schalter-Aktoren-Gerätetyp (Kanal 1)
 	//		SW  Noch unerprobt
 	CString strDevTyp{ CStringRes(IDS_RAUM_DEVTYP) };
-	for (int i = 0; !(str = StrValueByIndex(strDevTyp, i, _T(';'))).IsEmpty(); ++i)
+	for (auto str : SplitString(strDevTyp,_T(';')))
 	{
 		int n = m_cbDevTyp.AddString(str);
 		if (n>=0)
@@ -163,7 +163,8 @@ BOOL CRaumDlg::OnInitDialog()
 		}
 	}	
 
-	m_edName.LimitText(25);
+	m_edName.LimitText(64);
+	m_edName.SetDisallowedCharList(UNERLAUBTE_ZEICHEN_FUER_RAEUME);	
 	m_edTemp.SetMinMax(0,30);
 	m_edTemp.SetPrecision(1);
 	m_edTemp.CreateSpinBtnCtrl();
@@ -210,8 +211,7 @@ void CRaumDlg::OnBnClickedBtTest()
 
 	// Es können mehrere Aktoren durch Semikolon getrennt werden
 	CString strAllMessages;
-	CString strCh;
-	for (int i=0; !(strCh=StrValueByIndex(strChannel,i,_T(';'))).IsEmpty(); ++i)
+	for (auto strCh : SplitString(strChannel, _T(';')))
 	{
 		// Suche den Channel
 		auto const* pDev = theApp.m_lstDevices.Find(strCh);
@@ -272,7 +272,7 @@ if (!ch){
 			}
 			strMsg.FormatMessage(bModeHeizen ? IDP_TEST_AKTOR_HEIZEN : IDP_TEST_AKTOR_SCHALTEN,
 				strCh.GetString(), 
-				strResult1, strResult2
+				strResult1.GetString(), strResult2.GetString()
 			);
 			AppendTextWithDelimiter(strAllMessages,strMsg,_T("\n\n"));
 		}
@@ -333,7 +333,7 @@ void CRaumDlg::OnOK()
 		if (theApp.m_lstSysVars.Find(theApp.AddRoomPrefix(m_raum.m_strName)))
 		{
 			CString strMsg;
-			strMsg.FormatMessage(IDP_RAUM_NAME_EXISTIERT, m_raum.m_strName);
+			strMsg.FormatMessage(IDP_RAUM_NAME_EXISTIERT, m_raum.m_strName.GetString());
 			AfxMessageBox(strMsg);
 			return;
 		}

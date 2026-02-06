@@ -29,7 +29,6 @@
 
 BOOL CPageBase::OnQueryCancel()
 {
-	bool bDataModified = false;
 	// Prüfe auf Datenänderungen
 	if (!theApp.IsDataModified())
 		return TRUE;
@@ -43,7 +42,28 @@ BOOL CPageBase::OnApply()
 	// bevor der Dialog geschlossen wird.
 	if (theApp.IsDataModified())
 	{
-		// SOllen die Änderungen wirklich ausgeführt werden?
+		// Prüfe ob alle Seiten besucht wurden. Wenn es Änderngen gab, diese sollten nie unkontrolliert	bleiben.
+		auto *pParent = STATIC_DOWNCAST(CInstallationsWizard,GetParent());
+		if (theApp.IsRaumListeModified() && !pParent->m_pageRooms.m_bSeiteBesucht)
+		{
+			AfxMessageBox(IDP_RAUMLISTE_KONTROLLIEREN);
+			pParent->SetActivePage(&pParent->m_pageResources);
+			return FALSE;
+		}
+		if (theApp.IsProgramsModified() && !pParent->m_pagePrograms.m_bSeiteBesucht)
+		{
+			AfxMessageBox(IDP_PROGRAMME_KONTROLLIEREN);
+			pParent->SetActivePage(&pParent->m_pagePrograms);
+			return FALSE;
+		}
+		if (theApp.IsSysVarsModified() && !pParent->m_pageSysVar.m_bSeiteBesucht)
+		{
+			AfxMessageBox(IDP_SYSVARS_KONTROLLIEREN);
+			pParent->SetActivePage(&pParent->m_pageSysVar);
+			return FALSE;
+		}
+
+		// Sollen die Änderungen wirklich ausgeführt werden?
 		if (AfxMessageBox(theApp.m_bSimulation ? IDP_QUERY_UPDATE_SIMUATION : IDP_QUERY_UPDATE_CCU,MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)==IDYES)
 		{
 			if (theApp.m_bSimulation)
@@ -61,12 +81,18 @@ BOOL CPageBase::OnApply()
 	else if (!theApp.m_lstPrograms.empty() || !theApp.m_lstSysVars.empty())
 	{
 		// Informaieren wenn da Daten waren und es ist nicht zu tun.
-		AfxMessageBox(IDP_CCU_NO_UPDATE);;
+		AfxMessageBox(IDP_CCU_NO_UPDATE);
 		// Wir löschen alles, weil wir wieder hier bei OnOK vorbeikommen und weil
 		// nun alle Listen leer sind, können wir das Programm sofort verlassen.
 		theApp.ClearAll();
 	}
 	return TRUE;
+}
+
+BOOL CPageBase::OnSetActive()
+{
+	m_bSeiteBesucht = true;
+	return __super::OnSetActive();
 }
 
 //-----------------------------------------------------------------------------
@@ -151,6 +177,10 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ED_LOGINTOKEN, m_edCTLoginToken);
 	DDX_Control(pDX, IDC_ED_ORGAID, m_edCDOrgaId);
 	DDX_Control(pDX, IDC_ED_APITOKEN, m_edCDApiToken);
+	DDX_Control(pDX, IDC_ED_ICALURL, m_ediCalUrl);
+	DDX_Control(pDX, IDC_ED_GOOGLE_APIKEY, m_edGoogleApiKey);
+	DDX_Control(pDX, IDC_ED_GOOGLE_KALID, m_edGoogleKalId);
+	DDX_Control(pDX, IDC_ED_RAUMLISTE, m_edRaumListe);
 	DDX_Text(pDX, IDC_ED_HOST, theApp.m_strCCU_host);
 	DDX_Text(pDX, IDC_ED_USERNAME, theApp.m_strCCU_username);
 	DDX_Text(pDX, IDC_ED_PASSWORD, theApp.m_strCCU_password);
@@ -164,11 +194,43 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 		}
 		const aVarListText[] =
 		{
-			IDC_ED_CHURCHNAME,	_T("HK1-CT-Gemeindename"), 
-			IDC_ED_LOGINTOKEN,	_T("HK1-CT-Token"),
-			IDC_ED_ORGAID,		_T("HK1-CD-OrganisationsId"),
-			IDC_ED_APITOKEN,	_T("HK1-CD-Token"),
+			IDC_ED_CHURCHNAME,		_T("HK1-CT-Gemeindename"), 
+			IDC_ED_LOGINTOKEN,		_T("HK1-CT-Token"),
+			IDC_ED_ORGAID,			_T("HK1-CD-OrganisationsId"),
+			IDC_ED_APITOKEN,		_T("HK1-CD-Token"),
+			IDC_ED_ICALURL,			_T("HK1-ICS-Url"),
+			IDC_ED_GOOGLE_APIKEY,	_T("HK1-GK-API-Key"),
+			IDC_ED_GOOGLE_KALID,	_T("HK1-GK-Kalender-ID"),
+			IDC_ED_RAUMLISTE,		_T("HK1-R-Liste"),
 		};
+		// Wenn wir eine RaumListe haben, dann müssen wir die Validieren.
+		if (pDX->m_bSaveAndValidate && m_edRaumListe.IsWindowVisible())
+		{
+			// Überprüfe das format der eingegebenen Raumliste
+			pDX->PrepareEditCtrl(IDC_ED_RAUMLISTE);
+			CString strRaumListeAlt;
+			GetDlgItemText(IDC_ED_RAUMLISTE, strRaumListeAlt);
+
+			// Leere Namen sind nicht erlaubt.
+			CString strTemp, strId, strRaumListeNeu;
+			strTemp = strRaumListeAlt;
+			strTemp.Trim(UNERLAUBTE_ZEICHEN_FUER_RAEUME);
+			for (auto strId : SplitString(strTemp, _T(';')))
+			{
+				CString s1 = CleanupNameForRoom(StrValueByIndex(strId, 0, _T('='))),
+						s2 = CleanupNameForRoom(StrValueByIndex(strId, 1, _T('=')));
+				if (!s2.IsEmpty())
+					AppendTextWithDelimiter(s1,s2,_T("="));
+				AppendTextWithDelimiter(strRaumListeNeu, s1, _T(';'));
+			}
+			if (strRaumListeNeu.IsEmpty() || strRaumListeAlt!=strRaumListeNeu)
+			{
+				SetDlgItemText(IDC_ED_RAUMLISTE, strRaumListeNeu);
+				AfxMessageBox(IDP_RAUMLISTE_UNGUELTIG);
+				pDX->Fail();        // throws exception
+			}
+		}
+		// Process text fields
 		for (auto const& e : aVarListText)
 		{
 			if (theApp.m_bConnected && GetDlgItem(e.m_uiId)->IsWindowVisible())
@@ -189,34 +251,80 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 
 }
 
+static UINT auiCtrlsChurchTools[] = 
+{ 
+	IDC_ST_CHURCHTOOL1, IDC_ED_CHURCHNAME, IDC_ST_CHURCHTOOL2, IDC_ED_LOGINTOKEN, IDC_BT_READRES, 0
+};
+static UINT auiCtrlsChurchDesk[] = 
+{ 
+	IDC_ST_CHURCHDESK1, IDC_ED_ORGAID, IDC_ST_CHURCHDESK2, IDC_ED_APITOKEN, IDC_BT_READRES, 0
+};
+static UINT auiCtrlsiCal[] = 
+{ 
+	IDC_ST_ICALURL, IDC_ED_ICALURL, IDC_ST_RAUMLISTE, IDC_ED_RAUMLISTE, IDC_BT_READRES, 0
+};
+static UINT auiCtrlsGoogle[] = 
+{ 
+	IDC_ST_GOOGLE1, IDC_ED_GOOGLE_APIKEY, IDC_ST_GOOGLE2, IDC_ED_GOOGLE_KALID, IDC_ST_RAUMLISTE, IDC_ED_RAUMLISTE, IDC_BT_READRES, 0
+};
+
+struct {
+	ModeScript1 m_mode;
+	UINT const	*m_puiCtrls;
+} const aCtrlsForModes[] = {
+	ModeScript1::ChurchToolsAPI,	auiCtrlsChurchTools,
+	ModeScript1::ChurchDeskAPI,		auiCtrlsChurchDesk,
+	ModeScript1::ChurchDeskiCal,	auiCtrlsChurchDesk,
+	ModeScript1::Google,			auiCtrlsGoogle,
+	ModeScript1::iCal,				auiCtrlsiCal,
+};
+
+
 BOOL CPageConnect::OnInitDialog()
 {
 	CPageBase::OnInitDialog();
 
 	m_cbScript1Mode.EnableWindow(FALSE);
 
+	// Keine Leerzeichen für Raumliste erlauben
+	m_edRaumListe.SetEditType(CEditText::fTypeNumeric | CEditText::fTypeAlpha | CEditText::fTypePunct | CEditText::fTypeUnderscore);
+	CString strDisallowedChars{ UNERLAUBTE_ZEICHEN_FUER_RAEUME };
+	strDisallowedChars.Remove(_T('='));
+	strDisallowedChars.Remove(_T(';')); 
+	m_edRaumListe.SetDisallowedCharList(strDisallowedChars);
+
 	CString strMask, strText;
 	GetDlgItemText(IDC_ST_VERSION,strMask);
-	strText.FormatMessage(strMask, theApp.m_strAppVersion, theApp.m_strScriptVersion);
+	strText.FormatMessage(strMask, theApp.m_strAppVersion.GetString(), theApp.m_strScriptVersion.GetString());
 	SetDlgItemText(IDC_ST_VERSION,strText);
+
+	// Alle COntrols disdablen
+	for (auto const& e : aCtrlsForModes)
+	{
+		for (auto const *p = e.m_puiCtrls; *p; ++p)
+		{
+			CWnd* pWnd = GetDlgItem(*p);
+			pWnd->EnableWindow(FALSE);
+			pWnd->ShowWindow(SW_HIDE);
+		}
+	}
 
 	// Fill combo box
 	struct {
 		ModeScript1 m_mode;
 		UINT	m_uiIdText;
-	} aListModes[] = {
-		ModeScript1::ChurchToolsAPI,
-		IDS_MODE_CHURCHTOOLS,
-		ModeScript1::ChurchDeskAPI,
-		IDS_MODE_CHURCHDESK_API,
-		ModeScript1::ChurchDeskiCal,
-		IDS_MODE_CHURCHDESK_ICAL,
+	} aListModesForCombo[] = {
+		ModeScript1::ChurchToolsAPI,	IDS_MODE_CHURCHTOOLS,
+		ModeScript1::ChurchDeskAPI,		IDS_MODE_CHURCHDESK_API,
+		ModeScript1::ChurchDeskiCal,	IDS_MODE_CHURCHDESK_ICAL,
+		ModeScript1::iCal,				IDS_MODE_ICAL,
+		ModeScript1::Google,			IDS_MODE_GOOGLE,
 	};
-	for (auto const& e : aListModes)
+	for (auto const& e : aListModesForCombo)
 	{
 		auto n = m_cbScript1Mode.AddString(CStringRes(e.m_uiIdText));
 		if (n>=0)
-			m_cbScript1Mode.SetItemData(n,e.m_mode);
+			m_cbScript1Mode.SetItemData(n,static_cast<int>(e.m_mode));
 	}
 
 	// Falls dies eine Simulation ist eine Warnung anzeigen.
@@ -229,28 +337,6 @@ BOOL CPageConnect::OnInitDialog()
 	}
 	return TRUE;  
 }
-
-static UINT uiArrayChurchTools[] = 
-{ 
-	IDC_ST_CHURCHTOOL1, IDC_ST_CHURCHTOOL2, IDC_ED_CHURCHNAME, IDC_ED_LOGINTOKEN, IDC_BT_READRES, 0
-};
-static UINT uiArrayChurchDesk[] = 
-{ 
-	IDC_ST_CHURCHDESK1, IDC_ST_CHURCHDESK2, IDC_ED_ORGAID, IDC_ED_APITOKEN, IDC_BT_READRES, 0
-};
-
-struct {
-	ModeScript1 m_mode;
-	UINT const	*m_puiCtrls;
-} const aListModes[] = {
-	ModeScript1::ChurchToolsAPI,
-	uiArrayChurchTools,
-	ModeScript1::ChurchDeskAPI,
-	uiArrayChurchDesk,
-	ModeScript1::ChurchDeskiCal,
-	uiArrayChurchDesk,
-};
-
 
 BOOL CPageConnect::OnKillActive()
 {
@@ -284,7 +370,7 @@ void SwitchToMode(CComboBox& cb, ModeScript1 mode)
 {
 	for (int i = 0, n = cb.GetCount(); i<n; ++i)
 	{
-		if (cb.GetItemData(i)==theApp.m_modeScript1)
+		if (cb.GetItemData(i)==static_cast<int>(theApp.m_modeScript1))
 		{
 			cb.SetCurSel(i);
 			return;
@@ -310,7 +396,7 @@ void CPageConnect::OnCbnSelchangeCbMode()
 	std::set<UINT> setCtrls;
 	UINT const *pCtrlsNew=nullptr;
 	UINT const *pCtrlsOld=nullptr;
-	for (auto const &e : aListModes)
+	for (auto const &e : aCtrlsForModes)
 	{
 		if (e.m_mode==newMode)
 			pCtrlsNew = e.m_puiCtrls;
@@ -436,7 +522,7 @@ void CPageConnect::OnBnClickedBtConnect()
 	theApp.m_modeScript1 = theApp.m_modeScript1Installed;
 	for (int i = 0, n = m_cbScript1Mode.GetCount(); i<n; ++i)
 	{
-		if (m_cbScript1Mode.GetItemData(i)==theApp.m_modeScript1Installed)
+		if (m_cbScript1Mode.GetItemData(i)==static_cast<int>(theApp.m_modeScript1Installed))
 		{
 			m_cbScript1Mode.SetCurSel(i);
 			break;
@@ -741,7 +827,7 @@ BOOL CPagePrograms::OnInitDialog()
 
 void CPagePrograms::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
 }
@@ -826,7 +912,7 @@ void CPagePrograms::OnBnClickedBtWinmerge()
 
 void CPagePrograms::OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtWinmerge();
 	*pResult = 0;
 }
@@ -844,6 +930,7 @@ BEGIN_MESSAGE_MAP(CPageRooms, CPageBase)
 	ON_BN_CLICKED(IDC_BT_DELETE, &CPageRooms::OnBnClickedBtDelete)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LC_DATA, &CPageRooms::OnLvnItemchangedLcData)
 	ON_NOTIFY(NM_DBLCLK, IDC_LC_DATA, &CPageRooms::OnNMDblclkLcRooms)
+	ON_NOTIFY(LVN_KEYDOWN, IDC_LC_DATA, &CPageRooms::OnKeydownLcData)
 END_MESSAGE_MAP()
 
 void CPageRooms::EnableControls()
@@ -863,7 +950,7 @@ BOOL CPageRooms::OnSetActive()
 		pSheet->PostMessage(PSM_SETCURSEL,0);
 		return FALSE;
 	}
-	return __super::OnSetActive();;
+	return __super::OnSetActive();
 }
 
 void CPageRooms::DoDataExchange(CDataExchange* pDX)
@@ -893,7 +980,7 @@ void CPageRooms::DoDataExchange(CDataExchange* pDX)
 				UINT uiText = 0;
 				if (e.m_bNew)
 					uiText = IDS_NEW;
-				else if (e.m_bModified)
+				else if (e.m_bModified || e.m_bModifiedName)
 					uiText = IDS_UPDATE;
 				if (uiText)
 					m_lcData.SetItemText(n, COL_INFO, CStringRes(uiText));
@@ -945,16 +1032,14 @@ BOOL CPageRooms::OnInitDialog()
 
 void CPageRooms::OnNMDblclkLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtModify();
-
 	*pResult = 0;
 }
 
 void CPageRooms::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
 }
@@ -1054,7 +1139,7 @@ void CPageRooms::OnBnClickedBtModify()
 
 	// Wenn es keinen Rename gab, die gleiche Zeile wieder selektieren
 	if (strRaumNameNeu==strRaumNameAlt)
-		m_lcData.SetItemState(nSel,LVIS_SELECTED, LVNI_SELECTED);
+		m_lcData.SetItemState(nSel,LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
 }
 
 void CPageRooms::OnBnClickedBtDelete()
@@ -1069,8 +1154,7 @@ void CPageRooms::OnBnClickedBtDelete()
 		return;
 
 	CString strMsg;
-	strMsg.FormatMessage(IDP_QUERY_DELETE_ROOM,theApp.RemoveRoomPrefix(pRaum->m_strName).GetString());	CString strRaumName { theApp.RemoveRoomPrefix(pRaum->m_strName) };
-	SRaumDaten raum{ strRaumName, pRaum->m_strContent };
+	strMsg.FormatMessage(IDP_QUERY_DELETE_ROOM,theApp.RemoveRoomPrefix(pRaum->m_strName).GetString());	
 	if (AfxMessageBox(strMsg,MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)!=IDYES)
 		return;
 
@@ -1089,7 +1173,17 @@ void CPageRooms::OnBnClickedBtDelete()
 
 	// Daten neu laden
 	UpdateData(FALSE);
-	m_lcData.SetItemState(max(0,nSel-1),LVIS_SELECTED, LVNI_SELECTED);
+	auto nMax = m_lcData.GetItemCount();
+	m_lcData.SetItemState(min(nSel,nMax-1),LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+	m_lcData.EnsureVisible(min(nSel,nMax-1),FALSE);
+}
+
+void CPageRooms::OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVKEYDOWN pLVKeyDow = reinterpret_cast<LPNMLVKEYDOWN>(pNMHDR);
+	if (pLVKeyDow->wVKey==VK_DELETE)
+		OnBnClickedBtDelete();
+	*pResult = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1138,7 +1232,7 @@ void CPageSysvar::DoDataExchange(CDataExchange* pDX)
 				UINT uiText=0;
 				if (e.m_bNew)
 					uiText = IDS_NEW;
-				else if (e.m_bModified)
+				else if (e.m_bModified || e.m_bModifiedName)
 					uiText = IDS_UPDATE;
 				if (uiText)
 					m_lcData.SetItemText(n,COL_INFO,CStringRes(uiText));
@@ -1198,14 +1292,14 @@ void CPageSysvar::OnBnClickedBtInfo()
 
 void CPageSysvar::OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
 }
 
 void CPageSysvar::OnNMDblclkLcData(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtInfo();
 	*pResult = 0;
 }
@@ -1221,6 +1315,10 @@ BEGIN_MESSAGE_MAP(CPageResources, CPageBase)
 	ON_BN_CLICKED(IDC_BT_MODIFY, &CPageResources::OnBnClickedBtModify)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LC_DATA, &CPageResources::OnLvnItemchangedLcRooms)
 	ON_NOTIFY(NM_DBLCLK, IDC_LC_DATA, &CPageResources::OnNMDblclkLcRooms)
+	ON_BN_CLICKED(IDC_BT_DELETE, &CPageResources::OnBnClickedBtDelete)
+	ON_NOTIFY(LVN_KEYDOWN, IDC_LC_DATA, &CPageResources::OnKeydownLcData)
+//	ON_NOTIFY(HDN_ITEMDBLCLICK, 0, &CPageResources::OnItemdblclickLcData)
+	ON_NOTIFY(HDN_ITEMCLICK, 0, &CPageResources::OnItemclickLcData)
 END_MESSAGE_MAP()
 
 void CPageResources::EnableControls()
@@ -1239,7 +1337,7 @@ BOOL CPageResources::OnSetActive()
 		pSheet->PostMessage(PSM_SETCURSEL,0);
 		return FALSE;
 	}
-	return __super::OnSetActive();;
+	return __super::OnSetActive();
 }
 
 static int CALLBACK SortFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
@@ -1247,7 +1345,12 @@ static int CALLBACK SortFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 	auto const &pData1 = reinterpret_cast<CMapRaumListe::value_type*>(lParam1);
 	auto const &pData2 = reinterpret_cast<CMapRaumListe::value_type*>(lParam2);
 
-	return ::StrCmpLogicalW(pData1->first,pData2->first);
+	if (lParamSort==CPageResources::COL_ID)
+		return ::StrCmpLogicalW(pData1->first,pData2->first);
+	else if (lParamSort==CPageResources::COL_NAME)
+		return ::StrCmpLogicalW(pData1->second.m_strResourceName,pData2->second.m_strResourceName);
+	else 
+		return ::StrCmpLogicalW(ListToString(pData1->second.m_lstRaeume,_T(";")), ListToString(pData2->second.m_lstRaeume,_T(";")));
 }
 
 void CPageResources::DoDataExchange(CDataExchange* pDX)
@@ -1258,24 +1361,22 @@ void CPageResources::DoDataExchange(CDataExchange* pDX)
 	{
 		m_lcData.DeleteAllItems();
 
-		CMapRaumListe mapRaeume;
-		theApp.LoadRoomMapFromSysVars(mapRaeume);
+		theApp.LoadRoomMapFromSysVars(m_mapRaeume);
 		
-		for (auto const& e : mapRaeume)
+		for (auto const& e : m_mapRaeume)
 		{
 			int n = m_lcData.InsertItem(m_lcData.GetItemCount(), e.first);
 			if (n>=0)
 			{
+				// Ist für das Sortieren nötig
 				m_lcData.SetItemData(n,reinterpret_cast<DWORD_PTR>(&e));
 				m_lcData.SetItemText(n, COL_NAME, e.second.m_strResourceName);
 				auto const &lst = e.second.m_lstRaeume;
-				CString strRaeume;
-				for (auto const &r : lst)
-					AppendTextWithDelimiter(strRaeume, theApp.RemoveRoomPrefix(r), _T("; "));
+				CString strRaeume{ ListToString(lst,_T("; ")) };
 				m_lcData.SetItemText(n, COL_ROOMS, strRaeume);
 			}
 		}
-		m_lcData.SortItems(SortFunc, 0);
+		m_lcData.SortItems(SortFunc, COL_ID);
 	}
 
 	DDX_Control(pDX, IDC_LC_DATA, m_lcData);
@@ -1315,16 +1416,42 @@ BOOL CPageResources::OnInitDialog()
 
 void CPageResources::OnNMDblclkLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	OnBnClickedBtModify();
 	*pResult = 0;
 }
 
 void CPageResources::OnLvnItemchangedLcRooms(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	EnableControls();
 	*pResult = 0;
+}
+
+void CPageResources::OnBnClickedBtDelete()
+{
+	int nSel = m_lcData.GetNextItem(-1, LVNI_SELECTED);
+	if (nSel<0)
+		return;
+
+	CString strMsg, strRes, strName;
+	strRes = m_lcData.GetItemText(nSel, COL_ID);
+	strName = m_lcData.GetItemText(nSel, COL_NAME);
+
+	strMsg.FormatMessage(IDP_QUERY_DELETE_RESOURCE,strRes.GetString(),strName.GetString());	
+	if (AfxMessageBox(strMsg,MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)!=IDYES)
+		return;
+
+	CMapRaumListe mapRaumListe;
+	theApp.LoadRoomMapFromSysVars(mapRaumListe);
+	mapRaumListe.erase(strRes);
+	theApp.SaveRoomMapToSysVars(mapRaumListe);
+
+	// Anzeige aktualisieren
+	UpdateData(FALSE);
+	auto nMax = m_lcData.GetItemCount();
+	m_lcData.SetItemState(min(nSel,nMax-1),LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+	m_lcData.EnsureVisible(min(nSel,nMax-1),FALSE);
 }
 
 void CPageResources::OnBnClickedBtModify()
@@ -1378,6 +1505,25 @@ void CPageResources::OnBnClickedBtModify()
 
 	// Alles neu laden
 	UpdateData(FALSE);
-	m_lcData.SetItemState(nSel,LVIS_SELECTED, LVNI_SELECTED);
+	m_lcData.SetItemState(nSel,LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
 }
 
+void CPageResources::OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVKEYDOWN pLVKeyDow = reinterpret_cast<LPNMLVKEYDOWN>(pNMHDR);
+	if (pLVKeyDow->wVKey==VK_DELETE)
+		OnBnClickedBtDelete();
+	*pResult = 0;
+}
+
+
+
+void CPageResources::OnItemclickLcData(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
+	if (phdr->iItem==COL_NAME || phdr->iItem==COL_ID || phdr->iItem==COL_ROOMS)
+	{
+		m_lcData.SortItems(SortFunc,phdr->iItem);
+	}
+	*pResult = 0;
+}

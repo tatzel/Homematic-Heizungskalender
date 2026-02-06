@@ -90,7 +90,7 @@ void CSysVarDlg::DoDataExchange(CDataExchange* pDX)
 	UINT uiText=0;
 	if (m_pSysVar->m_bNew)
 		uiText = IDS_NEW;
-	else if (m_pSysVar->m_bModified)
+	else if (m_pSysVar->m_bModified || m_pSysVar->m_bModifiedName)
 		uiText = IDS_UPDATE;
 	else 
 		uiText = IDS_UNVERAENDERT;

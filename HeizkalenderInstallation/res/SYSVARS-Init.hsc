@@ -177,12 +177,12 @@ svName= "%1%HK2-Kurve"; oSV=rSV.Get (svName);
 if (oSV) {
 	if ((oSV.ValueType()==20) && (oSV.ValueSubType()==11) && bupdate && (oSV.Type()!=OT_ALARMDP)) {
 		WriteLine (svName # altt);act=act+1;
-		oSV.Variable ("360;300;240;180;150;120;90;60");}
+		oSV.Variable ("162;130;100;59;50;41;30;20");}
 } elseif (bcreate) {
 	neu=neu+1;oSV = dom.CreateObject (1089); rSV.Add (oSV.ID()); oSV.Name (svName); oSV.ValueType (20); oSV.ValueSubType (11);
 	oSV.DPInfo("Hzg.-Vorlaufzeit: Eingeben in Minuten zu Außentemperaturen kleiner als -10, -5, 0, 8, 10, 12, 15, 17,5"); oSV.ValueUnit("min"); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
 	oSV.DPArchive (true && barchive);
-		oSV.Variable ("360;300;240;180;150;120;90;60");
+		oSV.Variable ("162;130;100;59;50;41;30;20");
 	WriteLine (svName # neut);}
 !------------
 svName= "%1%HK2-Kurvenversatz"; oSV=rSV.Get (svName);

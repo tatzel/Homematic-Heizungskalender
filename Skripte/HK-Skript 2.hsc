@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    27.01.2026
+!// Stand:    05.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,6 +35,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-27 Begrenzung der Vorheizzeit nach unten auf mindestens 10%
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-01-12 Bessere Behandlung von mehreren Aktoren in den Raumvars. minAktorNamenLaenge entfernt.
@@ -438,8 +439,9 @@ foreach(SLEintrag,SListe){
         !// auf die Grundtemperatur.
         real ISTTemperatur = GT;
         AktAktor = RVI.StrValueByIndex(";",6);
+        if(DEBUG) { WriteLine("AktAktor=" # AktAktor); }
         objAktor = dom.GetObject(AktAktor);
-        if (objAktor){
+        if (AktAktor && objAktor){
           ISTTemperatur = objAktor.DPByHssDP("ACTUAL_TEMPERATURE").State().ToFloat();
         }else{
           if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
@@ -776,6 +778,10 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
 
   !// Laufe über alle Räume
   foreach(RVN,RVNListe.Split(";")) {
+    !// Es ist möglich, dass eine Ressource keine Zuordnung hat
+    if (!RVN){
+      continue;
+    }
     !// Raum Parameter bestimmen
     if(log){logObj.State("Gruppe:"+RVN);}
     if(DEBUG) {WriteLine("Gruppe:"+RVN);}
@@ -886,6 +892,10 @@ if(multiRaumVariante){
 
 !// Laufe über alle Räume und prüfe ob die sich im "An"-zustand befinden
 foreach(RVN,RVNListe.Split(";")) {
+  !// Es ist möglich, dass eine Ressource keine Zuordnung hat
+  if (!RVN){
+    continue;
+  }
   !// Raum Parameter bestimmen
   RVI=dom.GetObject(RVN).State();
   AGF=RVI.StrValueByIndex(";",2);

@@ -1,4 +1,7 @@
 !//======================================================
+!// Dieser Part löscht das ältere Programm, falls es existiert
+!// Ansonsten ist es nichts anderes als das Backup des originalen
+!// Skriptes mit dem SDV.
 integer progId = %1%;
 object oPRG;
 if (progId!=0) {

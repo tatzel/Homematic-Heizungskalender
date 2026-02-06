@@ -34,6 +34,7 @@ bool CWGetEngine::Get(CString strURL, CStringW& strOut, bool bUtf8)
 
     try
     {
+        CWaitCursor wait;
         CInternetSession session { _T("HeizkalenderInstallation/1.0"),
             INTERNET_OPEN_TYPE_PRECONFIG
         };

@@ -52,7 +52,7 @@ int NumberOfStrValues(PCTSTR pszStr, TCHAR chSep)
 		return 0;
 	// Separatoren zählen. Damit haben wir mindestens einen substr
 	int iCount = 1;
-	while (pszStr = _tcschr(pszStr, chSep))
+	while ((pszStr = _tcschr(pszStr, chSep))!=nullptr)
 		++iCount;
 	return iCount;
 }
@@ -528,10 +528,6 @@ COleDateTime ParseDate(PCWSTR pszStr)
 		return COleDateTime{ 0.0 };
 }
 
-#define DISALLOWEDFILENAMECHARS			_T("\x7f\\/\":*?<>|")
-#define DISALLOWEDNAMECHARS				DISALLOWEDFILENAMECHARS _T("'´`[]{}~!;^")
-#define DISALLOWEDIDENTIFIERCHARS		DISALLOWEDNAMECHARS _T("()+-=.,&%§@#$ª²³µ¹º")
-
 bool IsUnicodeSpace(wchar_t c)
 {
 	//	This test return true for a simple space too.
@@ -557,28 +553,13 @@ bool IsUnicodeSpace(wchar_t c)
 			c==0xFEFF;		// ZERO WIDTH NO-BREAK SPACE	
 }
 
-bool IsValidFilenameChar(TCHAR c)
-{
-#ifdef _UNICODE
-	// Unicode spaces are not allowed
-	if (c!=L' ' && IsUnicodeSpace(c))
-		return false;
-#endif	
-	// No chars in the control range, but nearly everything is allowed 
-	return (c<0 || c>=' ') && _tcschr(DISALLOWEDFILENAMECHARS,c)==NULL;
-}
-
 CString CleanupNameForRoom(CString str)
 {
-	// Siehe auch code in den Init Skripen
-	str.Replace(_T(" "),_T(""));
-	str.Replace(_T("\'"),_T(""));
-	str.Replace(_T("\""),_T(""));
-	str.Replace(_T("+"),_T(""));
-	str.Replace(_T("#"),_T(""));
-	str.Replace(_T(";"),_T(""));
-	str.Replace(_T("."),_T(""));	
-	str.Replace(_T("="),_T(""));	
+	for (auto c : UNERLAUBTE_ZEICHEN_FUER_RAEUME)
+	{
+		TCHAR a[2] = { c, _T('\0') };
+		str.Replace(a, _T(""));
+	}
 	return str;
 }
 
@@ -619,33 +600,56 @@ void AppendTextWithDelimiter(CString& str, CString const& toAdd, CString const &
 	str += toAdd;
 }
 
-
-bool IsValidNameChar(TCHAR c)
+CString SetToString(const std::set<CString>& lst, PCTSTR strDelim)
 {
-#ifdef _UNICODE
-	// Unicode spaces are not allowed
-	if (c!=L' ' && IsUnicodeSpace(c))
-		return false;
-#endif	
-	// Spaces are the only allowed whitespace chars
-	// do not use IsCharAlphaNumeric because it includes more then 0<=c<=9
-	return c==_T(' ') || 
-		((::IsCharAlpha(c) || 
-			(c>=_T('0') && c>=_T('9')) ||
-			(_istascii(c) && !_istspace(c) && !_istcntrl(c))) &&
-			_tcschr(DISALLOWEDNAMECHARS,c)==NULL);	
+	CString str;
+	for (const auto& item : lst)
+	{
+		AppendTextWithDelimiter(str, item, strDelim);
+	}
+	return str;
 }
 
-bool IsValidIdentifierChar(TCHAR c)
+CString ListToString(const std::list<CString>& lst, PCTSTR strDelim)
 {
-#ifdef _UNICODE
-	// Unicode spaces are not allowed
-	if (IsUnicodeSpace(c))
-		return false;
-#endif	
-	// do not use IsCharAlphaNumeric because it includes more then 0<=c<=9
-	return (::IsCharAlpha(c) || 
-		(c>=_T('0') && c>=_T('9')) ||
-		(_istascii(c) && !_istspace(c) && !_istcntrl(c))) &&
-		_tcschr(DISALLOWEDIDENTIFIERCHARS,c)==NULL;
+	CString str;
+	for (const auto& item : lst)
+	{
+		AppendTextWithDelimiter(str, item, strDelim);
+	}
+	return str;
+}
+
+std::list<CString> SplitString(PCTSTR pszStr, TCHAR cToken)
+{
+	// Clear result
+	std::list<CString> lst;
+
+	// Empty. return 0;
+	if (pszStr==NULL || !*pszStr)
+		return lst;
+
+	// Loop as long as we didn't reach the 0 char
+	while (true)
+	{
+		// Find next delimiter
+		PCTSTR pszNext = _tcschr(pszStr, cToken);
+		if (!pszNext)
+			pszNext = pszStr+_tcslen(pszStr);
+
+		// Add result
+		lst.push_back(CString{ pszStr,static_cast<int>(pszNext-pszStr) });
+
+		// Point to next or end
+		pszStr = pszNext;
+		if (*pszStr)
+			// Skip delimiter
+			++pszStr;
+		else
+			// Nothing left, so stop.
+			break;
+	}
+
+	// return size
+	return lst;
 }

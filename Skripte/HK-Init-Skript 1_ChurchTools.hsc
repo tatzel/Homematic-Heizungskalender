@@ -280,7 +280,7 @@ if (loginToken && gemeindeName){
 
             !// Namen bereinigen
             name = res.Substr(0,iPosEnd);
-            name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","").Replace("=","");
+            name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace(":","").Replace("+","").Replace("#","").Replace(";","").Replace(".","").Replace("=","");
 
             !// Die Raumliste bekommt zusätzlich die Raumnamen im Klartext abgetrennt mit =. Das erleichtert
             !// dem Installer eine bessere Funktionalität für den Benutzer.
@@ -310,7 +310,7 @@ if (loginToken && gemeindeName){
           !// Weitere Räume hinzufügen, wenn diese nicht schon in der Liste sind
           foreach(name,zusaetzlicheRaumNamen.Split(";")){
             !// Namen bereinigen
-            name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace("+","").Replace("#","").Replace(";","").Replace(".","").Replace("=","");
+            name = name.Replace(" ","").Replace("\'","").Replace("\"","").Replace(":","").Replace("+","").Replace("#","").Replace(";","").Replace(".","").Replace("=","");
             if (name && ((";" # raumNamen # ";").Find(";" # name # ";")<0)){
               if(!raumNamen.EndsWith(";")){
                 raumNamen = raumNamen # ";";

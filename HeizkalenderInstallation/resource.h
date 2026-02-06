@@ -92,6 +92,15 @@
 #define IDS_VERSION_ALT                 163
 #define IDS_VERSION_NEU                 164
 #define IDS_VERBINDUNGSAUGBAU_FEHLGESCHLAGEN 165
+#define IDS_MODE_ICAL                   166
+#define IDS_MODE_GOOGLE                 167
+#define IDP_RAUMLISTE_UNGUELTIG         168
+#define IDP_PROGRAMME_KONTROLLIEREN     169
+#define IDP_SYSVARS_KONTROLLIEREN       170
+#define IDP_RAUMLISTE_KONTROLLIEREN     171
+#define IDS_LEERER_NAME                 172
+#define IDP_QUERY_DELETE_ROOM2          173
+#define IDP_QUERY_DELETE_RESOURCE       173
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001
@@ -113,7 +122,12 @@
 #define IDC_ST_CHURCHDESK2              1015
 #define IDC_BT_READRES                  1016
 #define IDC_CH_LOG1                     1017
+#define IDC_ST_CHURCHTOOL3              1017
+#define IDC_ST_ICAL_GOOGLE              1017
+#define IDC_ST_RAUMLISTE                1017
 #define IDC_LC_PROGRAMS                 1018
+#define IDC_ED_LOGINTOKEN2              1018
+#define IDC_ED_RAUMLISTE                1018
 #define IDC_CH_LOG                      1019
 #define IDC_CH_LOG2                     1020
 #define IDC_CH_LOG_HEIZKURVE            1022
@@ -152,12 +166,17 @@
 #define IDC_LB_DATA                     1040
 #define IDC_ED_STATUS                   1040
 #define IDC_BT_WINMERGE                 1041
-#define IDC_ED_STATUS2                  1041
 #define IDC_ED_PROTOKOLLIERT            1041
 #define IDC_ED_ID                       1043
 #define IDC_BT_INFO                     1044
 #define IDC_ED_TYP                      1045
 #define IDC_ED_WERT_ALT                 1046
+#define IDC_ED_ICALURL                  1047
+#define IDC_ST_ICALURL                  1048
+#define IDC_ST_GOOGLE1                  1049
+#define IDC_ST_GOOGLE2                  1050
+#define IDC_ED_GOOGLE_APIKEY            1051
+#define IDC_ED_GOOGLE_KALID             1052
 
 // Next default values for new objects
 // 
@@ -165,7 +184,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1047
+#define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -26,9 +26,13 @@
 
 class CPageBase : public CMFCPropertyPage
 {
+public:
 	using CMFCPropertyPage::CMFCPropertyPage;
 	virtual BOOL OnQueryCancel() override;
 	virtual BOOL OnApply() override;
+	virtual BOOL OnSetActive() override;
+protected:
+	bool m_bSeiteBesucht{};
 };
 
 //-----------------------------------------------------------------------------
@@ -44,7 +48,8 @@ public:
 #endif
 	CComboBox	m_cbScript1Mode;
 	CEditText	m_edHost, m_edUserName, m_edPassword, m_edPrefix, 
-				m_edCTChurchName, m_edCTLoginToken,
+				m_edCTChurchName, m_edCTLoginToken, 
+				m_ediCalUrl, m_edGoogleApiKey, m_edGoogleKalId, m_edRaumListe,
 				m_edCDOrgaId, m_edCDApiToken;
 
 private:
@@ -146,6 +151,7 @@ public:
 	afx_msg void OnBnClickedBtModify();
 	afx_msg void OnBnClickedBtDelete();
 	afx_msg void OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 //-----------------------------------------------------------------------------
@@ -161,7 +167,8 @@ public:
 #endif
 	CListCtrl m_lcData;
 	CButton m_btModify;
-	
+	CMapRaumListe m_mapRaeume;
+
 	static int const COL_ID = 0;
 	static int const COL_NAME = 1;
 	static int const COL_ROOMS = 2;
@@ -175,6 +182,9 @@ public:
 	afx_msg void OnNMDblclkLcRooms(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBnClickedBtModify();
 	afx_msg void OnLvnItemchangedLcRooms(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedBtDelete();
+	afx_msg void OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnItemclickLcData(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 //-----------------------------------------------------------------------------
@@ -210,7 +220,7 @@ public:
 class CInstallationsWizard : public CMFCPropertySheet
 {
 	DECLARE_DYNAMIC(CInstallationsWizard)
-
+	friend class CPageBase;
 public:
 	CInstallationsWizard();
 	virtual ~CInstallationsWizard();

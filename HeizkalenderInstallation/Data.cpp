@@ -234,7 +234,7 @@ void SRaumDaten::LoadFromString(CString const &strName, CString const &str)
 		else
 			iPos=iPos+1;
 	}
-	m_strAktor = str.Mid(iPos);;
+	m_strAktor = str.Mid(iPos);
 }
 
 void SRaumDaten::GetAsString(CString &strName, CString &str)
@@ -264,7 +264,7 @@ void SRaumDaten::GetAsString(CString &strName, CString &str)
 		else
 			iPos=iPos+1;
 	}
-	m_strAktor = str.Mid(iPos);;
+	m_strAktor = str.Mid(iPos);
 }
 
 //-----------------------------------------------------------------------------
