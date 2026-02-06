@@ -511,7 +511,6 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 			// Setze den neuen Namen und setze das Modified-Flag. Dadurch
 			// wird die Variable umbenannt.
 			pVarAlt->m_strName = AddPrefix(e.pszNew);
-			pVarAlt->m_bModified = true;
 			// Wir müssen erzwingen, dass die Variable als modified weiter 
 			// behandelt wird, deshalb manipulieren, wir den alten Inhalt.
 			pVarAlt->m_bModifiedName = pVarAlt->m_bModified = true;
