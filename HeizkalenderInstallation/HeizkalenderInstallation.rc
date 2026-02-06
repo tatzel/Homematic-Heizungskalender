@@ -206,7 +206,7 @@ BEGIN
     LTEXT           "Räume im Heizkalenders:",IDC_STATIC,7,14,173,8
     CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,28,308,204
     PUSHBUTTON      "&Neu...",IDC_BT_NEW,321,29,50,14
-    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,321,50,50,14
+    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,321,49,50,14
     PUSHBUTTON      "Löschen...",IDC_BT_DELETE,321,69,50,14
 END
 
@@ -263,8 +263,9 @@ CAPTION "Kalenderzuordnung"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "Zuordnungen der Räume zu den Resourcekalendern:",IDC_STATIC,7,14,173,8
-    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,28,308,204
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,28,308,204
     PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,321,29,50,14
+    PUSHBUTTON      "Löschen...",IDC_BT_DELETE,321,49,50,14
 END
 
 IDD_RESSOURCE DIALOGEX 0, 0, 195, 196
@@ -675,6 +676,8 @@ BEGIN
     IDP_RAUMLISTE_KONTROLLIEREN 
                             "Die Liste der Raum-Ressourcen wurde geändert. Kontrollieren Sie ob die Änderungen so korrekt und gewünscht sind!"
     IDS_LEERER_NAME         "RAUM_NAME_FEHLT"
+    IDP_QUERY_DELETE_RESOURCE 
+                            "Soll die selektierte Ressource ""%1 / %2"" gelöscht werden? Damit werden alle Kalenderzuordnungen entfernt! Die Ressourcen können nur durch erneutes Einlesen wieder angelegt werden!\nWollen Sie fortfahren?"
 END
 
 #endif    // German (Germany) resources

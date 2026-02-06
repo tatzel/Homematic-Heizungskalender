@@ -151,6 +151,7 @@ public:
 	afx_msg void OnBnClickedBtModify();
 	afx_msg void OnBnClickedBtDelete();
 	afx_msg void OnLvnItemchangedLcData(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 //-----------------------------------------------------------------------------
@@ -166,7 +167,8 @@ public:
 #endif
 	CListCtrl m_lcData;
 	CButton m_btModify;
-	
+	CMapRaumListe m_mapRaeume;
+
 	static int const COL_ID = 0;
 	static int const COL_NAME = 1;
 	static int const COL_ROOMS = 2;
@@ -180,6 +182,9 @@ public:
 	afx_msg void OnNMDblclkLcRooms(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBnClickedBtModify();
 	afx_msg void OnLvnItemchangedLcRooms(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedBtDelete();
+	afx_msg void OnKeydownLcData(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnItemclickLcData(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 //-----------------------------------------------------------------------------

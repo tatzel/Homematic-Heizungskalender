@@ -499,10 +499,9 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 			// Setze den neuen Namen und setze das Modified-Flag. Dadurch
 			// wird die Variable umbenannt.
 			pVarAlt->m_strName = AddPrefix(_T("HK1-CD-OrganisationsId"));
-			pVarAlt->m_bModified = true;
 			// Wir müssen erzwingen, dass die Variable als modified weiter 
 			// behandelt wird.
-			pVarAlt->m_strContentOld.Insert(0,_T("x"));
+			pVarAlt->m_bModifiedName = pVarAlt->m_bModified = true;
 		}
 	}
 
@@ -551,59 +550,63 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 	std::set<CString> setFehlen;
 	CMapRaumListe mapRaeume;
 	LoadRoomMapFromSysVars(mapRaeume);
-	for (auto const& e : mapRaeume)
+	for (auto & e : mapRaeume)
 	{
-		auto const &lstRaumListe{ e.second.m_lstRaeume };
+		auto &lstRaumListe{ e.second.m_lstRaeume };
 
 		// Alle zugeordneten Räume untersuchen. Alle müssen den Raum-Prefix haben
-		for (auto strRaum : lstRaumListe)
+		for (auto &strRaum : lstRaumListe)
 		{
 			auto *pVar = m_lstSysVars.Find(strRaum);
-			if (strRaum!=AddRoomPrefix(CleanupNameForRoom(RemoveRoomPrefix(strRaum))))
+			if (!pVar)
+			{
+				// Raum variable nicht da. Muss angelegt werden. Evtl. wird der Name korrigiert
+				CString strNeuerName = AddRoomPrefix(CleanupNameForRoom(RemoveRoomPrefix(strRaum)));
+				auto *pVar = m_lstSysVars.Find(strNeuerName);
+				// Evtl. exisitiert dieser Name schon, dann nehmen wir ihn.
+				if (!pVar)
+				{
+					CDataSystemVariable data;
+					data.InitNeuerRaum(strNeuerName);
+					m_lstSysVars.push_back(data);
+				}
+				setFehlen.emplace(strRaum);
+				// Neuen Namen verwenden
+				strRaum = strNeuerName;
+			}
+			else if (strRaum!=AddRoomPrefix(CleanupNameForRoom(RemoveRoomPrefix(strRaum))))
+			{
 				// Hier stimmt was nicht. Diese Variablen müssen neu aufgebaut werden.
 				setZuKorrigieren.emplace(strRaum);
-			else if (!pVar)
-			{
-				// Raum variable nicht da. Muss angelegt werden.
-				CDataSystemVariable data;
-				data.InitNeuerRaum(strRaum);
-				m_lstSysVars.push_back(data);
-				setFehlen.emplace(strRaum);
 			}
 		}
 	}
 
-	auto NamensListe = [](std::set<CString> const& lst)->CString
-		{
-			CString strVars;
-			for (auto const &n : lst)
-				AppendTextWithDelimiter(strVars,n,_T("\n\t"));
-			return strVars;
-		};
 	if (!setFehlen.empty())
 	{
 		CString strError;
-		strError.FormatMessage(IDP_RAUMVAR_NAMEN_FEHLEN,NamensListe(setFehlen).GetString());			
+		strError.FormatMessage(IDP_RAUMVAR_NAMEN_FEHLEN,SetToString(setFehlen,_T("\n\t")).GetString());			
 		AfxMessageBox(strError);
 	}
 
 	if (!setZuKorrigieren.empty())
 	{
 		CString strError;
-		strError.FormatMessage(IDP_RAUMVAR_NAMEN_KORREKTUR,NamensListe(setZuKorrigieren).GetString());			
+		strError.FormatMessage(IDP_RAUMVAR_NAMEN_KORREKTUR,SetToString(setZuKorrigieren,_T("\n\t")).GetString());			
 		AfxMessageBox(strError);
 
 		// Wir nehmen jetzt die Räume mit Namen, die keinen korrekten Prefix haben und kopieren diese.
 		for (auto &n : setZuKorrigieren)
 		{
-			// SUche den alten Inhalt und erzeuge eine Kopie
+			// Suche den alten Inhalt und erzeuge eine Kopie
 			auto *pVar = m_lstSysVars.Find(n);
-			CDataSystemVariable data;
-			data.InitNeuerRaum(AddRoomPrefix(GenerateNewRoomName(RemoveRoomPrefix(n))));
-			if (pVar && !pVar->m_strContent.IsEmpty())
-				data.SetContent(pVar->m_strContent);
-			m_lstSysVars.push_back(data);
-			
+			if (!pVar)
+				continue;				
+			CString strNeuerName = AddRoomPrefix(GenerateNewRoomName(RemoveRoomPrefix(CleanupNameForRoom(n))));			
+			// Variable umbennen.
+			pVar->m_bModifiedName = true;
+			pVar->m_strName = strNeuerName;
+
 			// Nun den alten Namen finden und ersetzen
 			for (auto &e : mapRaeume)
 			{
@@ -614,14 +617,15 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 				{
 					// Alten Namen bei Bedarf ersetzen.
 					if (strRaum==n)						
-						strRaum = data.m_strName;
+						strRaum = strNeuerName;
 				}
 			}
 		}
-
-		// Neue Raumvariablen speichern
-		SaveRoomMapToSysVars(mapRaeume);
 	}
+
+	// Neue Raumvariablen speichern
+	if (!setFehlen.empty() || !setZuKorrigieren.empty())
+		SaveRoomMapToSysVars(mapRaeume);
 
 	return true;
 }
@@ -672,7 +676,7 @@ bool CHeizkalenderInstallationApp::IsSysVarsModified()
 {
 	for (auto& sv : m_lstSysVars)
 	{
-		if ((sv.m_bNew || sv.m_bModified || sv.m_bDeleted) && IsSysVarCompatibeWithModeScript1(theApp.RemovePrefix(sv.m_strName),theApp.m_modeScript1))
+		if ((sv.m_bNew || sv.m_bModified || sv.m_bModifiedName || sv.m_bDeleted) && IsSysVarCompatibeWithModeScript1(theApp.RemovePrefix(sv.m_strName),theApp.m_modeScript1))
 			return true;
 	}
 	return false;
@@ -922,19 +926,17 @@ bool CHeizkalenderInstallationApp::SaveRoomMapToSysVars(CMapRaumListe const& map
 			AppendTextWithDelimiter(strListe1,e.second.m_strResourceName,_T('='));
 		// Weitere Raumliste aufbauen
 		auto const &lst = e.second.m_lstRaeume;
-		CString strRaeume;
-		for (auto strRaum : lst)
-			AppendTextWithDelimiter(strRaeume,strRaum,_T('+'));
+		CString strRaeume{ ListToString(lst,_T("+")) };
 		AppendTextWithDelimiter(strListe2,strRaeume);
 	}
 	pVarRaumListe1->SetContent(strListe1);
 	pVarRaumListe2->SetContent(strListe2);		
 
-	auto CreateSetFromList = [](CString const& strList)
+	auto CreateSetFromList = [](CString strList)
 		{
-			std::set<CString> setRes;
-			CString str;
-			for (int i=0; !(str=StrValueByIndex(strList,i,_T(';'))).IsEmpty(); ++i)
+			// Set aufbauen
+			std::multiset<CString> setRes;
+			for (auto str : SplitString(strList, _T(';')))
 				setRes.emplace(str);
 			return setRes;
 		};
@@ -966,20 +968,20 @@ void CHeizkalenderInstallationApp::LoadRoomMapFromSysVars(CMapRaumListe &mapRaeu
 	CString strListe1 { pVarRaumListe1->m_strContent };
 	CString strListe2 { pVarRaumListe2->m_strContent };
 
-	mapRaeume.clear();;
-	CString strId;
-	for (int i=0; !(strId = StrValueByIndex(strListe1, i, _T(';'))).IsEmpty(); ++i)
+	mapRaeume.clear();
+	int i=0;
+	for (auto strId : SplitString(strListe1,_T(';')))
 	{
 		CString strRaumName = StrValueByIndex(strId,1,_T('='));
 		strId = StrValueByIndex(strId,0,_T('='));
 		auto &e = mapRaeume[strId];
 		e.m_strResourceName = strRaumName;
 
-		CString strRaum;
-		auto strRaeume{ StrValueByIndex(strListe2,i,_T(';')) };
+		auto strRaeume{ StrValueByIndex(strListe2, i ,_T(';')) };
 		auto &lst = e.m_lstRaeume;
-		for (int i=0; !(strRaum=StrValueByIndex(strRaeume, i, _T('+'))).IsEmpty(); ++i)
+		for (auto strRaum : SplitString(strRaeume,_T('+')))
 			lst.push_back(strRaum);
+		++i;
 	}
 }
 
@@ -998,7 +1000,7 @@ CString CHeizkalenderInstallationApp::AddPrefix(CString const& str) const
 
 bool CHeizkalenderInstallationApp::IsMatchingSysVar(CString const& str) const
 {
-	return IsMatchingPrefix(str) && RemovePrefix(str).Left(2)==_T("HK");;
+	return IsMatchingPrefix(str) && RemovePrefix(str).Left(2)==_T("HK");
 }
 
 bool CHeizkalenderInstallationApp::IsMatchingPrefix(CString const& str) const
@@ -1180,8 +1182,7 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 		strRessourceTypes.Replace(_T("{\"id\":"),_T("\t"));
 		strRessourceTypes.Trim(_T("\t"));
 
-		CString strResType;
-		for (int i=0; !(strResType=StrValueByIndex(strRessourceTypes,i)).IsEmpty(); ++i)
+		for (auto strResType : SplitString(strRessourceTypes))
 		{
 			int iPos = strResType.Find(_T("\"name\":\""));
 			if (iPos>=0)
@@ -1209,8 +1210,7 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 		strResources.Replace(_T("{\"id\":"),_T("\t"));
 		strResources.Trim(_T("\t"));
 
-		CString strRes;
-		for (int i=0; !(strRes = StrValueByIndex(strResources, i)).IsEmpty(); ++i)
+		for (CString strRes : SplitString(strResources))
 		{
 			// Suche die resId und prüfe ob es passt
 			int iPos = strRes.Find(_T("\"resourceTypeId\":"));
@@ -1234,7 +1234,7 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 
 			// Namen finden
 			strRes = strRes.Mid(iPos+9);
-			int iPosEnd = strRes.Find(_T("\",\""));;
+			int iPosEnd = strRes.Find(_T("\",\""));
 			if (iPos<0){
 				// Fehler
 				continue;
@@ -1280,8 +1280,7 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchDesk(CMapRaumListe &mapRae
 
 	CString strResources { strResult };
 	strResources.Replace(_T("{\"id\":"),_T("\t"));
-	CString strRes;
-	for (int i = 0; !(strRes = StrValueByIndex(strResources, i)).IsEmpty(); ++i)
+	for (auto strRes : SplitString(strResources))
 	{
 		// Bei Color 0 ist das der Gemeinde-Eintrag, den überspringen wir.
 		int iPos = strRes.Find(_T("\"color\":"));
@@ -1779,7 +1778,7 @@ oSV.Variable(%2%);
 		auto const *pSysVarDefault = m_lstSysVarsDefault.Find(RemovePrefix(e.m_strName));
 		bool bBeschreibungGeaendert = (pSysVarDefault && e.m_strDescription!=pSysVarDefault->m_strDescription);
 		CString strNeueBeschreibung{ bBeschreibungGeaendert ? pSysVarDefault->m_strDescription : _T("") };
-		if (((e.m_bNew || e.m_bModified) || bBeschreibungGeaendert) && !e.m_bDeleted)
+		if (((e.m_bNew || e.m_bModified || e.m_bModifiedName) || bBeschreibungGeaendert) && !e.m_bDeleted)
 		{
 			CStringA strUpdateVar = R"x(
 object oSV = dom.GetObject (ID_SYSTEM_VARIABLES).Get(%1%);

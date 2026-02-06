@@ -555,14 +555,11 @@ bool IsUnicodeSpace(wchar_t c)
 
 CString CleanupNameForRoom(CString str)
 {
-	str.Replace(_T(" "),_T(""));
-	str.Replace(_T("\'"),_T(""));
-	str.Replace(_T("\""),_T(""));
-	str.Replace(_T("+"),_T(""));
-	str.Replace(_T("#"),_T(""));
-	str.Replace(_T(";"),_T(""));
-	str.Replace(_T("."),_T(""));	
-	str.Replace(_T("="),_T(""));	
+	for (auto c : UNERLAUBTE_ZEICHEN_FUER_RAEUME)
+	{
+		TCHAR a[2] = { c, _T('\0') };
+		str.Replace(a, _T(""));
+	}
 	return str;
 }
 
@@ -601,4 +598,58 @@ void AppendTextWithDelimiter(CString& str, CString const& toAdd, CString const &
 {
 	AppendDelimiter(str,strDelim);
 	str += toAdd;
+}
+
+CString SetToString(const std::set<CString>& lst, PCTSTR strDelim)
+{
+	CString str;
+	for (const auto& item : lst)
+	{
+		AppendTextWithDelimiter(str, item, strDelim);
+	}
+	return str;
+}
+
+CString ListToString(const std::list<CString>& lst, PCTSTR strDelim)
+{
+	CString str;
+	for (const auto& item : lst)
+	{
+		AppendTextWithDelimiter(str, item, strDelim);
+	}
+	return str;
+}
+
+std::list<CString> SplitString(PCTSTR pszStr, TCHAR cToken)
+{
+	// Clear result
+	std::list<CString> lst;
+
+	// Empty. return 0;
+	if (pszStr==NULL || !*pszStr)
+		return lst;
+
+	// Loop as long as we didn't reach the 0 char
+	while (true)
+	{
+		// Find next delimiter
+		PCTSTR pszNext = _tcschr(pszStr, cToken);
+		if (!pszNext)
+			pszNext = pszStr+_tcslen(pszStr);
+
+		// Add result
+		lst.push_back(CString{ pszStr,static_cast<int>(pszNext-pszStr) });
+
+		// Point to next or end
+		pszStr = pszNext;
+		if (*pszStr)
+			// Skip delimiter
+			++pszStr;
+		else
+			// Nothing left, so stop.
+			break;
+	}
+
+	// return size
+	return lst;
 }

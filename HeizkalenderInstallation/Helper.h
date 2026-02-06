@@ -130,10 +130,16 @@ int NumberOfStrValues(PCTSTR pszFullString, TCHAR chSep=_T('\t'));
 
 //-----------------------------------------------------------------------------
 
+std::list<CString> SplitString(PCTSTR lpszStr, TCHAR cToken=_T('\t'));
+CString SetToString(const std::set<CString>& lst, PCTSTR strDelim);
+CString ListToString(const std::list<CString>& lst, PCTSTR strDelim);
+
+//-----------------------------------------------------------------------------
+
 // Some static character testing routines
 bool IsUnicodeSpace(wchar_t c);
 
-#define UNERLAUBTE_ZEICHEN_FUER_RAEUME	_T(" ;+=\'\"#.")
+#define UNERLAUBTE_ZEICHEN_FUER_RAEUME	_T(" ;+=\'\"#.:")
 CString CleanupNameForRoom(CString str);
 
 //-----------------------------------------------------------------------------
@@ -143,3 +149,6 @@ void AppendDelimiter(CString &str, TCHAR c=_T(';'));
 void AppendDelimiter(CString &str, CString const &strDelim);
 void AppendTextWithDelimiter(CString &str, CString const &toAdd, TCHAR c=_T(';'));
 void AppendTextWithDelimiter(CString &str, CString const &toAdd, CString const &strDelim);
+
+//-----------------------------------------------------------------------------
+
