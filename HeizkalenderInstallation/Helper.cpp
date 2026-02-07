@@ -600,24 +600,30 @@ void AppendTextWithDelimiter(CString& str, CString const& toAdd, CString const &
 	str += toAdd;
 }
 
-CString SetToString(const std::set<CString>& lst, PCTSTR strDelim)
+template<class T>CString ContainerToString(const T& lst, PCTSTR strDelim, bool bIncludeEmpty)
 {
 	CString str;
-	for (const auto& item : lst)
+	for (auto it=lst.begin(); it!=lst.end(); ++it)
 	{
-		AppendTextWithDelimiter(str, item, strDelim);
+		if (!it->IsEmpty() || bIncludeEmpty)
+		{
+			str += *it;
+			if (std::next(it)!=lst.end())
+				str += strDelim;
+		}
 	}
 	return str;
 }
 
-CString ListToString(const std::list<CString>& lst, PCTSTR strDelim)
+CString SetToString(const std::set<CString>& set, PCTSTR strDelim, bool bIncludeEmpty)
 {
-	CString str;
-	for (const auto& item : lst)
-	{
-		AppendTextWithDelimiter(str, item, strDelim);
-	}
-	return str;
+	return ContainerToString(set,strDelim,bIncludeEmpty);
+}
+
+// Achtung leere Einträge werden nicht zurückgegeben.
+CString ListToString(const std::list<CString>& lst, PCTSTR strDelim, bool bIncludeEmpty)
+{
+	return ContainerToString(lst,strDelim,bIncludeEmpty);
 }
 
 std::list<CString> SplitString(PCTSTR pszStr, TCHAR cToken)

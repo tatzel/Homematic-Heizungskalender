@@ -928,18 +928,26 @@ bool CHeizkalenderInstallationApp::SaveRoomMapToSysVars(CMapRaumListe const& map
 	auto *pVarRaumListe2 = m_lstSysVars.Find(AddPrefix(HK2_RAUMLISTE));
 	ASSERT(pVarRaumListe1 && pVarRaumListe2);
 
+	// Um den Rythmus der Trennze3ichen zu erhalten benutzen wir nicht AppendTextWithDelimiter, sondern bauen die 
+	// Liste direkt auf und enfernen am Ende das Semikolon
 	CString strListe1, strListe2;
 	for (auto const &e : mapRaeume)
 	{ 
 		// Raum Ids mit Raumnamen aufbauen
-		AppendTextWithDelimiter(strListe1,e.first);
+		strListe1 += e.first;
 		if (!e.second.m_strResourceName.IsEmpty())
-			AppendTextWithDelimiter(strListe1,e.second.m_strResourceName,_T('='));
+			strListe1 += _T('=') + e.second.m_strResourceName;
+		strListe1 += _T(';');
+
 		// Weitere Raumliste aufbauen
 		auto const &lst = e.second.m_lstRaeume;
-		CString strRaeume{ ListToString(lst,_T("+")) };
-		AppendTextWithDelimiter(strListe2,strRaeume);
+		CString strRaeume{ ListToString(lst,_T("+"),false) };
+		strListe2 += strRaeume+_T(';');
 	}
+	// Überflüssige Semikolons entfernen
+	strListe1.TrimRight(_T(';'));
+	strListe2.TrimRight(_T(';'));
+
 	pVarRaumListe1->SetContent(strListe1);
 	pVarRaumListe2->SetContent(strListe2);		
 

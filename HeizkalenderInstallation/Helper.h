@@ -131,8 +131,8 @@ int NumberOfStrValues(PCTSTR pszFullString, TCHAR chSep=_T('\t'));
 //-----------------------------------------------------------------------------
 
 std::list<CString> SplitString(PCTSTR lpszStr, TCHAR cToken=_T('\t'));
-CString SetToString(const std::set<CString>& lst, PCTSTR strDelim);
-CString ListToString(const std::list<CString>& lst, PCTSTR strDelim);
+CString SetToString(const std::set<CString>& lst, PCTSTR strDelim,bool bIncludeEmpty=true);
+CString ListToString(const std::list<CString>& lst, PCTSTR strDelim,bool bIncludeEmpty=true);
 
 //-----------------------------------------------------------------------------
 
