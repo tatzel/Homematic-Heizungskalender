@@ -6,7 +6,7 @@ Heizkalender für die Steuerung der Homematic über ChurchTool, ChurchDesk, iCal
 Der Heizkalender -Installer ist ein Tool zur Erstellung von Heizkalendern für die HommMatic, basierend auf Daten aus ChurchTool, ChurchDesk, iCal oder Google Kalender.
 Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwednigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
 
-[Weitere Informationen und eine Anleitung finden sich hier.](\HeizkalenderInstallation\Dokumentation\README.md)
+[Weitere Informationen und eine Anleitung finden sich hier.](/HeizkalenderInstallation/Dokumentation/Readme.md)
 
 ## Systemvoraussetzungen
 
@@ -24,8 +24,8 @@ Die Skripte sind das Kernstück, des Heizkalenders. Sie umfassen 3 Gruppen.
 2. Schalten der Themrostate und Hilfsmittel zur Überwachung
 3. Diverse andere optionale Hilfsmittel
 
-Die Hauptskripte und eine ausführbare Version der HeizkalenderInstallation findet sich [hier](\Skripte). Eine Zusammenfassung der Skripte und eine Beschreibung ist [hier](\Skripte\Readme.md) zu finden
-Die Tools und weitere Beispielskripte finden sich [hier](\Tools). Eine Zusammenfassung der Tools und eine Beschreibung ist [hier](\Tools\Readme.md) zu finden
+Die Hauptskripte und eine ausführbare Version der HeizkalenderInstallation findet sich [hier](/Skripte). Eine Zusammenfassung der Skripte und eine Beschreibung ist [hier](/Skripte/Readme.md) zu finden
+Die Tools und weitere Beispielskripte finden sich [hier](/Tools). Eine Zusammenfassung der Tools und eine Beschreibung ist [hier](/Tools/Readme.md) zu finden
 
 # Allgenmeines
 

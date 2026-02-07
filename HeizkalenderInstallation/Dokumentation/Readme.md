@@ -12,20 +12,20 @@ Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Inst
 - Um auf Ressourcen und externe Kalender zugreifen zu können , muss der Rechner mit dem Internet verbunden sein.
 - Eine Lauffähige Kopie des Installers liegt im Skripte Verzeichnis.
 
-![Mit CCU verbinden](Bilder\HKI-Verbinden.png)
+![Mit CCU verbinden](Bilder/HKI-Verbinden.png)
 
-![Verbunden mit der CCU](Bilder\HKI-Verbunden.png)
+![Verbunden mit der CCU](Bilder/HKI-Verbunden.png)
 
-![Allgemeinde Einstellungen](Bilder\HKI-Einstellungen.png)
+![Allgemeinde Einstellungen](Bilder/HKI-Einstellungen.png)
 
-![Kalenderzuordnung](Bilder\HKI-Kalenderzuordnung.png)
+![Kalenderzuordnung](Bilder/HKI-Kalenderzuordnung.png)
 
-![Raumzuordnung zu den Kalenderressourcen](Bilder\HKI-Raumzuordnung.png)
+![Raumzuordnung zu den Kalenderressourcen](Bilder/HKI-Raumzuordnung.png)
 
-![Übersicht der Programme](Bilder\HKI-Programme.png)
+![Übersicht der Programme](Bilder/HKI-Programme.png)
 
-![Übersicht der Räume](Bilder\HKI-Räume.png)
+![Übersicht der Räume](Bilder/HKI-Räume.png)
 
-![Raum-Eigenschaften](Bilder\HKI-Raum.png)
+![Raum-Eigenschaften](Bilder/HKI-Raum.png)
 
-![Übersicht der Systemvariablen](Bilder\HKI-Systemvariablen.png)
+![Übersicht der Systemvariablen](Bilder/HKI-Systemvariablen.png)
