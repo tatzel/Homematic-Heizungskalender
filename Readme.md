@@ -1,21 +1,6 @@
 # HomeMatic-Heizungskalender
 Heizkalender für die Steuerung der Homematic über ChurchTool, ChurchDesk, iCal oder Google.
-
-# Heizkalender-Installer
-
-Der Heizkalender -Installer ist ein Tool zur Erstellung von Heizkalendern für die HommMatic, basierend auf Daten aus ChurchTool, ChurchDesk, iCal oder Google Kalender.
-Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwednigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
-
-[Weitere Informationen und eine Anleitung finden sich hier.](/HeizkalenderInstallation/Dokumentation/Readme.md)
-
-## Systemvoraussetzungen
-
-- Betriebssystem: Windows
-- Die CCU muss in den Sicherheitseinstellungen den Zugriff auf die Remote Homematic-Script API erlauben. Hier muss entweder ein eingeschränkter Zugriff auf die benötigten Funktionen oder ein vollständiger Zugriff gewährt werden, damit der Installer die notwendigen Skripte und Variablen erstellen kann.
-- Ein Administrator Benutzer und das entsprechende Kennwort müssen bekannt sein.
-- Alle Skripte die installiert und werden sollen müssen im Programmverezichnis des Heizkalender-Installers liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können aber weitere Tool-Skripte hinzugefügt werden, die dann ebenfalls aktualisiert werden.
-- Um auf Ressourcen und externe Kalender zugreifen zu können , muss der Rechner mit dem Internet verbunden sein.
-- Eine Lauffähige Kopie des Installers liegt im Skripte Verzeichnis.
+Es umfasst Skripte, Tools un eine Installations- und Update Software. Intern gesteuert werden die Skripte über Systemvariablen.
 
 # Skripte
 
@@ -24,8 +9,26 @@ Die Skripte sind das Kernstück, des Heizkalenders. Sie umfassen 3 Gruppen.
 2. Schalten der Themrostate und Hilfsmittel zur Überwachung
 3. Diverse andere optionale Hilfsmittel
 
+Intern gesteuert werden die Skripte durch Systemvariablen, die das Verhalten der Skripte kontrollieren. Die Skripte selbst sind auf allen Installationen austauschbar.
+
 Die Hauptskripte und eine ausführbare Version der HeizkalenderInstallation findet sich [hier](/Skripte). Eine Zusammenfassung der Skripte und eine Beschreibung ist [hier](/Skripte/Readme.md) zu finden
 Die Tools und weitere Beispielskripte finden sich [hier](/Tools). Eine Zusammenfassung der Tools und eine Beschreibung ist [hier](/Tools/Readme.md) zu finden
+
+# Heizkalender-Installation
+
+Der Heizkalender-Installer ist ein Tool zur Einrichtung und Updates der Heizkalendern Software auf einer CCU. 
+Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwendigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
+
+[Weitere Informationen und eine Anleitung finden sich hier.](/HeizkalenderInstallation/Dokumentation/Readme.md)
+
+## Systemvoraussetzungen für die Heizkalender-Installation
+
+- Betriebssystem: Windows
+- Die CCU muss in den Sicherheitseinstellungen den Zugriff auf die Remote Homematic-Script API erlauben. Hier muss entweder ein eingeschränkter Zugriff auf die benötigten Funktionen oder ein vollständiger Zugriff gewährt werden, damit der Installer die notwendigen Skripte und Variablen erstellen kann.
+- Ein Administrator Benutzer und das entsprechende Kennwort müssen bekannt sein.
+- Alle Skripte die installiert und werden sollen müssen im Programmverezichnis des Heizkalender-Installers liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können aber weitere Tool-Skripte hinzugefügt werden, die dann ebenfalls aktualisiert werden.
+- Um auf Ressourcen und externe Kalender zugreifen zu können , muss der Rechner mit dem Internet verbunden sein.
+- Eine Lauffähige Kopie des Installers liegt im Skripte Verzeichnis.
 
 # Allgenmeines
 
