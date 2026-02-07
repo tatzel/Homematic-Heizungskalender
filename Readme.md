@@ -6,6 +6,8 @@ Heizkalender für die Steuerung der Homematic über ChurchTool, ChurchDesk, iCal
 Der Heizkalender -Installer ist ein Tool zur Erstellung von Heizkalendern für die HommMatic, basierend auf Daten aus ChurchTool, ChurchDesk, iCal oder Google Kalender.
 Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwednigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
 
+[Weitere Informationen und eine Anleitung finden sich hier.](\HeizkalenderInstallation\Dokumentation\README.md)
+
 ## Systemvoraussetzungen
 
 - Betriebssystem: Windows
@@ -17,19 +19,37 @@ Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Inst
 
 # Skripte
 
+Die Skripte sind das Kernstück, des Heizkalenders. Sie umfassen 3 Gruppen.
+1. Einlesen von Terminen aus unterschiedlichen Quellen (Google, iCal, ChurchDesk iCal/API und ChurchTools)
+2. Schalten der Themrostate und Hilfsmittel zur Überwachung
+3. Diverse andere optionale Hilfsmittel
 
-# Tools
-
+Die Hauptskripte und eine ausführbare Version der HeizkalenderInstallation findet sich [hier](\Skripte). Eine Zusammenfassung der Skripte und eine Beschreibung ist [hier](\Skripte\Readme.md) zu finden
+Die Tools und weitere Beispielskripte finden sich [hier](\Tools). Eine Zusammenfassung der Tools und eine Beschreibung ist [hier](\Tools\Readme.md) zu finden
 
 # Allgenmeines
 
+Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
+Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+das Heizkalender-Programm für die Allgemeinheit, inkl. Varianten.
+Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
+Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
+Hanau von Martin Richter optimiert.
+
+Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
+Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an: info@heizkalender.de
+
+Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
+berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 
 ## Lizenz
 
 Der Heizkalender-Installer ist freie Software.
 
-Copyright (C) 2026  
-Martin Richter (xMRi-Software)
+Copyright (C) 2026 by Martin Richter (xMRi-Software)
+
+Weitere Teile Copyright (C) 2026 by Team Heizkalender: Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
+Im Detail ist dies in den Köpfen der Skripte und Sourcecodes zu lesen.
 
 Dieses Programm wird unter den Bedingungen der
 **GNU General Public License Version 3 (GPLv3)**
