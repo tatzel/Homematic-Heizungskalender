@@ -1,14 +1,14 @@
 # HomeMatic-Heizungskalender
 Heizkalender für die Steuerung der HomeMatic über ChurchTool, ChurchDesk, iCal oder Google
 
-# Allgenmeines
+# Allgemeines
 
 Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
+Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Basis der Homematic
 das Heizkalender-Programm für die Allgemeinheit, inkl. Varianten.
 Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
 Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-Hanau von Martin Richter optimiert.
+Hanau von Martin Richter stark optimiert und erweitert.
 
 Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an: info@heizkalender.de
@@ -66,9 +66,10 @@ Diese Dateien befinden sich alle [in diesem Ordner](/Backup-Originale/3.2.1)
 
 Der Heizkalender-Installer ist freie Software.
 
-Copyright (C) 2026 by Martin Richter (xMRi-Software)
+- Copyright (C) 2026 by Martin Richter (xMRi-Software)
 
-Weitere Teile Copyright (C) 2026 by Team Heizkalender: Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
+- Weitere Teile Copyright (C) 2026 by Team Heizkalender: Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
+
 Im Detail ist dies in den Köpfen der Skripte und Sourcecodes zu lesen.
 
 Dieses Programm wird unter den Bedingungen der
