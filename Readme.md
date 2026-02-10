@@ -11,8 +11,10 @@ Die Skripte sind das Kernstück, des Heizkalenders. Sie umfassen 3 Gruppen.
 
 Intern gesteuert werden die Skripte durch Systemvariablen, die das Verhalten der Skripte kontrollieren. Die Skripte selbst sind auf allen Installationen austauschbar.
 
-Die Hauptskripte und eine ausführbare Version der HeizkalenderInstallation findet sich [hier](/Skripte). Eine Zusammenfassung der Skripte und eine Beschreibung ist [hier](/Skripte/Readme.md) zu finden
-Die Tools und weitere Beispielskripte finden sich [hier](/Tools). Eine Zusammenfassung der Tools und eine Beschreibung ist [hier](/Tools/Readme.md) zu finden
+Die Hauptskripte und eine ausführbare Version der HeizkalenderInstallation findet sich [hier](/Skripte).  
+Eine Zusammenfassung der Skripte und eine Beschreibung ist [hier](/Skripte/Readme.md) zu finden.  
+Die Tools und weitere Beispielskripte finden sich [hier](/Tools).  
+Eine Zusammenfassung der Tools und eine Beschreibung ist [hier](/Tools/Readme.md) zu finden
 
 # Heizkalender-Installation
 
@@ -23,7 +25,7 @@ Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Inst
 
 ## Systemvoraussetzungen für die Heizkalender-Installation
 
-- Betriebssystem: Windows
+- Betriebssystem: Windows 10 oder höher
 - Die CCU muss in den Sicherheitseinstellungen den Zugriff auf die Remote Homematic-Script API erlauben. Hier muss entweder ein eingeschränkter Zugriff auf die benötigten Funktionen oder ein vollständiger Zugriff gewährt werden, damit der Installer die notwendigen Skripte und Variablen erstellen kann.
 - Ein Administrator Benutzer und das entsprechende Kennwort müssen bekannt sein.
 - Alle Skripte die installiert und werden sollen müssen im Programmverezichnis des Heizkalender-Installers liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können aber weitere Tool-Skripte hinzugefügt werden, die dann ebenfalls aktualisiert werden.
@@ -51,7 +53,8 @@ Der Heizkalender-Installer ist freie Software.
 
 * Copyright (C) 2026 by Martin Richter (xMRi-Software)
 
-* Weitere Teile Copyright (C) 2026 by Team Heizkalender: -- Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
+* Weitere Teile Copyright (C) 2026 by Team Heizkalender:  
+Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
 
 Im Detail ist dies in den Köpfen der Skripte und Sourcecodes zu lesen.
 
@@ -67,8 +70,7 @@ Dieses Programm wird OHNE JEGLICHE GEWÄHRLEISTUNG bereitgestellt,
 auch ohne die implizite Gewährleistung der Marktfähigkeit oder
 Eignung für einen bestimmten Zweck.
 
-Der vollständige Text der Lizenz ist in der Datei `LICENSE`
-enthalten oder unter folgender Adresse abrufbar:
+Der vollständige Text der Lizenz ist in der Datei [`LICENSE`](/LICENSE) enthalten oder unter folgender Adresse abrufbar:
 https://www.gnu.org/licenses/
 
 
