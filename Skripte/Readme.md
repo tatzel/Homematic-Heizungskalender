@@ -68,7 +68,8 @@ Der Heizkalender-Installer ist freie Software.
 
 - Copyright (C) 2026 by Martin Richter (xMRi-Software)
 
-- Weitere Teile Copyright (C) 2026 by Team Heizkalender: Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
+- Weitere Teile Copyright (C) 2026 by Team Heizkalender:  
+Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
 
 Im Detail ist dies in den Köpfen der Skripte und Sourcecodes zu lesen.
 
@@ -84,8 +85,7 @@ Dieses Programm wird OHNE JEGLICHE GEWÄHRLEISTUNG bereitgestellt,
 auch ohne die implizite Gewährleistung der Marktfähigkeit oder
 Eignung für einen bestimmten Zweck.
 
-Der vollständige Text der Lizenz ist in der Datei `LICENSE`
-enthalten oder unter folgender Adresse abrufbar:
+Der vollständige Text der Lizenz ist in der Datei [`LICENSE`](/LICENSE) enthalten oder unter folgender Adresse abrufbar:
 https://www.gnu.org/licenses/
 
 
