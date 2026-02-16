@@ -98,7 +98,7 @@ if (!logObj){
   log = false;
 }
 
-if(log){logObj.State("Beginn ChurchTools-Skriptlauf");}
+if(log){logObj.State("Beginn ChurchTools-Skriptlauf=====================");}
 WriteLine("Beginn ChurchTools-Skriptlauf");
 
 
@@ -375,5 +375,6 @@ if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
 
 !//------------------------------------------------------------------------------------------------
 
-if(log){logObj.State("Ende ChurchTools-Skriptlauf");}
+if(log){logObj.State("Ende ChurchTools-Skriptlauf=======================");}
+
 WriteLine("Ende ChurchTools-Skriptlauf");

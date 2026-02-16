@@ -82,7 +82,7 @@ if (!logObj){
   log = false;
 }
 
-if(log){logObj.State("Beginn ChurchDesk-Skriptlauf");}
+if(log){logObj.State("Beginn ChurchDesk-Skriptlauf======================");}
 WriteLine("Beginn ChurchDesk-Skriptlauf");
 
 !// Daten für den Zugriff setzen
@@ -378,5 +378,5 @@ if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
 
 !//------------------------------------------------------------------------------------------------
 
-if(log){logObj.State("Ende ChurchDesk-Skriptlauf");}
+if(log){logObj.State("Ende ChurchDesk-Skriptlauf========================");}
 WriteLine("Ende ChurchDesk-Skriptlauf");

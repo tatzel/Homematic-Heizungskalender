@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus iCal auszulesen
 !//================================================================================================
-!// Stand:    05.02.2026
+!// Stand:    16.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,7 +35,8 @@
 !// Skript sollte alle 30min laufen
 !//
 
-!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
+!// MRi: 2026-02-16 RRULE eingebaut
+!// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-28 Komplettes Neuschreiben und Anpssen an neue Version
 !// MRi: 2025-11-24 MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
 
@@ -88,7 +89,7 @@ if (!logObj){
   log = false;
 }
 
-if(log){logObj.State("Beginn iCal-Skriptlauf");}
+if(log){logObj.State("Beginn iCal-Skriptlauf============================");}
 WriteLine("Beginn iCal-Skriptlauf");
 
 !// Filter für Resourcen setzen
@@ -100,11 +101,14 @@ if(DEBUG){
   WriteLine("RIdListe=" # RIdListe);
 }
 
-!// Start und Enddatum setzen, End Datum = 2+Tage
+!// testDatum und Enddatum setzen, End Datum = 2+Tage
 integer versatzGMT=(system.Date("%z").Substr(1,2)).ToInteger()*3600;
 integer JETZT=system.Date().ToTime().ToInteger();
+integer minDatum = JETZT-(zeitNachlauf*60);
+integer maxDatum = JETZT+(zeitVorlauf*60);
 string startDatum;
 string endDatum;
+integer dauer;
 
 !// Neue Schaltliste
 string SLT="";
@@ -138,7 +142,7 @@ if (!stdout.StartsWith("BEGIN:VCALENDAR")){
 
 !// Schleife über alle Räume
 string RIdEintrag;
-integer raumIndex = 0;
+integer raumIndex = -1;
 foreach(RIdEintrag,RIdListe.Split(";")) {
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
   !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
@@ -160,6 +164,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
   !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
   !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
   !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+  raumIndex = raumIndex+1;
   string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
   string RaumVar = RaumVarListe;
   if (!RaumVarListe){
@@ -221,24 +226,13 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       continue;
     }
 
-    !// Wenn es einen RRULE Eintrag gibt zeigen wir einen Fehler an. Das können wir nicht.
-    iPos = termin.Find("\nRRULE:");
-    if (iPos>=0){
-      !// ACHTUNG WIR UNTERSTÜTZEN KEIN RRULE
-      if (DEBUG){
-        WriteLine("RRULE wird nicht unterstützt!!!");
-        if(log) { logObj.State("RRULE wird nicht unterstützt!!!"); }
-      }
-      continue;      
-    }
-    
     !// Start und Enddatum holen.
     iPos = termin.Find("\nDTSTART:");
     if (iPos>=0){
       !// Kein Timzone Eintrag
       startDatum=termin.Substr(iPos+9,13).Replace("T"," ");
       startDatum=startDatum.Substr(0,4)#"-"#startDatum.Substr(4,2)#"-"#startDatum.Substr(6,2)#" "#startDatum.Substr(9,2)#":"#startDatum.Substr(11,2);
-      startDatum=(startDatum.ToTime().ToInteger()+versatzGMT).ToString();
+      startDatum=(startDatum.ToTime().ToInteger()+versatzGMT);
     } else {
       !// Möglicher Zeitzonen Eintrag
       iPos = termin.Find("\nDTSTART;TZID=");
@@ -247,7 +241,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       iPos = strTemp.Find(":");
       startDatum=strTemp.Substr(iPos+1,13).Replace("T"," ");
       startDatum=startDatum.Substr(0,4)#"-"#startDatum.Substr(4,2)#"-"#startDatum.Substr(6,2)#" "#startDatum.Substr(9,2)#":"#startDatum.Substr(11,2);
-      startDatum=startDatum.ToTime().ToInteger().ToString();
+      startDatum=startDatum.ToTime().ToInteger();
     }
     if (DEBUG){
       WriteLine(startDatum.ToInteger().ToTime());
@@ -255,10 +249,10 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
 
     iPos = termin.Find("\nDTEND:");
     if (iPos>=0){
-      !// Kein Timzone Eintrag      
+      !// Kein Timzone Eintrag
       endDatum=termin.Substr(iPos+7,13).Replace("T"," ");
       endDatum=endDatum.Substr(0,4)#"-"#endDatum.Substr(4,2)#"-"#endDatum.Substr(6,2)#" "#endDatum.Substr(9,2)#":"#endDatum.Substr(11,2);
-      endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
+      endDatum=(endDatum.ToTime().ToInteger()+versatzGMT);
     } else {
       !// Möglicher Zeitzonen Eintrag
       iPos = termin.Find("\nDTEND;TZID=");
@@ -267,40 +261,269 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       iPos = strTemp.Find(":");
       endDatum=strTemp.Substr(iPos+1,13).Replace("T"," ");
       endDatum=endDatum.Substr(0,4)#"-"#endDatum.Substr(4,2)#"-"#endDatum.Substr(6,2)#" "#endDatum.Substr(9,2)#":"#endDatum.Substr(11,2);
-      endDatum=endDatum.ToTime().ToInteger().ToString();
+      endDatum=endDatum.ToTime().ToInteger();
     }
     if (DEBUG){
       WriteLine(endDatum.ToInteger().ToTime());
     }
 
+    !// Mit der Dauer können wir leicher ein neues Endatum aus einem Startdatum errechnen
+    integer dauer = endDatum-startDatum;
+
+    !// Wenn es einen RRULE Eintrag gibt müssen wir den berücksichtigen
+    iPos = termin.Find("\nRRULE:");
+    string strRRULE = "";
+    if (iPos>=0){
+      strTemp = termin.Substr(iPos+7);
+      iPos = strTemp.Find("\n");
+      strRRULE = strTemp.Substr(0,iPos);
+
+      !// Auf nicht erlaubte Schlüsselwörter prüfen.
+      boolean bFehler = false;
+      foreach(strTemp, "BYMONTH\tBYMONTHDAY\tBYYEARDAY\tBYWEEKNO\tBYSETPOS\tBYHOUR \tBYMINUTE\tBYSECOND"){
+        if (strRRULE.Find(strTemp)>=0){
+          if (DEBUG){
+            WriteLine("RRULE Schlüsselwort " #strTemp # " in " # strRRULE # "wird nicht unterstützt!!!");
+          }
+          if(log) { logObj.State("RRULE Schlüsselwort " #strTemp # " in " # strRRULE # "wird nicht unterstützt!!!"); }
+          bFehler = true;
+        }
+      }
+      if (bFehler){
+        continue;
+      }
+    }
 
     !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
-    if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
-      !// Termin liegt in der Zukunft
+    boolean bMatch = true;
+    if ((startDatum<=maxDatum) && ((startDatum+dauer)>=minDatum)) {
+      bMatch = true;
+    } else {
+      bMatch = false;
       if (DEBUG){
-        WriteLine("Termin liegt in der Zukunft");
+        WriteLine("Termin nicht im Zeitraum");
       }
-      continue;
     }
-    if ((endDatum.ToInteger()+(zeitNachlauf*60))<JETZT){
-      !// Termin liegt in der Vergangenheit
+
+    !// RRULE benutzen, wenn wir keinen direkten Treffer haben
+    if ((!bMatch) && (strRRULE != "")){
       if (DEBUG){
-        WriteLine("Termin liegt in der Vergangenheit");
+        WriteLine("RRULE:" # strRRULE);
       }
+      string strFreq = "";
+      if     (strRRULE.Find("FREQ=DAILY")   >= 0) { strFreq = "DAYLY"; }
+      elseif (strRRULE.Find("FREQ=WEEKLY")  >= 0) { strFreq = "WEEKLY"; }
+      elseif (strRRULE.Find("FREQ=MONTHLY") >= 0) { strFreq = "MONTHLY"; }
+      elseif (strRRULE.Find("FREQ=YEARLY")  >= 0) { strFreq = "YEARLY"; }
+      else {
+        if (DEBUG){
+          WriteLine("RRULE Schlüsselwort in " # strRRULE # " wird nicht unterstützt!!!");
+        }
+        if(log) { logObj.State("RRULE Schlüsselwort in " # strRRULE # " wird nicht unterstützt!!!"); }
+        continue;
+      }
+
+      integer iInterval = 1;
+      if (strRRULE.Find("INTERVAL=") >= 0) {
+        iInterval = strRRULE.Substr(strRRULE.Find("INTERVAL=")+9).ToInteger();
+      }
+
+      integer iMaxCount = 0;
+      if (strRRULE.Find("COUNT=") >= 0) {
+        iMaxCount = strRRULE.Substr(strRRULE.Find("COUNT=")+6).ToInteger();
+      }
+
+      integer timeUntil = JETZT+(zeitVorlauf*60);
+      if (strRRULE.Find("UNTIL=") >= 0) {
+        string sUNTIL = strRRULE.Substr(strRRULE.Find("UNTIL=")+6, 15);
+        timeUntil=termin.Substr(iPos+7,13).Replace("T"," ");
+        timeUntil=timeUntil.Substr(0,4)#"-"#timeUntil.Substr(4,2)#"-"#timeUntil.Substr(6,2)#" "#timeUntil.Substr(9,2)#":"#timeUntil.Substr(11,2);
+        timeUntil=timeUntil.ToTime().ToInteger()+versatzGMT;
+      }
+
+      string strBYDAY = "";
+      iPos = strRRULE.Find("BYDAY=");
+      if (iPos>= 0) {
+        strBYDAY = strRRULE.Substr(iPos);
+        iPos = strBYDAY.Find(";");
+        if (iPos<0) {
+          iPos  = strBYDAY.Length();
+        }else{
+          strBYDAY = strBYDAY.Substr(0,iPos);
+        }        
+      }
+
+      !// Schleife um die Daten zu erzeugen.
+      integer iCount = 0;
+      integer testDatum = startDatum;
+      while (true){
+        if (testDatum>maxDatum){
+          if (DEBUG){
+            WriteLine("RRULE NO MATCH: maximales Datum (Heizkalender) erreicht");
+          }
+          break;
+        }
+        if (testDatum>timeUntil){
+          if (DEBUG){
+            WriteLine("RRULE NO MATCH: maximales Datum (UNTIL) erreicht");
+          }
+          break;
+        }
+        if (iCount>=iMaxCount){
+          if (DEBUG){
+            WriteLine("RRULE NO MATCH: maximale Anzahl (COUNT) erreicht");
+          }
+          break;
+        }
+
+        boolean bDayOk = true;
+        integer wday = testDatum.ToTime().Format("%w").ToInteger();  !// MONDAY = 1
+
+        if (DEBUG){
+          WriteLine("RRULE Test:" # testDatum.ToTime() # " Wochentag: " # wday);
+        }
+
+        !// WEEKLY + BYDAY
+        if ((strFreq=="WEEKLY") && (strBYDAY != ""))
+        {
+          bDayOk = false;
+
+          if ((wday == 0) && (strBYDAY.Find("SU") >= 0))  { bDayOk = true; }
+          if ((wday == 1) && (strBYDAY.Find("MO") >= 0))  { bDayOk = true; }
+          if ((wday == 2) && (strBYDAY.Find("TU") >= 0))  { bDayOk = true; }
+          if ((wday == 3) && (strBYDAY.Find("WE") >= 0))  { bDayOk = true; }
+          if ((wday == 4) && (strBYDAY.Find("TH") >= 0))  { bDayOk = true; }
+          if ((wday == 5) && (strBYDAY.Find("FR") >= 0))  { bDayOk = true; }
+          if ((wday == 6) && (strBYDAY.Find("SA") >= 0))  { bDayOk = true; }
+        }
+
+        !// MONTHLY + BYDAY mit Ordinal (z.B. 2MO)
+        if ((strFreq == "MONTHLY") && (strBYDAY != ""))
+        {
+          integer wDayByDay;
+
+          strTemp = strBYDAY.Substr(strBYDAY.Find("MO"));
+          integer ord = 1;  !// default 1. Montag
+          !// Prüfe auf 2MO, -1MO etc.
+          if (strTemp.Length() >= 3)
+          {
+            ord = strTemp.Substr(0, strTemp.Length()-2).ToInteger();
+          }
+
+          !// Berechne n-ten Wochentag im Monat
+          integer y = testDatum.ToTime().Year();
+          integer m = testDatum.ToTime().Month();
+
+          testDatum = (y # "-" # m # "-01 00:00:00").ToTime().ToInteger();
+          wday = testDatum.ToTime().Format("%w").ToInteger();
+
+          !// weekday der BYDAY
+          if (strTemp.Find("MO") >= 0) { wDayByDay = 1; }
+          if (strTemp.Find("TU") >= 0) { wDayByDay = 2; }
+          if (strTemp.Find("WE") >= 0) { wDayByDay = 3; }
+          if (strTemp.Find("TH") >= 0) { wDayByDay = 4; }
+          if (strTemp.Find("FR") >= 0) { wDayByDay = 5; }
+          if (strTemp.Find("SA") >= 0) { wDayByDay = 6; }
+          if (strTemp.Find("SU") >= 0) { wDayByDay = 0; }
+
+          integer d = 1 + ((wDayByDay - wday + 7) % 7) + (ord-1)*7;
+          integer maxDay = 31;
+          if ((m == 4) || (m == 6) || (m == 9) || (m == 11)){
+            maxDay = 30;
+          } elseif (m == 2){
+            maxDay = 28;
+            if (((y % 4) == 0) && (((y % 100) != 0) || ((y % 400) == 0))){
+              maxDay = 29;
+            }
+          }
+
+          if (d > maxDay){
+            d = maxDay;
+          }
+
+          testDatum = (y # "-" # m # "-" # d # " " # startDatum.ToTime().Format("%T")).ToTime().ToInteger();
+          bDayOk = true;
+        }
+
+        !// Nur wenn der Tag OK ist
+        if (bDayOk)
+        {
+          iCount = iCount + 1;
+          if ((testDatum<=maxDatum) && ((testDatum+dauer)>=minDatum)){
+            bMatch = true;
+            if (DEBUG){
+              WriteLine("RRULE MATCH");
+            }
+            break;
+          }
+        }
+
+        if (strFreq == "DAILY"){
+          testDatum = testDatum + (86400 * iInterval);
+        }elseif (strFreq == "WEEKLY"){
+          testDatum = testDatum + 86400;
+        }elseif ((strFreq == "MONTHLY") || (strFreq == "YEARLY")){
+          integer y = testDatum.ToTime().Year();
+          integer m = testDatum.ToTime().Month();
+          integer d = testDatum.ToTime().Day();
+
+          if (strFreq == "MONTHLY") { m = m + iInterval; }
+          if (strFreq == "YEARLY")  { y = y + iInterval; }
+
+          while (m > 12){
+            m = m - 12;
+            y = y + 1;
+          }
+          integer maxDay = 31;
+          if ((m == 4) || (m == 6) || (m == 9) || (m == 11)){
+            maxDay = 30;
+          } elseif (m == 2){
+            maxDay = 28;
+            if (((y % 4) == 0) && (((y % 100) != 0) || ((y % 400) == 0))){
+              maxDay = 29;
+            }
+          }
+
+          if (d > maxDay){
+            d = maxDay;
+          }
+
+          testDatum = (y # "-" # m # "-" # d # " " # testDatum.ToTime().Format("%T")).ToTime().ToInteger();
+          !// WriteLine("Neu:"# testDatum.ToTime());
+        }
+      }
+
+      startDatum = testDatum;
+      endDatum = startDatum+dauer;
+
+      if (!bMatch){
+        continue;
+      }
+    }
+
+    !// Nur wenn wir einen Trreffer haben
+    if (!bMatch){
       continue;
     }
 
+    !// In Text umwandeln
+    startDatum = startDatum.ToInteger().ToString();
+    endDatum = endDatum.ToInteger().ToString();
+
     if (DEBUG){
-      WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
+      WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());
     }
 
     !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung
+    strTemp = "";
     iPos = termin.Find("\nDESCRIPTION:");
-    string strTemp = termin.Substr(iPos+13);
-    iPos = strTemp.Find("\n");
-    strTemp = strTemp.Substr(0,iPos);
-    if (DEBUG){
-      WriteLine("Beschreibung:" # strTemp);
+    if (iPos>=0) {
+      string strTemp = termin.Substr(iPos+13);
+      iPos = strTemp.Find("\n");
+      strTemp = strTemp.Substr(0,iPos);
+      if (DEBUG){
+        WriteLine("Beschreibung:" # strTemp);
+      }
     }
 
     !// Nun nach Sonderbefehlen suchen
@@ -377,9 +600,6 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       }
     }
   }
-
-  !// Nächster Raum
-  raumIndex = raumIndex+1;
 }
 
 !//------------------------------------------------------------------------------------------------
@@ -403,5 +623,5 @@ if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
 
 !//------------------------------------------------------------------------------------------------
 
-if(log){logObj.State("Ende iCal-Skriptlauf");}
+if(log){logObj.State("Ende iCal-Skriptlauf==============================");}
 WriteLine("Ende iCal-Skriptlauf");

@@ -27,6 +27,11 @@
 !//   https://www.christian-luetgens.de/homematic/programmierung/tools/neustart/Neustart.htm
 !//
 
+!//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!//Sicherheitsfunktion die entfernt werden muss für die Ausführung!
+quit;
+!//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 !// Evtl. mehrere Prefixe. Leerer Prefix muss mit einer Leertaste gesetzt sein.
 string vrps=" ";
 

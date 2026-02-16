@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    05.02.2026
+!// Stand:    16.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -34,7 +34,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
-!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
+!// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-26 Sonderbefehle auch für das iCal Skript in der Terminbeschreibung
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2026-01-01 Skript gegen fehlende Raumvariablen gesichert
@@ -89,7 +89,7 @@ if (!logObj){
   log = false;
 }
 
-if(log){logObj.State("Beginn ChurchDesk-Skriptlauf");}
+if(log){logObj.State("Beginn ChurchDesk-Skriptlauf======================");}
 WriteLine("Beginn ChurchDesk-Skriptlauf");
 
 !// Daten für den Zugriff setzen
@@ -127,7 +127,7 @@ string endDatum = (JETZT+172800).ToTime().ToString("%F");
 string SLT="";
 
 string RIdEintrag;
-integer raumIndex = 0;
+integer raumIndex = -1;
 foreach(RIdEintrag,RIdListe.Split(";")){
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
   !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
@@ -140,6 +140,8 @@ foreach(RIdEintrag,RIdListe.Split(";")){
 
   !// Zuerst Ramzuordnung ermitteln.
   !// Ohne Raumzuordnung überspringen wir hier die Terminabfrage.
+  !// Wir inkrementieren hier, weil sonst kein continue; möglich ist
+  raumIndex = raumIndex+1;
   string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
   string RaumVar = RaumVarListe;
   if (!RaumVarListe){
@@ -336,9 +338,6 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       }
     }
   }
-
-  !// Nächster Raum
-  raumIndex = raumIndex+1;
 }
 
 !//------------------------------------------------------------------------------------------------
@@ -362,5 +361,5 @@ if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
 
 !//------------------------------------------------------------------------------------------------
 
-if(log){logObj.State("Ende ChurchDesk-Skriptlauf");}
+if(log){logObj.State("Ende ChurchDesk-Skriptlauf========================");}
 WriteLine("Ende ChurchDesk-Skriptlauf");

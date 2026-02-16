@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus Google auszulesen
 !//================================================================================================
-!// Stand:    05.02.2026
+!// Stand:    16.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -35,7 +35,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
-!// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
+!// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-28 Komplettes Neuschreiben und Anpssen an neue Version
 
 !//Eingabe eines Namens Präfix
@@ -85,7 +85,7 @@ if (!logObj){
   log = false;
 }
 
-if(log){logObj.State("Beginn Google-Skriptlauf");}
+if(log){logObj.State("Beginn Google-Skriptlauf==========================");}
 WriteLine("Beginn Google-Skriptlauf");
 
 !// Filter für Resourcen setzen
@@ -159,7 +159,7 @@ if (iPos<=0) {
 
   !// Schleife über alle Räume
   string RIdEintrag;
-  integer raumIndex = 0;
+  integer raumIndex = -1;
   foreach(RIdEintrag,RIdListe.Split(";")) {
     !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
     !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
@@ -172,7 +172,9 @@ if (iPos<=0) {
 
     !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
     !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+    !// Wir inkrementieren hier, weil sonst kein continue; möglich ist
+    !// MRi: Nach meinem Dafürhalten ist diese Information in der Schaltliste redundant.
+    raumIndex = raumIndex+1;
     string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
     string RaumVar = RaumVarListe;
     if (!RaumVarListe){
@@ -361,9 +363,6 @@ if (iPos<=0) {
         }
       }
     }
-
-    !// Nächster Raum
-    raumIndex = raumIndex+1;
   }
 }
 
@@ -388,5 +387,5 @@ if (dom.GetObject(vrp+"HK1-Schaltliste").State()!=SLT){
 
 !//------------------------------------------------------------------------------------------------
 
-if(log){logObj.State("Ende Google-Skriptlauf");}
+if(log){logObj.State("Ende Google-Skriptlauf============================");}
 WriteLine("Ende Google-Skriptlauf");
