@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    08.02.2026
+!// Stand:    16.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -457,11 +457,11 @@ foreach(SLEintrag,SListe){
           if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
         }
 
-        !// faktor2 wird nach unten auf 0.1 begrenzt. Besonders wenn wir bereits in der Heizphase sind.
+        !// faktor2 wird nach unten auf 0.2 begrenzt. Besonders wenn wir bereits in der Heizphase sind.
         !// Sonst verschiebt sich die EIN Zeit immer weiter auf die AUS-Zeit zu. Was dazu führen könnte,
-        !// dass die Heizung ausgeschaltet wird. faktor2 ist also ein Wert >=0.1
+        !// dass die Heizung ausgeschaltet wird. faktor2 ist also ein Wert >=0.2
         real faktor2 = 1.0-((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT));
-        faktor2 = faktor2.Max(0.0);
+        faktor2 = faktor2.Max(0.2);
         offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
         offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
         if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
