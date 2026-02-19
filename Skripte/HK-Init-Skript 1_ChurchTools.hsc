@@ -1,12 +1,12 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Churchtools)
 !//================================================================================================
-!// Stand:    23.01.2026
+!// Stand:    19.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
@@ -24,7 +24,7 @@
 !// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
-!// Dieser Code ersetzt die Datei: 
+!// Dieser Code ersetzt die Datei:
 !//   HKP-CT-V--3.2.1 Variablen zu Skript1_ChurchTools_V1.4.c
 !// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
@@ -37,6 +37,7 @@
 !// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
+!// MRi: 2026-02-19 Einlesen mehrerer Ressourcetypen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
 !//                 manuell angelegt werden.
@@ -218,7 +219,7 @@ if (loginToken && gemeindeName){
         ressourceTypes = ressourceTypes.Replace("Person\":{\"id\":","");
 
         !// Suche die id für Räume
-        integer resTypeId = 0;
+        string resTypeIds = ";";
         string resType;
 
         foreach(resType,ressourceTypes.Replace("{\"id\":","\t")){
@@ -227,16 +228,15 @@ if (loginToken && gemeindeName){
             integer iPos2 = resType.Substr(iPos+8,50).Find("\"");
             if (iPos2>=0){
               string name = resType.Substr(iPos+8,iPos2);
-              if ((name.ToUpper()=="RAUM") || (name.ToUpper()=="RÄUME")){
-                resTypeId = resType.ToInteger();
-                break;
+              if (name.ToUpper().Contains("RAUM") || name.ToUpper().Contains("RÄUME")){
+                resTypeIds = resTypeIds # resType.ToInteger() # ";";
               }
             }
           }
         }
 
         !// Nur wenn wir eine Resource Type haben
-        if(resTypeId==0){
+        if(resTypeIds==";"){
           WriteLine("Der Ressourcen Typ für Räume wurde nicht gefunden!");
         }else{
           !// Wir bauen nun die raumliste auf. Diese erhält auch die Klartextnamen
@@ -252,8 +252,11 @@ if (loginToken && gemeindeName){
             !// Suche die resId und prüfe ob es passt
             integer iPos = res.Find("\"resourceTypeId\":");
             ! WriteLine(iPos # "-" # res);
-            if(res.Substr(iPos+17,10).ToInteger()!=resTypeId){
+            if(resTypeIds.Find(";" # res.Substr(iPos+17,10).ToInteger().ToString() # ";")<0){
               !// Resource passt nicht (kein Raum)
+              WriteLine(res);
+              WriteLine(res.Substr(iPos+17,10));
+              WriteLine(res.Substr(iPos+17,10).ToInteger().ToString());
               continue;
             }
 
