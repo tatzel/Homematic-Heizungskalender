@@ -105,6 +105,8 @@ Bei einer bestehenden eingerichteten CCU erhalten Sie eine Anzeige über den Ver
 
 ![Übersicht der Programme](Bilder/HKI-Programme.png)
 
+## Möglichkeit Änderungen in Skripten anzuzeigen
+
 # Räume
 
 ![Übersicht der Räume](Bilder/HKI-Räume.png)
