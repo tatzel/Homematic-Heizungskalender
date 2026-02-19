@@ -308,8 +308,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,3,0,1
- PRODUCTVERSION 2,2,0,1
+ FILEVERSION 2,4,0,1
+ PRODUCTVERSION 2,4,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -326,12 +326,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "2.3.0.1"
+            VALUE "FileVersion", "2.4.0.1"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
             VALUE "ProductName", "Heizkalender"
-            VALUE "ProductVersion", "2.2.0.1"
+            VALUE "ProductVersion", "2.4.0.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -678,6 +678,8 @@ BEGIN
     IDS_LEERER_NAME         "RAUM_NAME_FEHLT"
     IDP_QUERY_DELETE_RESOURCE 
                             "Soll die selektierte Ressource ""%1 / %2"" gelöscht werden? Damit werden alle Kalenderzuordnungen entfernt! Die Ressourcen können nur durch erneutes Einlesen wieder angelegt werden!\nWollen Sie fortfahren?"
+    IDP_QUERY_ALLE_RESSOURCEN_LESEN 
+                            "Sollen alle Ressourcen eingelesen werden?\nJa = Alle Ressourcen werden ungefiltert gelesen\nNein = Nur Ressourcen mit ""Raum"" im Namen des Typs einlesen"
 END
 
 #endif    // German (Germany) resources

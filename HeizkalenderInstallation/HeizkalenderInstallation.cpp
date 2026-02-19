@@ -442,7 +442,7 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		{
 			m_modeScript1Installed = ModeScript1::iCal;
 		}
-		else if (strLine1.Find(_T("GGOGLE"))>=0)
+		else if (strLine1.Find(_T("GOOGLE"))>=0)
 		{
 			m_modeScript1Installed = ModeScript1::Google;
 		}
@@ -988,6 +988,7 @@ void CHeizkalenderInstallationApp::LoadRoomMapFromSysVars(CMapRaumListe &mapRaeu
 	CString strListe2 { pVarRaumListe2->m_strContent };
 
 	mapRaeume.clear();
+	mapRaeume.clear();
 	int i=0;
 	for (auto strId : SplitString(strListe1,_T(';')))
 	{
@@ -1135,12 +1136,13 @@ void CHeizkalenderInstallationApp::ReadResources()
 
 bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRaeume)
 {
+	bool bReadAllResources = AfxMessageBox(IDP_QUERY_ALLE_RESSOURCEN_LESEN, MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)==IDYES;
 	mapRaeume.clear();
 
 	// Gemeinde bestimmen
 	auto *pVarGemeinde = m_lstSysVars.Find(AddPrefix(_T("HK1-CT-Gemeindename")));
 
-	// Token bestimmen
+	// Token bestimmen	
 	auto *pVarToken = m_lstSysVars.Find(AddPrefix(_T("HK1-CT-Token")));
 	ASSERT(pVarToken);
 	
@@ -1191,7 +1193,7 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 
 	// Erst müssen wir die Ressource Typ Id für Räume finden!
 	int iPosRes = strResult.Find(_T("\"resources\":["));
-	int resTypeId = 0;
+	std::set<int> setResTypeIds;
 	if (iPosRes>=0) 
 	{
 		// Ausschneiden
@@ -1209,17 +1211,15 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 				int iPos2 = strResType.Find(_T("\""),iPos+8);
 				if (iPos2>=0){
 					CString strName = strResType.Mid(iPos+8,iPos2-iPos-8);
-					if (strName.CompareNoCase(_T("RAUM")) || strName.CompareNoCase(_T("RÄUME")))
-					{
-						resTypeId = StringToInt(strResType);
-						break;
-					}
+					strName.MakeUpper();
+					if (bReadAllResources || strName.Find(_T("RAUM"))>=0 || strName.Find(_T("RÄUME"))>=0)
+						setResTypeIds.emplace(StringToInt(strResType));
 				}
 			}
 		}
 	}
 
-	if (resTypeId)
+	if (!setResTypeIds.empty())
 	{
 		// Jetzt suchen wir die Räume und deren Ids
 		CString strResources { strResult.Mid(iPosRes+13) };
@@ -1233,7 +1233,7 @@ bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRae
 		{
 			// Suche die resId und prüfe ob es passt
 			int iPos = strRes.Find(_T("\"resourceTypeId\":"));
-			if (StringToInt(strRes.Mid(iPos+17, 10))!=resTypeId)
+			if (setResTypeIds.find(StringToInt(strRes.Mid(iPos+17, 10)))==setResTypeIds.end())
 				// Resource passt nicht (kein Raum)
 				continue;
 
