@@ -99,7 +99,9 @@
 #define IDP_RAUMLISTE_KONTROLLIEREN     171
 #define IDS_LEERER_NAME                 172
 #define IDP_QUERY_DELETE_RESOURCE       173
-#define IDP_QUERY_ALLE_RESSOURCEN_LESEN    174
+#define IDP_QUERY_ALLE_RESSOURCEN_LESEN 174
+#define IDP_TEST_AKTOR_HEIZENSCHALTEN   175
+#define IDP_AKTOREN_FUER_HEIZENSCHALTEN_LEER 176
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001
@@ -156,11 +158,12 @@
 #define IDC_CB_MODFE                    1033
 #define IDC_ED_KURVE_8                  1034
 #define IDC_CB_GERAETETYP               1034
-#define IDC_CB_AKTOR                    1035
+#define IDC_CB_AKTOR1                   1035
 #define IDC_ED_TEMP                     1036
 #define IDC_ED_NAME                     1037
 #define IDC_LINK                        1038
 #define IDC_ED_WERT_NEU                 1038
+#define IDC_CB_AKTOR2                   1038
 #define IDC_LC_DATA                     1039
 #define IDC_LB_DATA                     1040
 #define IDC_ED_STATUS                   1040
