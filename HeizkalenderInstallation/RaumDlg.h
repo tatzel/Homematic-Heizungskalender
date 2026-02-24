@@ -42,20 +42,26 @@ public:
 	CEditInt m_edVBegin;
 	CEditInt m_edVEnde;
 	CEditDouble m_edFaktor;
-	CComboBox m_cbChannel;
+	CComboBox m_cbChannel1, m_cbChannel2;
 	CComboBox m_cbDevTyp;
 
 	CString m_strNameAlt;
 	bool m_bModify;
 	SRaumDaten &m_raum;
+	// Map interner Index aus ListBox zu RaumModus Kürzeln
+	// H=Heizen, S=Schalten, HS=Heizen+Schalten
+	std::map<int,CString> m_mapRaumModus;
 
 protected:
+	void SetDevType(const CString &strDevType);
+	CString GetDevType();
+	CString GetDevMode();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
-	afx_msg void OnCbnSelchangeCbChannel();
+	afx_msg void OnCbnSelchangeCbChannel1();
 	afx_msg void OnCbnSelchangeCbMode();
 	afx_msg void OnBnClickedBtTest();
 };
