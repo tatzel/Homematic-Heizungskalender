@@ -1,26 +1,13 @@
 !// Sichern des Systemprotokolls auf dem USB Stick
 !//================================================================================================
-!// Stand:    14.01.2026
+!// Stand:    23.01.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
-!//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Basis von Homematic
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
-!// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-!// Hanau von Martin Richter optimiert.
-!// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
-!// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
-!// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
-!// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
 !// Das grundsätzliche Problem ist, das das Systemprotokoll fülchtig ist. Alte Einträge werden
@@ -135,7 +122,7 @@ if (stdout!=""){
     !// Mid ist nun unser StartIndex
     start = mid;
   }
-  
+
   !// Wenn wir den Start haben, gehen wir so weit zurück bis wir den ersten Datensatz
   !// mit diesem Datum haben. Es is möglich, das wir nicht auf dem ersten Datenatz landen
   !// mit der binären Suche
@@ -147,20 +134,18 @@ if (stdout!=""){
   }
 }else{
   !// Wir haben keine Datei. Also stoppen wir hier und schreiben ab Zeile 1
-  if(DEBUG){WriteLine("Keine zulezt geschriebenen Daten gefunden!");}  
+  if(DEBUG){WriteLine("Keine zulezt geschriebenen Daten gefunden!");}
 }
 if(DEBUG){WriteLine("Start des Speicherns bei Systemprotokolleintrag=" # start);}
 
 !// Teile des nachfolgenden Codes wurden aus dem folgenden Thread übernommen:
 !//     https://homematic-forum.de/forum/viewtopic.php?f=19&t=75602&p=847023#p735221
 
-integer iLastGroupIndex = 1;
-string sCollectedNames = "";
-string sCollectedValues = "";
-string sCollectedDateTimes = "";
-
 !// Wir starten im Modus Suchen
 boolean modusSuchen=true;
+string sDatensaetze = dom.GetHistoryData(start,cnt-start,&rCount);
+string sDatensatz;
+string logLine;
 string letzterGeschriebenerDatensatz;
 string aktDatum="";
 string aktDateTime="";
@@ -169,23 +154,31 @@ while (true){
   string zuSchreiben="";
 
   !// Wir durchlaufen jetzt das Protokoll, entweder suchen wir oder wir schreiben
-  string sDatensatz;
-  string logLine;
-  foreach(sDatensatz, dom.GetHistoryData(start,cnt-start,&rCount)){
+  integer iDatensatz = 0;
+  while (true){
+    !// Bestimme wieviele Datensätze in der nächsten Gruppe sind
+    sDatensatz = sDatensaetze.StrValueByIndex("\t",iDatensatz);
+    if (!sDatensatz){
+      break;
+    }
     integer iGroupIndex = sDatensatz.StrValueByIndex(";",0).ToInteger();
-    string sDatapointId = sDatensatz.StrValueByIndex(";",1);
-    string sRecordedValue = sDatensatz.StrValueByIndex(";",2);
+    integer iNaechsteGruppe = iDatensatz;
+    while(sDatensaetze.StrValueByIndex("\t",iNaechsteGruppe).ToInteger()==iGroupIndex){
+      iNaechsteGruppe = iNaechsteGruppe+1;
+    }
+
+    !// Teste auf Dateiwechsel
     string sDateTime = sDatensatz.StrValueByIndex(";",3);
     string stmpDate = sDateTime.StrValueByIndex(" ",0);
     string stmpTime = sDateTime.StrValueByIndex(" ",1);
 
     !// Wir loggen tagesweise oder wochenweise
     if (bWoechentlicheLogs){
-    
       !// Wohenanfang suchen
       stmpDate = (stmpDate.ToTime().ToInteger()-((stmpDate.ToTime().Format("%u").ToInteger()-1)*86400)).ToTime().Format("%F");
     }
     !if(DEBUG){WriteLine("aktDatum=" # aktDatum # " stmpDate="#stmpDate);}
+
     if ((aktDatum=="") || (aktDatum!=stmpDate)){
       !// Start? Dann ist aktDatum leer. Ansonsten bestehende Daten speichern
       if(DEBUG){WriteLine("Datum=" # stmpDate);}
@@ -205,6 +198,7 @@ while (true){
           modusSuchen = true;
         }
       }
+
       !// Datumswechsel. Neue Datei.
       aktDatum = stmpDate;
       aktDateTime = sDateTime;
@@ -229,11 +223,24 @@ while (true){
       }
     }
 
-    !// Wenn datum und Zeit nicht passt können wir das überspringen
+    !// Wenn Datum und Zeit nicht passt können wir das überspringen
     if(modusSuchen && letzterGeschriebenerDatensatz && !letzterGeschriebenerDatensatz.StartsWith(sDateTime)){
       !// Kein Treffer, wir sind im Suchmodus
-      logLine = aktDateTime;
-    }else{
+      iDatensatz = iNaechsteGruppe;
+      continue;
+    }
+
+    !// Daten der nächsten Gruppe zusammenbauen
+    string sCollectedNames = "";
+    string sCollectedValues = "";
+    string sCollectedDateTimes = "";
+
+    while(iDatensatz<iNaechsteGruppe) {
+      sDatensatz = sDatensaetze.StrValueByIndex("\t",iDatensatz);
+      string sDatapointId = sDatensatz.StrValueByIndex(";",1);
+      string sRecordedValue = sDatensatz.StrValueByIndex(";",2);
+      string sDateTime = sDatensatz.StrValueByIndex(";",3);
+
       !// zu loggende Daten aufbauen
       string sDatapointName = "";
       object oHistDP = dom.GetObject( sDatapointId );
@@ -250,14 +257,7 @@ while (true){
            }
         }
 
-        if( iLastGroupIndex != iGroupIndex ) {
-          sCollectedNames = "";
-          sCollectedValues = "";
-          iLastGroupIndex = iGroupIndex;
-        }
-
         string sRet = "";
-
         object to = dom.GetObject( oDP.ID());
         if( to ) {
           if( to.IsTypeOf( OT_VARDP ) || to.IsTypeOf( OT_ALARMDP ) ) {
@@ -388,25 +388,29 @@ while (true){
         sCollectedNames = sDatapointName;
         sCollectedDateTimes = sDateTime;
 
-        if( !sCollectedValues.Length() ) {
-          sCollectedValues = sRecordedValue;
-        } else {
-          sCollectedValues = sCollectedValues#"\t"#sRecordedValue;
+        if(sCollectedValues) {
+          sCollectedValues = sCollectedValues # ", ";
         }
+        sCollectedValues = sCollectedValues # sRecordedValue;
       }
-      logLine=sCollectedDateTimes#"\t"#sCollectedNames#"\t"#sCollectedValues;
+
+      !// Auf nächsten Datehnsatz
+      iDatensatz = iDatensatz+1;
     }
+
+    !// Logline bauen
+    logLine=sCollectedDateTimes#"\t"#sCollectedNames#"\t"#sCollectedValues;
+    if(DEBUG){WriteLine("logline=" # logLine.Trim());}
 
     !// Prüfe ob wir die Zeile erreicht haben.
     if (modusSuchen){
       if (logLine==letzterGeschriebenerDatensatz){
+        if(DEBUG){WriteLine("Datensatz gefunden!\nAb jetzt Daten schreiben!");}
         modusSuchen = false;
       }
     }else{
-      ! logLine = logLine.ToLatin();
       !// Wir sammeln die Daten
       zuSchreiben = zuSchreiben # logLine # "\n";
-      !//if(DEBUG){WriteLine(logLine.Trim());}
 
       !// Wenn wir die maximale Größe von 10000 erreicht haben müssen wir schreiben
       !// Bei einer größe über 120000 Bytes versagt echo, aber da wir einen Append nutzen,
@@ -447,4 +451,5 @@ if (zuSchreiben.Length()>0){
 }
 
 WriteLine("Alles fertig...");
+
 

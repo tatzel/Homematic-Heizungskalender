@@ -1,6 +1,6 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    12.01.2026 
+!// Stand:    19.02.2026 
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -9,28 +9,6 @@
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
-!// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-!// Hanau von Martin Richter optimiert.
-!// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
-!// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
-!// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
-!// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
-!//================================================================================================
-!//
-!//  Alle aktuellen Raumvariablen werden dekodiert, alle Einstellungen werden im Klartext
-!//  ausgegeben.
-!//  Anleitung um das Skript auszuführen:
-!//    WebUI der CCU öffnen
-!//    Kopieren sie den Inhalt dieses Datei komplett und unverändert in das Fenster:
-!//    => Programm und Verknüpfungen => Skripte Testen
-!//    Betätigen sie den Button "Ausführen", im Ausgabe Fenster findest sich das Ergebnis
-!//    das sich auch als Dokumentation eignet.
 
 !//------------------------------------------------------------------------------------------
 !// Heizliste dekodieren und prüfen
@@ -65,8 +43,6 @@ string AGFParamIT="SET_TEMPERATURE";
 !//   SW  Noch unerprobt
 string AGFParamSW="STATE";
 
-
-
 string stemp="";
 string stext="";
 integer i=0;
@@ -91,9 +67,9 @@ while (true) {
   if ((i%5)==0){
     WriteLine("\nSchaltzeiten Raum=" + stemp);
   } elseif ((i%5)==1) {
-    WriteLine("Zeit Start=" + stemp.ToInteger().ToTime().ToString());
+    WriteLine("Zeit Start=" + stemp;
   } elseif ((i%5)==2) {
-    WriteLine("Zeit Ende=" + stemp.ToInteger().ToTime().ToString());
+    WriteLine("Zeit Ende=" + stemp;
   } elseif ((i%5)==3) {
     WriteLine("Temperatur=" + stemp);
   } elseif ((i%5)==4) {

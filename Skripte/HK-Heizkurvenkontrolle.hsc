@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    05.02.2026
+!// Stand:    24.02.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -9,23 +9,11 @@
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
-!// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-!// Hanau von Martin Richter optimiert.
-!// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
-!// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
-!// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
-!// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
-!//================================================================================================
 !//
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript 
 !//
 
+!// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 
@@ -36,9 +24,6 @@ string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
 boolean DEBUG=0;
-
-!//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
-boolean multiRaumVariante=true;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellung aus der HKx-Logging übernommen.
@@ -62,6 +47,7 @@ real GTStandard=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
 real GT=GTStandard;
 string AktAktor;
 object objAktor;
+object objDP;
 string AGF;
 
 !// Logging bestimmen
@@ -136,9 +122,9 @@ foreach(SLEintrag,SListe){
   !// Listenelement auslesen
   !// Parameter für aktuellen Schaltvorgang. Die Parameter werden später noch einmal gelesen
   !// und Final bestimmt. Auch das HSFlag wird aus der Raumbeschreibung gelesen.
-  boolean HSFlag  = SLEintrag.StrValueByIndex(";",4).ToInteger()!=0;
-  integer EIN     = SLEintrag.StrValueByIndex(";",1).ToInteger();
-  integer AUS     = SLEintrag.StrValueByIndex(";",2).ToInteger();
+  boolean HSFlag  = SLEintrag.StrValueByIndex(";",4);
+  integer EIN     = SLEintrag.StrValueByIndex(";",1).ToTime().ToInteger();
+  integer AUS     = SLEintrag.StrValueByIndex(";",2).ToTime().ToInteger();
   integer SDFlag  = SLEintrag.StrValueByIndex(";",3).ToInteger();
   real    RTemp   = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
@@ -147,7 +133,7 @@ foreach(SLEintrag,SListe){
     continue;
   }
 
-  if(HSFlag){
+  if(HSFlag!="S"){
   !// Sonderbefehl kontrollieren
     string cap;
     if (SDFlag<0){
@@ -159,8 +145,14 @@ foreach(SLEintrag,SListe){
         cap = RTemp.ToString(1);
       }
     }
-    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
-                                            AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
+    if(DEBUG){
+      string strTemp = "Heizen: ";
+      if (HSFlag=="HS"){
+        string strTemp = "Heizen+Schalten: ";
+      }
+      WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
+                                            AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);
+    }
   }
 
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
@@ -192,9 +184,7 @@ foreach(SLEintrag,SListe){
   if (AktSRName==""){
     AktSRName=RIDINamen.StrValueByIndex(";",raumIndex);
     !// Im Multiraum Fall nehmen wir nur den ersten / primären Raum
-    if(multiRaumVariante){
-      AktSRName=AktSRName.StrValueByIndex("+",0);
-    }
+    AktSRName=AktSRName.StrValueByIndex("+",0);
     if(AktSRName==""){
       AktSRName = AktSR;
     }
@@ -202,14 +192,11 @@ foreach(SLEintrag,SListe){
   AktSRName = AktSRName # " (" # AktSR # ")";
   if(DEBUG)  {WriteLine("AktSRName=" # AktSRName);}
   
-  !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste durch + getrennt.
-  if(multiRaumVariante){
-    if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
-    RVNListe=RVNListe.Split("+");
-  }
+  if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
+  RVNListe=RVNListe.Split("+");
 
   !// Beginn innere Schleife-----------------------------------------
-  !// In der MultiRaumVariante haben wir eine Liste durch + getrennt, sonst nur einen Namen
+  !// In der haben wir eine Liste durch + getrennt
   string RVN;
   if(DEBUG){WriteLine("RVNListe=" # RVNListe);}
   foreach(RVN,RVNListe){
@@ -222,8 +209,8 @@ foreach(SLEintrag,SListe){
     if(DEBUG)  {WriteLine("RVNName=" # RVNName);}
 
     !// Unser Skript macht nur Sinn für Modus Heizen
-    HSFlag = RVI.StrValueByIndex(";",1)=="H";
-    if (!HSFlag){
+    HSFlag = RVI.StrValueByIndex(";",1);
+    if (HSFlag=="S"){
       if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Kein Heizvorgang");}
       continue;
     }
@@ -244,8 +231,8 @@ foreach(SLEintrag,SListe){
     }
 
     !// Wir benötigen die Ein und Aussschaltzeit frisch, ebenso wie die Wohlfühltemperatur
-    EIN = SLEintrag.StrValueByIndex(";",1).ToInteger();
-    AUS = SLEintrag.StrValueByIndex(";",2).ToInteger();
+    EIN = SLEintrag.StrValueByIndex(";",1).ToTime().ToInteger();
+    AUS = SLEintrag.StrValueByIndex(";",2).ToTime().ToInteger();
     RTemp = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
     !// Typ des Aktors bestimmen
@@ -297,7 +284,10 @@ foreach(SLEintrag,SListe){
     if(DEBUG) { WriteLine("AktAktor=" # AktAktor); }
     objAktor = dom.GetObject(AktAktor);
     if (AktAktor && objAktor){
-      istTemperatur = objAktor.DPByHssDP("ACTUAL_TEMPERATURE").State().ToFloat();
+      objDP =  objAktor.DPByHssDP("ACTUAL_TEMPERATURE");
+      if (objDP){
+        istTemperatur = objDP.State().ToFloat();
+      }
     }else{
       if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
       continue;
