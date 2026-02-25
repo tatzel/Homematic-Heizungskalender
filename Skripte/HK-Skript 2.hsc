@@ -438,6 +438,9 @@ foreach(SLEintrag,SListe){
         objAktor = dom.GetObject(AktAktor);
         if (AktAktor && objAktor){
           objDP = objAktor.DPByHssDP("ACTUAL_TEMPERATURE");
+          if (!objDP){
+            objDP = objAktor.DPByHssDP("TEMPERATURE");
+          }
           if (objDP){
             ISTTemperatur = objDP.State().ToFloat();
             }else{
