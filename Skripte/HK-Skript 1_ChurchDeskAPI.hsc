@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (API)
 !//================================================================================================
-!// Stand:    19.02.2026
+!// Stand:    26.02.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -318,18 +318,23 @@ if (stdout=="[]"){
                 cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
               }
             }
+            !// Klartext erzeugen
+            strTemp = SchaltenHeizen;
+            if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
+            if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
+            if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
             logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Parameter: " # cap # " " #
-                         ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
+                         strTemp);
           }
         }else{
           !// Wir haben den Sonderbefehl NH/NS
           if (log){
             logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Nicht Heizen/Schalten (#NH#/#NS#)");
           }
         }

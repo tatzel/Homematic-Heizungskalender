@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus Google auszulesen
 !//================================================================================================
-!// Stand:    19.02.2026
+!// Stand:    26.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -139,7 +139,7 @@ if (iPos<=0) {
     WriteLine("Keine Termine vorhanden!");
   }
 } else {
-  !// Termindaten abschneiden und von UTF8 umwandeln 
+  !// Termindaten abschneiden und von UTF8 umwandeln
   stdout = stdout.Substr(iPos+10).ToLatin();
 
   !// Schleife über alle Räume
@@ -190,7 +190,7 @@ if (iPos<=0) {
       if(DEBUG){
         WriteLine("Fehler beim Lesen der Event-Daten von Google! Ursachen: Termindetails nicht freigegeben.");
       }
-      quit;      
+      quit;
     }
     !// Laufe über alle Termine. Wir müssen das Newline erhalten, damit wir alle Tokens finden..
     string termine = stdout.Replace("{\"kind\":\"calendar#event\"","\t");
@@ -256,16 +256,19 @@ if (iPos<=0) {
       }
 
       if (DEBUG){
-        WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
+        WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());
       }
 
-      !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung
+      !// Beschreibung (optional) des Termines extrahieren 
+      string strTemp = "";
       iPos = termin.Find(",\"description\":\"");
-      string strTemp = termin.Substr(iPos+16);
-      iPos = strTemp.Find("\",\"");
-      strTemp = strTemp.Substr(0,iPos);
-      if (DEBUG){
-        WriteLine("Beschreibung:" # strTemp);
+      if (iPos>=0){
+        strTemp = termin.Substr(iPos+16);
+        iPos = strTemp.Find("\",\"");
+        strTemp = strTemp.Substr(0,iPos);
+        if (DEBUG){
+          WriteLine("Beschreibung:" # strTemp);
+        }
       }
 
       !// Nun nach Sonderbefehlen suchen
@@ -325,18 +328,23 @@ if (iPos<=0) {
                 cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
               }
             }
+            !// Klartext erzeugen
+            strTemp = SchaltenHeizen;
+            if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
+            if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
+            if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
             logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Parameter: " # cap # " " #
-                         ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
+                         strTemp);
           }
         }else{
           !// Wir haben den Sonderbefehl NH/NS
           if (log){
             logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Nicht Heizen/Schalten (#NH#/#NS#)");
           }
         }

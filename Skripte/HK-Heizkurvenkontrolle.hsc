@@ -1,16 +1,16 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    24.02.2026
+!// Stand:    28.02.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
-!// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript 
+!// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript
 !//
 
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
@@ -23,7 +23,7 @@
 string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=0;
+boolean DEBUG=1;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellung aus der HKx-Logging übernommen.
@@ -86,7 +86,7 @@ if (!objVar){
   quit;
 }
 string RaumListe = objVar.State();
-string neueRaumListe="";
+string bearbeiteteRaeume=";";
 
 !// Baue eine simple Namensliste aus den HK2-HKG-Liste. Wir entfernen Prefix und im multiraum Fall auch die anderen Räume
 !// Aus HKG-Raum-GrSaal, wird GrSaal. Aus HKG-Foyer wird Foyer
@@ -112,7 +112,8 @@ while (iPos<SListe.Length()) {
   iPos = iPos+1;
 }
 
-!// Schleife über die Schaltliste
+!// Schleife über die Schaltliste. ACHTUNG: Das ganzhe kann nur funktionieren, wenn die Schaltliste aufsteigend
+!// aufgebaut ist.
 string SLEintrag;
 if(DEBUG){WriteLine("SListe=" # SListe);}
 foreach(SLEintrag,SListe){
@@ -155,7 +156,7 @@ foreach(SLEintrag,SListe){
     }
   }
 
-  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
   !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
   !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
   boolean bGefunden = false;
@@ -177,7 +178,7 @@ foreach(SLEintrag,SListe){
     logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");
     if(DEBUG)  {WriteLine(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
     continue;
-  }  
+  }
 
   !// Namen für das loggen ermitteln und Raumliste laden
   string RVNListe=VarNamen.StrValueByIndex(";",raumIndex);
@@ -191,7 +192,7 @@ foreach(SLEintrag,SListe){
   }
   AktSRName = AktSRName # " (" # AktSR # ")";
   if(DEBUG)  {WriteLine("AktSRName=" # AktSRName);}
-  
+
   if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
   RVNListe=RVNListe.Split("+");
 
@@ -223,12 +224,8 @@ foreach(SLEintrag,SListe){
       continue;
     }
 
-    !// Es ist möglich, dass dieser Raum bereits abgearbeitet wurde. Aber wir
-    if (neueRaumListe.Find("#" # RVN # ";")>=0){
-      !// Diesen Raum haben wir bereits in einem anderen Schaltlisteneintrag abgeprüft.
-      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Raum wurde bereits bearbeitet!"); }
-      continue;
-    }
+    !// Räume merken, die geschaltet werden
+    bearbeiteteRaeume = bearbeiteteRaeume # RVN # ";";
 
     !// Wir benötigen die Ein und Aussschaltzeit frisch, ebenso wie die Wohlfühltemperatur
     EIN = SLEintrag.StrValueByIndex(";",1).ToTime().ToInteger();
@@ -254,27 +251,32 @@ foreach(SLEintrag,SListe){
       }
     }
 
-    !// Daten aus aktueller Raumliste bestimmen.
+    !// Daten aus aktueller Raumliste bestimmen. Und die Daten aus der Raumliste entfernen.
     !//   Name
     !//   Messzustand
     !//   Bisherige maximal Temeratur
+    if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
     string RaumParameter="";
     integer iPos = RaumListe.Find("#" # RVN # ";");
     if (iPos>=0){
-      string sTemp = RaumListe.Substr(iPos+1,RaumListe.Length()-iPos-1);
-      integer iPos2 = sTemp.Find("#");
+      strTemp = RaumListe.Substr(iPos+1,RaumListe.Length()-iPos-1);
+      integer iPos2 = strTemp.Find("#");
       if (iPos2<0){
-        iPos2 = sTemp.Length();
+        iPos2 = strTemp.Length();
       }
-      RaumParameter = sTemp.Substr(0,iPos2);
+      RaumParameter = strTemp.Substr(0,iPos2);
+      !// Alten Wert aus Raumliste entfernen, neuer Wert wird hinten angefügt
+      RaumListe = RaumListe.Substr(0,iPos) # strTemp.Substr(iPos2,strTemp.Length()-iPos2);
     }
+    if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
     if (DEBUG) { WriteLine("RaumParameter=" # RaumParameter); }
-    !// status bitmap. Diese verhindert, dass ein/aus/Zieltmperatur öfters als einmal 
+
+    !// status bitmap. Diese verhindert, dass ein/aus/Zieltmperatur öfters als einmal
     !// geloggt wird.
     !//   1 bit 0 = Heizung an
     !//   2 bit 1 = Zieltemperatur erreicht
     !//   4 bit 2 = Heizung ausgeschaltet
-  
+
     integer status = RaumParameter.StrValueByIndex(";",1).ToInteger();
     real maxTemperatur = RaumParameter.StrValueByIndex(";",2).ToFloat();
 
@@ -285,6 +287,9 @@ foreach(SLEintrag,SListe){
     objAktor = dom.GetObject(AktAktor);
     if (AktAktor && objAktor){
       objDP =  objAktor.DPByHssDP("ACTUAL_TEMPERATURE");
+      if (!objDP){
+        objDP = objAktor.DPByHssDP("TEMPERATURE");
+      }
       if (objDP){
         istTemperatur = objDP.State().ToFloat();
       }
@@ -292,14 +297,14 @@ foreach(SLEintrag,SListe){
       if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
       continue;
     }
-    
+
     !// Neues maximum bestimmen
     maxTemperatur = maxTemperatur.Max(istTemperatur);
 
     !// Prüfen ob Heizbeginn erkannt wird. Nur wenn bit 0 = aus
     if ((aktuellerSchaltZustand==1) && ((status & 1)==0)){
       !// Sollten wir einen neuen Heizbeginn haben, setzen wir die maxTemperatur wieder auf istTemperatur
-      maxTemperatur = istTemperatur; 
+      maxTemperatur = istTemperatur;
       !// Heizbeginn erkannt
       sTemp = ((NOW-EIN)/60).ToString();
       if (!sTemp.StartsWith("-")){
@@ -326,8 +331,8 @@ foreach(SLEintrag,SListe){
       status = status | 4;
     }
 
-    !// Warte auf Zieltemperatur. Nur wenn bit 1 = aus
-    if ((status & 2)==0){
+    !// Warte auf Zieltemperatur. Nur wenn bit 1 = aus, und Heizphase an oder beendet (bit 0 und 2)
+    if (((status & 2)==0) && ((status & 5)!=0)){
       if (istTemperatur>=RTemp){
         !// Zieltemperatur erreicht
         sTemp = ((NOW-EIN)/60).ToString();
@@ -370,24 +375,38 @@ foreach(SLEintrag,SListe){
         status = 0;
       }
     }
-    
-    !// Wir speichern einen Raum nur, wenn er sich nicht in einem unbeheizten Zustand (status==0)
-    !// befindet. Dadurch erreichen wir, dass auch überlappende Termine sofort in der nächsten
-    !// SListe bearbeitet werden.
-    if (status!=0){
-      !// Neuen RaumParameter zusammensezen
-      RaumParameter = "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
-      neueRaumListe = neueRaumListe # RaumParameter;
-    }
+
+    !// Wir speichern einen Raum nur, mit dem neuen Status. Wenn er sich nicht in einem unbeheizten Zustand (status==0)
+    !// wird das in der nächsten Schleife korrigiert.
+    !// Neuen RaumParameter zusammensezen
+    RaumParameter = "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
+    if (DEBUG) { WriteLine("RaumParameter=" # RaumParameter); }
+    RaumListe = RaumListe # RaumParameter;
+    if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
   }
   !// Ende innere Schleife-------------------------------------------
 }
 !// Ende äußere Schleife---------------------------------------------
 
+!//------------------------------------------------------------------
+!// Nun gehen wir nochmal die Raumliste durch und löschen alle 0 Einträge
+string neueRaumListe="";
+if (DEBUG) { WriteLine("Raumliste=" # RaumListe); }
+if (DEBUG) { WriteLine("bearbeiteteRaeume=" # bearbeiteteRaeume); }
+foreach(RaumParameter,RaumListe.Split("#")){
+  !// Nur wenn der Raum geschaltet wird und auch einen Schaltlisteneintrag hatte
+  if ((RaumParameter.StrValueByIndex(";",1).ToInteger()!=0) && bearbeiteteRaeume.Contains(";" # RaumParameter.StrValueByIndex(";",0) # ";")){
+    !// Diesen Eintrag übernehmen
+    neueRaumListe = neueRaumListe # "#" # RaumParameter;
+  }
+}
+if (DEBUG) { WriteLine("neueRaumliste=" # neueRaumListe); }
+
+!//------------------------------------------------------------------
 !// Neue RaumListen Daten speichern
-if (dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State()!=neueRaumListe){
-  dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
-  if (neueRaumListe==""){
+if (objVar.State()!=neueRaumListe){
+  objVar.State(neueRaumListe);
+  if (RaumListe==""){
     if (DEBUG) { WriteLine("Neue Raumliste: Keine Termine"); }
   }else{
     if (DEBUG) { WriteLine("Neue Raumliste: "+neueRaumListe); }

@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    24.02.2026
+!// Stand:    26.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -281,9 +281,6 @@ foreach(SLEintrag,SListe){
     AktorenListe = "";
     while (iPos<RVI.Length()) {
       if (iEntry>6){
-        if (AktorenListe){
-          AktorenListe = AktorenListe # ";";
-        }
         AktorenListe = AktorenListe # RVI.Substr(iPos,1);
       } elseif (RVI.Substr(iPos,1)==";"){
         iEntry=iEntry+1;
@@ -806,9 +803,6 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
       AktorenListe = "";
       while (iPos<RVI.Length()) {
         if (iEntry>6){
-          if (AktorenListe){
-            AktorenListe = AktorenListe # ";";
-          }
           AktorenListe = AktorenListe # RVI.Substr(iPos,1);
         } elseif (RVI.Substr(iPos,1)==";"){
           iEntry=iEntry+1;
@@ -825,6 +819,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
             if(HSFlag=="H"){
               real istTemperatur = objDP.State();
               if(istTemperatur==RTemp){
+                objDP.State(RTemp);
                 if(log){logObj.State(AktAktor+" Nachtschaltung für \"" #
                                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
                                      "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
@@ -919,9 +914,6 @@ foreach(RVN,RVNListe.Split(";")) {
     AktorenListe = "";
     while (iPos<RVI.Length()) {
       if (iEntry>6){
-        if (AktorenListe){
-          AktorenListe = AktorenListe # ";";
-        }
         AktorenListe = AktorenListe # RVI.Substr(iPos,1);
       } elseif (RVI.Substr(iPos,1)==";"){
         iEntry=iEntry+1;

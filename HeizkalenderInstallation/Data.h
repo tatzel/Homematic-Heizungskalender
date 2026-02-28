@@ -166,6 +166,7 @@ enum class ChannelType
 {
 	ictUnknown =0,
 	ictHSS = 17, 
+	ictWeatherStation = 22,
 	ictHSSBinaryActuator = 3, 
 	ictBinaryActuator = 26,
 };
@@ -180,7 +181,7 @@ public:
 	CString		m_strDevType;
 	CString		m_strDataPoint;
 	ChannelType	m_channelType{ChannelType::ictUnknown};
-	bool ChannelTypeHeizung() const		{ return m_channelType==ChannelType::ictHSS; }
+	bool ChannelTypeHeizung() const		{ return m_channelType==ChannelType::ictHSS || m_channelType==ChannelType::ictWeatherStation; }
 	bool ChannelTypeSchalten() const	{ return !ChannelTypeHeizung(); }
 	CString GetDataAsLine();
 };
