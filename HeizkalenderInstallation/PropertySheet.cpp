@@ -1371,8 +1371,10 @@ void CPageResources::DoDataExchange(CDataExchange* pDX)
 				// Ist für das Sortieren nötig
 				m_lcData.SetItemData(n,reinterpret_cast<DWORD_PTR>(&e));
 				m_lcData.SetItemText(n, COL_NAME, e.second.m_strResourceName);
-				auto const &lst = e.second.m_lstRaeume;
-				CString strRaeume{ ListToString(lst,_T("; "),false) };
+				auto lst = e.second.m_lstRaeume;
+				CString strRaeume;
+				for (auto& e : lst)	
+					AppendTextWithDelimiter(strRaeume,theApp.RemoveRoomPrefix(e),_T("; "));
 				m_lcData.SetItemText(n, COL_ROOMS, strRaeume);
 			}
 		}

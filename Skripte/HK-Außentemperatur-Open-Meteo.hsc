@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    24.02.2026
+!// Stand:    28.02.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ boolean DEBUG=0;
 !// Maximal dürfen hier 48h eingegeben werden. Und ebenso die Vorraussage für die nächsten Stunden,
 !// es können maximal 24h vorraus berücksichtigt werden. Über diese komplette Anzahl von Stunden
 !// wird der Durchschnitt berechnet.
-integer stundenZurueck = 12;    !// maximal 48h
+integer stundenZurueck = 24;    !// maximal 48h
 integer stundenVoraus = 12;     !// Maximal 24h
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten

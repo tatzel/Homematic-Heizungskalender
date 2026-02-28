@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus iCal auszulesen
 !//================================================================================================
-!// Stand:    19.02.2026
+!// Stand:    26.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -493,8 +493,8 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());
     }
 
-    !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung
-    strTemp = "";
+    !// Beschreibung (optional) des Termines extrahieren 
+    string strTemp = "";
     iPos = termin.Find("\nDESCRIPTION:");
     if (iPos>=0) {
       string strTemp = termin.Substr(iPos+13);
@@ -562,18 +562,23 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
               cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
             }
           }
-          logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                       toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                       toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+            !// Klartext erzeugen
+            strTemp = SchaltenHeizen;
+            if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
+            if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
+            if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
+            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                       toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                       toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                        " Parameter: " # cap # " " #
-                       ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
+                       strTemp);
         }
       }else{
         !// Wir haben den Sonderbefehl NH/NS
         if (log){
           logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                       toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                       toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                       toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                       toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                        " Nicht Heizen/Schalten (#NH#/#NS#)");
         }
       }

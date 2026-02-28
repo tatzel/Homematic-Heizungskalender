@@ -100,12 +100,12 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 		if (m_cbChannel2.IsWindowEnabled())
 			DDX_Text(pDX,IDC_CB_AKTOR2,strAktor2);
 
-		// Im Modus Schalten und Heizen müssen beide Werte angegeben werden
-		if (m_raum.m_strMode==_T("HS") && (strAktor1.IsEmpty() || strAktor2.IsEmpty())) 
-		{
-			AfxMessageBox(IDP_AKTOREN_FUER_HEIZENSCHALTEN_LEER);
-			pDX->Fail();        // throws exception
-		}
+		//// Im Modus Schalten und Heizen müssen beide Werte angegeben werden
+		//if (m_raum.m_strMode==_T("HS") && (strAktor1.IsEmpty() || strAktor2.IsEmpty())) 
+		//{
+		//	AfxMessageBox(IDP_AKTOREN_FUER_HEIZENSCHALTEN_LEER);
+		//	pDX->Fail();        // throws exception
+		//}
 
 		m_raum.m_strAktor = strAktor1;
 		if (!strAktor2.IsEmpty())
@@ -262,6 +262,7 @@ static const aGeraeteTypen[] = {
 	_T("IT"), _T("SET_TEMPERATURE"),
 	_T("TC"), _T("SETPOINT"),
 	_T("SW"), _T("STATE"),
+	_T("SW"), _T("TEMPERATURE"),
 	NULL
 };
 
@@ -330,7 +331,7 @@ if (!ch){
   WriteLine("Kanal wurde nicht gefunden");
   WriteLine("");
 } else {
-!// Aktueler Wert der Einstellung 
+!// Aktueller Wert der Einstellung 
   if ("%2%"!=""){
     var dp = ch.DPByHssDP("%2%");
     if (!dp) {
@@ -341,13 +342,20 @@ if (!ch){
   }else{
     WriteLine("");
   }
-  if ("%3%"!=""){
-    var dp = ch.DPByHssDP("%3%");
-	if (!dp) {
-	  WriteLine("Fehler#  - Datenpunkt/Parameter \"%3%\" wurde nicht gefunden");
-	} else {
-	  WriteLine(dp.State());
-	}
+  string dpNames = "%3%";
+  if (dpNames!=""){
+    string dpName;
+	string strResult;
+    foreach(dpName,dpNames){
+	  var dp = ch.DPByHssDP(dpName);
+	  if (!dp) {
+	    strResult = "Fehler#  - Datenpunkt/Parameter \"" # dpName # "\" wurde nicht gefunden";
+	  } else {
+	    strResult = dp.State();
+        break;
+	  }
+    }
+    WriteLine(strResult);
   }
 }
 )x";
@@ -355,7 +363,7 @@ if (!ch){
 					strParam = _T("");
 				strTestSkript.Replace("%1%", CStringA{ strCh });
 				strTestSkript.Replace("%2%", CStringA{ strParam });
-				strTestSkript.Replace("%3%", strMode.Find(_T("H"))>=0 ? "ACTUAL_TEMPERATURE" : "");
+				strTestSkript.Replace("%3%", strMode.Find(_T("H"))>=0 ? "ACTUAL_TEMPERATURE\tTEMPERATURE" : "");
 
 				CStringA strOut;
 				CScriptEngine engine;
