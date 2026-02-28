@@ -786,6 +786,7 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
     }
     string sDesc = oProgram.PrgInfo().Trim();
     boolean bActive = oProgram.Active();
+    string sScript="";
     object oRule = oProgram.Rule();
     if(oRule)
     {
@@ -804,7 +805,7 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
               integer iDestinationValueType = oRuleSingleDestination.DestinationValueType();
               if(iDestinationValueType == ivtString)
               {
-                string sScript = oRuleSingleDestination.DestinationValue();
+                sScript = oRuleSingleDestination.DestinationValue();
 				sScript = sScript.Replace("\r\n", "\n")
 								 .Replace("%", "%25")
 								 .Replace("\n", "%0A")
