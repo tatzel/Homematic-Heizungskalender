@@ -819,7 +819,7 @@ BOOL CPagePrograms::OnInitDialog()
 	for (int i=0; i<3; ++i)
 		rect.right -= m_lcData.GetColumnWidth(i);
 
-	m_lcData.InsertColumn(COL_INFO,StrValueByIndex(strTitle,3,_T(';')),LVCFMT_LEFT,rect.Width());
+	m_lcData.InsertColumn(COL_INFO,StrValueByIndex(strTitle,3,_T(';')),LVCFMT_LEFT,max(rect.Width(),m_lcData.GetStringWidth(CString(_T('9'),26))));
 
 	UpdateData(FALSE);
 	return TRUE;  
