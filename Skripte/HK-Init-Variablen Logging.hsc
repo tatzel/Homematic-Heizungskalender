@@ -1,6 +1,6 @@
 !// Skript zum Erstellen der Systemvariablen des Heizkalender für das Logging
 !//================================================================================================
-!// Stand:    23.01.2026
+!// Stand:    23.02.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -9,30 +9,6 @@
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
-!// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-!// Hanau von Martin Richter optimiert.
-!// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
-!// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
-!// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
-!// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
-!//================================================================================================
-!//
-!// Anleitung um das Skript auszuführen:
-!// - Menü WebUI der CCU
-!// - Kopieren sie den Inhalt dieses Datei komplett und unverändert in das Fenster:
-!//   => Programm und Verknüpfungen => Skripte Testen
-!// - Betätigen sie den Button "Ausführen", im Ausgabe Fenster sehen sie ob und welche Variablen
-!//   angelegt wurden (als Info).
-!// - Beim erscheinen des Text "alles erledigt" wurde das Skript komplett ausgeführt.
-!// Sie können das Fenster dann wieder schließen.
-!// im Menü Status und Bedienung => Systemvariable die Systemvariablen kontrollieren
-!// Werte können nur über HQ-WebUI, oder den CloudMatic Zugang geesetzt werden
 
 !// Die Variablen HK1-Logging;HK1-Log;HK2-Logging;HK2-Log werden für das interne Logging in Skript1 und
 !// Skript2 verwenden in der MRI.

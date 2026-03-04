@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    23.01.2026
+!// Stand:    04.03.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -9,28 +9,18 @@
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
-!// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-!// Hanau von Martin Richter optimiert.
-!// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
-!// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
-!// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
-!// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
-!//================================================================================================
 !//
 !// Doku siehe hier https://open-meteo.com/en/docs/dwd-api?forecast_days=1
 !//
 !// Dieser Aufruf liefert eine Temperatur Prognose für die entsprechenden Geokoordinaten für
-!// die nächsten 24h und die Daten der letzten 48h. 
+!// die nächsten 24h und die Daten der letzten 48h.
 !// Die Geokoordinaten selbst werden aus den Daten der CCU3 ausgelesen.
 !// In dieser Variante ist es möglich eine Durchschnittstemperatur zu nutzen, die dadurch
-!// den Temperaturverlauf nach oben/unten abdämpft. Die Anzahl der Stunden kann zwischen 
-!// 1h und 48h eingestellt werden.
+!// den Temperaturverlauf nach oben/unten abdämpft. Die Anzahl der Stunden kann zwischen
+!// 1h und 48h eingestellt werden für die Vergangenheit und 24h für die Prognose in die Zukunft
+!// angegeben werden.
+!// 
+!// Das Skript sollte jede volle Stunde laufen
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
@@ -41,9 +31,14 @@ string vrp="";
 boolean DEBUG=0;
 
 !// Max Stunden in die Vergangenheit für die die Durchschnittstemperatur ermittelt werden soll
-!// Maximal dürfen hier 48h eingegeben werden. Über diese Zeit wird ein gleitender Durchschniit
-!// berechnet.
-integer stundenZurueck = 36;
+!// Maximal dürfen hier 48h eingegeben werden. Und ebenso die Vorraussage für die nächsten Stunden,
+!// es können maximal 24h vorraus berücksichtigt werden. Über diese komplette Anzahl von Stunden
+!// wird der Durchschnitt berechnet.
+!// Laut Chat/GPT ist 18/6 ein guter Wert für Fussbodenheizungen. Bei normalen Heizkörpern bietet sich 
+!// 12/3 an. Das thermische Gedächtnis von Häusern liegt bei ca. 10h.
+!// Da unsere Termine sleten länger als 3h sind wird die Vorheizzeit kaum von der Zukunft beeinflusst
+integer stundenZurueck = 18;    !// maximal 48h   
+integer stundenVoraus = 6;      !// Maximal 24h
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
@@ -89,7 +84,7 @@ if (DEBUG){
 }
 
 !// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
-command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&past_days=2&forecast_days=1'";
+command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&past_days=2&forecast_days=2'";
 system.Exec(command, &stemp, &error);
 if (DEBUG){
   !WriteLine(command+"\n");
@@ -120,10 +115,12 @@ if (h==0){
 
 !// Begrenzungen festlegen
 stundenZurueck = stundenZurueck.Min(48).Max(1);
+stundenVoraus = stundenVoraus.Min(24).Max(0);
 integer ueberspringen = h+48-stundenZurueck;
 
 if (DEBUG){
   WriteLine("Stunden zurück: " # stundenZurueck);
+  WriteLine("Stunden zurück: " # stundenVoraus);
   WriteLine("Überspringen: " # ueberspringen);
   WriteLine("---------");
 
@@ -138,7 +135,7 @@ if (DEBUG){
 
 !// Werte berechnen
 integer i=0;
-real letzterWert;
+real aktuellerWert;
 foreach (temp, stemp.Split(","))
 {
   !// Werte bis zur aktuellen Stunde überspringen wir.
@@ -146,10 +143,15 @@ foreach (temp, stemp.Split(","))
     if (DEBUG){
       WriteLine((i % 24) # ": "# temp);
     }
-    letzterWert = temp.ToFloat();
-    summe = summe+letzterWert;
+    summe = summe+temp.ToFloat();
     n = n+1;
-    if (n>=stundenZurueck) {
+    if (n==stundenZurueck){
+      aktuellerWert = temp.ToFloat();
+      if (DEBUG){
+        WriteLine("<-- Letzter Wert");
+      }
+    }
+    if (n>=(stundenZurueck+stundenVoraus)) {
        break;
     }
   }
@@ -164,7 +166,7 @@ if (DEBUG){
   WriteLine(n);
 }
 temp = (summe/n).ToString(1);
-WriteLine(temp)
+WriteLine("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
 
 !// Ergebnis schreiben
 if (n!=0){
@@ -172,5 +174,6 @@ if (n!=0){
 }
 
 if (log) {
-  logObj.State("Akt. Aussentemp.= " # letzterWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
-} 
+  logObj.State("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
+}
+

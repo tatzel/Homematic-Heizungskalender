@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    16.02.2026
+!// Stand:    26.02.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -9,19 +9,6 @@
 !// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
-!//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
-!// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-!// Hanau von Martin Richter optimiert.
-!// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
-!// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
-!// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
-!// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 !//================================================================================================
 !//
 !// Dieser Code ersetzt die Datei:
@@ -34,6 +21,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-26 Sonderbefehle auch für das iCal Skript in der Terminbeschreibung
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
@@ -49,9 +37,6 @@ string vrp="";
 
 !//Debug ein oder aus
 boolean DEBUG=0;
-
-!//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
-boolean multiRaumVariante=true;
 
 !// Zeitfenster in dem nach Termine geschaut wird
 !// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit),
@@ -148,9 +133,7 @@ foreach(RIdEintrag,RIdListe.Split(";")){
     if (DEBUG) { WriteLine("Keine Raumzuordnung!"); }
     continue;
   }
-  if (multiRaumVariante){
-    RaumVar=RaumVar.StrValueByIndex("+",0);
-  }
+  RaumVar=RaumVar.StrValueByIndex("+",0);
   if (RaumName==""){
     RaumName = RaumVarListe.Replace(vrp#"HKG-Raum-","");
   }
@@ -163,16 +146,10 @@ foreach(RIdEintrag,RIdListe.Split(";")){
     continue;
   }
 
-  !// Wir holen uns das Schalten/Heizen Flag nur aus dem ersten Raum, in der multiRaumVariante.
-  !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-  !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+  !// Dieses Flag ist eigentlich nicht nötig, aber wir platzieren es aus Gründen
+  !// der Rückwärtskompatibilität. Früher wurde 0=Schalten/1=Heizen verwendet. ich
+  !// übertrage jetz den originalen Parameter.
   string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
-  string SHFlag;
-  if(SchaltenHeizen=="H"){
-    SHFlag="1";
-  }else{
-    SHFlag="0";
-  };
 
   !// Zugriff auf ChurchDesk iCal
   string cmd = "wget --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
@@ -250,18 +227,21 @@ foreach(RIdEintrag,RIdListe.Split(";")){
         continue;
       }
 
-      !// Beschreibung des Termines extrahieren lesen, endet mit einer Zeilenschaltung
-      iPos = termin.Find("\nDESCRIPTION:");
-      string strTemp = termin.Substr(iPos+13);
-      iPos = strTemp.Find("\n");
-      strTemp = strTemp.Substr(0,iPos);
-      if (DEBUG){
-        WriteLine("Beschreibung:" # strTemp);
-      }
-      
       if (DEBUG){
         WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
       }
+      
+      !// Beschreibung (optional) des Termines extrahieren 
+      string strTemp = "";
+      iPos = termin.Find("\nDESCRIPTION:");
+      if (iPos>=0){
+        string strTemp = termin.Substr(iPos+13);
+        iPos = strTemp.Find("\n");
+        strTemp = strTemp.Substr(0,iPos);
+        if (DEBUG){
+          WriteLine("Beschreibung:" # strTemp);
+        }
+      }      
       
       !// Nun nach Sonderbefehlen suchen
       !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
@@ -303,7 +283,7 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       }
 
       !// Verhindern, dass doppelte Einträge erzeugt werden.
-      string toadd = RId # ";" # startDatum # ";" # endDatum # ";" # cap # ";" # SHFlag # ";";
+      string toadd = RId # ";" # startDatum.ToInteger().ToTime() # ";" # endDatum.ToInteger().ToTime() # ";" # cap # ";" # SchaltenHeizen # ";";
       !WriteLine(toadd);
       if (SLT.Find(toadd)<0){
         if (cap){
@@ -320,18 +300,23 @@ foreach(RIdEintrag,RIdListe.Split(";")){
                 cap = toadd.StrValueByIndex(";",3).ToFloat().ToString(1);
               }
             }
+            !// Klartext erzeugen
+            strTemp = SchaltenHeizen;
+            if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
+            if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
+            if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
             logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Parameter: " # cap # " " #
-                         ("Schalten;Heizen").StrValueByIndex(";",toadd.StrValueByIndex(";",4).ToInteger()));
+                         strTemp);
           }
         }else{
           !// Wir haben den Sonderbefehl NH/NS
           if (log){
             logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
-                         toadd.StrValueByIndex(";",1).ToInteger().ToTime().Format("%X") # " / " #
-                         toadd.StrValueByIndex(";",2).ToInteger().ToTime().Format("%X") #
+                         toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                         toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Nicht Heizen/Schalten (#NH#/#NS#)");
           }
         }
