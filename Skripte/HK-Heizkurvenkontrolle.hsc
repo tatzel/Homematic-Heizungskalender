@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    28.02.2026
+!// Stand:    04.03.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -201,6 +201,7 @@ foreach(SLEintrag,SListe){
   string RVN;
   if(DEBUG){WriteLine("RVNListe=" # RVNListe);}
   foreach(RVN,RVNListe){
+    if(DEBUG){WriteLine("----------------------------------------------");}
     if(DEBUG){WriteLine("RVN=" # RVN);}
     string RVI=dom.GetObject(RVN).State();
     if(DEBUG){WriteLine("RVI=" # RVI);}
@@ -306,12 +307,12 @@ foreach(SLEintrag,SListe){
       !// Sollten wir einen neuen Heizbeginn haben, setzen wir die maxTemperatur wieder auf istTemperatur
       maxTemperatur = istTemperatur;
       !// Heizbeginn erkannt
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Heizbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1)); }
       !// bit 0 setzen und bit 2 zurücksetzen
       status = status & 251;
       status = status | 1;
@@ -320,12 +321,12 @@ foreach(SLEintrag,SListe){
     !// Prüfen ob Heizende erkannt wird. Nur wenn bit 0 = ein und bit 2 = aus
     if ((aktuellerSchaltZustand==0) && ((status & 1)!=0) && ((status & 4)==0)){
       !// Heizbeginn erkannt
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Heizende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
       !// Bit 0 löschen und bit 2 setzen
       status = status & 254;
       status = status | 4;
@@ -335,12 +336,12 @@ foreach(SLEintrag,SListe){
     if (((status & 2)==0) && ((status & 5)!=0)){
       if (istTemperatur>=RTemp){
         !// Zieltemperatur erreicht
-        sTemp = ((NOW-EIN)/60).ToString();
-        if (!sTemp.StartsWith("-")){
-          sTemp = "+" # sTemp;
+        strTemp = ((NOW-EIN)/60).ToString();
+        if (!strTemp.StartsWith("-")){
+          strTemp = "+" # strTemp;
         }
-        logObj.State          (AktSRName # "-" # RVNName # " Zieltemperatur: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-        if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Zieltemperatur: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+        logObj.State          (AktSRName # "-" # RVNName # " Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+        if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
         !// Bit 1 setzen
         status = status | 2;
       }
@@ -350,24 +351,24 @@ foreach(SLEintrag,SListe){
     !// Das Skript sollte alle 5min laufen.
     if (((EIN-160)<NOW) && ((EIN+160)>NOW)){
       !// Terminanfang erreicht
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
     }
 
     !// Der Terminende wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
     !// Das Skript sollte alle 5min laufen.
     if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
       !// Terminende erreicht
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Terminende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
       !// Setze den Status 0, wenn wir wirklich nicht mehr heizen. Andernfalls befinden wir uns schon wieder in
       !// einer neuen Heizphase. Jeder andere Status ist uns egal.
       if (aktuellerSchaltZustand==0){
@@ -387,6 +388,8 @@ foreach(SLEintrag,SListe){
   !// Ende innere Schleife-------------------------------------------
 }
 !// Ende äußere Schleife---------------------------------------------
+
+if (DEBUG) { WriteLine("----------------------------------------------"); }
 
 !//------------------------------------------------------------------
 !// Nun gehen wir nochmal die Raumliste durch und löschen alle 0 Einträge
