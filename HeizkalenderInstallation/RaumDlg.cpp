@@ -109,7 +109,10 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 
 		m_raum.m_strAktor = strAktor1;
 		if (!strAktor2.IsEmpty())
-			AppendTextWithDelimiter(m_raum.m_strAktor, strAktor2, _T(';'));
+		{
+			m_raum.m_strAktor += _T(';');
+			m_raum.m_strAktor += strAktor2;
+		}
 	}
 	else if (m_cbMode.GetSafeHwnd())
 	{
