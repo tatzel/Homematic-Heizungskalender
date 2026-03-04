@@ -976,7 +976,17 @@ void CPageRooms::DoDataExchange(CDataExchange* pDX)
 				m_lcData.SetItemText(n, COL_TEMP, StrValueByIndex(StrValueByIndex(e.m_strContent,3,_T(';')),0,_T('/')));
 				m_lcData.SetItemText(n, COL_EIN, StrValueByIndex(StrValueByIndex(e.m_strContent,4,_T(';')),0,_T('*')));
 				m_lcData.SetItemText(n, COL_AUS, StrValueByIndex(e.m_strContent,5,_T(';')));
-				m_lcData.SetItemText(n, COL_HEIZGR, StrValueByIndex(e.m_strContent,6,_T(';')));
+				// 6 Einträge überspringen
+				int iPos=0;
+				for (int i = 0; i<6; ++i, ++iPos)
+				{
+					iPos = e.m_strContent.Find(_T(';'), iPos);
+					if (iPos<0)
+						break;
+				}
+				if (iPos<0)
+					iPos = e.m_strContent.GetLength();
+				m_lcData.SetItemText(n, COL_HEIZGR, e.m_strContent.Mid(iPos));
 				UINT uiText = 0;
 				if (e.m_bNew)
 					uiText = IDS_NEW;
