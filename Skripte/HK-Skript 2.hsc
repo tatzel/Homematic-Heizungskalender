@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    01.03.2026
+!// Stand:    04.03.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -397,23 +397,16 @@ foreach(SLEintrag,SListe){
           ly = OffsetAT.StrValueByIndex(";",5).ToFloat();
           ux=15.0;
           uy = OffsetAT.StrValueByIndex(";",6).ToFloat();
-        }elseif(AT<17.5){
+        }else{
+          !// Alles andere wird mit 15.0 bis 17.5 interoliert
           lx=15.0;
           ly = OffsetAT.StrValueByIndex(";",6).ToFloat();
           ux=17.5;
           uy = OffsetAT.StrValueByIndex(";",7).ToFloat();
-        }else{
-          lx=0.0;
-          ly=0.0;
         }
-
+        
         !// linear Interpolieren
-        real offsetTempAn=0.0;
-        if((lx!=0)||(ly!=0)){
-          offsetTempAn = (((uy-ly)/(ux-lx))*(AT-lx))+ly;
-        }else{
-          offsetTempAn = 0;
-        }
+        real offsetTempAn = (((uy-ly)/(ux-lx))*(AT-lx))+ly;
         if (offsetTempAn<0){
           offsetTempAn = 0;
         }
@@ -460,7 +453,7 @@ foreach(SLEintrag,SListe){
         !// dass die Heizung ausgeschaltet wird. faktor2 ist also ein Wert >=0.2
         !// Die SollIstTemperaturAnpassung begrenzt die Anrechnung weil diese bei einer Fussbodenheizung zu
         !// stark begrenzt.
-        real faktor2 = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));
+        real faktor2 = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));                
         faktor2 = faktor2.Max(0.2);
         offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
         offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
