@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    26.02.2026
+!// Stand:    01.03.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -67,6 +67,9 @@ boolean DEBUG=0;
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
 integer log=0;
 
+!// Temperaturanpassung (1=100% Berücksichtigung Ist/Soll Temperatur Differenz 0.5=50%, 0=0%) 
+real SollIstTemperaturAnpassung = 0.6;
+
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
 
@@ -103,7 +106,7 @@ integer GrundOffsetRaumEin=dom.GetObject(vrp+"HK2-Kurvenversatz").State();
 string SListe=dom.GetObject(vrp+"HK1-Schaltliste").State();
 string VarNamen=dom.GetObject(vrp+"HK2-HKG-Liste").State();
 string RIDI=dom.GetObject(vrp+"HK1-R-Liste").State();
-integer ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
+real ATG=dom.GetObject(vrp+"HK2-A.Temp.Grenze").State().ToFloat();
 boolean Flag_Hand_Temp=dom.GetObject(vrp+"HK2-Hand-Temp").State();
 boolean Flag_Hand_Grundtemp=dom.GetObject(vrp+"HK2-Hand-Grundtemp").State();
 real AT=dom.GetObject(vrp+"HK2-Aussentemperatur").State().ToFloat();
@@ -455,11 +458,14 @@ foreach(SLEintrag,SListe){
         !// faktor2 wird nach unten auf 0.2 begrenzt. Besonders wenn wir bereits in der Heizphase sind.
         !// Sonst verschiebt sich die EIN Zeit immer weiter auf die AUS-Zeit zu. Was dazu führen könnte,
         !// dass die Heizung ausgeschaltet wird. faktor2 ist also ein Wert >=0.2
-        real faktor2 = 1.0-((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT));
+        !// Die SollIstTemperaturAnpassung begrenzt die Anrechnung weil diese bei einer Fussbodenheizung zu
+        !// stark begrenzt.
+        real faktor2 = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));
         faktor2 = faktor2.Max(0.2);
         offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
         offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
         if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
+        !//if(log) {logObj.State("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
 
         !// Reale Schaltzeiten berechnen
         string logText = AktSRName # "-" # RVNName # " Heizen - " # AT.ToString(1) # "/"  # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C - "  #EIN.ToTime().Format("%X").Substr(0,5) # " ";
@@ -819,6 +825,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
             if(HSFlag=="H"){
               real istTemperatur = objDP.State();
               if(istTemperatur==RTemp){
+                !// Heiztemperatur immer setzen. Es könte eine Gruppe sein, die teilweise verstellt ist.
                 objDP.State(RTemp);
                 if(log){logObj.State(AktAktor+" Nachtschaltung für \"" #
                                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #

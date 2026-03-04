@@ -34,8 +34,11 @@ boolean DEBUG=0;
 !// Maximal dürfen hier 48h eingegeben werden. Und ebenso die Vorraussage für die nächsten Stunden,
 !// es können maximal 24h vorraus berücksichtigt werden. Über diese komplette Anzahl von Stunden
 !// wird der Durchschnitt berechnet.
-integer stundenZurueck = 24;    !// maximal 48h
-integer stundenVoraus = 12;     !// Maximal 24h
+!// Laut Chat/GPT ist 18/6 ein guter Wert für Fussbodenheizungen. Bei normalen Heizkörpern bietet sich 
+!// 12/3 an. Das thermische Gedächtnis von Häusern liegt bei ca. 10h.
+!// Da unsere Termine sleten länger als 3h sind wird die Vorheizzeit kaum von der Zukunft beeinflusst
+integer stundenZurueck = 18;    !// maximal 48h   
+integer stundenVoraus = 6;      !// Maximal 24h
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
