@@ -819,7 +819,7 @@ BOOL CPagePrograms::OnInitDialog()
 	for (int i=0; i<3; ++i)
 		rect.right -= m_lcData.GetColumnWidth(i);
 
-	m_lcData.InsertColumn(COL_INFO,StrValueByIndex(strTitle,3,_T(';')),LVCFMT_LEFT,rect.Width());
+	m_lcData.InsertColumn(COL_INFO,StrValueByIndex(strTitle,3,_T(';')),LVCFMT_LEFT,max(rect.Width(),m_lcData.GetStringWidth(CString(_T('9'),26))));
 
 	UpdateData(FALSE);
 	return TRUE;  
@@ -976,7 +976,17 @@ void CPageRooms::DoDataExchange(CDataExchange* pDX)
 				m_lcData.SetItemText(n, COL_TEMP, StrValueByIndex(StrValueByIndex(e.m_strContent,3,_T(';')),0,_T('/')));
 				m_lcData.SetItemText(n, COL_EIN, StrValueByIndex(StrValueByIndex(e.m_strContent,4,_T(';')),0,_T('*')));
 				m_lcData.SetItemText(n, COL_AUS, StrValueByIndex(e.m_strContent,5,_T(';')));
-				m_lcData.SetItemText(n, COL_HEIZGR, StrValueByIndex(e.m_strContent,6,_T(';')));
+				// 6 Einträge überspringen
+				int iPos=0;
+				for (int i = 0; i<6; ++i, ++iPos)
+				{
+					iPos = e.m_strContent.Find(_T(';'), iPos);
+					if (iPos<0)
+						break;
+				}
+				if (iPos<0)
+					iPos = e.m_strContent.GetLength();
+				m_lcData.SetItemText(n, COL_HEIZGR, e.m_strContent.Mid(iPos));
 				UINT uiText = 0;
 				if (e.m_bNew)
 					uiText = IDS_NEW;
@@ -1371,8 +1381,10 @@ void CPageResources::DoDataExchange(CDataExchange* pDX)
 				// Ist für das Sortieren nötig
 				m_lcData.SetItemData(n,reinterpret_cast<DWORD_PTR>(&e));
 				m_lcData.SetItemText(n, COL_NAME, e.second.m_strResourceName);
-				auto const &lst = e.second.m_lstRaeume;
-				CString strRaeume{ ListToString(lst,_T("; "),false) };
+				auto lst = e.second.m_lstRaeume;
+				CString strRaeume;
+				for (auto& e : lst)	
+					AppendTextWithDelimiter(strRaeume,theApp.RemoveRoomPrefix(e),_T("; "));
 				m_lcData.SetItemText(n, COL_ROOMS, strRaeume);
 			}
 		}

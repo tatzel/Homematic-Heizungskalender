@@ -39,6 +39,44 @@ CRaumDlg::~CRaumDlg()
 {
 }
 
+void CRaumDlg::SetDevType(const CString& strDevType)
+{
+	DWORD dwMode = MAKELPARAM(strDevType[0], strDevType[1]);
+	m_cbDevTyp.SetCurSel(0);
+	for (int i = 0, n = m_cbDevTyp.GetCount(); i<n; ++i)
+	{
+		if (m_cbDevTyp.GetItemData(i)==dwMode)
+		{
+			m_cbDevTyp.SetCurSel(i);
+			break;
+		}
+	}
+}
+
+CString CRaumDlg::GetDevType()
+{
+	CString strVal = _T("IP");
+	int nSel = m_cbDevTyp.GetCurSel();
+	if (nSel>=0)
+	{
+		// Ersten Buchstaben nehmen
+		auto dwMode = m_cbDevTyp.GetItemData(nSel);
+		strVal = CString{ TCHAR(LOWORD(dwMode)) } + TCHAR(HIWORD(dwMode));
+	}
+	return strVal;
+}
+
+
+CString CRaumDlg::GetDevMode()
+{
+	CString strVal = _T("H");
+	int nSel = m_cbMode.GetCurSel();
+	if (nSel>=0)
+		// Substring nehmen
+		strVal = m_mapRaumModus[nSel];		
+	return strVal;
+}
+
 void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -48,59 +86,81 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ED_VORZEIT_AN, m_edVBegin);
 	DDX_Control(pDX, IDC_ED_VORZEIT_AUS, m_edVEnde);
 	DDX_Control(pDX, IDC_ED_FAKTOR, m_edFaktor);
-	DDX_Control(pDX, IDC_CB_AKTOR, m_cbChannel);
+	DDX_Control(pDX, IDC_CB_AKTOR1, m_cbChannel1);
+	DDX_Control(pDX, IDC_CB_AKTOR2, m_cbChannel2);
 
 	if (pDX->m_bSaveAndValidate)
 	{
-		CString strVal = _T("H");
-		int nSel = m_cbMode.GetCurSel();
-		if (nSel>=0)
-		{
-			// Ersten Buchstaben nehmen
-			strVal = TCHAR(m_cbMode.GetItemData(nSel));
-		}
-		m_raum.m_strMode = strVal;
+		m_raum.m_strMode = GetDevMode();
+		m_raum.m_strDevTyp = GetDevType();
 
-		strVal = _T("IP");
-		nSel = m_cbDevTyp.GetCurSel();
-		if (nSel>=0)
+		CString strAktor1, strAktor2;
+		if (m_cbChannel1.IsWindowEnabled())
+			DDX_Text(pDX,IDC_CB_AKTOR1,strAktor1);
+		if (m_cbChannel2.IsWindowEnabled())
+			DDX_Text(pDX,IDC_CB_AKTOR2,strAktor2);
+
+		//// Im Modus Schalten und Heizen müssen beide Werte angegeben werden
+		//if (m_raum.m_strMode==_T("HS") && (strAktor1.IsEmpty() || strAktor2.IsEmpty())) 
+		//{
+		//	AfxMessageBox(IDP_AKTOREN_FUER_HEIZENSCHALTEN_LEER);
+		//	pDX->Fail();        // throws exception
+		//}
+
+		m_raum.m_strAktor = strAktor1;
+		if (!strAktor2.IsEmpty())
 		{
-			// Ersten Buchstaben nehmen
-			auto dwMode = m_cbDevTyp.GetItemData(nSel);
-			strVal = CString{ TCHAR(LOWORD(dwMode)) } + TCHAR(HIWORD(dwMode));
+			m_raum.m_strAktor += _T(';');
+			m_raum.m_strAktor += strAktor2;
 		}
-		m_raum.m_strDevTyp = strVal;
 	}
 	else if (m_cbMode.GetSafeHwnd())
 	{
-		int iMode = m_raum.m_strMode!=_T("H") ? _T('S') : _T('H');
-		m_cbMode.SetCurSel(0);
-		for (int i=0, n=m_cbMode.GetCount(); i<n; ++i)
+		// Raum Modus übersetzten
+		int n = -1;
+		for (auto const& e: m_mapRaumModus)
 		{
-			if (m_cbMode.GetItemData(i)==iMode)
+			if (e.second==m_raum.m_strMode)
 			{
-				m_cbMode.SetCurSel(i);
+				n = e.first;
 				break;
 			}
 		}
+		m_cbMode.SetCurSel(n);
 		OnCbnSelchangeCbMode();
 
-		int nSel = m_cbChannel.FindStringExact(-1,m_raum.m_strAktor);
-		if (nSel>=0)
-			m_cbChannel.SetCurSel(nSel);
-		OnCbnSelchangeCbChannel();
-
-		CString str = m_raum.m_strDevTyp;
-		DWORD dwMode = MAKELPARAM(str[0],str[1]);
-		m_cbDevTyp.SetCurSel(0);
-		for (int i = 0, n = m_cbDevTyp.GetCount(); i<n; ++i)
+		// Modus Heizen/Schalten oder beides
+		CString strAktor1, strAktor2;
+		if (m_cbChannel1.IsWindowEnabled() && m_cbChannel2.IsWindowEnabled())
 		{
-			if (m_cbDevTyp.GetItemData(i)==dwMode)
-			{
-				m_cbDevTyp.SetCurSel(n);
-				break;
-			}
+			strAktor1 = StrValueByIndex(m_raum.m_strAktor, 0, _T(';'));
+			int iPos = m_raum.m_strAktor.Find(_T(';'));
+			if (iPos>=0)
+				strAktor2 = m_raum.m_strAktor.Mid(iPos+1);
 		}
+		else if (m_cbChannel1.IsWindowEnabled())
+		{
+			strAktor1 = m_raum.m_strAktor;
+		}
+		else if (m_cbChannel2.IsWindowEnabled())
+		{
+			strAktor2 = m_raum.m_strAktor;
+		}
+
+		auto Fill = [&](CComboBox& cb, CString& strAktor)
+			{
+				DDX_Text(pDX, cb.GetDlgCtrlID(), strAktor);
+				int nSel = cb.FindStringExact(-1, strAktor);
+				if (nSel>=0)
+					cb.SetCurSel(nSel);
+			};
+		
+		Fill(m_cbChannel1, strAktor1);
+		OnCbnSelchangeCbChannel1();
+		Fill(m_cbChannel2, strAktor2);
+			
+		// Device Typ setzen
+		SetDevType(m_raum.m_strDevTyp); 
 	}
 	DDX_Control(pDX, IDC_CB_MODE, m_cbMode);
 	DDX_Control(pDX, IDC_CB_GERAETETYP, m_cbDevTyp);
@@ -111,14 +171,12 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_EditInt(pDX,IDC_ED_VORZEIT_AN, m_raum.m_iVBegin);
 	DDX_EditInt(pDX,IDC_ED_VORZEIT_AUS, m_raum.m_iVEnde);
 	DDX_EditDouble(pDX,IDC_ED_FAKTOR, m_raum.m_dblFaktor);
-	DDX_Text(pDX,IDC_CB_AKTOR,m_raum.m_strAktor);
 }
-
 
 BEGIN_MESSAGE_MAP(CRaumDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BT_TEST, &CRaumDlg::OnBnClickedBtTest)
 	ON_CBN_SELCHANGE(IDC_CB_MODE, &CRaumDlg::OnCbnSelchangeCbMode)
-	ON_CBN_SELCHANGE(IDC_CB_AKTOR, &CRaumDlg::OnCbnSelchangeCbChannel)
+	ON_CBN_SELCHANGE(IDC_CB_AKTOR1, &CRaumDlg::OnCbnSelchangeCbChannel1)
 END_MESSAGE_MAP()
 
 
@@ -137,13 +195,13 @@ BOOL CRaumDlg::OnInitDialog()
 	SetWindowText(strTitle + m_raum.m_strName);
 
 	CString strMode{ CStringRes(IDS_RAUM_MODUS) };
-	for (auto str : SplitString(strMode, _T(';')))
+	auto lstRaumModus = SplitString(strMode, _T('\t'));
+	for (auto str : lstRaumModus)
 	{
-		int n = m_cbMode.AddString(str);
-		if (n>=0)
-			// Ersten Buchtstaben nehmen
-			m_cbMode.SetItemData(n,str[0]);
+		int n = m_cbMode.AddString(StrValueByIndex(str,0,_T(';')));
+		m_mapRaumModus[n] = StrValueByIndex(str, 1, _T(';'));
 	}
+
 	// IP- Thermostate-Aktoren-Gerätetyp (Kanal 1)
 	// RT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
 	// TC- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
@@ -162,6 +220,18 @@ BOOL CRaumDlg::OnInitDialog()
 			m_cbDevTyp.SetItemData(n,dwMode);
 		}
 	}	
+
+	// Devices laden
+	m_cbChannel1.ResetContent();
+	m_cbChannel1.ResetContent();
+	auto const &lst = theApp.m_lstDevices;
+	for (auto const& e : lst)
+	{
+		if (e.ChannelTypeHeizung())
+			m_cbChannel1.AddString(e.m_strName);
+		else 
+			m_cbChannel2.AddString(e.m_strName);
+	}
 
 	m_edName.LimitText(64);
 	m_edName.SetDisallowedCharList(UNERLAUBTE_ZEICHEN_FUER_RAEUME);	
@@ -186,102 +256,158 @@ BOOL CRaumDlg::OnInitDialog()
 	return TRUE;  
 }
 
+struct {
+	PCTSTR pszMode, pszParam;
+} 
+static const aGeraeteTypen[] = {
+	_T("IP"), _T("SET_POINT_TEMPERATURE"),
+	_T("RT"), _T("SET_TEMPERATURE"),
+	_T("IT"), _T("SET_TEMPERATURE"),
+	_T("TC"), _T("SETPOINT"),
+	_T("SW"), _T("STATE"),
+	_T("SW"), _T("TEMPERATURE"),
+	NULL
+};
+
 void CRaumDlg::OnBnClickedBtTest()
 {
 	// Schalten Testen können wir noch nicht
 	int nSel = m_cbMode.GetCurSel();
 	if (nSel==-1)
 		return;
-	bool bModeHeizen = static_cast<TCHAR>(m_cbMode.GetItemData(nSel))==_T('H');
+
+	CString strModus = 	GetDevMode();			
 
 	// Es kann sein, dass der Typ manuell eingegeben wurde.
 	CString strChannel;
 	CString strParam;
 
 	// Bestimme den gewählten Aktor
-	nSel = m_cbChannel.GetCurSel();
-	if (nSel<0)
-	{
-		m_cbChannel.GetWindowText(strChannel);
-	}
-	else
-	{
-		m_cbChannel.GetLBText(nSel,strChannel);
-	}
-
-	// Es können mehrere Aktoren durch Semikolon getrennt werden
-	CString strAllMessages;
-	for (auto strCh : SplitString(strChannel, _T(';')))
-	{
-		// Suche den Channel
-		auto const* pDev = theApp.m_lstDevices.Find(strCh);
-		if (pDev)
+	CString strAktor1, strAktor2;
+	auto GetData = [](CComboBox& cb, CString& strAktor)
 		{
-			// Wir kennen nun den Device. Holle den Datapoint und dort den hinteren Part
-			CString strDataPoint{ pDev->m_strDataPoint };
-			strParam = StrValueByIndex(strDataPoint, 2, _T('.'));
-		}
-		else 
-			strParam = _T("STATE");
-	
-		CStringA strTestSkript = 
-		R"x(
+			if (cb.IsWindowEnabled())
+			{
+				int nSel = cb.GetCurSel();
+				if (nSel<0)
+					cb.GetWindowText(strAktor);
+				else
+					cb.GetLBText(nSel, strAktor);
+			}
+		};
+	GetData(m_cbChannel1, strAktor1);
+	GetData(m_cbChannel2, strAktor2);
+
+	// Get Schalten oder Heizen
+	bool bError = false;
+	auto Test = [&](CString& strChannel, CString strMode, CString &strAllMessages)
+		{
+			// Wähle den Gerätetyp
+			CString strDevTyp = _T("IP");
+			int nSel = m_cbDevTyp.GetCurSel();
+			if (nSel>=0)
+			{
+				// Ersten Buchstaben nehmen
+				auto dwMode = m_cbDevTyp.GetItemData(nSel);
+				strDevTyp = CString{ TCHAR(LOWORD(dwMode)) } + TCHAR(HIWORD(dwMode));
+			}
+			CString strParam;
+			if (strMode==_T("S"))
+				strDevTyp = _T("SW");
+			for (auto const& e : aGeraeteTypen)
+			{
+				if (e.pszMode==strDevTyp)
+				{
+					strParam = e.pszParam;
+					break;
+				}
+			}
+
+			// Es können mehrere Aktoren durch Semikolon getrennt werden
+			for (auto strCh : SplitString(strChannel, _T(';')))
+			{
+				// Suche den Channel
+				CStringA strTestSkript =
+					R"x(
 var ch = dom.GetObject("%1%");
 if (!ch){
   WriteLine("Kanal wurde nicht gefunden");
   WriteLine("");
 } else {
-!// Aktueler Wert der Einstellung 
-  var dp = ch.DPByHssDP("%2%");
-  if (!dp) {
-    WriteLine("Datenpunkt/Parameter \"%2%\" wurde nicht gefunden");
-  } else {
-	WriteLine(dp.State());
-  }
-  if ("%3%"!=""){
-    var dp = ch.DPByHssDP("%3%");
-	if (!dp) {
-	  WriteLine("Datenpunkt/Parameter \"%3%\" wurde nicht gefunden");
-	} else {
+!// Aktueller Wert der Einstellung 
+  if ("%2%"!=""){
+    var dp = ch.DPByHssDP("%2%");
+    if (!dp) {
+      WriteLine("Fehler# - Datenpunkt/Parameter \"%2%\" wurde nicht gefunden");
+    } else {
 	  WriteLine(dp.State());
-	}
+    }
+  }else{
+    WriteLine("");
+  }
+  string dpNames = "%3%";
+  if (dpNames!=""){
+    string dpName;
+	string strResult;
+    foreach(dpName,dpNames){
+	  var dp = ch.DPByHssDP(dpName);
+	  if (!dp) {
+	    strResult = "Fehler#  - Datenpunkt/Parameter \"" # dpName # "\" wurde nicht gefunden";
+	  } else {
+	    strResult = dp.State();
+        break;
+	  }
+    }
+    WriteLine(strResult);
   }
 }
 )x";
+				if (strMode==_T("HS"))
+					strParam = _T("");
+				strTestSkript.Replace("%1%", CStringA{ strCh });
+				strTestSkript.Replace("%2%", CStringA{ strParam });
+				strTestSkript.Replace("%3%", strMode.Find(_T("H"))>=0 ? "ACTUAL_TEMPERATURE\tTEMPERATURE" : "");
 
-		strTestSkript.Replace("%1%",CStringA{strCh});
-		strTestSkript.Replace("%2%",CStringA{strParam});
-		strTestSkript.Replace("%3%", bModeHeizen ? "ACTUAL_TEMPERATURE" : "");
-
-		CStringA strOut;
-		CScriptEngine engine;
-		if (engine.ExecuteScript(strTestSkript, strOut))
-		{
-			CString strMsg;
-			CString strOutW{ strOut};
-			CString strResult1{ StrValueByIndex(strOutW,0,_T('\n')) },
-					strResult2{ StrValueByIndex(strOutW,1,_T('\n')) };
-			if (!bModeHeizen)
-			{
-				if (IsBool(strResult1))
-					strResult1 = StrValueByIndex(
-						CStringRes(IDS_AN_AUS),
-						StringToBool(StrValueByIndex(strOutW,1,_T('\n'))),
-						_T(';')
+				CStringA strOut;
+				CScriptEngine engine;
+				if (engine.ExecuteScript(strTestSkript, strOut))
+				{
+					CString strMsg;
+					CString strOutW{ strOut };
+					CString strResult1{ StrValueByIndex(strOutW,0,_T('\n')) },
+							strResult2{ StrValueByIndex(strOutW,1,_T('\n')) };
+					strResult1.Replace(_T("#"), _T("\r\n"));
+					strResult2.Replace(_T("#"), _T("\r\n"));
+					if (strMode==_T("S"))
+					{
+						if (IsBool(strResult1))
+							strResult1 = StrValueByIndex(
+								CStringRes(IDS_AN_AUS),
+								StringToBool(StrValueByIndex(strOutW, 1, _T('\n'))),
+								_T(';')
+							);
+					}
+					strMsg.FormatMessage(strMode==_T("H") ? IDP_TEST_AKTOR_HEIZEN : 
+										 strMode==_T("S") ? IDP_TEST_AKTOR_SCHALTEN :
+											IDP_TEST_AKTOR_HEIZENSCHALTEN,
+						strCh.GetString(),
+						strResult1.GetString(), strResult2.GetString()
 					);
+					AppendTextWithDelimiter(strAllMessages, strMsg, _T("\n\n"));
+				}
+				else
+				{
+					AppendTextWithDelimiter(strAllMessages, engine.GetLastErrorText(), _T("\n\n"));
+					bError = true;
+				}
 			}
-			strMsg.FormatMessage(bModeHeizen ? IDP_TEST_AKTOR_HEIZEN : IDP_TEST_AKTOR_SCHALTEN,
-				strCh.GetString(), 
-				strResult1.GetString(), strResult2.GetString()
-			);
-			AppendTextWithDelimiter(strAllMessages,strMsg,_T("\n\n"));
-		}
-		else
-		{
-			AfxMessageBox(engine.GetLastErrorText(),MB_OK|MB_ICONERROR);
-		}
-	}
-	AfxMessageBox(strAllMessages);
+		};
+	
+	CString strAllMessages;
+	Test(strAktor1, strModus, strAllMessages);
+	Test(strAktor2, _T("S"), strAllMessages);
+	if (!strAllMessages.IsEmpty())
+		AfxMessageBox(strAllMessages);
 }
 
 
@@ -290,34 +416,37 @@ void CRaumDlg::OnCbnSelchangeCbMode()
 	int nSel = m_cbMode.GetCurSel();
 	if (nSel<0)
 		return;
-	bool bModusHeizen = m_cbMode.GetItemData(nSel)==_T('H');
 
-	// Alten Inhalt sichern
-	CString strChannel;
-	m_cbChannel.GetWindowText(strChannel);
+	CString strModus = 	GetDevMode();			
+	m_cbChannel1.EnableWindow(strModus.Find(_T("H"))>=0);
+	m_cbChannel2.EnableWindow(strModus.Find(_T("S"))>=0);
 
-	// Devices laden
-	m_cbChannel.ResetContent();
-	auto const &lst = theApp.m_lstDevices;
-	for (auto const& e : lst)
-	{
-		if (bModusHeizen==e.ChannelTypeHeizung())
-			m_cbChannel.AddString(e.m_strName);
-	}
-	m_cbChannel.SetWindowText(strChannel);
-	nSel = m_cbChannel.FindStringExact(-1,strChannel);
-	if (nSel>=0)
-		m_cbChannel.SetCurSel(nSel);
+	auto Clear = [](CComboBox& cb)
+		{
+			if (!cb.IsWindowEnabled())
+				cb.SetCurSel(-1);				
+		};
+	Clear(m_cbChannel1);
+	Clear(m_cbChannel2);
 
+	// Controls enablen/disable je nach Modus
+	bool bModusHeizen = strModus==_T("H");
 	m_edTemp.EnableWindow(bModusHeizen);
 	m_edTempG.EnableWindow(bModusHeizen);
 	m_edFaktor.EnableWindow(bModusHeizen);
+	if (!bModusHeizen)
+		SetDevType(_T("SW"));
+	m_cbDevTyp.EnableWindow(bModusHeizen);
+
+	// Nun auch noch Comboo Änderung für Aktoren simulieren
+	OnCbnSelchangeCbChannel1();
 }
 
 void CRaumDlg::OnOK()
 {
 	// Daten laden
-	UpdateData(TRUE);
+	if (!UpdateData(TRUE))
+		return;
 
 	// Ein Name muss angegeben werden
 	if (m_raum.m_strName.IsEmpty())
@@ -342,14 +471,14 @@ void CRaumDlg::OnOK()
 	CDialogEx::OnOK();
 }
 
-void CRaumDlg::OnCbnSelchangeCbChannel()
+void CRaumDlg::OnCbnSelchangeCbChannel1()
 {
-	int nSel = m_cbChannel.GetCurSel();
+	int nSel = m_cbChannel1.GetCurSel();
 	if (nSel<0)
 		return;
 
 	CString strChannel;
-	m_cbChannel.GetLBText(nSel,strChannel);
+	m_cbChannel1.GetLBText(nSel,strChannel);
 
 	// Suche den Channel
 	auto const* pDev = theApp.m_lstDevices.Find(strChannel);
@@ -367,16 +496,9 @@ void CRaumDlg::OnCbnSelchangeCbChannel()
 	// TC- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
 	//  SET_POINT
 	// IT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
-	// SW- Kennung Kanal Klassik-Schalter-Aktoren-Gerätetyp (Kanal 1 bzw. 2)
+	// SW- Kennung Kanal Schalter-Aktoren-Gerätetyp (IP+Klassik Kanal 1, 2 oder 3)
 	CString strType{ _T("SW") };
-	struct {
-		PCTSTR pszMode, pszParam;
-	} const aTypes[] = {
-		_T("IP"), _T("SET_POINT_TEMPERATURE"),
-		_T("RT"), _T("SET_TEMPERATURE"),
-		_T("TC"), _T("SETPOINT"),
-	};
-	for (auto const& e : aTypes)
+	for (auto const& e : aGeraeteTypen)
 	{
 		if (strParam.CompareNoCase(e.pszParam)==0)
 		{
@@ -384,14 +506,7 @@ void CRaumDlg::OnCbnSelchangeCbChannel()
 			break;
 		}
 	}
-	// Suche disen Mode
-	DWORD dwMode = MAKELPARAM(strType[0],strType[1]);
-	for (int i = 0, n = m_cbDevTyp.GetCount(); i<n; ++i)
-	{
-		if (m_cbDevTyp.GetItemData(i)==dwMode)
-		{
-			m_cbDevTyp.SetCurSel(i);
-			break;
-		}
-	}
+
+	// Suche und setze diesen Mode
+	SetDevType(strType);
 }

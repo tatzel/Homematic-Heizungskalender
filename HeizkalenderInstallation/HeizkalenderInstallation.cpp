@@ -786,6 +786,7 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
     }
     string sDesc = oProgram.PrgInfo().Trim();
     boolean bActive = oProgram.Active();
+    string sScript="";
     object oRule = oProgram.Rule();
     if(oRule)
     {
@@ -804,7 +805,7 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
               integer iDestinationValueType = oRuleSingleDestination.DestinationValueType();
               if(iDestinationValueType == ivtString)
               {
-                string sScript = oRuleSingleDestination.DestinationValue();
+                sScript = oRuleSingleDestination.DestinationValue();
 				sScript = sScript.Replace("\r\n", "\n")
 								 .Replace("%", "%25")
 								 .Replace("\n", "%0A")
@@ -863,16 +864,18 @@ bool CHeizkalenderInstallationApp::LoadDevicesFromCCU()
 string datapoint;
 foreach (datapoint, dom.GetObject(ID_DATAPOINTS).EnumUsedNames())
 {
-  !// Wir suchen nur die Schlüsselworte SET_POINT_TEMPERATURE, SET_TEMPERATURE, SETPOINT, STATE
+  !// Wir suchen nur die Schlüsselworte SET_POINT_TEMPERATURE, SET_TEMPERATURE, SETPOINT, STATE, TEMPERATURE
   if (datapoint.EndsWith(".SET_POINT_TEMPERATURE") ||
       datapoint.EndsWith(".SET_TEMPERATURE") ||
       datapoint.EndsWith(".SETPOINT") ||
+	  datapoint.EndsWith(".ACTUAL_TEMPERATURE") ||
+      datapoint.EndsWith(".TEMPERATURE") ||
       datapoint.EndsWith(".STATE")) {
     ! WriteLine(datapoint);
     var dp = dom.GetObject(datapoint);
     var ch = dom.GetObject(dp.Channel());
     var dv = dom.GetObject(ch.Device());
-    if ((ch.ChannelType()==ictHSS) || (ch.ChannelType()==ictHSSBinaryActuator) || (ch.ChannelType()==ictBinaryActuator))
+    if ((ch.ChannelType()==ictHSS) || (ch.ChannelType()==ictHSSBinaryActuator) || (ch.ChannelType()==ictBinaryActuator) || (ch.ChannelType()==ictWeatherStation))
     {
       WriteLine(dv.Name() # "\t" # dv.Label() # "\t" # ch.Name() # "\t" # ch.ChannelType() # "\t" # datapoint);
     }

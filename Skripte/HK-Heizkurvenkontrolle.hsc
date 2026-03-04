@@ -1,31 +1,19 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    05.02.2026
+!// Stand:    04.03.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
-!// Der Heizkalender ist eine Idee von Helmut W. Diedrichs und wurde erstmals 2019 in der
-!// Stadtmission Arheilgen angewendet Lukas Helduser entwickelte 2023 auf der Bais von Homematic
-!// das Heizkalender-Programm für die Allgemeinheit, inkl, Varianten.
-!// Dank an die seitherigen Anwender für ihre Verbesserungsvorschläge, insbesondere an die Pilot-
-!// Gemeinden. Dieser Code wurde im Rahmen der Heizkalender-Implementierung der Baptisten Gemeinde
-!// Hanau von Martin Richter optimiert.
-!// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!// Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
-!// Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an:
-!// >>>>> info@heizkalender.de <<<<<
-!// Dadurch ergäbe ich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
-!// berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
-!//================================================================================================
 !//
-!// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript 
+!// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript
 !//
 
+!// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 
@@ -35,10 +23,7 @@
 string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=0;
-
-!//Multiraum Variante, dies unterstützt eine Raumliste in der mehrere Räume mit einem + gemeinsm geschaltet werden können.
-boolean multiRaumVariante=true;
+boolean DEBUG=1;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellung aus der HKx-Logging übernommen.
@@ -62,6 +47,7 @@ real GTStandard=dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat();
 real GT=GTStandard;
 string AktAktor;
 object objAktor;
+object objDP;
 string AGF;
 
 !// Logging bestimmen
@@ -100,7 +86,7 @@ if (!objVar){
   quit;
 }
 string RaumListe = objVar.State();
-string neueRaumListe="";
+string bearbeiteteRaeume=";";
 
 !// Baue eine simple Namensliste aus den HK2-HKG-Liste. Wir entfernen Prefix und im multiraum Fall auch die anderen Räume
 !// Aus HKG-Raum-GrSaal, wird GrSaal. Aus HKG-Foyer wird Foyer
@@ -126,7 +112,8 @@ while (iPos<SListe.Length()) {
   iPos = iPos+1;
 }
 
-!// Schleife über die Schaltliste
+!// Schleife über die Schaltliste. ACHTUNG: Das ganzhe kann nur funktionieren, wenn die Schaltliste aufsteigend
+!// aufgebaut ist.
 string SLEintrag;
 if(DEBUG){WriteLine("SListe=" # SListe);}
 foreach(SLEintrag,SListe){
@@ -136,9 +123,9 @@ foreach(SLEintrag,SListe){
   !// Listenelement auslesen
   !// Parameter für aktuellen Schaltvorgang. Die Parameter werden später noch einmal gelesen
   !// und Final bestimmt. Auch das HSFlag wird aus der Raumbeschreibung gelesen.
-  boolean HSFlag  = SLEintrag.StrValueByIndex(";",4).ToInteger()!=0;
-  integer EIN     = SLEintrag.StrValueByIndex(";",1).ToInteger();
-  integer AUS     = SLEintrag.StrValueByIndex(";",2).ToInteger();
+  boolean HSFlag  = SLEintrag.StrValueByIndex(";",4);
+  integer EIN     = SLEintrag.StrValueByIndex(";",1).ToTime().ToInteger();
+  integer AUS     = SLEintrag.StrValueByIndex(";",2).ToTime().ToInteger();
   integer SDFlag  = SLEintrag.StrValueByIndex(";",3).ToInteger();
   real    RTemp   = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
@@ -147,7 +134,7 @@ foreach(SLEintrag,SListe){
     continue;
   }
 
-  if(HSFlag){
+  if(HSFlag!="S"){
   !// Sonderbefehl kontrollieren
     string cap;
     if (SDFlag<0){
@@ -159,11 +146,17 @@ foreach(SLEintrag,SListe){
         cap = RTemp.ToString(1);
       }
     }
-    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Heizen: " # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
-                                            AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
+    if(DEBUG){
+      string strTemp = "Heizen: ";
+      if (HSFlag=="HS"){
+        string strTemp = "Heizen+Schalten: ";
+      }
+      WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
+                                            AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);
+    }
   }
 
-  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+  !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
   !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
   !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
   boolean bGefunden = false;
@@ -185,34 +178,30 @@ foreach(SLEintrag,SListe){
     logObj.State(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");
     if(DEBUG)  {WriteLine(AktSR # " Raumvariable nicht gefunden, Abbruch Skript !!");}
     continue;
-  }  
+  }
 
   !// Namen für das loggen ermitteln und Raumliste laden
   string RVNListe=VarNamen.StrValueByIndex(";",raumIndex);
   if (AktSRName==""){
     AktSRName=RIDINamen.StrValueByIndex(";",raumIndex);
     !// Im Multiraum Fall nehmen wir nur den ersten / primären Raum
-    if(multiRaumVariante){
-      AktSRName=AktSRName.StrValueByIndex("+",0);
-    }
+    AktSRName=AktSRName.StrValueByIndex("+",0);
     if(AktSRName==""){
       AktSRName = AktSR;
     }
   }
   AktSRName = AktSRName # " (" # AktSR # ")";
   if(DEBUG)  {WriteLine("AktSRName=" # AktSRName);}
-  
-  !// Wir haben nun einen Raum, oder in der multiRaumVariante eine Raumliste durch + getrennt.
-  if(multiRaumVariante){
-    if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
-    RVNListe=RVNListe.Split("+");
-  }
+
+  if(DEBUG) {WriteLine(AktSRName # " Raumliste: "+RVNListe);}
+  RVNListe=RVNListe.Split("+");
 
   !// Beginn innere Schleife-----------------------------------------
-  !// In der MultiRaumVariante haben wir eine Liste durch + getrennt, sonst nur einen Namen
+  !// In der haben wir eine Liste durch + getrennt
   string RVN;
   if(DEBUG){WriteLine("RVNListe=" # RVNListe);}
   foreach(RVN,RVNListe){
+    if(DEBUG){WriteLine("----------------------------------------------");}
     if(DEBUG){WriteLine("RVN=" # RVN);}
     string RVI=dom.GetObject(RVN).State();
     if(DEBUG){WriteLine("RVI=" # RVI);}
@@ -222,8 +211,8 @@ foreach(SLEintrag,SListe){
     if(DEBUG)  {WriteLine("RVNName=" # RVNName);}
 
     !// Unser Skript macht nur Sinn für Modus Heizen
-    HSFlag = RVI.StrValueByIndex(";",1)=="H";
-    if (!HSFlag){
+    HSFlag = RVI.StrValueByIndex(";",1);
+    if (HSFlag=="S"){
       if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Kein Heizvorgang");}
       continue;
     }
@@ -236,16 +225,12 @@ foreach(SLEintrag,SListe){
       continue;
     }
 
-    !// Es ist möglich, dass dieser Raum bereits abgearbeitet wurde. Aber wir
-    if (neueRaumListe.Find("#" # RVN # ";")>=0){
-      !// Diesen Raum haben wir bereits in einem anderen Schaltlisteneintrag abgeprüft.
-      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Raum wurde bereits bearbeitet!"); }
-      continue;
-    }
+    !// Räume merken, die geschaltet werden
+    bearbeiteteRaeume = bearbeiteteRaeume # RVN # ";";
 
     !// Wir benötigen die Ein und Aussschaltzeit frisch, ebenso wie die Wohlfühltemperatur
-    EIN = SLEintrag.StrValueByIndex(";",1).ToInteger();
-    AUS = SLEintrag.StrValueByIndex(";",2).ToInteger();
+    EIN = SLEintrag.StrValueByIndex(";",1).ToTime().ToInteger();
+    AUS = SLEintrag.StrValueByIndex(";",2).ToTime().ToInteger();
     RTemp = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
     !// Typ des Aktors bestimmen
@@ -267,27 +252,32 @@ foreach(SLEintrag,SListe){
       }
     }
 
-    !// Daten aus aktueller Raumliste bestimmen.
+    !// Daten aus aktueller Raumliste bestimmen. Und die Daten aus der Raumliste entfernen.
     !//   Name
     !//   Messzustand
     !//   Bisherige maximal Temeratur
+    if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
     string RaumParameter="";
     integer iPos = RaumListe.Find("#" # RVN # ";");
     if (iPos>=0){
-      string sTemp = RaumListe.Substr(iPos+1,RaumListe.Length()-iPos-1);
-      integer iPos2 = sTemp.Find("#");
+      strTemp = RaumListe.Substr(iPos+1,RaumListe.Length()-iPos-1);
+      integer iPos2 = strTemp.Find("#");
       if (iPos2<0){
-        iPos2 = sTemp.Length();
+        iPos2 = strTemp.Length();
       }
-      RaumParameter = sTemp.Substr(0,iPos2);
+      RaumParameter = strTemp.Substr(0,iPos2);
+      !// Alten Wert aus Raumliste entfernen, neuer Wert wird hinten angefügt
+      RaumListe = RaumListe.Substr(0,iPos) # strTemp.Substr(iPos2,strTemp.Length()-iPos2);
     }
+    if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
     if (DEBUG) { WriteLine("RaumParameter=" # RaumParameter); }
-    !// status bitmap. Diese verhindert, dass ein/aus/Zieltmperatur öfters als einmal 
+
+    !// status bitmap. Diese verhindert, dass ein/aus/Zieltmperatur öfters als einmal
     !// geloggt wird.
     !//   1 bit 0 = Heizung an
     !//   2 bit 1 = Zieltemperatur erreicht
     !//   4 bit 2 = Heizung ausgeschaltet
-  
+
     integer status = RaumParameter.StrValueByIndex(";",1).ToInteger();
     real maxTemperatur = RaumParameter.StrValueByIndex(";",2).ToFloat();
 
@@ -297,26 +287,32 @@ foreach(SLEintrag,SListe){
     if(DEBUG) { WriteLine("AktAktor=" # AktAktor); }
     objAktor = dom.GetObject(AktAktor);
     if (AktAktor && objAktor){
-      istTemperatur = objAktor.DPByHssDP("ACTUAL_TEMPERATURE").State().ToFloat();
+      objDP =  objAktor.DPByHssDP("ACTUAL_TEMPERATURE");
+      if (!objDP){
+        objDP = objAktor.DPByHssDP("TEMPERATURE");
+      }
+      if (objDP){
+        istTemperatur = objDP.State().ToFloat();
+      }
     }else{
       if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
       continue;
     }
-    
+
     !// Neues maximum bestimmen
     maxTemperatur = maxTemperatur.Max(istTemperatur);
 
     !// Prüfen ob Heizbeginn erkannt wird. Nur wenn bit 0 = aus
     if ((aktuellerSchaltZustand==1) && ((status & 1)==0)){
       !// Sollten wir einen neuen Heizbeginn haben, setzen wir die maxTemperatur wieder auf istTemperatur
-      maxTemperatur = istTemperatur; 
+      maxTemperatur = istTemperatur;
       !// Heizbeginn erkannt
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Heizbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1)); }
       !// bit 0 setzen und bit 2 zurücksetzen
       status = status & 251;
       status = status | 1;
@@ -325,27 +321,27 @@ foreach(SLEintrag,SListe){
     !// Prüfen ob Heizende erkannt wird. Nur wenn bit 0 = ein und bit 2 = aus
     if ((aktuellerSchaltZustand==0) && ((status & 1)!=0) && ((status & 4)==0)){
       !// Heizbeginn erkannt
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Heizende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
       !// Bit 0 löschen und bit 2 setzen
       status = status & 254;
       status = status | 4;
     }
 
-    !// Warte auf Zieltemperatur. Nur wenn bit 1 = aus
-    if ((status & 2)==0){
+    !// Warte auf Zieltemperatur. Nur wenn bit 1 = aus, und Heizphase an oder beendet (bit 0 und 2)
+    if (((status & 2)==0) && ((status & 5)!=0)){
       if (istTemperatur>=RTemp){
         !// Zieltemperatur erreicht
-        sTemp = ((NOW-EIN)/60).ToString();
-        if (!sTemp.StartsWith("-")){
-          sTemp = "+" # sTemp;
+        strTemp = ((NOW-EIN)/60).ToString();
+        if (!strTemp.StartsWith("-")){
+          strTemp = "+" # strTemp;
         }
-        logObj.State          (AktSRName # "-" # RVNName # " Zieltemperatur: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-        if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Zieltemperatur: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+        logObj.State          (AktSRName # "-" # RVNName # " Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+        if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
         !// Bit 1 setzen
         status = status | 2;
       }
@@ -355,24 +351,24 @@ foreach(SLEintrag,SListe){
     !// Das Skript sollte alle 5min laufen.
     if (((EIN-160)<NOW) && ((EIN+160)>NOW)){
       !// Terminanfang erreicht
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminbeginn: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
     }
 
     !// Der Terminende wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
     !// Das Skript sollte alle 5min laufen.
     if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
       !// Terminende erreicht
-      sTemp = ((NOW-EIN)/60).ToString();
-      if (!sTemp.StartsWith("-")){
-        sTemp = "+" # sTemp;
+      strTemp = ((NOW-EIN)/60).ToString();
+      if (!strTemp.StartsWith("-")){
+        strTemp = "+" # strTemp;
       }
-      logObj.State          (AktSRName # "-" # RVNName # " Terminende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
-      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminende: " # sTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
+      logObj.State          (AktSRName # "-" # RVNName # " Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1));
+      if (DEBUG) { WriteLine(AktSRName # "-" # RVNName # " Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # " Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1)); }
       !// Setze den Status 0, wenn wir wirklich nicht mehr heizen. Andernfalls befinden wir uns schon wieder in
       !// einer neuen Heizphase. Jeder andere Status ist uns egal.
       if (aktuellerSchaltZustand==0){
@@ -380,24 +376,40 @@ foreach(SLEintrag,SListe){
         status = 0;
       }
     }
-    
-    !// Wir speichern einen Raum nur, wenn er sich nicht in einem unbeheizten Zustand (status==0)
-    !// befindet. Dadurch erreichen wir, dass auch überlappende Termine sofort in der nächsten
-    !// SListe bearbeitet werden.
-    if (status!=0){
-      !// Neuen RaumParameter zusammensezen
-      RaumParameter = "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
-      neueRaumListe = neueRaumListe # RaumParameter;
-    }
+
+    !// Wir speichern einen Raum nur, mit dem neuen Status. Wenn er sich nicht in einem unbeheizten Zustand (status==0)
+    !// wird das in der nächsten Schleife korrigiert.
+    !// Neuen RaumParameter zusammensezen
+    RaumParameter = "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
+    if (DEBUG) { WriteLine("RaumParameter=" # RaumParameter); }
+    RaumListe = RaumListe # RaumParameter;
+    if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
   }
   !// Ende innere Schleife-------------------------------------------
 }
 !// Ende äußere Schleife---------------------------------------------
 
+if (DEBUG) { WriteLine("----------------------------------------------"); }
+
+!//------------------------------------------------------------------
+!// Nun gehen wir nochmal die Raumliste durch und löschen alle 0 Einträge
+string neueRaumListe="";
+if (DEBUG) { WriteLine("Raumliste=" # RaumListe); }
+if (DEBUG) { WriteLine("bearbeiteteRaeume=" # bearbeiteteRaeume); }
+foreach(RaumParameter,RaumListe.Split("#")){
+  !// Nur wenn der Raum geschaltet wird und auch einen Schaltlisteneintrag hatte
+  if ((RaumParameter.StrValueByIndex(";",1).ToInteger()!=0) && bearbeiteteRaeume.Contains(";" # RaumParameter.StrValueByIndex(";",0) # ";")){
+    !// Diesen Eintrag übernehmen
+    neueRaumListe = neueRaumListe # "#" # RaumParameter;
+  }
+}
+if (DEBUG) { WriteLine("neueRaumliste=" # neueRaumListe); }
+
+!//------------------------------------------------------------------
 !// Neue RaumListen Daten speichern
-if (dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State()!=neueRaumListe){
-  dom.GetObject(vrp+"HK-RäumeHeizkurvenkontrolle").State(neueRaumListe);
-  if (neueRaumListe==""){
+if (objVar.State()!=neueRaumListe){
+  objVar.State(neueRaumListe);
+  if (RaumListe==""){
     if (DEBUG) { WriteLine("Neue Raumliste: Keine Termine"); }
   }else{
     if (DEBUG) { WriteLine("Neue Raumliste: "+neueRaumListe); }
