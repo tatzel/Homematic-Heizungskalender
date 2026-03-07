@@ -189,7 +189,9 @@ while (true){
           if(DEBUG){WriteLine("Dateiname="#dateiname);}
           if(DEBUG){WriteLine("Daten schreiben 1: " # dateiname # " Bytes: " # zuSchreiben.Length());}
           cmd = "echo -n \"" # zuSchreiben # "\" >> '" # dateiname # "' &";
-          system.Exec(cmd);
+          if (!DEBUG){
+            system.Exec(cmd);
+          }
           zuSchreiben = "";
         }else{
           !// Sollten wir gerade in den Schreibmodus gegangen sein, aber nun einen Dateiwechsel
@@ -237,6 +239,7 @@ while (true){
 
     while(iDatensatz<iNaechsteGruppe) {
       sDatensatz = sDatensaetze.StrValueByIndex("\t",iDatensatz);
+      if(DEBUG){WriteLine("sDatensatz="#sDatensatz);}
       string sDatapointId = sDatensatz.StrValueByIndex(";",1);
       string sRecordedValue = sDatensatz.StrValueByIndex(";",2);
       string sDateTime = sDatensatz.StrValueByIndex(";",3);
@@ -419,7 +422,9 @@ while (true){
         !// Zeilenschaltung entfernen, denn den haben wir schon
         if(DEBUG){WriteLine("Daten schreiben 2: " # dateiname # " Bytes: " # zuSchreiben.Length());}
         string cmd = "echo -n \"" # zuSchreiben # "\" >> '" # dateiname # "' &";
-        system.Exec(cmd);
+        if (!DEBUG){
+          system.Exec(cmd);
+        }
         zuSchreiben = "";
       }
     }
@@ -445,7 +450,9 @@ if (zuSchreiben.Length()>0){
   !// Zeilenschaltung entfernen, denn den haben wir schon
   if(DEBUG){WriteLine("Daten schreiben 3: " # dateiname # " Bytes: " # zuSchreiben.Length());}
   string cmd = "echo -n \"" # zuSchreiben # "\" >> '" # dateiname # "' &";
-  system.Exec(cmd);
+  if (!DEBUG){
+    system.Exec(cmd);
+  }
 }else{
   if(DEBUG){WriteLine("Daten schreiben 3: Keine Daten zu schreiben " # dateiname);}
 }
