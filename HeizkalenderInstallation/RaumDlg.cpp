@@ -77,6 +77,14 @@ CString CRaumDlg::GetDevMode()
 	return strVal;
 }
 
+static void SelectCBEntry(CComboBox& cb, CString const& strAktor)
+{
+	cb.SetWindowText(strAktor);
+	int nSel = cb.FindStringExact(-1, strAktor);
+	if (nSel>=0)
+		cb.SetCurSel(nSel);
+}
+
 void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -146,18 +154,10 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 		{
 			strAktor2 = m_raum.m_strAktor;
 		}
-
-		auto Fill = [&](CComboBox& cb, CString& strAktor)
-			{
-				DDX_Text(pDX, cb.GetDlgCtrlID(), strAktor);
-				int nSel = cb.FindStringExact(-1, strAktor);
-				if (nSel>=0)
-					cb.SetCurSel(nSel);
-			};
 		
-		Fill(m_cbChannel1, strAktor1);
+		SelectCBEntry(m_cbChannel1, strAktor1);
 		OnCbnSelchangeCbChannel1();
-		Fill(m_cbChannel2, strAktor2);
+		SelectCBEntry(m_cbChannel2, strAktor2);
 			
 		// Device Typ setzen
 		SetDevType(m_raum.m_strDevTyp); 
@@ -221,18 +221,6 @@ BOOL CRaumDlg::OnInitDialog()
 		}
 	}	
 
-	// Devices laden
-	m_cbChannel1.ResetContent();
-	m_cbChannel1.ResetContent();
-	auto const &lst = theApp.m_lstDevices;
-	for (auto const& e : lst)
-	{
-		if (e.ChannelTypeHeizung())
-			m_cbChannel1.AddString(e.m_strName);
-		else 
-			m_cbChannel2.AddString(e.m_strName);
-	}
-
 	m_edName.LimitText(64);
 	m_edName.SetDisallowedCharList(UNERLAUBTE_ZEICHEN_FUER_RAEUME);	
 	m_edTemp.SetMinMax(0,30);
@@ -252,7 +240,6 @@ BOOL CRaumDlg::OnInitDialog()
 	
 	// Endgültige Daten laden
 	UpdateData(FALSE);
-	OnCbnSelchangeCbMode();
 	return TRUE;  
 }
 
@@ -266,7 +253,6 @@ static const aGeraeteTypen[] = {
 	_T("TC"), _T("SETPOINT"),
 	_T("SW"), _T("STATE"),
 	_T("SW"), _T("TEMPERATURE"),
-	NULL
 };
 
 void CRaumDlg::OnBnClickedBtTest()
@@ -438,8 +424,38 @@ void CRaumDlg::OnCbnSelchangeCbMode()
 		SetDevType(_T("SW"));
 	m_cbDevTyp.EnableWindow(bModusHeizen);
 
-	// Nun auch noch Comboo Änderung für Aktoren simulieren
+	// Devices laden listen Löschen und alte Werte erhalten
+	CString strAktor1, strAktor2;
+	m_cbChannel1.GetWindowText(strAktor1);
+	m_cbChannel1.ResetContent();
+	m_cbChannel2.GetWindowText(strAktor2);
+	m_cbChannel2.ResetContent();
+	auto const &lst = theApp.m_lstDevices;
+	for (auto const& e : lst)
+	{
+		// Wir müssen auf doppelte Namen achten.
+		if (e.ChannelTypeHeizung())
+		{
+			// Entweder benötigen wir die Soll-Temperatur für den Modus Heizen oder die Ist-Temperatur für den Modus Heizen+Schalten. 
+			if ((strModus==_T("H") && e.IsSetPointTemperature()) ||
+				(strModus==_T("HS") && e.IsActualTemperature()))
+			{
+				if (m_cbChannel1.FindStringExact(-1, e.m_strName)==-1)
+					m_cbChannel1.AddString(e.m_strName);
+			}
+		}
+		else 
+		{
+			if (e.IsState() && e.CanWrite())
+			{
+				if (m_cbChannel2.FindStringExact(-1, e.m_strName)==-1)
+					m_cbChannel2.AddString(e.m_strName);
+			}
+		}
+	}
+	SelectCBEntry(m_cbChannel1, strAktor1);
 	OnCbnSelchangeCbChannel1();
+	SelectCBEntry(m_cbChannel2, strAktor2);
 }
 
 void CRaumDlg::OnOK()
@@ -473,6 +489,8 @@ void CRaumDlg::OnOK()
 
 void CRaumDlg::OnCbnSelchangeCbChannel1()
 {
+	// Wenn wir den Channel 1 benutzen, dann ist das entweder ein Temperatursensor, oder ein Aktor,
+	// der über  SetPointTemperature verfügt.
 	int nSel = m_cbChannel1.GetCurSel();
 	if (nSel<0)
 		return;
@@ -480,8 +498,24 @@ void CRaumDlg::OnCbnSelchangeCbChannel1()
 	CString strChannel;
 	m_cbChannel1.GetLBText(nSel,strChannel);
 
-	// Suche den Channel
-	auto const* pDev = theApp.m_lstDevices.Find(strChannel);
+	// Suche den Channel. Achte darauf wenn wir Schalten und Heizen, dass wir den Kanal nehmen.
+	CString strModus{GetDevMode()};
+	if (strModus==_T("S"))
+		// Im Schaltmods verlassen wir das hier einfach.
+		return;
+
+	// SUche einen passenden Device
+	CDataDevice const* pDev = nullptr;
+	for (const auto& e : theApp.m_lstDevices)
+	{
+		if (!e.m_bDeleted && e.m_strName==strChannel && 
+			((strModus==_T("H") && e.IsSetPointTemperature()) || 
+			 (strModus==_T("HS") && e.IsActualTemperature())))
+		{
+			pDev = &e;
+			break;
+		}
+	}
 	if (!pDev)
 		return;
 

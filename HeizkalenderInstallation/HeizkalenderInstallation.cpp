@@ -857,10 +857,12 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
 
 bool CHeizkalenderInstallationApp::LoadDevicesFromCCU()
 {
+	// Achtung die Liste der devices kann doppelte Einträge enthalten!!!!
+	// Das liegt daran, dass mehere Datenpunkte einen Treffer erzeugen können.
 	CStringA strEnumDevices = 
 		R"x(
 !//  ChannelType ictHSS 17, ictHSSBinaryActuator 3, ictBinaryActuator 26
-!// Ausgabe: DevName, Gerätetyp, Channelname, ChannelType DataPoint
+!// Ausgabe: DevName, Gerätetyp, Channelname, ChannelType, DataPoint, Operation
 string datapoint;
 foreach (datapoint, dom.GetObject(ID_DATAPOINTS).EnumUsedNames())
 {
@@ -877,7 +879,7 @@ foreach (datapoint, dom.GetObject(ID_DATAPOINTS).EnumUsedNames())
     var dv = dom.GetObject(ch.Device());
     if ((ch.ChannelType()==ictHSS) || (ch.ChannelType()==ictHSSBinaryActuator) || (ch.ChannelType()==ictBinaryActuator) || (ch.ChannelType()==ictWeatherStation))
     {
-      WriteLine(dv.Name() # "\t" # dv.Label() # "\t" # ch.Name() # "\t" # ch.ChannelType() # "\t" # datapoint);
+      WriteLine(dv.Name() # "\t" # dv.Label() # "\t" # ch.Name() # "\t" # ch.ChannelType() # "\t" # datapoint # "\t" # dp.Operations());
     }
   }
 }
@@ -1139,7 +1141,18 @@ void CHeizkalenderInstallationApp::ReadResources()
 
 bool CHeizkalenderInstallationApp::ReadResourcesChurchTool(CMapRaumListe &mapRaeume)
 {
-	bool bReadAllResources = AfxMessageBox(IDP_QUERY_ALLE_RESSOURCEN_LESEN, MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNO)==IDYES;
+	bool bReadAllResources = false;
+	switch (AfxMessageBox(IDP_QUERY_ALLE_RESSOURCEN_LESEN, MB_ICONQUESTION|MB_DEFBUTTON2|MB_YESNOCANCEL))
+	{
+	case IDYES:
+		bReadAllResources = true;
+		break;
+	case IDNO:
+		bReadAllResources = false;
+		break;
+	default:
+		return false;
+	}
 	mapRaeume.clear();
 
 	// Gemeinde bestimmen
