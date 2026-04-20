@@ -310,8 +310,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,3,0,1
- PRODUCTVERSION 3,3,0,1
+ FILEVERSION 3,4,0,0
+ PRODUCTVERSION 3,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -328,12 +328,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "3.3.0.1"
+            VALUE "FileVersion", "3.4.0.0"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
             VALUE "ProductName", "Heizkalender"
-            VALUE "ProductVersion", "3.3.0.1"
+            VALUE "ProductVersion", "3.4.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -681,7 +681,7 @@ BEGIN
     IDP_QUERY_DELETE_RESOURCE 
                             "Soll die selektierte Ressource ""%1 / %2"" gelöscht werden? Damit werden alle Kalenderzuordnungen entfernt! Die Ressourcen können nur durch erneutes Einlesen wieder angelegt werden!\nWollen Sie fortfahren?"
     IDP_QUERY_ALLE_RESSOURCEN_LESEN 
-                            "Sollen alle Ressourcen eingelesen werden?\nJa = Alle Ressourcen werden ungefiltert gelesen\nNein = Nur Ressourcen mit ""Raum"" im Namen des Typs einlesen"
+                            "Sollen alle Ressourcen eingelesen werden?\nJa = Alle Ressourcen werden ungefiltert gelesen\nNein = Nur Ressourcen mit ""Raum"" im Typ-Namen einlesen\nAbbruch = Einlesen abbrechen"
     IDP_TEST_AKTOR_HEIZENSCHALTEN 
                             "Test für Kanal ""%1""\nAktuelle Raumtemperatur:\t%2%3"
 END

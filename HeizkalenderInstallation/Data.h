@@ -171,6 +171,13 @@ enum class ChannelType
 	ictBinaryActuator = 26,
 };
 
+enum class Operation
+{
+	OPERATION_READ = 1,
+	OPERATION_WRITE = 2,
+	OPERATION_EVENT = 4,
+};
+
 class CDataDevice : public CDataEntry
 {
 public:
@@ -181,8 +188,41 @@ public:
 	CString		m_strDevType;
 	CString		m_strDataPoint;
 	ChannelType	m_channelType{ChannelType::ictUnknown};
+	int			m_operations{ 0 };
+
 	bool ChannelTypeHeizung() const		{ return m_channelType==ChannelType::ictHSS || m_channelType==ChannelType::ictWeatherStation; }
+	bool ChannelTypeWeatherStation() const		{ return m_channelType==ChannelType::ictWeatherStation; }
 	bool ChannelTypeSchalten() const	{ return !ChannelTypeHeizung(); }
+	
+	CString GetDataPointName() const
+	{
+		int iPos = m_strDataPoint.ReverseFind(_T('.'));
+		if (iPos>=0)
+			return m_strDataPoint.Mid(iPos+1);
+		else
+			return m_strDataPoint;
+	}
+	bool IsActualTemperature() const
+	{
+		return GetDataPointName()==_T("ACTUAL_TEMPERATURE");
+	}
+	bool IsState() const
+	{
+		return GetDataPointName()==_T("STATE");
+	}
+	bool IsSetPointTemperature() const
+	{
+		auto const dpName = GetDataPointName();
+		return dpName==_T("SET_POINT_TEMPERATURE") || dpName==_T("SET_TEMPERATURE") || dpName==_T("SETPOINT");
+	}
+	bool CanWrite() const
+	{
+		return m_operations & static_cast<int>(Operation::OPERATION_WRITE);
+	}
+	bool CanRead() const
+	{
+		return m_operations & static_cast<int>(Operation::OPERATION_READ);
+	}
 	CString GetDataAsLine();
 };
 

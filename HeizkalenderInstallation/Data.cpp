@@ -277,6 +277,7 @@ CDataDevice::CDataDevice(CString const& strLine)
 	m_strName = StrValueByIndex(strLine, 2);
 	m_channelType = static_cast<ChannelType>(StringToInt(StrValueByIndex(strLine, 3)));
 	m_strDataPoint = StrValueByIndex(strLine, 4);
+	m_operations = StringToInt(StrValueByIndex(strLine, 5));
 }
 
 
