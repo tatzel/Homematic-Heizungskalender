@@ -84,7 +84,8 @@ if (DEBUG){
 }
 
 !// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
-command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&past_days=2&forecast_days=2'";
+command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
+
 system.Exec(command, &stemp, &error);
 if (DEBUG){
   WriteLine(command+"\n");
