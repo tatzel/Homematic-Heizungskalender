@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    04.03.2026
+!// Stand:    26.05.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -87,8 +87,8 @@ if (DEBUG){
 command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&past_days=2&forecast_days=2'";
 system.Exec(command, &stemp, &error);
 if (DEBUG){
-  !WriteLine(command+"\n");
-  !WriteLine(stemp+"\n");
+  WriteLine(command+"\n");
+  WriteLine(stemp+"\n");
 }
 
 !// passenden eintrag finden
@@ -174,6 +174,10 @@ if (n!=0){
 }
 
 if (log) {
-  logObj.State("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
+  if (n!=0) {
+    logObj.State("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
+  } else {
+    logObj.State("Keine Werte gefunden für die Außentemperatur gefunden!");
+  }
 }
 

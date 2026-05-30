@@ -45,4 +45,4 @@ if(log){
   logObj.State(stdout.Trim());
 }
 
-!WriteLine(stdout.Trim());
+WriteLine(stdout.Trim());
