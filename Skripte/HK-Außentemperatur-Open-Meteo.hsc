@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    26.05.2026
+!// Stand:    19.06.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -109,10 +109,6 @@ integer n=0;
 !// Bestimmen ab wann wir von den alten Daten Teperaturen übernehmen.
 !// Wir nehmen exakt 48h rückwärts zur aktuellen Uhrzeit
 integer h = system.Date("%H").ToInteger();
-if (h==0){
-  !// Wir beginnen am neuen Tag um 00:00 Uhr
-  h = 24;
-}
 
 !// Begrenzungen festlegen
 stundenZurueck = stundenZurueck.Min(48).Max(1);
@@ -120,9 +116,10 @@ stundenVoraus = stundenVoraus.Min(24).Max(0);
 integer ueberspringen = h+48-stundenZurueck;
 
 if (DEBUG){
+  WriteLine("Uhrzeit:        " # h);
   WriteLine("Stunden zurück: " # stundenZurueck);
-  WriteLine("Stunden zurück: " # stundenVoraus);
-  WriteLine("Überspringen: " # ueberspringen);
+  WriteLine("Stunden voraus: " # stundenVoraus);
+  WriteLine("Überspringen:   " # ueberspringen);
   WriteLine("---------");
 
   integer i=0;
