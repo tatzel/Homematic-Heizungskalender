@@ -204,7 +204,8 @@ public:
 	}
 	bool IsActualTemperature() const
 	{
-		return GetDataPointName()==_T("ACTUAL_TEMPERATURE");
+		auto const dpName = GetDataPointName();
+		return dpName==_T("ACTUAL_TEMPERATURE") || dpName==_T("TEMPERATURE");
 	}
 	bool IsState() const
 	{
