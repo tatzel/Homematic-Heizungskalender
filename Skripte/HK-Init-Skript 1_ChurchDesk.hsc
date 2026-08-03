@@ -6,12 +6,12 @@
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
-!// Dieser Code ersetzt die Datei: 
+!// Dieser Code ersetzt die Datei:
 !//   HKP-CT-V--3.2.1 Variablen zu Skript1_ChurchTools_V1.4.c
 !// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
@@ -184,7 +184,7 @@ if (apiToken && organizationId){
     if (stdout.StartsWith("[")){
       !// Zeichensatz fixen
       stdout = stdout.ToLatin();
-      
+
       !// Wir bauen nun die raumliste auf. Diese erhält auch die Klartextnamen
       string raumListe = "";
       string raumNamen = "";
@@ -259,8 +259,8 @@ if (apiToken && organizationId){
             raumNamen = raumNamen # ";";
           }
           raumNamen = raumNamen # name;
-        } 
-      }          
+        }
+      }
 
       !// Raum Variablen anlegen und HK2-HKG-Liste füllen
       string hkgListe = "";
@@ -268,7 +268,7 @@ if (apiToken && organizationId){
       foreach(name,raumNamen.Split(";")){
         !// Variablen Name erzeugen
         name = raumNamenPreFix # name;
-        
+
         !// Wir fügen den Raum nur zur HKG-Liste, wenn er auch zu einer Ressource gehört
         if (raumListe.StrValueByIndex(";",iRaeume).Trim()){
           if (hkgListe){
@@ -314,7 +314,7 @@ if (apiToken && organizationId){
       }
     }else{
       !// Kein Zugriff möglich
-      WriteLine("Fehler:\n" # stdout # "\n" # stderr);
+      WriteLine("Fehler:\n" # cmd # "\n" # stdout # "\n" # stderr);
     }
   }
 }

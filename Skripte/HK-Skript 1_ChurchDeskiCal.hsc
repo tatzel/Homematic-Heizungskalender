@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    26.02.2026
+!// Stand:    21.06.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-06-21 Retry eingebaut, weil churchdesk unregelmässig Fehler liefert
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-26 Sonderbefehle auch für das iCal Skript in der Terminbeschreibung
@@ -151,27 +152,45 @@ foreach(RIdEintrag,RIdListe.Split(";")){
   !// übertrage jetz den originalen Parameter.
   string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
 
-  !// Zugriff auf ChurchDesk iCal
-  string cmd = "wget --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
-  if(DEBUG){
-    WriteLine("Cmd:" # cmd);
-  }
+  !// Zugriff auf ChurchDesk iCal. 
+  !// Wir bauen hier einen Retry ein, weil es scheinbar seit einiger Zeit Probleme mit dem Zugriff auf ChurchDesk gibt
+  integer iRetry = 5;
   string stdout;
   string stderr;
-  system.Exec(cmd, &stdout, &stderr);
-
-  if(DEBUG){
-    !WriteLine("stdout:" # stdout);
-    !WriteLine("stderr:" # stderr);
+  while (iRetry>0) {
+    !// wget unterstützt leider nicht --secure-protocol=TLSv1_1
+    string cmd = "wget --no-check-certificate --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";    
+    !string cmd = "curl --insecure --tlsv1.1 --max-time 5 -L 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";    
+    if(DEBUG){
+      WriteLine("Cmd:" # cmd);
+    }
+    system.Exec(cmd, &stdout, &stderr);
+    
+    if(DEBUG){
+      !WriteLine("stdout:" # stdout);
+      !WriteLine("stderr:" # stderr);
+    }
+    
+    if (stdout.StartsWith("BEGIN:VCALENDAR")){
+      !// Es wurde ein Ergebnis zurückgegeben. Wir können die Retry Schleife abbrechen
+      break;
+    } else {
+      !// Unerwünschtes Ergebnis/Fehler, also ein Retry mehr
+      iRetry = iRetry-1;
+      !// Verzögern
+      string dummy;
+      system.Exec("sleep 1", &dummy, &dummy);
+    }
   }
 
   !// Tabs entfernen, sollten welche drin sein. Newlines setzen
   stdout = stdout.Replace("\t"," ").Replace("\r\n","\n");
 
   if (!stdout.StartsWith("BEGIN:VCALENDAR")){
-    if (log){ logObj.State("Fehler beim Lesen der Event-Daten von ChurchDesk!"); }
+    if (log){ logObj.State("Fehler beim Lesen der Event-Daten von ChurchDesk! " # RId); }
     if(DEBUG){
-      WriteLine("Fehler beim Lesen der Event-Daten von ChurchDesk!");
+      WriteLine("Fehler beim Lesen der Event-Daten von ChurchDesk! " # RId);
+      WriteLine("Out:\n" # stdout # "Err:\n" # stderr);
     }
   }else{
     !// Zeitzone abschneiden
