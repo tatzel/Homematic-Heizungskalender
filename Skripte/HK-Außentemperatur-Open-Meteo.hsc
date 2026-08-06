@@ -87,7 +87,7 @@ if (DEBUG){
 command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
 
 !// Da es immer wieder mal zu Fehlern kommt, wiederholen wir die Anfrage im Abstand von 1 Sekunde mehrfach
-integer iRetry = 5;
+integer iRetry = 10;
 while (iRetry>0) {
   system.Exec(command, &stemp, &error);
   if (DEBUG){
