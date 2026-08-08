@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    04.03.2026
+!// Stand:    08.08.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,7 @@
 !// Skript sollte alle 5min laufen
 !//
 
+!// MRi: 2026-08-08 Bugfix Heizen mit Schalten
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-27 Begrenzung der Vorheizzeit nach unten auf mindestens 10%
@@ -276,21 +277,6 @@ foreach(SLEintrag,SListe){
     if(DEBUG){WriteLine("RVI=" # RVI);}
     if(log){logObj.State(AktSRName # " Raumvariable: "+RVN+"="+RVI);}
 
-    !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
-    !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
-    !// Das ein Aktorname eine Mindestlänge hat.
-    iPos = 0;
-    iEntry = 1;
-    AktorenListe = "";
-    while (iPos<RVI.Length()) {
-      if (iEntry>6){
-        AktorenListe = AktorenListe # RVI.Substr(iPos,1);
-      } elseif (RVI.Substr(iPos,1)==";"){
-        iEntry=iEntry+1;
-      }
-      iPos = iPos+1;
-    }
-
     !// Erzeuge einen Namen ohne prefixe
     string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
 
@@ -311,14 +297,36 @@ foreach(SLEintrag,SListe){
       if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand Dauer-EIN!");}
     }
 
-    !//Aktoren und Raumtemp setzen, und bestimmen ob wi Heizen oder Schalten
-    HSFlag = RVI.StrValueByIndex(";",1);
-
     !// Wir benötigen die Ein und Aussschaltzeit frisch, weil diese hier manipuliert wird.
     !// Sie wird frisch aus der Schaltliste bezogen!
     EIN = SLEintrag.StrValueByIndex(";",1).ToTime().ToInteger();
     AUS = SLEintrag.StrValueByIndex(";",2).ToTime().ToInteger();
     RTemp = SLEintrag.StrValueByIndex(";",3).ToFloat();
+
+    !//Aktoren und Raumtemp setzen, und bestimmen ob Heizen oder Schalten oder beides
+    HSFlag = RVI.StrValueByIndex(";",1);
+
+    !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
+    !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
+    !// Das ein Aktorname eine Mindestlänge hatte.    
+    iPos = 0;
+    iEntry = 1;
+    integer iMaxEntry=6;
+    if (HSFlag=="HS"){
+      !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
+      !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
+      !// Deshalb überspingen wir das.
+      iMaxEntry = iMaxEntry+1;
+    }
+    AktorenListe = "";
+    while (iPos<RVI.Length()) {
+      if (iEntry>iMaxEntry){
+        AktorenListe = AktorenListe # RVI.Substr(iPos,1);
+      } elseif (RVI.Substr(iPos,1)==";"){
+        iEntry=iEntry+1;
+      }
+      iPos = iPos+1;
+    }
 
     !// Typ des Aktors bestimmen
     AGF=RVI.StrValueByIndex(";",2);
@@ -623,15 +631,10 @@ foreach(SLEintrag,SListe){
     !//Liegt der Ausschaltzeitpunkt des aktuellen Schaltlistenelement in der Vergangenheit dann Raumvariable durchgehen und Aktoren auf Grundtemp bringen WENN Heizung
     !//noch nicht ausgeschaltet ist.
     if(SDFlag>=0){
-      if(aktuellerSchaltZustand==1){
-        !// Der war oder ist angeschaltet, wir vermerken ihn in der Liste der angeschalteten Räume, wenn er noch nicht drin ist
-        !// Dadurch können wir Schaltzustände finden, deren Termin evtl. gelöscht wurde
-        if (RVNListeAn.Find(RVN+";")<0){
-           RVNListeAn=RVNListeAn+RVN+";";
-        }
-        !// Der Ausschaltzeitpunkt wird 160sec in Zukunft und Vergangenheit (320sec) geprüft. Damit wird ein 5min (300sec) Interval abgedeckt.
-        !// Das Skript sollte alle 5m,in laufen.
-        if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
+      !// Nur wenn der Ausschalktzeitpunkt erreicht wurde, schalten wir
+      if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
+        !// Aber auch nur wenn er aktuell an ist, sonst müssen wir nicht ausschalten
+        if(aktuellerSchaltZustand==1){
           foreach(AktAktor,AktorenListe.Split(";")){
             objAktor = dom.GetObject(AktAktor);
             if (AktAktor && objAktor){
@@ -676,15 +679,16 @@ foreach(SLEintrag,SListe){
     !//Einschalten (Status ==> 1)
     !//Liegt der Einschaltzeitpunkt in der Vergangenheit UND Ausschaltzeitpunkt in der Zukunft Heizung einschalten WENN diese noch nicht eingeschaltet ist.
     if(SDFlag>=0){
-      if(aktuellerSchaltZustand==0){
-        !// Sollte die Außentemperatur über unserem Schwellenwert liegen, Heizen wir nicht
-        if((HSFlag=="S") || (AT<ATG)){
-          !// Und wir schalten nur ein wenn die Einschaltzeit mehr als 5min beträgt
-          if(((EIN+300)<AUS) && (EIN<=NOW) && (AUS>NOW)){
-            !// Da wir die Heizung einschalten, setzen wir den Raum in die Heizliste
-            if (RVNListeAn.Find(RVN+";")<0){
-              RVNListeAn=RVNListeAn+RVN+";";
-            }
+      !// Sollte die Außentemperatur über unserem Schwellenwert liegen, Heizen wir nicht
+      if((HSFlag=="S") || (AT<ATG)){
+        !// Und wir schalten nur ein wenn die Einschaltzeit mehr als 5min beträgt
+        if(((EIN+300)<AUS) && (EIN<=NOW) && (AUS>NOW)){
+          !// Da wir die Heizung einschalten, setzen wir den Raum in die Heizliste
+          if (RVNListeAn.Find(RVN+";")<0){
+            RVNListeAn=RVNListeAn+RVN+";";
+          }
+          !// Wir schalten aber nur, wenn er noch nicht geschaltet ist
+          if(aktuellerSchaltZustand==0){
             foreach(AktAktor,AktorenListe.Split(";")){
               objAktor = dom.GetObject(AktAktor);
               if (objAktor){
@@ -724,10 +728,10 @@ foreach(SLEintrag,SListe){
             !// if(log){logObj.State(AktSRName # "-" # RVNName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
             continue;
           }
-        }else{
+        }
+      }else{
           if(log){logObj.State(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT # " größer Grenzwert "+ATG.ToString());}
           if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT # " größer Grenzwert "+ATG.ToString());}
-        }
       }
     }
   }
@@ -799,9 +803,16 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
       !// AktorenListe aufbauen.
       iPos = 0;
       iEntry = 1;
+      integer iMaxEntry=6;
+      if (HSFlag=="HS"){
+        !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
+        !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
+        !// Deshalb überspingen wir das.
+        iMaxEntry = iMaxEntry+1;
+      }      
       AktorenListe = "";
       while (iPos<RVI.Length()) {
-        if (iEntry>6){
+        if (iEntry>iMaxEntry){
           AktorenListe = AktorenListe # RVI.Substr(iPos,1);
         } elseif (RVI.Substr(iPos,1)==";"){
           iEntry=iEntry+1;
@@ -870,6 +881,9 @@ RVNListe = VarNamen;
 !// Wandle die Raumliste um, sodass auch die multiRaumVariante berücksichtigt wird
 RVNListe=RVNListe.Replace("+",";");
 
+!// Ausgabe für Schallistenprüfung
+if(DEBUG) {WriteLine("RVNListeAn:" # RVNListeAn);}
+
 !// Laufe über alle Räume und prüfe ob die sich im "An"-zustand befinden
 foreach(RVN,RVNListe.Split(";")) {
   !// Es ist möglich, dass eine Ressource keine Zuordnung hat
@@ -911,9 +925,16 @@ foreach(RVN,RVNListe.Split(";")) {
     !// AktorenListe aufbauen.
     iPos = 0;
     iEntry = 1;
+    integer iMaxEntry=6;
+    if (HSFlag=="HS"){
+      !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
+      !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
+      !// Deshalb überspingen wir das.
+      iMaxEntry = iMaxEntry+1;
+    }    
     AktorenListe = "";
     while (iPos<RVI.Length()) {
-      if (iEntry>6){
+      if (iEntry>iMaxEntry){
         AktorenListe = AktorenListe # RVI.Substr(iPos,1);
       } elseif (RVI.Substr(iPos,1)==";"){
         iEntry=iEntry+1;
@@ -927,8 +948,7 @@ foreach(RVN,RVNListe.Split(";")) {
       if (objAktor){
         objDP = objAktor.DPByHssDP(Param);
         if (objDP){
-          objDP.State(GT);
-          if(HSFlag!="S"){
+          if(HSFlag=="H"){
             real istTemperatur = objDP.State();
             objDP.State(GT);
             if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}

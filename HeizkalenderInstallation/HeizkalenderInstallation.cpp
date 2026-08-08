@@ -44,6 +44,7 @@ public:
 #endif
 
 	bool m_bSimulation = {};
+	bool m_bForceUpdate = {};
 	CString m_strScriptDir;
 };
 
@@ -70,6 +71,10 @@ void CInstallerCommandLineInfo::ParseParam(const char* pszParam, BOOL bFlag, BOO
 		{
 			m_bSimulation = true;
 		}
+		else if (_stricmp(pszParam, "force")==0)
+		{
+			m_bForceUpdate = true;
+		}
 		else
 			ParseParamFlag(pszParam);
 	}
@@ -93,6 +98,7 @@ END_MESSAGE_MAP()
 CHeizkalenderInstallationApp::CHeizkalenderInstallationApp()
 	: m_bConnected{false}
 	, m_bSimulation{false}
+	, m_bForceUpdate{false}
 	, m_dateMaxPrograms{0.0}
 	, m_modeScript1{ModeScript1::Unknown}
 	, m_modeScript1Installed{ModeScript1::Unknown}
@@ -171,6 +177,7 @@ BOOL CHeizkalenderInstallationApp::InitInstance()
 	if (!cmdInfo.m_strScriptDir.IsEmpty())
 		m_strScriptPath = cmdInfo.m_strScriptDir;
 	m_bSimulation = cmdInfo.m_bSimulation;
+	m_bForceUpdate = cmdInfo.m_bForceUpdate;
 
 	// Warnungs dialog anzeigen
 	if (GetProfileInt(_T("General"), _T("ShowWarning"), TRUE))
@@ -1449,7 +1456,7 @@ void CHeizkalenderInstallationApp::UpdatePrograms()
 			// Fall 1: Wir können die Version komplett bestimmen. Nun zählt das Datum
 			// Oder wir haben Skript 1 und der Modus wurde getauscht.
 			pInst->m_pAppProg = &pApp;
-			if (pInst->m_date<pApp.m_date)
+			if (pInst->m_date<pApp.m_date || m_bForceUpdate)
 			{
 				// Update Skript
 				pInst->m_bModified = true;
@@ -1499,7 +1506,7 @@ void CHeizkalenderInstallationApp::UpdatePrograms()
 			// Fall 1: Wir können die Version komplett bestimmen. Nun zählt das Datum
 			// und wir können updaten
 			pInst->m_pAppProg = &pApp;
-			if (pInst->m_date<pApp.m_date)
+			if (pInst->m_date<pApp.m_date || m_bForceUpdate)
 			{
 				// Update Skript
 				pInst->m_bModified = true;

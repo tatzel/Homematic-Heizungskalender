@@ -366,10 +366,11 @@ if (!ch){
 					strResult2.Replace(_T("#"), _T("\r\n"));
 					if (strMode==_T("S"))
 					{
+						// Schalter haben nur ein Ergebis AN/AUS
 						if (IsBool(strResult1))
 							strResult1 = StrValueByIndex(
 								CStringRes(IDS_AN_AUS),
-								StringToBool(StrValueByIndex(strOutW, 1, _T('\n'))),
+								StringToBool(StrValueByIndex(strOutW, 0, _T('\n'))),
 								_T(';')
 							);
 					}
@@ -417,9 +418,10 @@ void CRaumDlg::OnCbnSelchangeCbMode()
 
 	// Controls enablen/disable je nach Modus
 	bool bModusHeizen = strModus==_T("H");
-	m_edTemp.EnableWindow(bModusHeizen);
+	bool bModusHeizenSchalten = strModus==_T("HS");
+	m_edTemp.EnableWindow(bModusHeizen || bModusHeizenSchalten);
 	m_edTempG.EnableWindow(bModusHeizen);
-	m_edFaktor.EnableWindow(bModusHeizen);
+	m_edFaktor.EnableWindow(bModusHeizen || bModusHeizenSchalten);
 	if (!bModusHeizen)
 		SetDevType(_T("SW"));
 	m_cbDevTyp.EnableWindow(bModusHeizen);
