@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    26.02.2026
+!// Stand:    08.08.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-08-08 Sonderbefehle #GT# #NH# #NS# werden auch aus Titel und Subtitel gelesen
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
@@ -248,54 +249,59 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       WriteLine("Termin:\t" # resId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
     }
     
+    !// Wir suchen nun die folgenden Felder title, subtitle, description
+    string toSearch;
+    string strDesc="";
+    foreach (toSearch, "title;subtitle;description".Split(";")) {
+      iPos=termin.Find("\"" # toSearch # "\":\"");
+      if (iPos>=0){
+        !// Ende der Beschreibung finden
+        strTemp = termin.Substr(iPos+toSearch.Length()+4);
+        iPos = strTemp.Find("\",\"");
+        if (iPos>=0) {
+          strDesc = strDesc # " " # strTemp.Substr(0,iPos);
+        }
+      }        
+    }    
+    
     !// Beschreibung muss noch auf Tokens geprüft werden.
     !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
     string cap="0";
-    iPos=termin.Find("\"description\":\"");
+    !// Sonderbefehl suchen
+    iPos = strDesc.Find("#");
     if (iPos>=0){
-      !// Ende der Beschreibung finden
-      strTemp = termin.Substr(iPos+15);
-      iPos = strTemp.Find("\",\"");
-      if (iPos>=0) {
-        strTemp = strTemp.Substr(0,iPos);
-      }
-      
-      !// Sonderbefehl suchen
+      strTemp = strDesc.Substr(iPos+1,strDesc.Length()-iPos-1);
       iPos = strTemp.Find("#");
+      !// Ende vorhanden?
       if (iPos>=0){
-        strTemp = strTemp.Substr(iPos+1,strTemp.Length()-iPos-1);
-        iPos = strTemp.Find("#");
-        !// Ende vorhanden?
-        if (iPos>=0){
-          !// Englische (Dezimalpunkt) Deutsche (Dezimalkomma) Konvertierung
-          strTemp = strTemp.Substr(0,iPos).ToUpper();
-          strTemp.Replace(",",".");
-          if (strTemp=="EIN"){
-            !// Dauer EIN
-            cap = "-2";
-          }elseif(strTemp=="AUS"){
-            !// Dauer AUS
-            cap = "-1";
-          }elseif((strTemp=="NORMAL") || (strTemp=="RESET")){
-            !// Zurücksetzen RESET AUS/EIN
-            cap = "-3";
-          }elseif((strTemp=="GT")){
-            !// Grundtemperatur GT
-            cap = dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat().ToString(1);
-          }elseif((strTemp=="NH") || (strTemp=="NS")){
-            !// Nicht schalten/heizen (Es wird kein Listeneintrag erzeugt)
-            cap = "";
+        !// Englische (Dezimalpunkt) Deutsche (Dezimalkomma) Konvertierung
+        strTemp = strTemp.Substr(0,iPos).ToUpper();
+        strTemp.Replace(",",".");
+        if (strTemp=="EIN"){
+          !// Dauer EIN
+          cap = "-2";
+        }elseif(strTemp=="AUS"){
+          !// Dauer AUS
+          cap = "-1";
+        }elseif((strTemp=="NORMAL") || (strTemp=="RESET")){
+          !// Zurücksetzen RESET AUS/EIN
+          cap = "-3";
+        }elseif((strTemp=="GT")){
+          !// Grundtemperatur GT
+          cap = dom.GetObject(vrp+"HK2-Grundtemperatur").State().ToFloat().ToString(1);
+        }elseif((strTemp=="NH") || (strTemp=="NS")){
+          !// Nicht schalten/heizen (Es wird kein Listeneintrag erzeugt)
+          cap = "";
+        }else{
+          !// Nimm die Zahl, die hier kommt.
+          cap = strTemp.ToFloat();
+          if ((cap>0) && (cap<30)){
+            cap = cap.ToString(1);
           }else{
-            !// Nimm die Zahl, die hier kommt.
-            cap = strTemp.ToFloat();
-            if ((cap>0) && (cap<30)){
-              cap = cap.ToString(1);
-            }else{
-              cap = "0";
-            }
+            cap = "0";
           }
         }
-      }      
+      }
     }      
         
     !// Verhindern, dass doppelte Einträge erzeugt werden.

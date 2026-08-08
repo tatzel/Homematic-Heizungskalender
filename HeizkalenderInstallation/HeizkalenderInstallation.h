@@ -113,8 +113,9 @@ public:
 	CString m_strScriptVersion;
 
 	// Data Connect
-	bool m_bSimulation = {};
-	bool m_bConnected = {};
+	bool m_bSimulation;
+	bool m_bForceUpdate;
+	bool m_bConnected;
 	CString m_strCCU_host;
 	int		m_iCCU_port;			// 8181;
 	const CString m_strCCU_url = _T("/rega.exe");
