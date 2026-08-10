@@ -50,12 +50,18 @@ BOOL CPageBase::OnApply()
 			pParent->SetActivePage(&pParent->m_pageResources);
 			return FALSE;
 		}
-		if (theApp.IsProgramsModified() && !pParent->m_pagePrograms.m_bSeiteBesucht)
+		
+		if (theApp.m_bNoProgramUpdate && !theApp.m_bForceUpdate)
+		{
+			AfxMessageBox(IDP_PROGRAMME_NICHT_AKTUALISIERT);
+		}
+		else if (theApp.IsProgramsModified() && !pParent->m_pagePrograms.m_bSeiteBesucht)
 		{
 			AfxMessageBox(IDP_PROGRAMME_KONTROLLIEREN);
 			pParent->SetActivePage(&pParent->m_pagePrograms);
 			return FALSE;
 		}
+
 		if (theApp.IsSysVarsModified() && !pParent->m_pageSysVar.m_bSeiteBesucht)
 		{
 			AfxMessageBox(IDP_SYSVARS_KONTROLLIEREN);
@@ -775,7 +781,9 @@ void CPagePrograms::DoDataExchange(CDataExchange* pDX)
 
 				bool bIsScript1 = p.m_strName==theApp.AddPrefix(HK1_SKRIPT_1);
 				UINT uiText = 0;
-				if (p.m_bNew && p.m_id==0)
+				if (theApp.m_bNoProgramUpdate && !theApp.m_bForceUpdate)
+					uiText = IDS_INST_IGNORED;
+				else if (p.m_bNew && p.m_id==0)
 					uiText = IDS_INST_NEW;
 				else if (p.m_bNew && p.m_id!=0)
 					uiText = IDS_INST_REPLACED;

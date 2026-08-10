@@ -99,6 +99,7 @@ CHeizkalenderInstallationApp::CHeizkalenderInstallationApp()
 	: m_bConnected{false}
 	, m_bSimulation{false}
 	, m_bForceUpdate{false}
+	, m_bNoProgramUpdate{ false }
 	, m_dateMaxPrograms{0.0}
 	, m_modeScript1{ModeScript1::Unknown}
 	, m_modeScript1Installed{ModeScript1::Unknown}
@@ -478,7 +479,9 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 			{
 				auto *pProg = lstAppScripts.Find(RemovePrefix(p.m_strName));
 				if (pProg && pProg->m_date.m_dt && pProg->m_date<p.m_date)
+				{
 					bProgramIsNewer = true;
+				}
 			}
 		}
 		if (bProgramIsNewer)
@@ -487,11 +490,16 @@ bool CHeizkalenderInstallationApp::AnalyseLoadedData()
 		
 	if (!strProgs.IsEmpty())
 	{
-		// Sollten wir nicht alle Programme kennen, melden wir einen Fehler und brechen ab.
+		// Sollten wir neuere Programme haben, melden wir einen Fehler.
+		// Und ignorieren alle Programme. Wir wollen nicht, dass der Benutzer ein älteres Skript installiert.
+
 		CString strError;
 		strError.FormatMessage(IDP_NEWER_PROGRAMS, strProgs.GetString());
 		AfxMessageBox(strError,MB_ICONWARNING|MB_OK);
-		return false;
+
+		// Keine Programme installieren
+		if (!m_bForceUpdate)
+			m_bNoProgramUpdate = true;
 	}
 
 //---------------------------------------------------------------------------
@@ -1425,6 +1433,10 @@ CString CHeizkalenderInstallationApp::GetNameFromScrip1Mode(ModeScript1 mode)
 
 void CHeizkalenderInstallationApp::UpdatePrograms()
 {
+	// Keine Updates für Programme und kein Force gesetzt?
+	if (m_bNoProgramUpdate && !m_bForceUpdate)
+		return;
+
 	// Wir laufen über alle Hauptprogramme und bestimmen was wir machen müssen-
 	// 1. Update, wenn Line1 und Datum gesetzt ist, und Datum neuer ist
 	//    m_bModified = true, Id!=0
@@ -1627,49 +1639,52 @@ void CHeizkalenderInstallationApp::UpdateCCU()
 	CStringA strScriptForUpdate;
 
 	// Laufe über alle Programme.
-	for (auto& p : m_lstPrograms)
+	if (!m_bNoProgramUpdate || m_bForceUpdate)
 	{
-		auto strScript = p.m_strSkript;
-		if (!m_strPrefix.IsEmpty())
-			// Achtung! Manche Skripte wie das Sichern des Systemprotokolls haben keinen vrp Eintrag!
-			strScript.Replace("string vrp=\"\";", "string vrp=\"" + CStringA{ m_strPrefix } + "\";");
-		strScript.Replace("\\", "\\\\");	// Backslash 
-		strScript.Replace("\r\n", "\n");	// Unix newline
-		strScript.Replace("\n", "\\n");		// Newline
-		strScript.Replace("\t", "\\t");		// Tab
-		strScript.Replace("\"", "\\\"");	// Doublequote
-		strScript.Replace("\'", "\\\'");	// Singlequote
-		if (p.m_bNew)
+		for (auto& p : m_lstPrograms)
 		{
-			// Es kann sein, dass wir den alten Eintrag löschen müssen
-			ASSERT(p.m_id==0);
-			// Wir brauchen jetzt ein kom,plettes Script um ein Programm anzulegen.
-			auto strProgName = _T("Create_") + RemovePrefix(p.m_strName);
-			strProgName.Replace(_T(" "), _T("_"));
-
-			// Baue den Namen für die Ressource auf.
-			CStringA strUpdateTemplate;
-			if (!LoadStringFromResource(strUpdateTemplate, strProgName, _T("SCRIPT"), true))
+			auto strScript = p.m_strSkript;
+			if (!m_strPrefix.IsEmpty())
+				// Achtung! Manche Skripte wie das Sichern des Systemprotokolls haben keinen vrp Eintrag!
+				strScript.Replace("string vrp=\"\";", "string vrp=\"" + CStringA{ m_strPrefix } + "\";");
+			strScript.Replace("\\", "\\\\");	// Backslash 
+			strScript.Replace("\r\n", "\n");	// Unix newline
+			strScript.Replace("\n", "\\n");		// Newline
+			strScript.Replace("\t", "\\t");		// Tab
+			strScript.Replace("\"", "\\\"");	// Doublequote
+			strScript.Replace("\'", "\\\'");	// Singlequote
+			if (p.m_bNew)
 			{
-				ASSERT(FALSE);
-				continue;
-			}
+				// Es kann sein, dass wir den alten Eintrag löschen müssen
+				ASSERT(p.m_id==0);
+				// Wir brauchen jetzt ein kom,plettes Script um ein Programm anzulegen.
+				auto strProgName = _T("Create_") + RemovePrefix(p.m_strName);
+				strProgName.Replace(_T(" "), _T("_"));
 
-			// Zu ändernde Daten einfügen.
-			CStringA strUpdate = strUpdateTemplate;
-			strUpdate.Replace("%1%", CStringA{ IntToString(p.m_id) });
-			strUpdate.Replace("%2%", CStringA{ m_strPrefix });
-			strUpdate.Replace("%3%", strScript);
-			strScriptForUpdate += strUpdate;
-			strScriptForUpdate += "\n!//##########################################################\n";
-		}
-		else if (p.m_bModified)
-		{
-			ASSERT(p.m_id!=0);
-			CStringA strUpdate;
-			strUpdate = CreateUpdateScriptForProgram(p.m_id, strScript);
-			strScriptForUpdate += strUpdate;
-			strScriptForUpdate += "\n!//##########################################################\n";
+				// Baue den Namen für die Ressource auf.
+				CStringA strUpdateTemplate;
+				if (!LoadStringFromResource(strUpdateTemplate, strProgName, _T("SCRIPT"), true))
+				{
+					ASSERT(FALSE);
+					continue;
+				}
+
+				// Zu ändernde Daten einfügen.
+				CStringA strUpdate = strUpdateTemplate;
+				strUpdate.Replace("%1%", CStringA{ IntToString(p.m_id) });
+				strUpdate.Replace("%2%", CStringA{ m_strPrefix });
+				strUpdate.Replace("%3%", strScript);
+				strScriptForUpdate += strUpdate;
+				strScriptForUpdate += "\n!//##########################################################\n";
+			}
+			else if (p.m_bModified)
+			{
+				ASSERT(p.m_id!=0);
+				CStringA strUpdate;
+				strUpdate = CreateUpdateScriptForProgram(p.m_id, strScript);
+				strScriptForUpdate += strUpdate;
+				strScriptForUpdate += "\n!//##########################################################\n";
+			}
 		}
 	}
 
