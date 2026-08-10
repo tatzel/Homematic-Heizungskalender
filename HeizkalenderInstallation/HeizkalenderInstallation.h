@@ -115,6 +115,7 @@ public:
 	// Data Connect
 	bool m_bSimulation;
 	bool m_bForceUpdate;
+	bool m_bNoProgramUpdate;
 	bool m_bConnected;
 	CString m_strCCU_host;
 	int		m_iCCU_port;			// 8181;

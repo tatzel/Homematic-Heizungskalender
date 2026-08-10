@@ -583,7 +583,7 @@ BEGIN
     IDS_MODE_CHURCHDESK_API "ChurchDesk-API"
     IDP_FILES_MISSING       "Eine oder mehrere Dateien für die Installation fehlen für die Installation. Das Programm wird kann nicht ausgeführt werden und wird beendet!\n\t%1"
     IDS_UNVERAENDERT        "Unverändert"
-    IDP_NEWER_PROGRAMS      "Die aktuelle Installation enthält neuere Programme als dieses Installationspaket:\n\t%1\nDie Installation kann nicht fortgesetzt werden da es zu einem Downgrade kommen würde.\nSollten Sie dennoch diese Version installieren wollen löschen Sie manuell diese Programme in der CCU."
+    IDP_NEWER_PROGRAMS      "Die aktuelle Installation enthält neuere Programme als dieses Installationspaket:\n\t%1\nEs werden keine Skripte installiert, da es zu einem Downgrade kommen würde.\nSollten Sie dennoch diese Version installieren wollen löschen Sie manuell diese Programme in der CCU."
     IDP_CHOOSE_MODE_MANUAL  "Aus den vorliegenden Daten und Programmen kann nicht ermittelt werden, auf welche Art (ChurchDesk, ChurchTools etc.) die Termine ermittelt werden sollen. Wählen Sie bitte den entsprechenden Modus manuell aus!"
     IDP_CHOOSE_NEW_MODE     "Dies ist eine neue Installation!\nWählen Sie bitte den entsprechenden Modus aus, mit dem die Heiztermine ermittelt werden sollen."
     IDP_CCU_UPDATE_SUCCESSFUL 
@@ -690,6 +690,7 @@ STRINGTABLE
 BEGIN
     IDP_AKTOREN_FUER_HEIZENSCHALTEN_LEER 
                             "Im Modus Heizen+Schalten, muss als erster Kanal ein Temperatursensor angegeben werden und als zweiter bzw. weitere Kanal ein Schaltaktor!"
+    IDP_PROGRAMME_NICHT_AKTUALISIERT "Programme werden nicht aktualisiert!"
 END
 
 #endif    // German (Germany) resources
