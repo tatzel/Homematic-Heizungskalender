@@ -1,14 +1,14 @@
 // Heizkalender-Installer
 // Copyright (C) 2026 Martin Richter (xMRi-Software) - heizkalender@m-ri.de
 //
-// Dieses Programm ist freie Software: Sie k�nnen es unter den Bedingungen
+// Dieses Programm ist freie Software: Sie können es unter den Bedingungen
 // der GNU General Public License, wie von der Free Software Foundation
-// ver�ffentlicht, weitergeben und/oder modifizieren, entweder gem��
-// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder sp�teren Version.
+// veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß
+// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.
 //
-// Dieses Programm wird in der Hoffnung verteilt, dass es n�tzlich ist,
-// jedoch OHNE JEDE GEW�HRLEISTUNG; sogar ohne die implizite Gew�hrleistung
-// der MARKTF�HIGKEIT oder EIGNUNG F�R EINEN BESTIMMTEN ZWECK.
+// Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist,
+// jedoch OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung
+// der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
 // Weitere Details finden Sie in der GNU General Public License.
 //
 // Sie sollten eine Kopie der GNU General Public License zusammen mit
@@ -26,7 +26,7 @@ CScriptEngine::CScriptEngine()
     : m_dwStatus{0}
 {
     // Wir bauen das Skript mit einem start und Endbefehl auf, der eindeitig ist
-    // Dazu nehmen wir eine GUID f�r diese Session:
+    // Dazu nehmen wir eine GUID für diese Session:
     GUID guid { };
     ::CoCreateGuid(&guid);
     CStringW strGuid;
@@ -79,7 +79,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
         CString headers = _T("Content-Type: text/xml\r\n");
 
         // Convert to ANSI
-        // Wir bauen am Start und am Ende eine Testsugabe um die Ausf�hrung zu konntrollieren.
+        // Wir bauen am Start und am Ende eine Testsugabe um die Ausführung zu konntrollieren.
         CStringA strScript{pcScript}, strToken;
         strToken.Format(R"x(Write("%s");)x" "\n", m_strStartToken.GetString());
         strScript.Insert(0,strToken);
@@ -113,11 +113,11 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             // Ausgabe \r\n tauschen in \n
             strOut.Replace("\r\n","\n");
 
-            // Start und Ende m�ssen passen
+            // Start und Ende müssen passen
             if (strOut.Mid(0, m_strStartToken.GetLength())==m_strStartToken &&
                 strOut.Mid(strOut.GetLength()-m_strEndeToken.GetLength())==m_strEndeToken)
             {
-                // Ergebnis passt. Beide Tokens sind drin.DIese l�schen wir nun.
+                // Ergebnis passt. Beide Tokens sind drin.DIese löschen wir nun.
                 strOut.Delete(0,m_strStartToken.GetLength());
                 strOut.Delete(strOut.GetLength()-m_strEndeToken.GetLength(),m_strStartToken.GetLength());
             }
