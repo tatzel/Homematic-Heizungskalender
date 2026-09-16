@@ -34,7 +34,7 @@
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
 string vrp="";
 
-!// Vorgegebene Orgnaisations ID
+!// Vorgegebene Organisations ID
 string organizationId = "";
 
 !// Es ist möglich hier sofort ein API-Token für ChurchDesk anzugeben. Da mit werden gleich weitere

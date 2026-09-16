@@ -25,7 +25,7 @@
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRi: 2026-02-16 RRULE eingebaut
 !// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
-!// MRi: 2026-01-28 Komplettes Neuschreiben und Anpssen an neue Version
+!// MRi: 2026-01-28 Komplettes Neuschreiben und Anpassen an neue Version
 !// MRi: 2025-11-24 MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
 
 !//Eingabe eines Namens Präfix
@@ -69,7 +69,7 @@ if (log<0) {
   log = true;
 }
 
-!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
+!// Logging zwingend ausschalten, wenn keine Variable vorhanden ist
 if (!logObj){
   log = false;
 }
@@ -130,7 +130,7 @@ string RIdEintrag;
 integer raumIndex = -1;
 foreach(RIdEintrag,RIdListe.Split(";")) {
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
-  !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
+  !// Raumname optional, das gestaltet die Suche etwas schwieriger
   string RId = RIdEintrag.StrValueByIndex("=",0);
   string RaumName=RIdEintrag.StrValueByIndex("=",1);
   if(DEBUG){

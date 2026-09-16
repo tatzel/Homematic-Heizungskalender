@@ -34,12 +34,12 @@
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
 string vrp="";
 
-!// Es ist möglich hier sofort ein API-Tokn für ChurchTools anzugeben. Da mit werden gleich weitere
+!// Es ist möglich hier sofort ein API-Token für ChurchTools anzugeben. Da mit werden gleich weitere
 !// Variablen für alle Ressourcen angelegt und die "HK1-R-Liste" befüllt. Ist ein API-Token bereits
 !// in den Variablen angelegt wird dieses verwendet
 string loginToken="";
 
-!// Vorgegebene Orgnaisations ID
+!// Vorgegebene Organisations ID
 string gemeindeName = "";
 
 !// Weitere einzurichtende Räume, für die keine Ressourcen vorhanden sind- Für diese werden auch
