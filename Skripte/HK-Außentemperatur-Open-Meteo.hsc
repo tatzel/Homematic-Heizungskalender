@@ -25,6 +25,9 @@
 !// TT: 2026-09-16 Robustheit verbessert: pos<0-Prüfung nach Find() eingebaut, verhindert
 !//                falsches Parsen bei fehlgeschlagener/unvollständiger wget-Antwort.
 !//                lat/lon: unnötige ToFloat()-Konversion und redundante ToString()-Aufrufe entfernt.
+!// TT: 2026-09-16 Bugfix: + durch # bei URL-Konkatenation ersetzt. Der +-Operator interpretierte
+!//                lat/lon (zahlenähnliche Strings) numerisch und schnitt die URL ab, so dass wget
+!//                nur eine unvollständige URL erhielt und keine Temperaturdaten lieferte.
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
@@ -88,7 +91,7 @@ if (DEBUG){
 }
 
 !// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
-command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+"&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
+command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude=" # lat # "&longitude=" # lon # "&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
 
 !// Da es immer wieder mal zu Fehlern kommt, wiederholen wir die Anfrage im Abstand von 1 Sekunde mehrfach
 integer iRetry = 10;
