@@ -35,12 +35,12 @@ string vrp="";
 boolean DEBUG=0;
 
 !// Max Stunden in die Vergangenheit für die die Durchschnittstemperatur ermittelt werden soll
-!// Maximal dürfen hier 48h eingegeben werden. Und ebenso die Vorraussage für die nächsten Stunden,
-!// es können maximal 24h vorraus berücksichtigt werden. Über diese komplette Anzahl von Stunden
+!// Maximal dürfen hier 48h eingegeben werden. Und ebenso die Voraussage für die nächsten Stunden,
+!// es können maximal 24h voraus berücksichtigt werden. Über diese komplette Anzahl von Stunden
 !// wird der Durchschnitt berechnet.
 !// Laut Chat/GPT ist 18/6 ein guter Wert für Fussbodenheizungen. Bei normalen Heizkörpern bietet sich
 !// 12/3 an. Das thermische Gedächtnis von Häusern liegt bei ca. 10h.
-!// Da unsere Termine sleten länger als 3h sind wird die Vorheizzeit kaum von der Zukunft beeinflusst
+!// Da unsere Termine selten länger als 3h sind wird die Vorheizzeit kaum von der Zukunft beeinflusst
 integer stundenZurueck = 18;    !// maximal 48h
 integer stundenVoraus = 6;      !// Maximal 24h
 
