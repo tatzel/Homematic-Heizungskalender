@@ -23,7 +23,7 @@
 string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=1;
+boolean DEBUG=0;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellung aus der HKx-Logging übernommen.
