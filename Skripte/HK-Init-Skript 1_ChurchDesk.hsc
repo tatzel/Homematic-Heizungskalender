@@ -217,8 +217,8 @@ if (apiToken && organizationId){
 
         !// Namen finden
         res = res.Substr(iPos+9,res.Length()-9);
-        integer iPosEnd = res.Find("\",\"");;
-        if (iPos<0){
+        integer iPosEnd = res.Find("\",\"");
+        if (iPosEnd<0){
           !// Fehler
           continue;
         }
