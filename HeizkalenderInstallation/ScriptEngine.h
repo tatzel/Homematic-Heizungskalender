@@ -1,14 +1,14 @@
 // Heizkalender-Installer
 // Copyright (C) 2026 Martin Richter (xMRi-Software) - heizkalender@m-ri.de
 //
-// Dieses Programm ist freie Software: Sie k�nnen es unter den Bedingungen
+// Dieses Programm ist freie Software: Sie können es unter den Bedingungen
 // der GNU General Public License, wie von der Free Software Foundation
-// ver�ffentlicht, weitergeben und/oder modifizieren, entweder gem��
-// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder sp�teren Version.
+// veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß
+// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.
 //
-// Dieses Programm wird in der Hoffnung verteilt, dass es n�tzlich ist,
-// jedoch OHNE JEDE GEW�HRLEISTUNG; sogar ohne die implizite Gew�hrleistung
-// der MARKTF�HIGKEIT oder EIGNUNG F�R EINEN BESTIMMTEN ZWECK.
+// Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist,
+// jedoch OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung
+// der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
 // Weitere Details finden Sie in der GNU General Public License.
 //
 // Sie sollten eine Kopie der GNU General Public License zusammen mit
