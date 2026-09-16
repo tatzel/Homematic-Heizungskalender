@@ -1,20 +1,20 @@
 // Heizkalender-Installer
 // Copyright (C) 2026 Martin Richter (xMRi-Software) - heizkalender@m-ri.de
 //
-// Dieses Programm ist freie Software: Sie können es unter den Bedingungen
+// Dieses Programm ist freie Software: Sie kï¿½nnen es unter den Bedingungen
 // der GNU General Public License, wie von der Free Software Foundation
-// veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß
-// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.
+// verï¿½ffentlicht, weitergeben und/oder modifizieren, entweder gemï¿½ï¿½
+// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder spï¿½teren Version.
 //
-// Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist,
-// jedoch OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung
-// der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+// Dieses Programm wird in der Hoffnung verteilt, dass es nï¿½tzlich ist,
+// jedoch OHNE JEDE GEWï¿½HRLEISTUNG; sogar ohne die implizite Gewï¿½hrleistung
+// der MARKTFï¿½HIGKEIT oder EIGNUNG Fï¿½R EINEN BESTIMMTEN ZWECK.
 // Weitere Details finden Sie in der GNU General Public License.
 //
 // Sie sollten eine Kopie der GNU General Public License zusammen mit
 // diesem Programm erhalten haben. Falls nicht, siehe
 // <https://www.gnu.org/licenses/>.
-// 
+//
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "pch.h"
@@ -26,10 +26,10 @@ CScriptEngine::CScriptEngine()
     : m_dwStatus{0}
 {
     // Wir bauen das Skript mit einem start und Endbefehl auf, der eindeitig ist
-    // Dazu nehmen wir eine GUID für diese Session:
+    // Dazu nehmen wir eine GUID fï¿½r diese Session:
     GUID guid { };
     ::CoCreateGuid(&guid);
-    CStringW strGuid;      
+    CStringW strGuid;
     ::StringFromGUID2(guid, strGuid.GetBuffer(64), 64);
     m_strStartToken.Format("<<Start:%s>>\n", CStringA{ strGuid }.GetString());
     m_strEndeToken.Format("<<Ende:%s>>\n", CStringA{ strGuid }.GetString());
@@ -58,8 +58,12 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             )
         };
 
+        // Verbindungskontext sichern, damit er auch nach dem Freigeben von
+        // pConn fuer AfxThrowInternetException verfuegbar ist.
+        const DWORD_PTR dwConnContext = pConn->GetContext();
+
         std::unique_ptr<CHttpFile> pFile
-        { 
+        {
             pConn->OpenRequest(
                 CHttpConnection::HTTP_VERB_POST,
                 theApp.m_strCCU_url,
@@ -68,14 +72,14 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
                 NULL,
                 NULL,
                 INTERNET_FLAG_NO_CACHE_WRITE
-            ) 
+            )
         };
 
         // Set headers
         CString headers = _T("Content-Type: text/xml\r\n");
 
         // Convert to ANSI
-        // Wir bauen am Start und am Ende eine Testsugabe um die Ausführung zu konntrollieren.
+        // Wir bauen am Start und am Ende eine Testsugabe um die Ausfï¿½hrung zu konntrollieren.
         CStringA strScript{pcScript}, strToken;
         strToken.Format(R"x(Write("%s");)x" "\n", m_strStartToken.GetString());
         strScript.Insert(0,strToken);
@@ -96,7 +100,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             strOut += strTemp;
         }
 
-        // Resultstring is ISO8859_1 
+        // Resultstring is ISO8859_1
         // auto strTest = ISO8859_1_toUnicode(strOut.GetString());
 
         // XML Part abschneiden.
@@ -109,19 +113,19 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             // Ausgabe \r\n tauschen in \n
             strOut.Replace("\r\n","\n");
 
-            // Start und Ende müssen passen
+            // Start und Ende mï¿½ssen passen
             if (strOut.Mid(0, m_strStartToken.GetLength())==m_strStartToken &&
                 strOut.Mid(strOut.GetLength()-m_strEndeToken.GetLength())==m_strEndeToken)
             {
-                // Ergebnis passt. Beide Tokens sind drin.DIese löschen wir nun.
+                // Ergebnis passt. Beide Tokens sind drin.DIese lï¿½schen wir nun.
                 strOut.Delete(0,m_strStartToken.GetLength());
                 strOut.Delete(strOut.GetLength()-m_strEndeToken.GetLength(),m_strStartToken.GetLength());
-            } 
+            }
             else
             {
 				if (m_dwStatus == HTTP_STATUS_OK)
                     m_dwStatus = HTTP_STATUS_BAD_REQUEST;
-                AfxThrowInternetException(pConn->GetContext());
+                AfxThrowInternetException(dwConnContext);
             }
         }
         else
@@ -129,7 +133,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             // Skript error. Wir haben keinen Fehler aber der XML Block ist nicht da.
             if (m_dwStatus == HTTP_STATUS_OK)
                 m_dwStatus = HTTP_STATUS_BAD_REQUEST;
-            AfxThrowInternetException(pConn->GetContext());
+            AfxThrowInternetException(dwConnContext);
         }
 
         pFile->Close();
@@ -141,7 +145,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
             return true;
         else
         {
-            AfxThrowInternetException(pConn->GetContext());
+            AfxThrowInternetException(dwConnContext);
             return false;
         }
     }
@@ -169,7 +173,7 @@ CString CScriptEngine::GetLastErrorText()
 static struct {
     DWORD   dwSTatus;
     PCTSTR  pText;
-} const aHTTPStatus[] = 
+} const aHTTPStatus[] =
 {
     DECL_ELEMENT(HTTP_STATUS_CONTINUE            ,  _T(" (100 = OK to continue with request)")),
     DECL_ELEMENT(HTTP_STATUS_SWITCH_PROTOCOLS    ,  _T(" (101 = server has switched protocols in upgrade header)")),
