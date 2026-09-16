@@ -70,7 +70,7 @@ if (log<0) {
   log = true;
 }
 
-!// Logging auschalten, wenn keine Variable vorhanden
+!// Logging ausschalten, wenn keine Variable vorhanden
 if (!logObj){
   !// Ohne logging macht das keinen Snn
   if(DEBUG)  {WriteLine("Logging ist nicht aktiviert. Abbruch!!!");}
@@ -157,8 +157,8 @@ foreach(SLEintrag,SListe){
   }
 
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
-  !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
-  !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
+  !// Raumname optional, das gestaltet die Suche etwas schwieriger
+  !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beenden
   boolean bGefunden = false;
   integer raumIndex = 0;
   string AktSRName="";
@@ -238,7 +238,7 @@ foreach(SLEintrag,SListe){
 
     !// Verhindern dass Ausschaltpunkt vor Einschaltpunkt liegt
     if((AUS<=EIN) || ((AUS+160)<NOW)){
-      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Einschaltzeit liegt nach Ausschaltzeit oder Auschaltzeitpunkt überschritten");}
+      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Einschaltzeit liegt nach Ausschaltzeit oder Ausschaltzeitpunkt überschritten");}
       continue;
     }
 
