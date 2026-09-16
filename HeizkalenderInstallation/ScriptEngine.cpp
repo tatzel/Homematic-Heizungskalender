@@ -25,7 +25,7 @@
 CScriptEngine::CScriptEngine()
     : m_dwStatus{0}
 {
-    // Wir bauen das Skript mit einem start und Endbefehl auf, der eindeitig ist
+    // Wir bauen das Skript mit einem start und Endbefehl auf, der eindeutig ist
     // Dazu nehmen wir eine GUID für diese Session:
     GUID guid { };
     ::CoCreateGuid(&guid);
@@ -79,7 +79,7 @@ bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
         CString headers = _T("Content-Type: text/xml\r\n");
 
         // Convert to ANSI
-        // Wir bauen am Start und am Ende eine Testsugabe um die Ausführung zu konntrollieren.
+        // Wir bauen am Start und am Ende eine Testausgabe um die Ausführung zu kontrollieren.
         CStringA strScript{pcScript}, strToken;
         strToken.Format(R"x(Write("%s");)x" "\n", m_strStartToken.GetString());
         strScript.Insert(0,strToken);

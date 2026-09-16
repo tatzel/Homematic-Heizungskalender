@@ -42,7 +42,7 @@
 !// MRi: 2025-12-08 Kosmetische Änderungen, Reduktion von State Aufrufen.
 !// MRi: 2025-12-03 Schaltvorgänge reduzieren, wenn die entsprechende Temp. bereits gesetzt ist.
 !// MRi: 2025-11-29 Beheizte Räume für die kein Schaltlisteneintrag vorhanden ist werden sofort abgeschaltet
-!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbesseters Logging
+!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbessertes Logging
 !// MRi: 2025-11-21 Kein Einschalten, wenn Schaltezeit <5min oder Ausschaltzeitpunkt vor Einschaltzeitpunkt liegt
 !// MRi: 2025-11-20 Logging verbessert.
 !// MRi: 2025-11-18 Logging verbessert, Behandlung der Grenztemperatur fürs Heizen Übersteuerung geändert
@@ -316,7 +316,7 @@ foreach(SLEintrag,SListe){
     if (HSFlag=="HS"){
       !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
       !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
-      !// Deshalb überspingen wir das.
+      !// Deshalb überspringen wir das.
       iMaxEntry = iMaxEntry+1;
     }
     AktorenListe = "";
@@ -808,7 +808,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
       if (HSFlag=="HS"){
         !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
         !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
-        !// Deshalb überspingen wir das.
+        !// Deshalb überspringen wir das.
         iMaxEntry = iMaxEntry+1;
       }
       AktorenListe = "";
@@ -930,7 +930,7 @@ foreach(RVN,RVNListe.Split(";")) {
     if (HSFlag=="HS"){
       !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
       !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
-      !// Deshalb überspingen wir das.
+      !// Deshalb überspringen wir das.
       iMaxEntry = iMaxEntry+1;
     }
     AktorenListe = "";
