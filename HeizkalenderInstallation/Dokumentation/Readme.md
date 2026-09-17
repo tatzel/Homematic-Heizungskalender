@@ -1,6 +1,6 @@
 # Heizkalender-Installation
 
-Der Heizkalender -Installer ist ein Tool zur Erstellung von Heizkalendern für die HommMatic, basierend auf Daten aus ChurchTool, ChurchDesk, iCal oder Google Kalender.
+Der Heizkalender-Installer ist ein Tool zur Erstellung von Heizkalendern für die HomeMatic, basierend auf Daten aus ChurchTool, ChurchDesk, iCal oder Google Kalender.
 Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwendigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
 
 ## Systemvoraussetzungen
@@ -8,117 +8,128 @@ Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Inst
 - Betriebssystem: Windows
 - Die CCU muss in den Sicherheitseinstellungen den Zugriff auf die Remote Homematic-Script API erlauben. Hier muss entweder ein eingeschränkter Zugriff auf die benötigten Funktionen oder ein vollständiger Zugriff gewährt werden, damit der Installer die notwendigen Skripte und Variablen erstellen kann.
 - Ein Administrator Benutzer und das entsprechende Kennwort müssen bekannt sein.
-- Alle Skripte die installiert und werden sollen müssen im Programmverezichnis des Heizkalender-Installers liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können aber weitere Tool-Skripte hinzugefügt werden, die dann ebenfalls aktualisiert werden.
-- Um auf Ressourcen und externe Kalender zugreifen zu können , muss der Rechner mit dem Internet verbunden sein.
-- Eine Lauffähige Kopie des Installers liegt im Skripte Verzeichnis.
+- Alle Skripte die installiert werden sollen müssen im Programmverzeichnis des Heizkalender-Installers liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können aber weitere Tool-Skripte hinzugefügt werden, die dann ebenfalls aktualisiert werden.
+- Um auf Ressourcen und externe Kalender zugreifen zu können, muss der Rechner mit dem Internet verbunden sein.
+- Eine lauffähige Kopie des Installers liegt im Skripte Verzeichnis.
 
 ### Vorbereiten der CCU
 
 Damit die Heizkalender-Installation ausgeführt werden kann, muss der Zugriff auf die Homematic-Script-API freigeschaltet werden. Entweder wird hier unter der *HomeMatic-WebUI Einstellungen -> Firewall konfigurieren -> Remote Homematic-Script API -> Vollzugriff* eingestellt
+
 ![CCU-Vollzugriff](Bilder/CCU-Zugriff-1.png)
 
 Oder man erteilt *Eingeschränkt*en Zugriff und gibt die entsprechende IP-Adresse für den Zugriff frei.
+
 ![CCU-Vollzugriff](Bilder/CCU-Zugriff-2.png)
+
 Freigegebene IP für den Zugriff.
+
 ![CCU-Vollzugriff](Bilder/CCU-Zugriff-3.png)
 
-# Verbinden mit der CCU
+## Verbinden mit der CCU
 
-Im ersten Schritt muss eine Verbindung mit der CCU aufgebaut werden bevor weitere Einstekllungen vorgenommen werden können.
+Im ersten Schritt muss eine Verbindung mit der CCU aufgebaut werden, bevor weitere Einstellungen vorgenommen werden können.
 
 ![Mit CCU verbinden](Bilder/HKI-Verbinden.png)
 
-1. Geben Sie die Zeil-IP der CCU an.
+1. Geben Sie die Ziel-IP der CCU an.
 2. Geben Sie einen Benutzernamen an, der administrativen Zugriff auf die CCU hat.
 3. Geben Sie das passende Kennwort an.
+4. Prefix für Variablen und Skripte
+    > [!NOTE]
+    > Das Feld Prefix bleibt im allgemeinen leer. Es dient dazu mehrere Installationen parallel zu testen, oder eine Installation von bestehenden Systemvariablen abzugrenzen.
+    > Wird ein Prefix angegeben, erhalten alle Variablen und Programme diesen Prefix im Namen vorangestellt.
+    > Wird eine bestehende CCU ausgelesen, wird auch erwartet, dass alle genutzten Variablen und Programme, diesen Prefix enthalten.
+    > **Nutzen Sie dieses Feld nur, wenn Sie sich über die Folgen im Klaren sind!**
+5. Klicken Sie nun auf den Button `Verbinden mit der CCU`
+
+Ist keine Verbindung zur CCU möglich, weil die Verbindungsinformationen nicht stimmen, erhalten Sie eine Fehlermeldung:
+
+![Keine Verbindung](Bilder/HKI-Verbindungsfehler.png)
 
 > [!NOTE]
-> Das Feld Prefix bleibt im allgemeinen leer. Es dient dazu mehrere Installationen paralell zu testen, oder eine Installation von bestehenden Systemvariablen abzugrenzen.  
-> Wird ein Prefix angegeben, erhalten alle Variablen und Programme diesen Prefix im Namen vorangestellt.  
-> Wird eine bestehende CCU ausgelesen, wird auch erwartet, dass alle genutzten Variablen und Programme, diesen Prefix enthalten.  
-> **Nutzen Sie dieses Feld nur, wenn Sie sich über die Folgen im klaren sind!**
+> Konnte eine Verbindung hergestellt werden, dann werden die aktuellen Verbindungsinformationen in der Registry des aktuellen Benutzers gespeichert.
+> Wird die HeizkalenderInstallation neu gestartet sind die Felder *IP-Adresse, Benutzername, Kennwort, Prefix* bereits ausgefüllt.
 
-Klicken Sie nun auf den Button `Verbinden mit der CCU`
+## Einrichten einer neuen Heizkalender Installation
 
-Ist keine Verbindung zur CCU möglich, weil die Verdindungsinformationen nicht stimmen, erhalten Sie eine Fehlermeldung:
-![Keine Verbidnung](Bilder/HKI-Verbindungsfehler.png)
+Ist bisher keine Installation auf der CCU vorhanden, erhalten Sie die Meldung:
 
-> [!NOTE]
-> Konnte eine Verbindung hergestellt werden, dann werden die aktuellen Verbindungsinformationen in der Registry des aktuellen Benutzers gespeichert.  
-> Wird die HeizkalenderInstallation neu gestartet sind die Felder. *IP-Adresse, Benutzername, Kennwort, Prefix* bereits ausgefüllt.
-
-# Einrichten einer neuen Heizkalender Installation
-
-Ist bsiher keine Installation auf der CCU vorhanden erhalten Sie die Meldung:
 ![Neue Installation](Bilder/HKI-NeueInstallation1.png)
 
-## Auswahl der Ressourcen/Termin Quelle 
+### Auswahl der Ressourcen/Termin Quelle
 
 Wählen Sie nun die gewünschte Quelle für Ihre Termine (ChurchTools, ChurchDesk, iCal, Google-API):
+
 ![Neue Installation: Ressourcen Quelle](Bilder/HKI-NeueInstallation2.png)
 
-## Verbidndungsdaten zu den Terminen/Ressourcen
+### Verbindungsdaten zu den Terminen/Ressourcen
 
-Für jede Heizkalender Variante sind unterschiedliche Infromationen für das Auslesen/Aktualisieren der Ressourcen und Kalender notwendig. Diese werden nachfolgend beschreiben.
- 
-### Verbindungsdaten angeben - ChurchDesk
+Für jede Heizkalender Variante sind unterschiedliche Informationen für das Auslesen/Aktualisieren der Ressourcen und Kalender notwendig. Diese werden nachfolgend beschrieben.
+
+#### Verbindungsdaten angeben - ChurchDesk
 
 Die benötigten Zugangsdaten für ChurchDesk sind bei den Varianten API / iCal identisch.
 
-![ChurchDesk Zugangsdaten](Bilder/HKI-ModusCDiCal.png)
-![ChurchDesk Zugangsdaten](Bilder/HKI-ModusCDAPI.png)
+![ChurchDesk iCal Zugangsdaten](Bilder/HKI-ModusCDiCal.png)
+![ChurchDesk API Zugangsdaten](Bilder/HKI-ModusCDAPI.png)
 
+#### Verbindungsdaten angeben - ChurchTools
 
-### Verbindungsdaten angeben - ChurchTools
+![ChurchTools Zugangsdaten](Bilder/HKI-ModusCT.png)
 
-![ChurchDesk Zugangsdaten](Bilder/HKI-ModusCT.png)
+#### Verbindungsdaten angeben - iCal
 
-### Verbindungsdaten angeben - iCal
+![iCal Zugangsdaten](Bilder/HKI-ModusiCal.png)
 
-![ChurchDesk Zugangsdaten](Bilder/HKI-ModusiCal.png)
+#### Verbindungsdaten angeben - Google
 
-### Verbindungsdaten angeben - Google
+![Google Zugangsdaten](Bilder/HKI-ModusGoogle.png)
 
-![ChurchDesk Zugangsdaten](Bilder/HKI-ModusGoogle.png)
+## Nach dem Verbindungsaufbau mit der CCU
 
-# Nach dem Verbindungsaufbau mit der CCU
-
-Bei einer bestehenden eingerichteten CCU erhalten Sie eine Anzeige über den Verbindungsstatus und die Art der genutzten Ressourcen. Wie es in der nachfolgenden Anzeige zu sehen ist.
+Bei einer bestehenden eingerichteten CCU erhalten Sie eine Anzeige über den Verbindungsstatus und die Art der genutzten Ressourcen, wie in der nachfolgenden Anzeige zu sehen ist.
 
 ![Verbunden mit der CCU](Bilder/HKI-Verbunden.png)
 
-## Wechsel einer zu einer anderen Ressourcen Variante
+### Wechsel zu einer anderen Ressourcen-Variante
 
-# Allgemeine Einstellungen des Heizkalenders
+- [ ] Dokumentation oder Screenshot einfügen
 
-![Allgemeinde Einstellungen](Bilder/HKI-Einstellungen.png)
-
-# Ressourcen Kalenderzuordnung
-
-![Kalenderzuordnung](Bilder/HKI-Kalenderzuordnung.png)
-
-## Raumzuodrnung zu den Ressourcen/Kalendern
-
-![Raumzuordnung zu den Kalenderressourcen](Bilder/HKI-Raumzuordnung.png)
-
-# Programme / Skripte
+## Programme / Skripte
 
 ![Übersicht der Programme](Bilder/HKI-Programme.png)
 
-## Möglichkeit Änderungen in Skripten anzuzeigen
+### Möglichkeit Änderungen in Skripten anzuzeigen
 
-# Räume
+- [ ] Dokumentation oder Screenshot einfügen
+
+## Allgemeine Einstellungen des Heizkalenders
+
+Bei der Heizkurve werden die Vorlaufzeiten in Minuten zur Außentemperaturen eingegeben.
+
+![Allgemeine Einstellungen](Bilder/HKI-Einstellungen.png)
+
+## Ressourcen Kalenderzuordnung
+
+![Kalenderzuordnung](Bilder/HKI-Kalenderzuordnung.png)
+
+### Raumzuordnung zu den Ressourcen/Kalendern
+
+![Raumzuordnung zu den Kalenderressourcen](Bilder/HKI-Raumzuordnung.png)
+
+## Räume
 
 ![Übersicht der Räume](Bilder/HKI-Räume.png)
 
-## Eigenschaften von Räumen
+### Eigenschaften von Räumen
 
 ![Raum-Eigenschaften](Bilder/HKI-Raum.png)
 
-# Systemvariablen
+## Systemvariablen
 
 ![Übersicht der Systemvariablen](Bilder/HKI-Systemvariablen.png)
 
-## Änderungsinformationen
+### Änderungsinformationen
 
 ![Übersicht der Systemvariablen](Bilder/HKI-SystemvariablenÄnderungen.png)
