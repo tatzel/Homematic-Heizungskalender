@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Churchtools)
 !//================================================================================================
-!// Stand:    23.02.2026
+!// Stand:    18.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -24,6 +24,8 @@
 !// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
+!// TT:  2026-09-18 iPos>=0-Guard vor Substr ergänzt; rohe Debug-Ausgaben durch verständliche
+!//                 Meldung ersetzt (kein Raum, Typ-Id).
 !// MRi: 2026-02-19 Einlesen mehrerer Ressourcetypen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
@@ -238,12 +240,15 @@ if (loginToken && gemeindeName){
           foreach(res,resources.Replace("{\"id\":","\t")){
             !// Suche die resId und prüfe ob es passt
             integer iPos = res.Find("\"resourceTypeId\":");
-            ! WriteLine(iPos # "-" # res);
-            if(resTypeIds.Find(";" # res.Substr(iPos+17,10).ToInteger().ToString() # ";")<0){
-              !// Resource passt nicht (kein Raum)
-              WriteLine(res);
-              WriteLine(res.Substr(iPos+17,10));
-              WriteLine(res.Substr(iPos+17,10).ToInteger().ToString());
+            if (iPos<0){
+              !// Ohne resourceTypeId können wir die Ressource nicht zuordnen -> überspringen
+              WriteLine("Ressource ohne resourceTypeId übersprungen (Format unerwartet).");
+              continue;
+            }
+            integer resTypeId = res.Substr(iPos+17,10).ToInteger();
+            if(resTypeIds.Find(";" # resTypeId # ";")<0){
+              !// Ressource ist kein Raum-Typ -> überspringen
+              WriteLine("Ressource übersprungen (kein Raum, Typ-Id " # resTypeId # ").");
               continue;
             }
 

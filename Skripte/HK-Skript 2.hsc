@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    08.08.2026
+!// Stand:    18.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,7 +21,10 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
-
+!// TT:  2026-09-18 Nachtschaltung: Relais-Zustand mit State() lesen statt State(0) (schrieb AUS
+!//                 und lieferte falschen Ist-Zustand). CCU-verifiziert.
+!// TT:  2026-09-16 Log-Ausgaben verbessert: Raumname in Thermostat-Fehlermeldungen ergänzt,
+!//                 AT/GT/IST in Heizen-Zeile mit Bezeichnung und °C, Nachkommastellen vereinheitlicht.
 !// MRi: 2026-08-08 Bugfix Heizen mit Schalten
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
@@ -847,7 +850,11 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
                         "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
               }
             }else{
-              boolean istZustand = objDP.State(0)!=0;
+              !// State() ohne Argument = Zustand lesen. State(0) würde das Relais auf AUS setzen!
+              !// Auf CCU3 (HMW-IO-12-Sw7-DR) verifiziert: State(0) schaltet den Kanal aus UND
+              !// liefert als Rückgabe true - der frühere Code (State(0)!=0) schaltete also aus
+              !// und setzte zugleich einen falschen Ist-Zustand.
+              boolean istZustand = objDP.State()!=0;
               if (istZustand!=(sollZustand!=0)){
                 objDP.State(sollZustand);
                 if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #

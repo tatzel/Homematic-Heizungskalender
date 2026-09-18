@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (ChurchDesk)
 !//================================================================================================
-!// Stand:    23.02.2026
+!// Stand:    18.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -25,6 +25,7 @@
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
 
+!// TT:  2026-09-18 color-Guard iPos>=0 statt iPos&& (verfehlte Position 0 / -1).
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
 !//                 manuell angelegt werden.
@@ -199,7 +200,7 @@ if (apiToken && organizationId){
 
         !// Bei Color 0 ist das der Gemeinde-Eintrag, den überspringen wir.
         integer iPos = res.Find("\"color\":");
-        if (iPos && res.Substr(iPos+8,10).ToInteger()==0){
+        if (iPos>=0 && res.Substr(iPos+8,10).ToInteger()==0){
           !// Den Gemeinde-Eintrag kann man beim buchen nicht benutzen.
           !// Einen anderen Indikator als die Farbe habe ich nicht gefunden.
           continue;
