@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    08.08.2026
+!// Stand:    16.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,7 +21,8 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
-
+!// TT:  2026-09-16 Log-Ausgaben verbessert: Raumname in Thermostat-Fehlermeldungen ergänzt,
+!//                 AT/GT/IST in Heizen-Zeile mit Bezeichnung und °C, Nachkommastellen vereinheitlicht.
 !// MRi: 2026-08-08 Bugfix Heizen mit Schalten
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
@@ -41,13 +42,13 @@
 !// MRi: 2025-12-08 Kosmetische Änderungen, Reduktion von State Aufrufen.
 !// MRi: 2025-12-03 Schaltvorgänge reduzieren, wenn die entsprechende Temp. bereits gesetzt ist.
 !// MRi: 2025-11-29 Beheizte Räume für die kein Schaltlisteneintrag vorhanden ist werden sofort abgeschaltet
-!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbesseters Logging
-!// MRi: 2025-11-21 Kein Einschalten, wenn Schaltezeit <5min oder Ausschalktzeitpunkt vor Einschlatzeitpunkt liegt
+!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbessertes Logging
+!// MRi: 2025-11-21 Kein Einschalten, wenn Schaltezeit <5min oder Ausschaltzeitpunkt vor Einschaltzeitpunkt liegt
 !// MRi: 2025-11-20 Logging verbessert.
 !// MRi: 2025-11-18 Logging verbessert, Behandlung der Grenztemperatur fürs Heizen Übersteuerung geändert
 !// MRi: 2025-11-14 MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
 !// MRi: 2025-11-13 Log-Ausgaben verbessert und präzisiert.
-!// MRi: 2025-11-13 1. Auschaltzyklen Übersprungsicher gemacht! Das Programm muss aber alle 5min laufen
+!// MRi: 2025-11-13 1. Ausschaltzyklen Übersprungsicher gemacht! Das Programm muss aber alle 5min laufen
 !//                 2. Ebenfalls schalten wir alle Heizkörper auf Grundtemperatur zurück und setzen die
 !//                    Raumvariablen zurück wenn HK2-Hand-Grundtemp gesetzt ist
 !//                 3. Ist die Schaltliste leer prüfen wir ob noch ein Raum geschaltet ist.
@@ -68,7 +69,7 @@ boolean DEBUG=0;
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
 integer log=0;
 
-!// Temperaturanpassung (1=100% Berücksichtigung Ist/Soll Temperatur Differenz 0.5=50%, 0=0%) 
+!// Temperaturanpassung (1=100% Berücksichtigung Ist/Soll Temperatur Differenz 0.5=50%, 0=0%)
 real SollIstTemperaturAnpassung = 0.6;
 
 !//#######---Ende Variabler Bereich---#############################################################
@@ -139,7 +140,7 @@ if (log<0) {
   log = true;
 }
 
-!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
+!// Logging zwingend ausschalten, wenn keine Variable vorhanden ist
 if (!logObj){
   log = false;
 }
@@ -196,8 +197,8 @@ foreach(SLEintrag,SListe){
   real    RTemp   = SLEintrag.StrValueByIndex(";",3).ToFloat();
 
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
-  !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
-  !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
+  !// Raumname optional, das gestaltet die Suche etwas schwieriger
+  !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beenden
   boolean bGefunden = false;
   integer raumIndex = 0;
   string AktSRName="";
@@ -308,14 +309,14 @@ foreach(SLEintrag,SListe){
 
     !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
     !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
-    !// Das ein Aktorname eine Mindestlänge hatte.    
+    !// Das ein Aktorname eine Mindestlänge hatte.
     iPos = 0;
     iEntry = 1;
     integer iMaxEntry=6;
     if (HSFlag=="HS"){
       !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
       !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
-      !// Deshalb überspingen wir das.
+      !// Deshalb überspringen wir das.
       iMaxEntry = iMaxEntry+1;
     }
     AktorenListe = "";
@@ -406,13 +407,13 @@ foreach(SLEintrag,SListe){
           ux=15.0;
           uy = OffsetAT.StrValueByIndex(";",6).ToFloat();
         }else{
-          !// Alles andere wird mit 15.0 bis 17.5 interoliert
+          !// Alles andere wird mit 15.0 bis 17.5 interpoliert
           lx=15.0;
           ly = OffsetAT.StrValueByIndex(";",6).ToFloat();
           ux=17.5;
           uy = OffsetAT.StrValueByIndex(";",7).ToFloat();
         }
-        
+
         !// linear Interpolieren
         real offsetTempAn = (((uy-ly)/(ux-lx))*(AT-lx))+ly;
         if (offsetTempAn<0){
@@ -420,7 +421,7 @@ foreach(SLEintrag,SListe){
         }
 
         !// Bestimme den Verschiebungsfaktor zur Temperaturverschiebung. maximal 300%
-        !// minmal 25%. Andere Werte setzen den Faktor auf
+        !// minimal 25%. Andere Werte setzen den Faktor auf
         real faktor1 = RVI.StrValueByIndex(";",4).StrValueByIndex("*",1).ToFloat();
         if (faktor1==0){
           faktor1 = 1.0;
@@ -445,15 +446,15 @@ foreach(SLEintrag,SListe){
           if (objDP){
             ISTTemperatur = objDP.State().ToFloat();
             }else{
-              if(log){logObj.State("Datenpunkt ACTUAL_TEMPERATURE nicht vorhanden!");}
-              if(DEBUG) {WriteLine("Datenpunkt ACTUAL_TEMPERATURE nicht vorhanden!");}
+              if(log){logObj.State(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
+              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
             }
         }elseif(!AktAktor) {
-          if(log){logObj.State(AktAktor+" Kein Aktor zugeordnet!");}
-          if(DEBUG) {WriteLine(AktAktor+" Kein Aktor zugeordnet!");}
+          if(log){logObj.State(AktSRName # "-" # RVNName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
+          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
         }else{
-          if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-          if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+          if(log){logObj.State(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
+          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
         }
 
         !// faktor2 wird nach unten auf 0.2 begrenzt. Besonders wenn wir bereits in der Heizphase sind.
@@ -461,7 +462,7 @@ foreach(SLEintrag,SListe){
         !// dass die Heizung ausgeschaltet wird. faktor2 ist also ein Wert >=0.2
         !// Die SollIstTemperaturAnpassung begrenzt die Anrechnung weil diese bei einer Fussbodenheizung zu
         !// stark begrenzt.
-        real faktor2 = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));                
+        real faktor2 = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));
         faktor2 = faktor2.Max(0.2);
         offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
         offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
@@ -469,7 +470,7 @@ foreach(SLEintrag,SListe){
         !//if(log) {logObj.State("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
 
         !// Reale Schaltzeiten berechnen
-        string logText = AktSRName # "-" # RVNName # " Heizen - " # AT.ToString(1) # "/"  # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C - "  #EIN.ToTime().Format("%X").Substr(0,5) # " ";
+        string logText = AktSRName # "-" # RVNName # " Heizen - AT " # AT.ToString(1) # "°C / GT " # GT.ToString(1) # "°C / IST " # ISTTemperatur.ToString(1) # "°C - " # EIN.ToTime().Format("%X").Substr(0,5) # " ";
         if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
         logText = logText # (offsetRaumAn/60) #"min ";
         if (offsetTempAn==0){ logText=logText#" - "; }
@@ -526,7 +527,7 @@ foreach(SLEintrag,SListe){
                 if(HSFlag=="H"){
                   objDP.State(GT);
                   if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
-                  if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}                
+                  if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
                 }else{
                   objDP.State(0);
                   if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
@@ -537,8 +538,8 @@ foreach(SLEintrag,SListe){
                 if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("2;"+RVI.Substr(2,RVI.Length()-2));
@@ -575,8 +576,8 @@ foreach(SLEintrag,SListe){
                 if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("3;"+RVI.Substr(2,RVI.Length()-2));
@@ -613,8 +614,8 @@ foreach(SLEintrag,SListe){
                 if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
@@ -631,7 +632,7 @@ foreach(SLEintrag,SListe){
     !//Liegt der Ausschaltzeitpunkt des aktuellen Schaltlistenelement in der Vergangenheit dann Raumvariable durchgehen und Aktoren auf Grundtemp bringen WENN Heizung
     !//noch nicht ausgeschaltet ist.
     if(SDFlag>=0){
-      !// Nur wenn der Ausschalktzeitpunkt erreicht wurde, schalten wir
+      !// Nur wenn der Ausschaltzeitpunkt erreicht wurde, schalten wir
       if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
         !// Aber auch nur wenn er aktuell an ist, sonst müssen wir nicht ausschalten
         if(aktuellerSchaltZustand==1){
@@ -665,8 +666,8 @@ foreach(SLEintrag,SListe){
                 if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
@@ -720,8 +721,8 @@ foreach(SLEintrag,SListe){
                   if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
                 }
               }else{
-                if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-                if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+                if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+                if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
               }
             }
             dom.GetObject(RVN).State("1;"+RVI.Substr(2,RVI.Length()-2));
@@ -730,8 +731,8 @@ foreach(SLEintrag,SListe){
           }
         }
       }else{
-          if(log){logObj.State(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT # " größer Grenzwert "+ATG.ToString());}
-          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT # " größer Grenzwert "+ATG.ToString());}
+          if(log){logObj.State(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
+          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
       }
     }
   }
@@ -807,9 +808,9 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
       if (HSFlag=="HS"){
         !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
         !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
-        !// Deshalb überspingen wir das.
+        !// Deshalb überspringen wir das.
         iMaxEntry = iMaxEntry+1;
-      }      
+      }
       AktorenListe = "";
       while (iPos<RVI.Length()) {
         if (iEntry>iMaxEntry){
@@ -861,10 +862,10 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
           }else{
             if(log){logObj.State("Datenpunkt " # Param # " nicht vorhanden!");}
             if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
-          }            
+          }
         }else{
-          if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-          if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+          if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
         }
       }
     }
@@ -929,9 +930,9 @@ foreach(RVN,RVNListe.Split(";")) {
     if (HSFlag=="HS"){
       !// Im Modus Heizen/Schalten ist der erste Aktor ein Thermostat, alle weitere Aktoren
       !// sind Schaltaktoren. Mit dem Thermostat können wir nichts Schalten. Es dient nur als Datenquelle.
-      !// Deshalb überspingen wir das.
+      !// Deshalb überspringen wir das.
       iMaxEntry = iMaxEntry+1;
-    }    
+    }
     AktorenListe = "";
     while (iPos<RVI.Length()) {
       if (iEntry>iMaxEntry){
@@ -967,8 +968,8 @@ foreach(RVN,RVNListe.Split(";")) {
           if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
         }
       }else{
-        if(log){logObj.State(AktAktor+" Objekt existiert nicht!");}
-        if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+        if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
       }
     }
   }
@@ -978,4 +979,3 @@ foreach(RVN,RVNListe.Split(";")) {
 
 if(log){logObj.State("Ende Schaltskriptlauf=============================");}
 WriteLine("Ende Schaltskriptlauf");
-

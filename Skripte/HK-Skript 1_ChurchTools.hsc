@@ -30,7 +30,7 @@
 !// MRi: 2025-12-10 Neue Sonderbefehle #GT# #NH# #NS#
 !// MRi: 2025-12-08 Altes Skript komplett überarbeitet
 !// MRi: 2025-11-29 Alte Schaltliste wird nicht mehr übernommen um Schalttermine abbrechen zu können.
-!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbesseters Logging
+!// MRi: 2025-11-26 HK1-R-ListeNamen fest eingebaut für verbessertes Logging
 !// MRi: 2025-11-24	Anpassung Doku. Doppelte Schaltlisteneinträge
 !// MRi: 2025-11-16	Fehlerbehandlung eingebaut
 !// MRi: 2025-11-14	MultiRaumVariante, damit lassen sich mehrere Räume einer Ressource zuordnen.
@@ -79,7 +79,7 @@ if (log<0) {
   log = true;
 }
 
-!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
+!// Logging zwingend ausschalten, wenn keine Variable vorhanden ist
 if (!logObj){
   log = false;
 }
@@ -164,8 +164,8 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     string resId=termin.Substr(iPos+13,10).ToInteger();
 
     !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
-    !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
-    !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beeenden
+    !// Raumname optional, das gestaltet die Suche etwas schwieriger
+    !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beenden
     boolean bGefunden = false;
     integer raumIndex = 0;
     string RaumName="";
