@@ -116,9 +116,9 @@ BEGIN
     EDITTEXT        IDC_ED_CHURCHNAME,168,116,173,12,ES_AUTOHSCROLL
     LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHTOOL2,7,138,135,8
     EDITTEXT        IDC_ED_LOGINTOKEN,168,136,173,12,ES_AUTOHSCROLL
-    LTEXT           "Churchdesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,118,135,8
+    LTEXT           "ChurchDesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,118,135,8
     EDITTEXT        IDC_ED_ORGAID,168,116,173,12,ES_AUTOHSCROLL
-    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHDESK2,7,138,135,8
+    LTEXT           "Login Token für ChurchDesk:",IDC_ST_CHURCHDESK2,7,138,135,8
     EDITTEXT        IDC_ED_APITOKEN,168,136,173,12,ES_AUTOHSCROLL
     LTEXT           "Google API-Key:",IDC_ST_GOOGLE1,7,118,135,8
     EDITTEXT        IDC_ED_GOOGLE_APIKEY,168,116,173,12,ES_AUTOHSCROLL
@@ -310,7 +310,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,5,0,0
+ FILEVERSION 3,5,1,0
  PRODUCTVERSION 3,5,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -328,7 +328,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "3.5.0.0"
+            VALUE "FileVersion", "3.5.1.0"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
