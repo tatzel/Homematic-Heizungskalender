@@ -1,14 +1,16 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    19.02.2026 
+!// Stand:    18.09.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
+!//
+!// TT:  2026-09-18 Syntaxfehler behoben (fehlende Klammern/Semikolon), + auf # umgestellt.
 
 !//------------------------------------------------------------------------------------------
 !// Heizliste dekodieren und prüfen
@@ -65,15 +67,15 @@ while (true) {
     break;
   }
   if ((i%5)==0){
-    WriteLine("\nSchaltzeiten Raum=" + stemp);
+    WriteLine("\nSchaltzeiten Raum=" # stemp);
   } elseif ((i%5)==1) {
-    WriteLine("Zeit Start=" + stemp;
+    WriteLine("Zeit Start=" # stemp);
   } elseif ((i%5)==2) {
-    WriteLine("Zeit Ende=" + stemp;
+    WriteLine("Zeit Ende=" # stemp);
   } elseif ((i%5)==3) {
-    WriteLine("Temperatur=" + stemp);
+    WriteLine("Temperatur=" # stemp);
   } elseif ((i%5)==4) {
-    WriteLine("Heizen/Schalten=" + stemp);
+    WriteLine("Heizen/Schalten=" # stemp);
   }
   i=i+1;
 }
@@ -158,7 +160,7 @@ foreach(RListe, hk2RaumListe.Split(";")){
   if (hk1RaumListeNamen!=""){
     RName = " (" # hk1RaumListeNamen.StrValueByIndex(";",i) # ")";
   }
-  
+
   WriteLine("_____________________________\nRaum: \t" # (i+1).ToString() # RName);
   WriteLine("Chruchtools Resource: \t" # hk1RaumListe.StrValueByIndex(";",i));
   if (RListe.Find("+")>=0){
@@ -170,7 +172,7 @@ foreach(RListe, hk2RaumListe.Split(";")){
     }
     !// Raumdaten ausgeben.
     WriteLine("Raum: " # RName);
-    
+
     if (ListeRaumVariablen.Find(";" # RName # ";")<0){
       ListeRaumVariablen = ListeRaumVariablen # RName # ";";
     }
@@ -186,7 +188,7 @@ foreach(RName,ListeRaumVariablen.Split(";")){
 
   Raum = dom.GetObject(RName);
   if (!Raum){
-    WriteLine("FEHLER!!! Raumvariable " # RName # " nicht vorhanden!!!")
+    WriteLine("FEHLER!!! Raumvariable " # RName # " nicht vorhanden!!!");
     continue;
   }
   RaumDef = Raum.State();
@@ -284,8 +286,8 @@ foreach(RName,ListeRaumVariablen.Split(";")){
       iEntry=iEntry+1;
     }
     iPos = iPos+1;
-  } 
-    
+  }
+
   WriteLine("Aktoren:");
   foreach(Aktor,AktorenListe.Split(";")){
     stemp = "\t" # Aktor;
@@ -307,7 +309,7 @@ foreach(RName,ListeRaumVariablen.Split(";")){
 
   ListeRaumVariablen = ListeRaumVariablen.Replace(";"# RName # ";", ";");
   if (ListeRaumVariablen.Length()>1){
-    WriteLine("_____________________________");  
+    WriteLine("_____________________________");
   }
 }
 

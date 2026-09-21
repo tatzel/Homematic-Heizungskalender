@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus iCal auszulesen
 !//================================================================================================
-!// Stand:    26.02.2026
+!// Stand:    18.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,8 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-09-18 RRULE-Fixes: DAILY-Tippfehler ("DAYLY"), iMaxCount-Default ohne COUNT (brach
+!//                 sofort ab), UNTIL nun korrekt aus dem RRULE-Wert. Ungetestet (kein iCal vorhanden).
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRi: 2026-02-16 RRULE eingebaut
 !// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
@@ -290,7 +292,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
         WriteLine("RRULE:" # strRRULE);
       }
       string strFreq = "";
-      if     (strRRULE.Find("FREQ=DAILY")   >= 0) { strFreq = "DAYLY"; }
+      if     (strRRULE.Find("FREQ=DAILY")   >= 0) { strFreq = "DAILY"; }
       elseif (strRRULE.Find("FREQ=WEEKLY")  >= 0) { strFreq = "WEEKLY"; }
       elseif (strRRULE.Find("FREQ=MONTHLY") >= 0) { strFreq = "MONTHLY"; }
       elseif (strRRULE.Find("FREQ=YEARLY")  >= 0) { strFreq = "YEARLY"; }
@@ -307,17 +309,19 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
         iInterval = strRRULE.Substr(strRRULE.Find("INTERVAL=")+9).ToInteger();
       }
 
-      integer iMaxCount = 0;
+      !// Ohne COUNT= gilt keine Anzahlbegrenzung; Sentinel 9999 statt 0, damit die Schleife
+      !// nicht sofort abbricht. Begrenzt wird dann durch maxDatum (Zeitfenster) bzw. UNTIL.
+      integer iMaxCount = 9999;
       if (strRRULE.Find("COUNT=") >= 0) {
         iMaxCount = strRRULE.Substr(strRRULE.Find("COUNT=")+6).ToInteger();
       }
 
       integer timeUntil = JETZT+(zeitVorlauf*60);
       if (strRRULE.Find("UNTIL=") >= 0) {
-        string sUNTIL = strRRULE.Substr(strRRULE.Find("UNTIL=")+6, 15);
-        timeUntil=termin.Substr(iPos+7,13).Replace("T"," ");
-        timeUntil=timeUntil.Substr(0,4)#"-"#timeUntil.Substr(4,2)#"-"#timeUntil.Substr(6,2)#" "#timeUntil.Substr(9,2)#":"#timeUntil.Substr(11,2);
-        timeUntil=timeUntil.ToTime().ToInteger()+versatzGMT;
+        !// UNTIL-Wert (Format YYYYMMDDTHHMMSSZ) aus der RRULE lesen und wie DTEND parsen.
+        string sUNTIL = strRRULE.Substr(strRRULE.Find("UNTIL=")+6, 15).Replace("T"," ");
+        sUNTIL = sUNTIL.Substr(0,4)#"-"#sUNTIL.Substr(4,2)#"-"#sUNTIL.Substr(6,2)#" "#sUNTIL.Substr(9,2)#":"#sUNTIL.Substr(11,2);
+        timeUntil = sUNTIL.ToTime().ToInteger()+versatzGMT;
       }
 
       string strBYDAY = "";
@@ -329,7 +333,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
           iPos  = strBYDAY.Length();
         }else{
           strBYDAY = strBYDAY.Substr(0,iPos);
-        }        
+        }
       }
 
       !// Schleife um die Daten zu erzeugen.
@@ -493,7 +497,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());
     }
 
-    !// Beschreibung (optional) des Termines extrahieren 
+    !// Beschreibung (optional) des Termines extrahieren
     string strTemp = "";
     iPos = termin.Find("\nDESCRIPTION:");
     if (iPos>=0) {
