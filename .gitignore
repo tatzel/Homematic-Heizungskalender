@@ -5,4 +5,6 @@
 /HeizkalenderInstallation/.vs
 /HeizkalenderInstallation/x64
 /HeizkalenderInstallation/Bin
+logs/*
 .DS_Store
+CLAUDE.md
