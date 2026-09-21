@@ -13,6 +13,10 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript
 !//
 
+!// TT:  2026-09-18 HSFlag von boolean auf string korrigiert (String-Vergleiche "H"/"S"/"HS");
+!//                 strTemp-Shadowing im DEBUG-Block behoben (zeigte immer "Heizen:").
+!//                 Fehlender Temperatur-Sensor (Feld 6) wird nun im Log gemeldet (einmal pro
+!//                 Heizphase über Status-Bit 3) statt stumm übersprungen.
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
@@ -123,7 +127,7 @@ foreach(SLEintrag,SListe){
   !// Listenelement auslesen
   !// Parameter für aktuellen Schaltvorgang. Die Parameter werden später noch einmal gelesen
   !// und Final bestimmt. Auch das HSFlag wird aus der Raumbeschreibung gelesen.
-  boolean HSFlag  = SLEintrag.StrValueByIndex(";",4);
+  string HSFlag  = SLEintrag.StrValueByIndex(";",4);
   integer EIN     = SLEintrag.StrValueByIndex(";",1).ToTime().ToInteger();
   integer AUS     = SLEintrag.StrValueByIndex(";",2).ToTime().ToInteger();
   integer SDFlag  = SLEintrag.StrValueByIndex(";",3).ToInteger();
@@ -149,7 +153,7 @@ foreach(SLEintrag,SListe){
     if(DEBUG){
       string strTemp = "Heizen: ";
       if (HSFlag=="HS"){
-        string strTemp = "Heizen+Schalten: ";
+        strTemp = "Heizen+Schalten: ";
       }
       WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);
@@ -277,6 +281,7 @@ foreach(SLEintrag,SListe){
     !//   1 bit 0 = Heizung an
     !//   2 bit 1 = Zieltemperatur erreicht
     !//   4 bit 2 = Heizung ausgeschaltet
+    !//   8 bit 3 = Hinweis "kein Temperatur-Sensor" bereits geloggt (nur einmal pro Heizphase)
 
     integer status = RaumParameter.StrValueByIndex(";",1).ToInteger();
     real maxTemperatur = RaumParameter.StrValueByIndex(";",2).ToFloat();
@@ -295,7 +300,22 @@ foreach(SLEintrag,SListe){
         istTemperatur = objDP.State().ToFloat();
       }
     }else{
-      if(DEBUG) {WriteLine(AktAktor+" Objekt existiert nicht!");}
+      !// Ohne Temperatur-Sensor (Feld 6 der Raumvariable) kann keine Heizkurve protokolliert
+      !// werden. Wir unterscheiden "gar nicht konfiguriert" von "konfiguriert, aber nicht vorhanden".
+      !// Der Hinweis wird nur einmal pro Heizphase geloggt (Bit 3), sonst liefe das Protokoll
+      !// alle 5min voll. Dazu speichern wir den Raum mit gesetztem Bit 3 zurück in die RaumListe.
+      if ((status & 8)==0){
+        if (AktAktor==""){
+          logObj.State          (AktSRName # "-" # RVNName # ": Kein Temperatur-Sensor konfiguriert (Feld 6 leer) - Heizkurvenkontrolle übersprungen.");
+          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Kein Temperatur-Sensor konfiguriert (Feld 6 leer) - Heizkurvenkontrolle übersprungen.");}
+        }else{
+          logObj.State          (AktSRName # "-" # RVNName # ": Temperatur-Sensor " # AktAktor # " existiert nicht - Heizkurvenkontrolle übersprungen.");
+          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Temperatur-Sensor " # AktAktor # " existiert nicht - Heizkurvenkontrolle übersprungen.");}
+        }
+        status = status | 8;
+      }
+      !// Merker (Bit 3) erhalten, damit der Hinweis nicht bei jedem Lauf erneut kommt.
+      RaumListe = RaumListe # "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
       continue;
     }
 
