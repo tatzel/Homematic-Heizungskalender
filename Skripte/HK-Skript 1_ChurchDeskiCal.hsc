@@ -70,7 +70,7 @@ if (log<0) {
   log = true;
 }
 
-!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
+!// Logging zwingend ausschalten, wenn keine Variable vorhanden ist
 if (!logObj){
   log = false;
 }
@@ -116,7 +116,7 @@ string RIdEintrag;
 integer raumIndex = -1;
 foreach(RIdEintrag,RIdListe.Split(";")){
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
-  !// Raumnamen oprional, das gestaltet die Suche etwas schwieriger
+  !// Raumname optional, das gestaltet die Suche etwas schwieriger
   string RId = RIdEintrag.StrValueByIndex("=",0);
   string RaumName=RIdEintrag.StrValueByIndex("=",1);
   if(DEBUG){

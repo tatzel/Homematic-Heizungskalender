@@ -35,7 +35,7 @@
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
 string vrp="";
 
-!// Vorgegebene Orgnaisations ID
+!// Vorgegebene Organisations ID
 string organizationId = "";
 
 !// Es ist möglich hier sofort ein API-Token für ChurchDesk anzugeben. Da mit werden gleich weitere
@@ -218,8 +218,8 @@ if (apiToken && organizationId){
 
         !// Namen finden
         res = res.Substr(iPos+9,res.Length()-9);
-        integer iPosEnd = res.Find("\",\"");;
-        if (iPos<0){
+        integer iPosEnd = res.Find("\",\"");
+        if (iPosEnd<0){
           !// Fehler
           continue;
         }
