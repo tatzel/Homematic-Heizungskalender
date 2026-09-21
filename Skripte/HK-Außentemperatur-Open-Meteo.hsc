@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    16.09.2026
+!// Stand:    21.09.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -105,26 +105,30 @@ while (iRetry>0) {
   !// passenden eintrag finden
   !// 18 = Länge von "temperature_2m":[ -> Sprung hinter die öffnende Klammer
   integer pos=stemp.Find("\"temperature_2m\":[");
+  boolean bError = false;
   if (pos<0) {
-    !// Muster nicht gefunden -> Antwort unbrauchbar (Timeout/Fehler/Teilantwort)
-    if(log){logObj.State("Open-Meteo: Kein temperature_2m in der Antwort, Retry " # (11-iRetry) # "/10");}
-    if(DEBUG){WriteLine("Open-Meteo: Kein temperature_2m in der Antwort, Retry " # (11-iRetry) # "/10\n");}
-    iRetry = iRetry-1;
-    string dummy;
-    system.Exec("sleep 1", &dummy, &dummy);
-    continue;
-  }
-  stemp=stemp.Substr(pos+18,1000);
-  pos=stemp.Find("]");
-  if (pos<0) {
+    bError = true;
+  } else {
+    !// Ende der Temperaturdaten suchen
+    stemp=stemp.Substr(pos+18,1000);
+    pos=stemp.Find("]");
+    if (pos<0) {
+      bError = true;
+    }
+  }  
+  
+  !// Fehlerbehandlung wenn Daten nicht gefunden wurden -> Retries
+  if (bError){
     !// Schließende Klammer fehlt -> Antwort abgeschnitten
-    if(log){logObj.State("Open-Meteo: Antwort unvollständig (kein ]), Retry " # (11-iRetry) # "/10");}
-    if(DEBUG){WriteLine("Open-Meteo: Antwort unvollständig (kein ]), Retry " # (11-iRetry) # "/10\n");}
+    if(log){logObj.State("Open-Meteo: Antwort unvollständig, Retry " # (11-iRetry) # "/10");}
+    if(DEBUG){WriteLine("Open-Meteo: Antwort unvollständig, Retry " # (11-iRetry) # "/10\n");}
     iRetry = iRetry-1;
     string dummy;
     system.Exec("sleep 1", &dummy, &dummy);
     continue;
   }
+  
+  !// Daten extrahieren.
   stemp=stemp.Substr(0,pos);
   if (DEBUG){
     WriteLine(stemp+"\n");
