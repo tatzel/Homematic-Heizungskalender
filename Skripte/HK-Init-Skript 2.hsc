@@ -1,6 +1,6 @@
 !// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2
 !//================================================================================================
-!// Stand:    23.02.2026
+!// Stand:    21.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -58,7 +58,7 @@ string tp=  "string;" #
             "boolean;" #
             "integer;" #
             "integer;" #
-            "string;";
+            "string";
 
 !// Vorgabe Werte
 string vl=  ";" #
