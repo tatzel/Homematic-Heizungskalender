@@ -1,14 +1,14 @@
 // Heizkalender-Installer
 // Copyright (C) 2026 Martin Richter (xMRi-Software) - heizkalender@m-ri.de
 //
-// Dieses Programm ist freie Software: Sie können es unter den Bedingungen
+// Dieses Programm ist freie Software: Sie kÃ¶nnen es unter den Bedingungen
 // der GNU General Public License, wie von der Free Software Foundation
-// veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß
-// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder späteren Version.
+// verÃ¶ffentlicht, weitergeben und/oder modifizieren, entweder gemÃ¤ÃŸ
+// Version 3 der Lizenz oder (nach Ihrer Wahl) jeder spÃ¤teren Version.
 //
-// Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist,
-// jedoch OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung
-// der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+// Dieses Programm wird in der Hoffnung verteilt, dass es nÃ¼tzlich ist,
+// jedoch OHNE JEDE GEWÃ„HRLEISTUNG; sogar ohne die implizite GewÃ¤hrleistung
+// der MARKTFÃ„HIGKEIT oder EIGNUNG FÃœR EINEN BESTIMMTEN ZWECK.
 // Weitere Details finden Sie in der GNU General Public License.
 //
 // Sie sollten eine Kopie der GNU General Public License zusammen mit
@@ -34,7 +34,7 @@ public:
 	CString GetLastErrorText();
 	DWORD GetLastError() 
 	{
-		return m_dwStatus;;
+		return m_dwStatus;
 	}
 private:
 	CStringA m_strStartToken, m_strEndeToken;

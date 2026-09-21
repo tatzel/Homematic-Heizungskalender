@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    03.08.2026
+!// Stand:    16.09.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -19,8 +19,15 @@
 !// den Temperaturverlauf nach oben/unten abdämpft. Die Anzahl der Stunden kann zwischen
 !// 1h und 48h eingestellt werden für die Vergangenheit und 24h für die Prognose in die Zukunft
 !// angegeben werden.
-!// 
+!//
 !// Das Skript sollte jede volle Stunde laufen
+
+!// TT: 2026-09-16 Robustheit verbessert: pos<0-Prüfung nach Find() eingebaut, verhindert
+!//                falsches Parsen bei fehlgeschlagener/unvollständiger wget-Antwort.
+!//                lat/lon: unnötige ToFloat()-Konversion und redundante ToString()-Aufrufe entfernt.
+!// TT: 2026-09-16 Bugfix: + durch # bei URL-Konkatenation ersetzt. Der +-Operator interpretierte
+!//                lat/lon (zahlenähnliche Strings) numerisch und schnitt die URL ab, so dass wget
+!//                nur eine unvollständige URL erhielt und keine Temperaturdaten lieferte.
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
@@ -31,13 +38,13 @@ string vrp="";
 boolean DEBUG=0;
 
 !// Max Stunden in die Vergangenheit für die die Durchschnittstemperatur ermittelt werden soll
-!// Maximal dürfen hier 48h eingegeben werden. Und ebenso die Vorraussage für die nächsten Stunden,
-!// es können maximal 24h vorraus berücksichtigt werden. Über diese komplette Anzahl von Stunden
+!// Maximal dürfen hier 48h eingegeben werden. Und ebenso die Voraussage für die nächsten Stunden,
+!// es können maximal 24h voraus berücksichtigt werden. Über diese komplette Anzahl von Stunden
 !// wird der Durchschnitt berechnet.
-!// Laut Chat/GPT ist 18/6 ein guter Wert für Fussbodenheizungen. Bei normalen Heizkörpern bietet sich 
+!// Laut Chat/GPT ist 18/6 ein guter Wert für Fussbodenheizungen. Bei normalen Heizkörpern bietet sich
 !// 12/3 an. Das thermische Gedächtnis von Häusern liegt bei ca. 10h.
-!// Da unsere Termine sleten länger als 3h sind wird die Vorheizzeit kaum von der Zukunft beeinflusst
-integer stundenZurueck = 18;    !// maximal 48h   
+!// Da unsere Termine selten länger als 3h sind wird die Vorheizzeit kaum von der Zukunft beeinflusst
+integer stundenZurueck = 18;    !// maximal 48h
 integer stundenVoraus = 6;      !// Maximal 24h
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
@@ -65,7 +72,7 @@ if (log<0) {
   log = true;
 }
 
-!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
+!// Logging zwingend ausschalten, wenn keine Variable vorhanden ist
 if (!logObj){
   log = false;
 }
@@ -75,8 +82,8 @@ if (!logObj){
 string error="kein";
 string command;
 string stemp;
-string lat=system.Latitude().ToFloat();
-string lon=system.Longitude().ToFloat();
+string lat=system.Latitude();
+string lon=system.Longitude();
 
 if (DEBUG){
   WriteLine(lat+"\n");
@@ -84,7 +91,7 @@ if (DEBUG){
 }
 
 !// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
-command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude="+lat.ToString()+"&longitude="+lon.ToString()+"&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
+command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude=" # lat # "&longitude=" # lon # "&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
 
 !// Da es immer wieder mal zu Fehlern kommt, wiederholen wir die Anfrage im Abstand von 1 Sekunde mehrfach
 integer iRetry = 10;
@@ -96,9 +103,28 @@ while (iRetry>0) {
   }
 
   !// passenden eintrag finden
+  !// 18 = Länge von "temperature_2m":[ -> Sprung hinter die öffnende Klammer
   integer pos=stemp.Find("\"temperature_2m\":[");
+  if (pos<0) {
+    !// Muster nicht gefunden -> Antwort unbrauchbar (Timeout/Fehler/Teilantwort)
+    if(log){logObj.State("Open-Meteo: Kein temperature_2m in der Antwort, Retry " # (11-iRetry) # "/10");}
+    if(DEBUG){WriteLine("Open-Meteo: Kein temperature_2m in der Antwort, Retry " # (11-iRetry) # "/10\n");}
+    iRetry = iRetry-1;
+    string dummy;
+    system.Exec("sleep 1", &dummy, &dummy);
+    continue;
+  }
   stemp=stemp.Substr(pos+18,1000);
   pos=stemp.Find("]");
+  if (pos<0) {
+    !// Schließende Klammer fehlt -> Antwort abgeschnitten
+    if(log){logObj.State("Open-Meteo: Antwort unvollständig (kein ]), Retry " # (11-iRetry) # "/10");}
+    if(DEBUG){WriteLine("Open-Meteo: Antwort unvollständig (kein ]), Retry " # (11-iRetry) # "/10\n");}
+    iRetry = iRetry-1;
+    string dummy;
+    system.Exec("sleep 1", &dummy, &dummy);
+    continue;
+  }
   stemp=stemp.Substr(0,pos);
   if (DEBUG){
     WriteLine(stemp+"\n");
@@ -173,7 +199,7 @@ while (iRetry>0) {
     if (n!=0) {
       logObj.State("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
     } else {
-      logObj.State("Keine Werte gefunden für die Außentemperatur gefunden!");
+      logObj.State("Keine Werte für die Außentemperatur gefunden!");
     }
   }
 
