@@ -93,14 +93,14 @@ if (obj){
   }else{
     stemp = "aus";
   }
-  WriteLine("HK-Logging: Logging Script 1 ist " # stemp # "geschaltet");
+  WriteLine("HK-Logging: Allgemeines Logging ist " # stemp # "geschaltet");
 }else{
-  WriteLine("HK-Logging: Log-Variable für Script 1 existiert nicht");
+  WriteLine("HK-Logging: Flag für allgemeines Logging existiert nicht");
 }
 if (dom.GetObject(vrp # "HK-Log")){
-  WriteLine("HK-Log: Log-Variable für Tools existiert");
+  WriteLine("HK-Log: Log-Variable (allgemein) existiert");
 }else{
-  WriteLine("HK-Log: Log-Variable für Tools existiert nicht");
+  WriteLine("HK-Log: Log-Variable (allgemein) existiert nicht");
 }
 
 obj=dom.GetObject(vrp # "HK1-Logging");
@@ -162,7 +162,7 @@ foreach(RListe, hk2RaumListe.Split(";")){
   }
 
   WriteLine("_____________________________\nRaum: \t" # (i+1).ToString() # RName);
-  WriteLine("Chruchtools Resource: \t" # hk1RaumListe.StrValueByIndex(";",i));
+  WriteLine("Churchtools Resource: \t" # hk1RaumListe.StrValueByIndex(";",i));
   if (RListe.Find("+")>=0){
     WriteLine ("Zugeordnete Raeume: \t" # RListe);
   }
