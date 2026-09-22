@@ -34,6 +34,7 @@ boolean DEBUG=0;
 !// Zeitfenster in dem nach Termine geschaut wird
 !// minus zeitNachlauf in Minuten (min = eingestellte Nachlaufzeit),
 !// plus zeitVorlauf (min = maximale Vorlaufzeit)
+!// DIVERGENZ: Diese Variante nutzt 8h Vorlauf, HK-Skript 1_ChurchTools 12h. Historisch gewachsen.
 integer zeitVorlauf=8*60;		!// 8 Stunden (default=12h)
 integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
 
@@ -223,6 +224,7 @@ if (stdout=="[]"){
       }
       continue;
     }
+    !// DIVERGENZ: Hier < , HK-Skript 1_ChurchTools nutzt <= (1-Sekunden-Randfall am Nachlaufende).
     if ((endDatum.ToInteger()+(zeitNachlauf*60))<JETZT){
       !// Termin liegt in der Vergangenheit
       if (DEBUG){
