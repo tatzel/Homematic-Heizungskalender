@@ -13,7 +13,7 @@
 !//================================================================================================
 !//
 !// Der Code basiert in großen Teilen auf der Datei:
-!//  HKP-S2-3.2.1  Skript2 Schalten_Heizkalender V2.13.7.c
+!//  HKP-S2-3.3.1  Skript2 Schalten_Heizkalender V2.13.7.c
 !// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
