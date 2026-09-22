@@ -273,6 +273,7 @@ foreach(RName,ListeRaumVariablen.Split(";")){
   elseif(stemp=="IT"){Param="SET_TEMPERATURE";}
   else{Param="";}
 
+  !// DUP: AktorenListe-Block, identisch zu HK-Skript 2.hsc. Aenderungen dort mitziehen.
   !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
   !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
   !// Das ein Aktorname eine Mindestlänge hat.

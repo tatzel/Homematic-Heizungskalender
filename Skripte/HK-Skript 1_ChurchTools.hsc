@@ -51,6 +51,7 @@ boolean DEBUG=0;
 !// Zeitfenster in dem nach Termine geschaut wird 
 !// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit), 
 !// plus zeitVorlauf (min = maximale Vorlaufzeit)
+!// DIVERGENZ: Diese Variante nutzt 12h Vorlauf, die anderen Skript-1-Varianten 8h. Historisch gewachsen.
 integer zeitVorlauf=12*60;		!// 12 Stunden (default=12h)
 integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
 
@@ -237,6 +238,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }
       continue;
     }
+    !// DIVERGENZ: Hier <= , andere Skript-1-Varianten nutzen < (1-Sekunden-Randfall am Nachlaufende).
     if ((endDatum.ToInteger()+(zeitNachlauf*60))<=JETZT){
       !// Termin liegt in der Vergangenheit
       if (DEBUG){

@@ -309,6 +309,8 @@ foreach(SLEintrag,SListe){
     !//Aktoren und Raumtemp setzen, und bestimmen ob Heizen oder Schalten oder beides
     HSFlag = RVI.StrValueByIndex(";",1);
 
+    !// DUP: AktorenListe-Block (Referenz-Implementierung). Identisch bei Z.806, Z.932
+    !//      und in HK-Test-Skript.hsc. Aenderungen an allen Stellen nachziehen.
     !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
     !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
     !// Das ein Aktorname eine Mindestlänge hatte.
@@ -803,6 +805,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
         sollZustand = 0;
       }
 
+      !// DUP: AktorenListe-Block, siehe Referenz oben. Aenderungen dort mitziehen.
       !// AktorenListe aufbauen.
       iPos = 0;
       iEntry = 1;
@@ -929,6 +932,7 @@ foreach(RVN,RVNListe.Split(";")) {
     if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
     if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
 
+    !// DUP: AktorenListe-Block, siehe Referenz oben. Aenderungen dort mitziehen.
     !// AktorenListe aufbauen.
     iPos = 0;
     iEntry = 1;
