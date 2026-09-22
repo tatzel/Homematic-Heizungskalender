@@ -13,7 +13,7 @@
 !//================================================================================================
 !//
 !// Der Code basiert in großen Teilen auf der Datei:
-!//  HKP-S2-3.2.1  Skript2 Schalten_Heizkalender V2.13.7.c
+!//  HKP-S2-3.3.1  Skript2 Schalten_Heizkalender V2.13.7.c
 !// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
@@ -309,6 +309,8 @@ foreach(SLEintrag,SListe){
     !//Aktoren und Raumtemp setzen, und bestimmen ob Heizen oder Schalten oder beides
     HSFlag = RVI.StrValueByIndex(";",1);
 
+    !// DUP: AktorenListe-Block (Referenz-Implementierung). Identisch bei Z.806, Z.932
+    !//      und in HK-Test-Skript.hsc. Aenderungen an allen Stellen nachziehen.
     !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
     !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
     !// Das ein Aktorname eine Mindestlänge hatte.
@@ -648,24 +650,24 @@ foreach(SLEintrag,SListe){
                       real istTemperatur = objDP.State();
                       if(istTemperatur==RTemp){
                         objDP.State(GT);
-                        if(log) {logObj.State(AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-                        if(DEBUG)  {WriteLine(AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                        if(log) {logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                        if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
                       }else{
-                        if(log){logObj.State(AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
+                        if(log){logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
                       }
                     }else{
                       objDP.State(GT);
-                      if(log) {logObj.State(AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
-                      if(DEBUG)  {WriteLine(AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                      if(log) {logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
                     }
                 }else{
                   objDP.State(0);
-                  if(log) {logObj.State(AktAktor+" Ausschalten. Parameter: "+Param);}
-                  if(DEBUG)  {WriteLine(AktAktor+" Ausschalten. Parameter: "+Param);}
+                  if(log) {logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
+                  if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
                 }
               }else{
-                if(log){logObj.State("Datenpunkt " # Param # " nicht vorhanden!");}
-                if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
+                if(log){logObj.State(AktSRName # "-" # RVNName # " Datenpunkt " # Param # " nicht vorhanden!");}
+                if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
               if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
@@ -803,6 +805,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
         sollZustand = 0;
       }
 
+      !// DUP: AktorenListe-Block, siehe Referenz oben. Aenderungen dort mitziehen.
       !// AktorenListe aufbauen.
       iPos = 0;
       iEntry = 1;
@@ -929,6 +932,7 @@ foreach(RVN,RVNListe.Split(";")) {
     if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
     if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "! Heizung/Schaltung wird ausgeschaltet!");}
 
+    !// DUP: AktorenListe-Block, siehe Referenz oben. Aenderungen dort mitziehen.
     !// AktorenListe aufbauen.
     iPos = 0;
     iEntry = 1;

@@ -7,21 +7,23 @@
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 by Team Heizkalender:
 !//   Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
-!// Der Code basiert in großen Teilen auf der Datei: 
+!// Der Code basiert in großen Teilen auf der Datei:
 !//  HKP-CT-3.2.1 churchtools_Ressource_V2_8_8.c
 !// Der ursprüngliche Code wurde geschrieben von:
-!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
+!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-09-22 Konsistenzpruefung der benoetigten Systemvariablen ergaenzt (nur Warnung
+!//                 im Log, kein Abbruch). CCU-verifiziert.
 !// MRi: 2026-08-08 Sonderbefehle #GT# #NH# #NS# werden auch aus Titel und Subtitel gelesen
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
@@ -48,9 +50,10 @@ string vrp="";
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
 boolean DEBUG=0;
 
-!// Zeitfenster in dem nach Termine geschaut wird 
-!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit), 
+!// Zeitfenster in dem nach Termine geschaut wird
+!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit),
 !// plus zeitVorlauf (min = maximale Vorlaufzeit)
+!// DIVERGENZ: Diese Variante nutzt 12h Vorlauf, die anderen Skript-1-Varianten 8h. Historisch gewachsen.
 integer zeitVorlauf=12*60;		!// 12 Stunden (default=12h)
 integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
 
@@ -87,6 +90,21 @@ if (!logObj){
 if(log){logObj.State("Beginn ChurchTools-Skriptlauf=====================");}
 WriteLine("Beginn ChurchTools-Skriptlauf");
 
+!// Konsistenzpruefung: benoetigte Systemvariablen vorhanden? Nur Warnung, kein Abbruch.
+!// Fehlt eine Variable, liefert GetObject null und State() einen Leerstring - dann wuerde
+!// still mit falschen Werten weitergerechnet. Init-Skripte anlegen, falls hier etwas fehlt.
+string fehlendeVars = "";
+string pruefVar;
+foreach(pruefVar, "HK1-CT-Token;HK1-CT-Gemeindename;HK1-R-Liste;HK2-HKG-Liste;HK1-Schaltliste".Split(";")){
+  if(!dom.GetObject(vrp # pruefVar)){
+    fehlendeVars = fehlendeVars # pruefVar # " ";
+  }
+}
+if(fehlendeVars!=""){
+  if(log){logObj.State("WARNUNG: Fehlende Systemvariablen: " # fehlendeVars # "- bitte Init-Skript ausfuehren!");}
+  WriteLine("WARNUNG: Fehlende Systemvariablen: " # fehlendeVars # "- bitte Init-Skript ausfuehren!");
+}
+
 
 !// Daten für den Zugriff setzen
 string loginToken = dom.GetObject(vrp # "HK1-CT-Token").State();
@@ -116,7 +134,7 @@ string endDatum = (JETZT+86400).ToTime().ToString("%F");
 
 !// Zugriff auf ChurchTools API
 string cmd = "wget --timeout=3 -O - 'https://" # gemeindeName # ".church.tools/api/bookings?login_token=" # loginToken #
-                                        filter # "&from=" # startDatum # "&to=" # endDatum # "'";  
+                                        filter # "&from=" # startDatum # "&to=" # endDatum # "'";
 if(DEBUG){
   WriteLine("Cmd:" # cmd);
 }
@@ -139,12 +157,12 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
   !// Keine Termine
   if(DEBUG){
     WriteLine("Keine Termine vorhanden!");
-  }	
-}elseif(!stdout.StartsWith("{\"data\":[")){  
+  }
+}elseif(!stdout.StartsWith("{\"data\":[")){
   if (log){ logObj.State("Fehler beim Lesen der Event-Daten von ChurchTools!"); }
   if(DEBUG){
     WriteLine("Fehler beim Lesen der Event-Daten von ChurchTools!");
-  }	
+  }
   quit;
 }else{
   !// Termine durchlesen
@@ -159,11 +177,11 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     if (iPos<0){
       continue;
     }
-    
+
     !// Id der Ressource bestimmen
     string resId=termin.Substr(iPos+13,10).ToInteger();
 
-    !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+    !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
     !// Raumname optional, das gestaltet die Suche etwas schwieriger
     !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beenden
     boolean bGefunden = false;
@@ -178,18 +196,18 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }
       raumIndex = raumIndex+1;
     }
-    
+
     if (!bGefunden){
       !// Raum nicht in unserer Liste (dürfte eigentlich nicht passieren, da wir einen
       !// Filter für Resourcen haben.
       if(DEBUG){
         WriteLine("Raum Resource Id konnte nicht gefunden werden!");
-      }	
+      }
       continue;
     }
-    
+
     !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.   
+    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
     string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
     string RaumVar = RaumVarListe;
     if (!RaumVarListe){
@@ -208,12 +226,12 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       if (DEBUG) { WriteLine("Raumvariable " # RaumVar # " nicht vorhanden!"); }
       continue;
     }
-    
+
     !// Dieses Flag ist eigentlich nicht nötig, aber wir platzieren es aus Gründen
     !// der Rückwärtskompatibilität. Früher wurde 0=Schalten/1=Heizen verwendet. ich
     !// übertrage jetz den originalen Parameter.
     string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
-    
+
     !// Start und Enddatum holen.
     iPos = termin.Find("\"calculated\":{");
     string strTemp = termin.Substr(iPos+14,termin.Length()-iPos-14);
@@ -222,13 +240,13 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       WriteLine(startDatum);
     }
     startDatum=(startDatum.ToTime().ToInteger()+versatzGMT).ToString();
-    
+
     endDatum=strTemp.Substr(strTemp.Find("\"endDate\":\"")+11,19).Replace("T"," ");
     if (DEBUG){
       WriteLine(endDatum);
     }
     endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
-    
+
     !// Termine nur übernehmen wenn sie im Zeitrahmen liegen
     if ((startDatum.ToInteger()-(zeitVorlauf*60))>JETZT){
       !// Termin liegt in der Zukunft
@@ -237,6 +255,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }
       continue;
     }
+    !// DIVERGENZ: Hier <= , andere Skript-1-Varianten nutzen < (1-Sekunden-Randfall am Nachlaufende).
     if ((endDatum.ToInteger()+(zeitNachlauf*60))<=JETZT){
       !// Termin liegt in der Vergangenheit
       if (DEBUG){
@@ -246,9 +265,9 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     }
 
     if (DEBUG){
-      WriteLine("Termin:\t" # resId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
+      WriteLine("Termin:\t" # resId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());
     }
-    
+
     !// Wir suchen nun die folgenden Felder title, subtitle, description
     string toSearch;
     string strDesc="";
@@ -261,9 +280,9 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
         if (iPos>=0) {
           strDesc = strDesc # " " # strTemp.Substr(0,iPos);
         }
-      }        
-    }    
-    
+      }
+    }
+
     !// Beschreibung muss noch auf Tokens geprüft werden.
     !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
     string cap="0";
@@ -302,15 +321,15 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
           }
         }
       }
-    }      
-        
+    }
+
     !// Verhindern, dass doppelte Einträge erzeugt werden.
  	  string toadd = resId # ";" # startDatum.ToInteger().ToTime() # ";" # endDatum.ToInteger().ToTime() # ";" # cap # ";" # SchaltenHeizen # ";";
     !WriteLine(toadd);
     if (SLT.Find(toadd)<0){
       if (cap){
         !// Schalt Eintrag setzen
-        SLT=SLT+toadd;	  
+        SLT=SLT+toadd;
         if (log){
           cap = toadd.StrValueByIndex(";",3).ToInteger();
           if (toadd.StrValueByIndex(";",4).ToInteger()!=0){
@@ -327,22 +346,22 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
             if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
             if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
             if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
-            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " # 
-                       toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " # 
-                       toadd.StrValueByIndex(";",2).ToTime().Format("%X") # 
-                       " Parameter: " # cap # " " # 
+            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                       toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                       toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
+                       " Parameter: " # cap # " " #
                        strTemp);
         }
       }else{
         !// Wir haben den Sonderbefehl NH/NS
         if (log){
-          logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " # 
-                       toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " # 
-                       toadd.StrValueByIndex(";",2).ToTime().Format("%X") # 
+          logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+                       toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
+                       toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                        " Nicht Heizen/Schalten (#NH#/#NS#)");
         }
       }
-	  }	
+	  }
   }
 }
 
