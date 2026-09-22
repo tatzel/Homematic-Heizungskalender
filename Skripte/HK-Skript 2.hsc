@@ -21,9 +21,6 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
-!// TT:  2026-09-21 Symmetrische Hysterese-Regelung im Modus HS raumspezifisch über Feld 3
-!//                 (dritter Slash-Teil, in °C). Relais AUS wenn Raum >= Soll+Hysterese,
-!//                 EIN wenn Raum <= Soll-Hysterese. Leer/0 = Regelung fuer diesen Raum aus.
 !// TT:  2026-09-18 Nachtschaltung: Relais-Zustand mit State() lesen statt State(0) (schrieb AUS
 !//                 und lieferte falschen Ist-Zustand). CCU-verifiziert.
 !// TT:  2026-09-16 Log-Ausgaben verbessert: Raumname in Thermostat-Fehlermeldungen ergänzt,
@@ -311,11 +308,6 @@ foreach(SLEintrag,SListe){
 
     !//Aktoren und Raumtemp setzen, und bestimmen ob Heizen oder Schalten oder beides
     HSFlag = RVI.StrValueByIndex(";",1);
-
-    !// Raumspezifische Hysterese fuer Modus HS (Feld 3, dritter Slash-Teil in °C).
-    !// Symmetrisches Band: Raum >= (Soll + Hysterese) => Relais AUS, Raum <= (Soll - Hysterese) => Relais EIN.
-    !// Leer oder 0 => Hysterese-Regelung fuer diesen Raum aus (Vorgabe).
-    real HystereseRaum = RVI.StrValueByIndex(";",3).StrValueByIndex("/",2).ToFloat();
 
     !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
     !// Die Liste für spätere Schaltvorgänge bereit zu halten. Der alte Code hat damit gerechnet
@@ -700,31 +692,6 @@ foreach(SLEintrag,SListe){
           }
           !// Wir schalten aber nur, wenn er noch nicht geschaltet ist
           if(aktuellerSchaltZustand==0){
-            !// Modus HS: Raumtemperatur (Thermostat als Sensor) beruecksichtigen.
-            !// Symmetrische Hysterese: Einschalten nur wenn Raum <= Soll - Hysterese.
-            !// Damit wird nach einem Abschalten wegen Uebertemperatur erst wieder
-            !// eingeschaltet, wenn der Raum das untere Hystereseband erreicht hat.
-            boolean bEinschaltenErlaubt = true;
-            if((HSFlag=="HS") && (HystereseRaum>0)){
-              string SensorAktor = RVI.StrValueByIndex(";",6);
-              object objSensor = dom.GetObject(SensorAktor);
-              if(SensorAktor && objSensor){
-                object objSensorDP = objSensor.DPByHssDP("ACTUAL_TEMPERATURE");
-                if(!objSensorDP){ objSensorDP = objSensor.DPByHssDP("TEMPERATURE"); }
-                if(objSensorDP){
-                  real istRaumTemp = objSensorDP.State().ToFloat();
-                  if(istRaumTemp > (RTemp-HystereseRaum)){
-                    bEinschaltenErlaubt = false;
-                    if(log){logObj.State(AktSRName # "-" # RVNName # " HS-Regelung: Einschalten uebersprungen - Raum " # istRaumTemp.ToString(1) # "°C > Soll " # RTemp.ToString(1) # "°C - Hysterese " # HystereseRaum.ToString(1) # "°C");}
-                    if(DEBUG){WriteLine(AktSRName # "-" # RVNName # " HS-Regelung: Einschalten uebersprungen - Raum " # istRaumTemp.ToString(1) # "°C > Soll " # RTemp.ToString(1) # "°C - Hysterese " # HystereseRaum.ToString(1) # "°C");}
-                  }
-                }else{
-                  if(log){logObj.State(AktSRName # "-" # RVNName # " HS-Regelung: Kein Temperatur-Datenpunkt an " # SensorAktor # " - Einschalten ohne Hysterese");}
-                  if(DEBUG){WriteLine(AktSRName # "-" # RVNName # " HS-Regelung: Kein Temperatur-Datenpunkt an " # SensorAktor # " - Einschalten ohne Hysterese");}
-                }
-              }
-            }
-            if(bEinschaltenErlaubt){
             foreach(AktAktor,AktorenListe.Split(";")){
               objAktor = dom.GetObject(AktAktor);
               if (objAktor){
@@ -763,37 +730,6 @@ foreach(SLEintrag,SListe){
             dom.GetObject(RVN).State("1;"+RVI.Substr(2,RVI.Length()-2));
             !// if(log){logObj.State(AktSRName # "-" # RVNName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
             continue;
-            } !// Ende if(bEinschaltenErlaubt)
-          }
-          !// Modus HS: Relais ist EIN, aber Raum ist zu warm (z.B. durch Personenwaerme).
-          !// Symmetrische Hysterese: Raum >= Soll + Hysterese => Relais AUS, Schaltzustand 0.
-          !// Naechster Lauf schaltet erst wieder ein wenn Raum <= Soll - Hysterese.
-          if((aktuellerSchaltZustand==1) && (HSFlag=="HS") && (HystereseRaum>0)){
-            string SensorAktorAus = RVI.StrValueByIndex(";",6);
-            object objSensorAus = dom.GetObject(SensorAktorAus);
-            if(SensorAktorAus && objSensorAus){
-              object objSensorAusDP = objSensorAus.DPByHssDP("ACTUAL_TEMPERATURE");
-              if(!objSensorAusDP){ objSensorAusDP = objSensorAus.DPByHssDP("TEMPERATURE"); }
-              if(objSensorAusDP){
-                real istRaumTempAus = objSensorAusDP.State().ToFloat();
-                if(istRaumTempAus >= (RTemp+HystereseRaum)){
-                  foreach(AktAktor,AktorenListe.Split(";")){
-                    objAktor = dom.GetObject(AktAktor);
-                    if(objAktor){
-                      objDP = objAktor.DPByHssDP(Param);
-                      if(objDP){ objDP.State(0); }
-                    }
-                  }
-                  dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
-                  if(log){logObj.State(AktSRName # "-" # RVNName # " HS-Regelung: Relais AUS - Raum " # istRaumTempAus.ToString(1) # "°C >= Soll " # RTemp.ToString(1) # "°C + Hysterese " # HystereseRaum.ToString(1) # "°C");}
-                  if(DEBUG){WriteLine(AktSRName # "-" # RVNName # " HS-Regelung: Relais AUS - Raum " # istRaumTempAus.ToString(1) # "°C >= Soll " # RTemp.ToString(1) # "°C + Hysterese " # HystereseRaum.ToString(1) # "°C");}
-                  continue;
-                }
-              }else{
-                if(log){logObj.State(AktSRName # "-" # RVNName # " HS-Regelung: Kein Temperatur-Datenpunkt an " # SensorAktorAus # " - Uebertemperatur-Abschaltung inaktiv");}
-                if(DEBUG){WriteLine(AktSRName # "-" # RVNName # " HS-Regelung: Kein Temperatur-Datenpunkt an " # SensorAktorAus # " - Uebertemperatur-Abschaltung inaktiv");}
-              }
-            }
           }
         }
       }else{

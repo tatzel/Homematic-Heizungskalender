@@ -117,33 +117,25 @@ führt aber bei niedrig konfigurierter Grundtemperatur zu sehr langen Vorlaufzei
 ### Übertemperatur im Raum (Modus HS)
 
 Im Modus **HS** (erster Aktor = Thermostat als Temperatursensor, weitere Aktoren = Schaltrelais)
-liest das Skript die Raumtemperatur vom Thermostat und nutzt sie für zwei Zwecke:
+liest das Skript die Raumtemperatur vom Thermostat — nutzt sie aber **ausschließlich** für
+die Vorheizzeit-Berechnung (Korrekturfaktor). Die Schaltrelais werden anschließend
+**hart ein- bzw. ausgeschaltet**, ohne Rücksicht auf die aktuelle Raumtemperatur.
 
-1. **Vorheizzeit-Berechnung** (Korrekturfaktor, wie bisher)
-2. **Laufende Regelung der Schaltrelais** — neu:
-   - Raum ≥ Soll + Hysterese → Relais **AUS** (z. B. bei vollem Saal mit 24 °C)
-   - Raum ≤ Soll − Hysterese → Relais **EIN** (Raum hat sich wieder abgekühlt)
+Das Skript hat keine „Raum zu warm → Relais aus“-Logik. **Sind zum Beispiel durch viele Gäste
+bereits 24 °C im Saal erreicht, schalten die Heizrelais trotzdem ein.**
 
-Mit einer Hysterese von 0,5 °C und Soll = 20 °C ergibt sich ein
-**1 °C breites Schaltband** (19,5 °C – 20,5 °C). Da das Skript im 5-Minuten-Takt läuft,
-ist ein Relais-Flattern technisch ausgeschlossen.
+Der einzige Schutz gegen unnötiges Heizen in diesem Fall:
 
-| Schwelle | Bedingung | Aktion |
-| :--- | :--- | :--- |
-| Obere Schaltschwelle | Raum ≥ 20,5 °C (Soll + 0,5) | Relais **AUS** |
-| Untere Schaltschwelle | Raum ≤ 19,5 °C (Soll − 0,5) | Relais **EIN** |
-| Im Band | 19,5 °C < Raum < 20,5 °C | keine Änderung |
-
-Die Hysterese wird **raumspezifisch** im Feld 3 der Raumvariable als dritter Slash-Teil angegeben (`Wohlfühltemp[/Grundtemp[/Hysterese]]`, in °C). Beispiel: `20//0.5` = Soll 20 °C, Grundtemp Standard, Hysterese 0,5 °C. Ein leerer oder fehlender Hysterese-Teil deaktiviert die Funktion für den jeweiligen Raum (Vorgabe: alle Räume aus, gezielt einzelne aktivieren).
-
-Die folgende Tabelle beschreibt das Verhalten je Modus; in dieser Installation nutzen alle
-Räume **Modus HS**.
+- Die **Außentemperatur-Grenze**: Ist es draußen ≥ 19 °C, wird gar nicht geheizt.
+- Das **vorzeitige Heizende**: Die Heizung schaltet bereits 30 min vor Terminende ab.
+- Die **Vorheizzeit-Deckelung**: Bei 24 °C wird der Korrekturfaktor auf 0,40 (40 %) begrenzt —
+  die Relais schalten also später ein als bei einem kalten Raum, aber sie schalten dennoch ein.
 
 | Modus | Schutz bei Übertemperatur im Raum |
 | :--- | :--- |
 | **H** (Thermostat) | ✔ Thermostat regelt selbst — Ventil bleibt bei Übertemp. geschlossen |
 | **S** (reines Relais) | ✖ Kein Schutz — kein Temperatursensor vorhanden |
-| **HS** (Thermostat + Relais) | ✔ Hysterese-Regelung raumspezifisch über Feld 3 (`/Hysterese`) |
+| **HS** (Thermostat + Relais) | ⚠ Thermostat misst, aber Relais schalten trotzdem ein |
 
 ## Vorzeitiges Heiz-/Schaltende
 
@@ -170,11 +162,7 @@ Beispiel Kellerbüro: Terminende 18:00 − 30 min = 17:30
 
 ## Use Cases
 
-Die folgenden vier Beispiele zeigen das Zusammenspiel aller Faktoren an einem konkreten Tag.
-
-In dieser Installation laufen **alle Räume im Modus HS** (erster Aktor = Thermostat als
-Temperatursensor, weitere Aktoren = Schaltrelais). Die HS-Hysterese-Regelung ist mit
-einer Hysterese von 0,5 °C (Feld 3) aktiv.
+Die folgenden drei Beispiele zeigen das Zusammenspiel aller Faktoren an einem konkreten Tag.
 
 **Gemeinsame Rahmenbedingungen:**
 
@@ -185,8 +173,6 @@ einer Hysterese von 0,5 °C (Feld 3) aktiv.
 | Wohlfühltemperatur | 20,0 °C |
 | Vorheizzeit-Kurve bei 8 °C | 196 min |
 | Vorheizzeit-Kurve bei 18,6 °C (interpoliert) | 93 min |
-| Modus (alle Räume) | **HS** |
-| Hysterese (Feld 3) | 0,5 °C |
 
 **Außentemperatur-Verlauf des Tages:**
 
@@ -270,104 +256,11 @@ Zeitachse:
    18:00  Termin endet
 ```
 
-Im Modus HS erwartet das Skript unter `RVI[6]` einen Thermostat als Temperatursensor.
-Ist dort kein Sensor konfiguriert, greift der Code-Guard (`if(SensorAktor && objSensor)`)
-und die HS-Hysterese-Regelung wird vollständig übersprungen. Der Raum verhält sich dann
-wie ein normaler S-Raum: Fallback auf Grundtemperatur (10 °C) → Korrekturfaktor 1,00 →
-volle Kurvenzeit, ganz normales Einschalten ohne Hysterese-Prüfung.
-⚠ Hinweis: Auch bei real 18–19 °C Raumtemperatur rechnet das Skript ohne Sensor stets mit
-der Grundtemperatur (10 °C). Für eine funktionierenden HS-Regelung ist ein konfigurierter
-Thermostat-Sensor unter `RVI[6]` zwingend erforderlich.
-
-### Use Case 4 — Gottesdienstraum (Modus HS, Termin 10:30–12:30)
-
-**Szenario:** Sonntagsgottesdienst. Der Raum ist von 10:30 bis 12:30 Uhr gebucht. Zu
-Terminbeginn kommen ca. 100 Gäste und heizen den Raum durch ihre Körperwärme binnen
-30 Minuten deutlich auf. Der Raum verfügt über einen konfigurierten Thermostat-Sensor
-(`RVI[6]`), Modus HS ist aktiv.
-
-| Parameter | Wert |
-| :--- | :--- |
-| Termin | 10:30–12:30 Uhr |
-| Modus | **HS** |
-| Thermostat-Sensor | Ja |
-| Grundtemperatur | 10,0 °C |
-| Wohlfühltemperatur | 20,0 °C |
-| Hysterese (Feld 3) | 0,5 °C → Einschaltschwelle 19,5 °C / Ausschaltschwelle 20,5 °C |
-| Raumtemperatur um 04:00 | 18,0 °C (Restwärme vom Vortag) |
-| Außentemperatur um 04:00 | 10,0 °C |
-| Außentemperatur < AT-Grenze? | **Ja** (10,0 °C < 19,0 °C) |
-| HK2-VorzeitAus | 30 min |
-| Ausschaltzeitpunkt | 12:00 Uhr (12:30 − 30 min) |
-
-**Berechnung:**
-
-| Rechenschritt | Wert |
-| :--- | :--- |
-| Kurvenwert bei AT 10,0 °C | **174 min** |
-| Korrekturfaktor | 1 − 0,6 × ((18 − 10) / (20 − 10)) = 1 − 0,48 = **0,52** |
-| Vorheizzeit | 174 × 0,52 = **~90 min** |
-| Einschaltzeitpunkt | 10:30 − 90 min = **~08:59 Uhr** |
-| Zeitfenster ab | ~09:00 Uhr (nächster Skript-Lauf nach 08:59) |
-
-**Ablauf:**
-
-Um ~09:00 Uhr erkennt das Skript erstmals, dass der berechnete Einschaltzeitpunkt (08:59)
-in der Vergangenheit liegt und das Zeitfenster aktiv ist. Der Raum hat 19,0 °C — das ist
-≤ 19,5 °C (Einschaltschwelle) → Relais **EIN**.
-
-Die Heizung erwärmt den Raum weiter. Sobald die Raumtemperatur ≥ 20,5 °C (obere
-Hystereseschwelle) erreicht, schaltet das Relais bei ~10:00 Uhr **AUS**.
-
-Ab 10:30 Uhr beginnt der Gottesdienst. Die ca. 100 Gäste erzeugen erhebliche Körperwärme;
-die Raumtemperatur steigt bis 11:00 Uhr auf ca. 22 °C. Da 22 °C ≥ 20,5 °C
-(Ausschaltschwelle), bleibt das Relais **dauerhaft AUS** — die Hysterese schützt den Raum
-vor weiterer Überhitzung.
-
-Um 12:00 Uhr (Ausschaltzeitpunkt = Terminende − 30 min) endet das Zeitfenster endgültig.
-Das Relais ist zu diesem Zeitpunkt ohnehin AUS, da die Raumtemperatur noch über 20,5 °C liegt.
-
-```mermaid
-flowchart TD
-    A(["Skript läuft ~09:00 Uhr"])
-    A --> B{"Außentemperatur<br>10 °C < Grenze 19 °C?"}
-    B -- Nein --> X1(["❌ Kein Heizen<br>Außentemperatur zu hoch"])
-    B -- Ja --> C["Vorheizzeit berechnen<br>Raum 18 °C · AT 10 °C<br>Faktor 0,52 × 174 min = ~90 min<br>Einschaltzeitpunkt ~08:59 Uhr<br>Ausschaltzeitpunkt 12:00 Uhr"]
-    C --> D{"Jetzt im Zeitfenster?<br>08:59 ≤ 09:00 ≤ 12:00"}
-    D -- Nein --> X2(["⏳ Noch nicht / Abgelaufen"])
-    D -- Ja --> E{"Raum ≤ Einschaltschwelle?<br>19,0 °C ≤ 19,5 °C"}
-    E -- Nein --> X3(["❌ Einschalten übersprungen<br>Raum zu warm"])
-    E -- Ja --> F(["✔ Relais EIN ~09:00 Uhr<br>Raum heizt: 19 °C → 20,5 °C"])
-    F --> G{"Raum ≥ Ausschaltschwelle?<br>≥ 20,5 °C (~10:00 Uhr)"}
-    G -- Nein --> F
-    G -- Ja --> H(["❌ Relais AUS ~10:00 Uhr<br>Solltemperatur erreicht"])
-    H --> I{"Gäste ab 10:30 Uhr<br>Raum steigt auf 22 °C<br>22 °C ≥ 20,5 °C?"}
-    I -- Ja --> J(["❌ Relais bleibt AUS<br>Übertemperatur durch Gäste"])
-    J --> K(["⏹ Zeitfenster endet 12:00 Uhr<br>Termin endet 12:30 Uhr"])
-
-    style X1 fill:#f88,color:#000
-    style X2 fill:#ffa,color:#000
-    style X3 fill:#f88,color:#000
-    style F  fill:#8f8,color:#000
-    style H  fill:#f88,color:#000
-    style J  fill:#f88,color:#000
-    style K  fill:#ffa,color:#000
-```
-
-```txt
-Zeitachse:
-  ~09:00  Relais EIN  (Einschaltzeitpunkt 08:59 überschritten, Raum 19,0 °C ≤ 19,5 °C)
-  ~10:00  Relais AUS  (Raum ≥ 20,5 °C — obere Hystereseschwelle)
-   10:30  Termin beginnt, ~100 Gäste kommen → Raum steigt auf 22 °C
-  ~11:00  Raum 22 °C — Relais bleibt AUS (22 ≥ 20,5)
-   12:00  Ausschaltzeitpunkt (Terminende 12:30 − 30 min) — Relais ohnehin AUS
-   12:30  Termin endet
-```
-
-Der Gottesdienstraum zeigt den **vollständigen HS-Lebenszyklus** in einem einzigen Termin:
-Vorheizen → Solltemperatur erreicht (Relais AUS) → Übertemperatur durch Gäste (Relais
-bleibt AUS). Ohne die HS-Hysterese würde das Relais bis 12:00 Uhr durchheizen und den Raum
-trotz 22 °C Gästewärme weiter aufheizen — die Hysterese verhindert genau das.
+Ohne Thermostat kennt das Skript die echte Raumtemperatur nicht.
+Der Fallback auf die Grundtemperatur (10 °C) ergibt Korrekturfaktor 1,00 → volle Kurvenzeit.
+Die niedrig konfigurierte Grundtemperatur führt hier zu einem sehr frühen Einschaltzeitpunkt.
+Das vorzeitige Schaltende (−30 min) wäre 17:30 Uhr — irrelevant, da der Außentemp.-Grenzwert bereits ab ~14:00 stoppt.
+⚠ Hinweis: Auch bei real 18–19 °C Raumtemperatur rechnet das Skript ohne Thermostat stets mit der Grundtemperatur (10 °C).
 
 ## Gegenüberstellung der Use Cases
 
