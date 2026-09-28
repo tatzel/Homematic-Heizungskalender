@@ -1,0 +1,23 @@
+// VS Code extension httpYac
+// https://httpyac.github.io/guide/installation_vscode.html
+
+// ChurchTools REST API
+// https://egn.church.tools/api
+
+###
+# @name getResources
+# @title Get resources
+# @description
+GET https://{{name}}.church.tools/api/resource/masterdata?login_token={{loginToken}}
+Content-Type: application/json
+
+?? status == 200
+
+###
+# @name getBookings
+# @title Get Bookings
+# @description
+GET https://{{name}}.church.tools/api/bookings?login_token={{loginToken}}&resource_ids[]=1&resource_ids[]=2&resource_ids[]=3&resource_ids[]=4&resource_ids[]=6&from=2026-09-27&to=2026-09-27
+Content-Type: application/json
+
+?? status == 20
