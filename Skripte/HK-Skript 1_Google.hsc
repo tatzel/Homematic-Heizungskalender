@@ -22,6 +22,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-09-28 Log-Ausgabe: Leerzeichen zwischen Raumname und (ID) entfernt.
 !// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
 !//                 Ressource-IDs (z.B. ID 1 wurde in ID 11 gefunden). Fix: Semikolon-Praefix.
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
@@ -338,7 +339,7 @@ if (iPos<=0) {
             if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
             if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
             if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
-            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+            logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                          toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                          toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Parameter: " # cap # " " #
@@ -347,7 +348,7 @@ if (iPos<=0) {
         }else{
           !// Wir haben den Sonderbefehl NH/NS
           if (log){
-            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+            logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                          toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                          toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                          " Nicht Heizen/Schalten (#NH#/#NS#)");
