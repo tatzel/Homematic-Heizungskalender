@@ -1,22 +1,24 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (API)
 !//================================================================================================
-!// Stand:    26.02.2026
+!// Stand:    28.09.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
 !// Skript sollte alle 30min laufen
 !// ***********************************************************************************************
-!// ACHTUNG DIESES SKRIPT KANN NUR ÖFFENTLICHE TERMINE LESEN. Termine in ChurchDesk können 
-!// folgende Typen haben: Öffentlich, Gemeinde, Gruppen, Privat. Nur Termine des ersten Typs 
+!// ACHTUNG DIESES SKRIPT KANN NUR ÖFFENTLICHE TERMINE LESEN. Termine in ChurchDesk können
+!// folgende Typen haben: Öffentlich, Gemeinde, Gruppen, Privat. Nur Termine des ersten Typs
 !// "öffentlich" werden aktuell von der API zurückgegegeben.
 !// ***********************************************************************************************
 
+!// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
+!//                 Ressource-IDs (z.B. ID 1 wurde in ID 11 gefunden). Fix: Semikolon-Praefix.
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-05 Leere Raumzuordnung berücksichtigen
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
@@ -161,7 +163,7 @@ if (stdout=="[]"){
       if (iPos>=0) {
         strTemp = strTemp.Substr(0,iPos);
       }
-      
+
       !// Sonderbefehl suchen
       iPos = strTemp.Find("#");
       if (iPos>=0){
@@ -248,8 +250,8 @@ if (stdout=="[]"){
     !// Nun den Termin für alle Resourcen erzeugen
     foreach(resource,resourcen){
       string resId = resource.ToInteger().ToString();
-      
-      !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen 
+
+      !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
       !// Raumname optional, das gestaltet die Suche etwas schwieriger
       !// Wenn Variable nicht gefunden innerer Schleife für diesen Durchgang beenden
       boolean bGefunden = false;
@@ -264,13 +266,13 @@ if (stdout=="[]"){
         }
         raumIndex = raumIndex+1;
       }
-      
+
       if (!bGefunden){
         !// Raum nicht in unserer Liste (dürfte eigentlich nicht passieren, da wir einen
         !// Filter für Resourcen haben.
         if(DEBUG){
           WriteLine("Raum Resource Id konnte nicht gefunden werden!");
-        }	
+        }
         continue;
       }
 
@@ -305,7 +307,8 @@ if (stdout=="[]"){
       !// Verhindern, dass doppelte Einträge erzeugt werden.
       string toadd = resId # ";" # startDatum.ToInteger().ToTime() # ";" # endDatum.ToInteger().ToTime() # ";" # cap # ";" # SchaltenHeizen # ";";
       !WriteLine(toadd);
-      if (SLT.Find(toadd)<0){
+      !// Semikolon-Praefix verhindert False-Positive: "1;" wuerde sonst in "11;" gefunden werden.
+      if ((";" # SLT).Find(";" # toadd)<0){
         if (cap){
           !// Schalt Eintrag setzen
           SLT=SLT+toadd;

@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    21.06.2026
+!// Stand:    28.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,8 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
+!//                 Ressource-IDs (z.B. ID 1 wurde in ID 11 gefunden). Fix: Semikolon-Praefix.
 !// MRi: 2026-06-21 Retry eingebaut, weil churchdesk unregelmässig Fehler liefert
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
 !// MRI: 2026-02-16 Leere Raumzuordnung berücksichtigen
@@ -153,25 +155,25 @@ foreach(RIdEintrag,RIdListe.Split(";")){
   !// übertrage jetz den originalen Parameter.
   string SchaltenHeizen=objVar.State().StrValueByIndex(";",1);
 
-  !// Zugriff auf ChurchDesk iCal. 
+  !// Zugriff auf ChurchDesk iCal.
   !// Wir bauen hier einen Retry ein, weil es scheinbar seit einiger Zeit Probleme mit dem Zugriff auf ChurchDesk gibt
   integer iRetry = 5;
   string stdout;
   string stderr;
   while (iRetry>0) {
     !// wget unterstützt leider nicht --secure-protocol=TLSv1_1
-    string cmd = "wget --no-check-certificate --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";    
-    !string cmd = "curl --insecure --tlsv1.1 --max-time 5 -L 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";    
+    string cmd = "wget --no-check-certificate --timeout=5 -O - 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
+    !string cmd = "curl --insecure --tlsv1.1 --max-time 5 -L 'https://api2.churchdesk.com/ical/resource/" # RId # "/public?organizationId="# organizationId #"'";
     if(DEBUG){
       WriteLine("Cmd:" # cmd);
     }
     system.Exec(cmd, &stdout, &stderr);
-    
+
     if(DEBUG){
       !WriteLine("stdout:" # stdout);
       !WriteLine("stderr:" # stderr);
     }
-    
+
     if (stdout.StartsWith("BEGIN:VCALENDAR")){
       !// Es wurde ein Ergebnis zurückgegeben. Wir können die Retry Schleife abbrechen
       break;
@@ -249,10 +251,10 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       }
 
       if (DEBUG){
-        WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());  
+        WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());
       }
-      
-      !// Beschreibung (optional) des Termines extrahieren 
+
+      !// Beschreibung (optional) des Termines extrahieren
       string strTemp = "";
       iPos = termin.Find("\nDESCRIPTION:");
       if (iPos>=0){
@@ -262,8 +264,8 @@ foreach(RIdEintrag,RIdListe.Split(";")){
         if (DEBUG){
           WriteLine("Beschreibung:" # strTemp);
         }
-      }      
-      
+      }
+
       !// Nun nach Sonderbefehlen suchen
       !// #EIN#, #AUS#, #GT#, #NS#, #NH#, #NORMAL#, #RESET#, #<zahl><text>#
       string cap = "0";
@@ -306,7 +308,8 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       !// Verhindern, dass doppelte Einträge erzeugt werden.
       string toadd = RId # ";" # startDatum.ToInteger().ToTime() # ";" # endDatum.ToInteger().ToTime() # ";" # cap # ";" # SchaltenHeizen # ";";
       !WriteLine(toadd);
-      if (SLT.Find(toadd)<0){
+      !// Semikolon-Praefix verhindert False-Positive: "1;" wuerde sonst in "11;" gefunden werden.
+      if ((";" # SLT).Find(";" # toadd)<0){
         if (cap){
           !// Schalt Eintrag setzen
           SLT=SLT+toadd;
