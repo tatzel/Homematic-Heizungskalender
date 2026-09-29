@@ -21,3 +21,13 @@ GET https://{{name}}.church.tools/api/bookings?login_token={{loginToken}}&resour
 Content-Type: application/json
 
 ?? status == 20
+
+
+###
+# @name getBookings2
+# @title Get Bookings for Kinderraum(1), Raum 1(6), Eltern-Kind-Raum(11)
+# @description
+GET https://{{name}}.church.tools/api/bookings?login_token={{loginToken}}&resource_ids[]=1&resource_ids[]=6&resource_ids[]=11&from=2026-09-29&to=2026-09-29
+Content-Type: application/json
+
+?? status == 20
