@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    21.09.2026
+!// Stand:    28.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,9 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-09-28 Log-Ausgabe: doppelten Raumnamen "Name (ID)-Name" auf "Name(ID)" reduziert
+!//                 (Raumname nur noch im Multiraum-Fall angehaengt) und Leerzeichen vor der
+!//                 Klammer entfernt.
 !// TT:  2026-09-18 Nachtschaltung: Relais-Zustand mit State() lesen statt State(0) (schrieb AUS
 !//                 und lieferte falschen Ist-Zustand). CCU-verifiziert.
 !// TT:  2026-09-16 Log-Ausgaben verbessert: Raumname in Thermostat-Fehlermeldungen ergänzt,
@@ -233,9 +236,9 @@ foreach(SLEintrag,SListe){
     if (HSFlag=="HS"){
       strTemp = "Heizen+Schalten: ";
     }
-    if(log) {logObj.State("---Schaltlisteneintrag für Ressource " # AktSRName # " (" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
+    if(log) {logObj.State("---Schaltlisteneintrag für Ressource " # AktSRName # "(" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
-    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource " # AktSRName # " (" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
+    if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource " # AktSRName # "(" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
   }else{
     !// Schalten kennt kein Offset
@@ -263,7 +266,7 @@ foreach(SLEintrag,SListe){
     !// Im Multiraum Fall nehmen wir nur den ersten / primären Raum
     AktSRName=AktSRName.StrValueByIndex("+",0);
   }
-  AktSRName = AktSRName # " (" # AktSR # ")";
+  AktSRName = AktSRName # "(" # AktSR # ")";
 
   !// Wir haben multiRaumVariante eine Raumliste durch + getrennt.
   if(log){logObj.State(AktSRName # " Raumliste: "+RVNListe);}
@@ -283,21 +286,30 @@ foreach(SLEintrag,SListe){
     !// Erzeuge einen Namen ohne prefixe
     string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
 
+    !// Anzeigename fuers Log. Im Normalfall ist der Raumname identisch mit dem
+    !// Ressourcennamen (AktSRName ohne die " (ID)"), dann waere "Name (ID)-Name"
+    !// doppelt. Nur im Multiraum-Fall (mehrere Raeume je Ressource) haengen wir
+    !// den konkreten Raumnamen an.
+    string RaumLogName = AktSRName;
+    if (AktSRName.StrValueByIndex("(",0)!=RVNName){
+      RaumLogName = AktSRName # "-" # RVNName;
+    }
+
     !// Dauerschaltstatus anzeigen, wenn es den gibt.
     !// 0=Aus, 1=Ein, 2=Dauer AUS, 3=Dauer EIN
     integer aktuellerSchaltZustand = RVI.StrValueByIndex(";",0).ToInteger();
     if(aktuellerSchaltZustand==0){
-      if(log){logObj.State(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand AUS!");}
-      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand AUS!");}
+      if(log){logObj.State(RaumLogName # " befindet sich im Schaltzustand AUS!");}
+      if(DEBUG) {WriteLine(RaumLogName # " befindet sich im Schaltzustand AUS!");}
     }elseif (aktuellerSchaltZustand==1){
-      if(log){logObj.State(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand EIN!");}
-      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand EIN!");}
+      if(log){logObj.State(RaumLogName # " befindet sich im Schaltzustand EIN!");}
+      if(DEBUG) {WriteLine(RaumLogName # " befindet sich im Schaltzustand EIN!");}
     }elseif(aktuellerSchaltZustand==2){
-      if(log){logObj.State(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand Dauer-AUS!");}
-      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand Dauer-AUS!");}
+      if(log){logObj.State(RaumLogName # " befindet sich im Schaltzustand Dauer-AUS!");}
+      if(DEBUG) {WriteLine(RaumLogName # " befindet sich im Schaltzustand Dauer-AUS!");}
     }elseif (aktuellerSchaltZustand==3){
-      if(log){logObj.State(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand Dauer-EIN!");}
-      if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " befindet sich im Schaltzustand Dauer-EIN!");}
+      if(log){logObj.State(RaumLogName # " befindet sich im Schaltzustand Dauer-EIN!");}
+      if(DEBUG) {WriteLine(RaumLogName # " befindet sich im Schaltzustand Dauer-EIN!");}
     }
 
     !// Wir benötigen die Ein und Aussschaltzeit frisch, weil diese hier manipuliert wird.
@@ -358,9 +370,9 @@ foreach(SLEintrag,SListe){
       }
       if((log))
       {
-        if (SDFlag==-3)     {logObj.State(AktSRName # "-" # RVNName # " Sonderfunktion \"Normalisierung\": " # GT.ToString(1));}
-        elseif(SDFlag==-1)  {logObj.State(AktSRName # "-" # RVNName # " Sonderfunktion \"AUS\": " # GT.ToString(1));}
-        elseif(SDFlag==-2)  {logObj.State(AktSRName # "-" # RVNName # " Sonderfunktion \"EIN\": " # RTemp.ToString(1));}
+        if (SDFlag==-3)     {logObj.State(RaumLogName # " Sonderfunktion \"Normalisierung\": " # GT.ToString(1));}
+        elseif(SDFlag==-1)  {logObj.State(RaumLogName # " Sonderfunktion \"AUS\": " # GT.ToString(1));}
+        elseif(SDFlag==-2)  {logObj.State(RaumLogName # " Sonderfunktion \"EIN\": " # RTemp.ToString(1));}
       }
     }
 
@@ -450,15 +462,15 @@ foreach(SLEintrag,SListe){
           if (objDP){
             ISTTemperatur = objDP.State().ToFloat();
             }else{
-              if(log){logObj.State(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
-              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
+              if(log){logObj.State(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
+              if(DEBUG) {WriteLine(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
             }
         }elseif(!AktAktor) {
-          if(log){logObj.State(AktSRName # "-" # RVNName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
-          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
+          if(log){logObj.State(RaumLogName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
+          if(DEBUG) {WriteLine(RaumLogName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
         }else{
-          if(log){logObj.State(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
-          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
+          if(log){logObj.State(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
+          if(DEBUG) {WriteLine(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
         }
 
         !// faktor2 wird nach unten auf 0.2 begrenzt. Besonders wenn wir bereits in der Heizphase sind.
@@ -474,7 +486,7 @@ foreach(SLEintrag,SListe){
         !//if(log) {logObj.State("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
 
         !// Reale Schaltzeiten berechnen
-        string logText = AktSRName # "-" # RVNName # " Heizen - AT " # AT.ToString(1) # "°C / GT " # GT.ToString(1) # "°C / IST " # ISTTemperatur.ToString(1) # "°C - " # EIN.ToTime().Format("%X").Substr(0,5) # " ";
+        string logText = RaumLogName # " Heizen - AT " # AT.ToString(1) # "°C / GT " # GT.ToString(1) # "°C / IST " # ISTTemperatur.ToString(1) # "°C - " # EIN.ToTime().Format("%X").Substr(0,5) # " ";
         if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
         logText = logText # (offsetRaumAn/60) #"min ";
         if (offsetTempAn==0){ logText=logText#" - "; }
@@ -489,7 +501,7 @@ foreach(SLEintrag,SListe){
       }
     }else{
       !// Reale Schaltzeiten berechnen
-      string logText = AktSRName # "-" # RVNName # " Schalten - " #EIN.ToTime().Format("%X").Substr(0,5) # " ";
+      string logText = RaumLogName # " Schalten - " #EIN.ToTime().Format("%X").Substr(0,5) # " ";
       if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
       logText = logText # (offsetRaumAn/60) #"min ";
       EIN = EIN + offsetRaumAn;
@@ -508,8 +520,8 @@ foreach(SLEintrag,SListe){
     if(AUS<=EIN){
       !// Durch das überspringen des Raumes hier, wird ein Raum evtl. ausgeschaltet, weil er nicht mehr
       !// als zu heizen gilt.
-      if(log) {logObj.State(AktSRName # "-" # RVNName # " Einschaltzeit liegt nach Ausschaltzeit");}
-      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " Einschaltzeit liegt nach Ausschaltzeit");}
+      if(log) {logObj.State(RaumLogName # " Einschaltzeit liegt nach Ausschaltzeit");}
+      if(DEBUG)  {WriteLine(RaumLogName # " Einschaltzeit liegt nach Ausschaltzeit");}
       continue;
     }
 
@@ -542,17 +554,17 @@ foreach(SLEintrag,SListe){
                 if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("2;"+RVI.Substr(2,RVI.Length()-2));
-          !// if(log){logObj.State(AktSRName # "-" # RVNName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
+          !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
           continue;
         }
       }else{
-!       if(log){logObj.State(AktSRName # "-" # RVNName # " ist dauerhaft ausgeschaltet");}
-!       if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " ist dauerhaft ausgeschaltet");}
+!       if(log){logObj.State(RaumLogName # " ist dauerhaft ausgeschaltet");}
+!       if(DEBUG) {WriteLine(RaumLogName # " ist dauerhaft ausgeschaltet");}
       }
     }
 
@@ -580,17 +592,17 @@ foreach(SLEintrag,SListe){
                 if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("3;"+RVI.Substr(2,RVI.Length()-2));
-          !// if(log){logObj.State(AktSRName # "-" # RVNName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
+          !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
           continue;
         }
       }else{
-!        if(log){logObj.State(AktSRName # "-" # RVNName # " ist dauerhaft eingeschaltet");}
-!        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " ist dauerhaft eingeschaltet");}
+!        if(log){logObj.State(RaumLogName # " ist dauerhaft eingeschaltet");}
+!        if(DEBUG) {WriteLine(RaumLogName # " ist dauerhaft eingeschaltet");}
       }
     }
 
@@ -618,17 +630,17 @@ foreach(SLEintrag,SListe){
                 if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
-          !// if(log){logObj.State(AktSRName # "-" # RVNName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
+          !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
           continue;
         }
       }else{
-!        if(log){logObj.State(AktSRName # "-" # RVNName # " ist bereits in einem normalen Schaltzustand");}
-!        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " ist bereits in einem normalen Schaltzustand");}
+!        if(log){logObj.State(RaumLogName # " ist bereits in einem normalen Schaltzustand");}
+!        if(DEBUG) {WriteLine(RaumLogName # " ist bereits in einem normalen Schaltzustand");}
       }
     }
 
@@ -650,32 +662,32 @@ foreach(SLEintrag,SListe){
                       real istTemperatur = objDP.State();
                       if(istTemperatur==RTemp){
                         objDP.State(GT);
-                        if(log) {logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-                        if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                        if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                        if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
                       }else{
-                        if(log){logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
+                        if(log){logObj.State(RaumLogName # " " # AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
                       }
                     }else{
                       objDP.State(GT);
-                      if(log) {logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
-                      if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                      if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                      if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
                     }
                 }else{
                   objDP.State(0);
-                  if(log) {logObj.State(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
-                  if(DEBUG)  {WriteLine(AktSRName # "-" # RVNName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
+                  if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
+                  if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
                 }
               }else{
-                if(log){logObj.State(AktSRName # "-" # RVNName # " Datenpunkt " # Param # " nicht vorhanden!");}
-                if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Datenpunkt " # Param # " nicht vorhanden!");}
+                if(log){logObj.State(RaumLogName # " Datenpunkt " # Param # " nicht vorhanden!");}
+                if(DEBUG) {WriteLine(RaumLogName # " Datenpunkt " # Param # " nicht vorhanden!");}
               }
             }else{
-              if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
-              if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
+              if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
             }
           }
           dom.GetObject(RVN).State("0;"+RVI.Substr(2,RVI.Length()-2));
-          !// if(log){logObj.State(AktSRName # "-" # RVNName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
+          !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
           continue;
         }
       }
@@ -725,18 +737,18 @@ foreach(SLEintrag,SListe){
                   if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
                 }
               }else{
-                if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
-                if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+                if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
+                if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
               }
             }
             dom.GetObject(RVN).State("1;"+RVI.Substr(2,RVI.Length()-2));
-            !// if(log){logObj.State(AktSRName # "-" # RVNName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
+            !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen "+AktSR+" "+dom.GetObject(RVN).State().StrValueByIndex(";",0));}
             continue;
           }
         }
       }else{
-          if(log){logObj.State(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
-          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
+          if(log){logObj.State(RaumLogName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
+          if(DEBUG) {WriteLine(RaumLogName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
       }
     }
   }
@@ -763,6 +775,12 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
     !// Es ist möglich, dass eine Ressource keine Zuordnung hat
     if (!RVN){
       continue;
+    }
+    !// Anzeigename fuers Log (siehe Referenz-Definition in der ersten Raumschleife).
+    string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
+    string RaumLogName = AktSRName;
+    if (AktSRName.StrValueByIndex("(",0)!=RVNName){
+      RaumLogName = AktSRName # "-" # RVNName;
     }
     !// Raum Parameter bestimmen
     if(log){logObj.State("Gruppe:"+RVN);}
@@ -873,8 +891,8 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
             if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
           }
         }else{
-          if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
-          if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+          if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
+          if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
         }
       }
     }
@@ -900,6 +918,9 @@ foreach(RVN,RVNListe.Split(";")) {
   if (!RVN){
     continue;
   }
+  !// Anzeigename fuers Log. In dieser Schleife (oberste Ebene) steht kein Ressourcen-
+  !// name zur Verfuegung, daher nur der Raumname ohne Praefix.
+  string RaumLogName = RVN.Replace(vrp#"HKG-Raum-","");
   !// Raum Parameter bestimmen
   RVI = dom.GetObject(RVN).State();
   HSFlag = RVI.StrValueByIndex(";",1);
@@ -978,8 +999,8 @@ foreach(RVN,RVNListe.Split(";")) {
           if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
         }
       }else{
-        if(log){logObj.State(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
-        if(DEBUG) {WriteLine(AktSRName # "-" # RVNName # ": " # AktAktor # " Objekt existiert nicht!");}
+        if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
+        if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
       }
     }
   }
