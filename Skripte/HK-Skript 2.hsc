@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    28.09.2026
+!// Stand:    30.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,8 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// MRi: 2026-10-01 Wenn kein Temperatursensor vorhanden ist wird GT.Max(AT) für die Berechnung der 
+!//                 Vorheizzeit verwendet.
 !// TT:  2026-09-28 Log-Ausgabe: doppelten Raumnamen "Name (ID)-Name" auf "Name(ID)" reduziert
 !//                 (Raumname nur noch im Multiraum-Fall angehaengt) und Leerzeichen vor der
 !//                 Klammer entfernt.
@@ -450,7 +452,7 @@ foreach(SLEintrag,SListe){
         !// Aktors verwendet). Dadurch wird ein bereits warmer Raum nur so lange vorgeheizt, wie das
         !// die temperaturabhängige Vorheizzeit eben auch angibt, denn diese bezieht sich ja immer
         !// auf die Grundtemperatur.
-        real ISTTemperatur = GT;
+        real ISTTemperatur = GT.Max(AT);
         AktAktor = RVI.StrValueByIndex(";",6);
         if(DEBUG) { WriteLine("AktAktor=" # AktAktor); }
         objAktor = dom.GetObject(AktAktor);
