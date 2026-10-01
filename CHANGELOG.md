@@ -23,8 +23,9 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ### Geändert
 
-### Geändert
-
+- Alle fünf Skript-1-Varianten nutzen jetzt einheitlich 12h Vorlauf (`zeitVorlauf`);
+  die vier 8h-Varianten (ChurchDeskAPI, ChurchDeskiCal, Google, iCal) wurden auf
+  12h angehoben. Die bisherige Divergenz (ChurchTools 12h, Rest 8h) ist aufgelöst.
 - `HK-Skript 2`: Fallback-Raumtemperatur bei fehlendem Sensor von `GT` auf
   `GT.Max(AT)` geändert. Bei milder Außentemperatur wird die Vorheizzeit dadurch
   kürzer als die volle Kurvenzeit, statt immer 100% zu verwenden.

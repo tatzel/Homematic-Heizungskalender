@@ -22,6 +22,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-01 DIVERGENZ-Hinweis entfernt: alle Skript-1-Varianten nutzen jetzt 12h Vorlauf.
 !// TT:  2026-10-01 Vergangenheits-Check von <= auf < vereinheitlicht (wie andere
 !//                 Skript-1-Varianten). 1-Sekunden-Divergenz am Nachlaufende entfernt.
 !//                 Kommentarblock zum Zeitfenster aktualisiert.
@@ -60,7 +61,6 @@ boolean DEBUG=0;
 !// (Terminende plus zeitNachlauf). Die Haltezeit zeitNachlauf haelt einen beendeten Termin
 !// so lange in der Schaltliste, dass HK-Skript 2 ihn noch ausschalten kann.
 !// Kein Heiz-Nachlauf.
-!// DIVERGENZ: Diese Variante nutzt 12h Vorlauf, die anderen Skript-1-Varianten 8h. Historisch gewachsen.
 integer zeitVorlauf=12*60;		!// 12 Stunden
 integer zeitNachlauf=30;		!// 30 Minuten
 

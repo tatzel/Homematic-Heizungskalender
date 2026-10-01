@@ -17,6 +17,8 @@
 !// "öffentlich" werden aktuell von der API zurückgegegeben.
 !// ***********************************************************************************************
 
+!// TT:  2026-10-01 Vorlauf von 8h auf 12h vereinheitlicht (alle Skript-1-Varianten jetzt
+!//                 12h). DIVERGENZ-Hinweis entfernt.
 !// TT:  2026-10-01 Kommentarblock zum Zeitfenster aktualisiert.
 !// TT:  2026-09-28 Log-Ausgabe: Leerzeichen zwischen Raumname und (ID) entfernt.
 !// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
@@ -39,8 +41,7 @@ boolean DEBUG=0;
 !// (Terminende plus zeitNachlauf). Die Haltezeit zeitNachlauf haelt einen beendeten Termin
 !// so lange in der Schaltliste, dass HK-Skript 2 ihn noch ausschalten kann.
 !// Kein Heiz-Nachlauf.
-!// DIVERGENZ: Diese Variante nutzt 8h Vorlauf, HK-Skript 1_ChurchTools 12h. Historisch gewachsen.
-integer zeitVorlauf=8*60;		!// 8 Stunden
+integer zeitVorlauf=12*60;		!// 12 Stunden
 integer zeitNachlauf=30;		!// 30 Minuten
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
