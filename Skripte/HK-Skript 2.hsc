@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    30.10.2026
+!// Stand:    01.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,7 +21,8 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
-!// MRi: 2026-10-01 Wenn kein Temperatursensor vorhanden ist wird GT.Max(AT) für die Berechnung der 
+!// TT:  2026-10-01 Log-Text bei fehlendem Sensor/Aktor korrigiert: zeigt jetzt GT.Max(AT)-Wert
+!// MRi: 2026-10-01 Wenn kein Temperatursensor vorhanden ist wird GT.Max(AT) für die Berechnung der
 !//                 Vorheizzeit verwendet.
 !// TT:  2026-09-28 Log-Ausgabe: doppelten Raumnamen "Name (ID)-Name" auf "Name(ID)" reduziert
 !//                 (Raumname nur noch im Multiraum-Fall angehaengt) und Leerzeichen vor der
@@ -464,12 +465,12 @@ foreach(SLEintrag,SListe){
           if (objDP){
             ISTTemperatur = objDP.State().ToFloat();
             }else{
-              if(log){logObj.State(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
-              if(DEBUG) {WriteLine(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE!");}
+              if(log){logObj.State(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE! Verwende GT.Max(AT)=" # ISTTemperatur.ToString(1) # "°C");}
+              if(DEBUG) {WriteLine(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " hat keinen Datenpunkt ACTUAL_TEMPERATURE/TEMPERATURE! Verwende GT.Max(AT)=" # ISTTemperatur.ToString(1) # "°C");}
             }
         }elseif(!AktAktor) {
-          if(log){logObj.State(RaumLogName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
-          if(DEBUG) {WriteLine(RaumLogName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende Grundtemperatur " # GT.ToString(1) # "°C");}
+          if(log){logObj.State(RaumLogName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende GT.Max(AT)=" # ISTTemperatur.ToString(1) # "°C");}
+          if(DEBUG) {WriteLine(RaumLogName # ": Kein Thermostat-Aktor/Kanal zugeordnet, verwende GT.Max(AT)=" # ISTTemperatur.ToString(1) # "°C");}
         }else{
           if(log){logObj.State(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
           if(DEBUG) {WriteLine(RaumLogName # ": Thermostat-Aktor/Kanal " # AktAktor # " existiert nicht!");}
