@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus Google auszulesen
 !//================================================================================================
-!// Stand:    28.09.2026
+!// Stand:    01.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,11 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-01 Vorlaufzeit aus Systemvariable HK1-SchaltlisteVorlauf gelesen
+!//                 (Fallback 480 = 8h). Variablen-Leseblock nach oben verschoben.
+!// TT:  2026-09-29 Haltezeit des Termins in der Schaltliste aus Systemvariable
+!//                 HK1-SchaltlisteNachlauf gelesen (Fallback 30). Kein Heiz-Nachlauf, sondern
+!//                 Sicherheitspuffer damit HK-Skript 2 den Termin noch ausschalten kann.
 !// TT:  2026-09-28 Log-Ausgabe: Leerzeichen zwischen Raumname und (ID) entfernt.
 !// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
 !//                 Ressource-IDs (z.B. ID 1 wurde in ID 11 gefunden). Fix: Semikolon-Praefix.
@@ -41,12 +46,19 @@ boolean DEBUG=0;
 !// Mit 0 wird die Einstellung aus der HKx-Logging übernommen
 integer log=0;
 
-!// Zeitfenster in dem nach Termine geschaut wird
-!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit),
-!// plus zeitVorlauf (min = maximale Vorlaufzeit)
-!// DIVERGENZ: Diese Variante nutzt 8h Vorlauf, HK-Skript 1_ChurchTools 12h. Historisch gewachsen.
-integer zeitVorlauf=8*60;		!// 8 Stunden (default=12h)
-integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
+!// Zeitfenster fuer Termine: von (Terminstart minus zeitVorlauf) bis
+!// (Terminende plus Haltezeit). Die Haltezeit (Systemvariable
+!// HK1-SchaltlisteNachlauf, Fallback 30 Minuten) haelt einen beendeten Termin
+!// so lange in der Schaltliste, dass HK-Skript 2 ihn noch ausschalten kann.
+!// Kein Heiz-Nachlauf.
+!// DIVERGENZ: Diese Variante nutzt 8h Vorlauf (Fallback 480), HK-Skript 1_ChurchTools
+!//            12h (Fallback 720). Historisch gewachsen.
+var oVorlauf=dom.GetObject(vrp#"HK1-SchaltlisteVorlauf");
+integer zeitVorlauf=480;		!// Fallback 8h in Minuten
+if(oVorlauf){ zeitVorlauf=oVorlauf.State().ToInteger(); }
+var oNachlauf=dom.GetObject(vrp#"HK1-SchaltlisteNachlauf");
+integer zeitNachlauf=30;		!// Fallback 30 Minuten
+if(oNachlauf){ zeitNachlauf=oNachlauf.State().ToInteger(); }
 
 
 !// Der Code wurde in weiten teilen von der ChurchDesk iCal Variante genommen
@@ -251,7 +263,6 @@ if (iPos<=0) {
         }
         continue;
       }
-      !// DIVERGENZ: Hier < , HK-Skript 1_ChurchTools nutzt <= (1-Sekunden-Randfall am Nachlaufende).
       if ((endDatum.ToInteger()+(zeitNachlauf*60))<JETZT){
         !// Termin liegt in der Vergangenheit
         if (DEBUG){
@@ -264,7 +275,7 @@ if (iPos<=0) {
         WriteLine("Termin:\t" # RId # " / " # RaumName # "\t" # startDatum.ToInteger().ToTime() # "\t" # endDatum.ToInteger().ToTime());
       }
 
-      !// Beschreibung (optional) des Termines extrahieren 
+      !// Beschreibung (optional) des Termines extrahieren
       string strTemp = "";
       iPos = termin.Find(",\"description\":\"");
       if (iPos>=0){

@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    28.09.2026
+!// Stand:    01.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,13 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-01 Vergangenheits-Check von <= auf < vereinheitlicht (wie andere
+!//                 Skript-1-Varianten). 1-Sekunden-Divergenz am Nachlaufende entfernt.
+!// TT:  2026-10-01 Vorlaufzeit aus Systemvariable HK1-SchaltlisteVorlauf gelesen
+!//                 (Fallback 720 = 12h). Variablen-Leseblock nach oben verschoben.
+!// TT:  2026-09-29 Haltezeit des Termins in der Schaltliste aus Systemvariable
+!//                 HK1-SchaltlisteNachlauf gelesen (Fallback 30). Kein Heiz-Nachlauf, sondern
+!//                 Sicherheitspuffer damit HK-Skript 2 den Termin noch ausschalten kann.
 !// TT:  2026-09-28 Log-Ausgabe: Leerzeichen zwischen Raumname und (ID) entfernt.
 !// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
 !//                 Ressource-IDs (z.B. ID 1 wurde in ID 11 gefunden). Fix: Semikolon-Praefix.
@@ -53,12 +60,19 @@ string vrp="";
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
 boolean DEBUG=0;
 
-!// Zeitfenster in dem nach Termine geschaut wird
-!// minus zeitNachlauf în Minuten (min = eingestellte Nachlaufzeit),
-!// plus zeitVorlauf (min = maximale Vorlaufzeit)
-!// DIVERGENZ: Diese Variante nutzt 12h Vorlauf, die anderen Skript-1-Varianten 8h. Historisch gewachsen.
-integer zeitVorlauf=12*60;		!// 12 Stunden (default=12h)
-integer zeitNachlauf=30;		!// 30min Stunden (default = 120min)
+!// Zeitfenster fuer Termine: von (Terminstart minus zeitVorlauf) bis
+!// (Terminende plus Haltezeit). Die Haltezeit (Systemvariable
+!// HK1-SchaltlisteNachlauf, Fallback 30 Minuten) haelt einen beendeten Termin
+!// so lange in der Schaltliste, dass HK-Skript 2 ihn noch ausschalten kann.
+!// Kein Heiz-Nachlauf.
+!// DIVERGENZ: Diese Variante nutzt 12h Vorlauf (Fallback 720), die anderen
+!//            Skript-1-Varianten 8h (Fallback 480). Historisch gewachsen.
+var oVorlauf=dom.GetObject(vrp#"HK1-SchaltlisteVorlauf");
+integer zeitVorlauf=720;		!// Fallback 12h in Minuten
+if(oVorlauf){ zeitVorlauf=oVorlauf.State().ToInteger(); }
+var oNachlauf=dom.GetObject(vrp#"HK1-SchaltlisteNachlauf");
+integer zeitNachlauf=30;		!// Fallback 30 Minuten
+if(oNachlauf){ zeitNachlauf=oNachlauf.State().ToInteger(); }
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
@@ -258,8 +272,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }
       continue;
     }
-    !// DIVERGENZ: Hier <= , andere Skript-1-Varianten nutzen < (1-Sekunden-Randfall am Nachlaufende).
-    if ((endDatum.ToInteger()+(zeitNachlauf*60))<=JETZT){
+    if ((endDatum.ToInteger()+(zeitNachlauf*60))<JETZT){
       !// Termin liegt in der Vergangenheit
       if (DEBUG){
         WriteLine("Termin liegt in der Vergangenheit");

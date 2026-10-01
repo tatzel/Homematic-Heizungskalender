@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (ChurchDesk)
 !//================================================================================================
-!// Stand:    21.09.2026
+!// Stand:    30.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -24,7 +24,10 @@
 !// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
-
+!// TT:  2026-09-30 Systemvariable HK1-SchaltlisteVorlauf hinzugefügt (Default 480 = 8h). Vorlaufzeit,
+!//                 wie früh Termine in die Schaltliste kommen; muss >= längste Vorheizzeit.
+!// TT:  2026-09-29 Systemvariable HK1-SchaltlisteNachlauf hinzugefügt (Default 30). Haltezeit
+!//                 des Termins in der Schaltliste nach Terminende, kein Heiz-Nachlauf.
 !// TT:  2026-09-18 color-Guard iPos>=0 statt iPos&& (verfehlte Position 0 / -1).
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
@@ -62,6 +65,8 @@ string nm=  "HK1-Schaltliste;" #
             "HK1-R-Liste;" #
             "HK1-CD-OrganisationsId;" #
             "HK1-CD-Token;" #
+            "HK1-SchaltlisteVorlauf;" #
+            "HK1-SchaltlisteNachlauf;" #
             "HK2-HKG-Liste;";
 
 !// Beschreibungstexte
@@ -69,6 +74,8 @@ string be=  "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Räume aus der Ressourcenverwaltung;" #
             "Organisations ID in ChurchDesk;" #
             "API-Token für ChurchDesk;" #
+            "Vorlaufzeit in Minuten: wie frueh Termine in die Schaltliste kommen (muss >= laengste Vorheizzeit der Heizkurve, Default 480);" #
+            "Haltezeit des Termins in der Schaltliste nach Terminende in Minuten (kein Heiz-Nachlauf, Default 30);" #
             "Liste der HK-Raum-Variablen;";
 
 !// Typen
@@ -76,21 +83,25 @@ string tp=  "string;" #
             "string;" #
             "string;" #
             "string;" #
+            "integer;" #
+            "integer;" #
             "string";
 
 !// Vorgabe Werte
-string vl=  "";
+string vl=  ";;;;480;30;";
 
 !// Einheit (z.B. °C)
-string vu=  "";
+string vu=  ";;;;min;min;";
 
 !// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
 !//   - Numerisch - min/max durch + getrennt
-string wr=  "";
+string wr=  ";;;;60+1440;0+240;";
 
 !// Protokollierungs Flags
 string pr=  "1;" #
+            "1;" #
+            "1;" #
             "1;" #
             "1;" #
             "1;" #
