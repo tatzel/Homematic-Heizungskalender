@@ -1,27 +1,32 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (iCal)
 !//================================================================================================
-!// Stand:    23.02.2026
+!// Stand:    30.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 by Team Heizkalender:
 !//   Lukas Helduser, Martin Richter (xMRi-Software), Helmut Diedrichs
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
-!// Der Code basiert in großen Teilen auf der Datei: 
+!// Der Code basiert in großen Teilen auf der Datei:
 !//   HKP-ICS-A-V-3.2.1 Variablen zu Skript1_iCal_V1.2.c
 !// Der ursprüngliche Code wurde geschrieben von:
-!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag) 
+!//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
 
 !//Dieses Skript erstellt die nötigen Systemvariablen des Heizkalender für Skript 1 iCal
 !//Hinweis: Ein erneutes Ausführen dieses Programms ändert bestehende Variablen und ihren Inhalt nicht
+
+!// TT:  2026-09-30 Systemvariable HK1-SchaltlisteVorlauf hinzugefügt (Default 480 = 8h). Vorlaufzeit,
+!//                 wie früh Termine in die Schaltliste kommen; muss >= längste Vorheizzeit.
+!// TT:  2026-09-29 Systemvariable HK1-SchaltlisteNachlauf hinzugefügt (Default 30). Haltezeit
+!//                 des Termins in der Schaltliste nach Terminende, kein Heiz-Nachlauf.
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
@@ -33,33 +38,41 @@ string be1="Hier bitte nichts verändern;;Namensliste der Gruppen";
 !// Namen der Variablen, die angelegt werden sollen
 string nm=  "HK1-Schaltliste;" #
             "HK1-R-Liste;" #
-            "HK1-ICS-Url";
-            
+            "HK1-ICS-Url;" #
+            "HK1-SchaltlisteVorlauf;" #
+            "HK1-SchaltlisteNachlauf";
+
 !// Beschreibungstexte
 string be=  "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Räume aus der Ressourcenverwaltung;" #
-            "URL des iCal Kalender";              
-            
+            "URL des iCal Kalender;" #
+            "Vorlaufzeit in Minuten: wie frueh Termine in die Schaltliste kommen (muss >= laengste Vorheizzeit der Heizkurve, Default 480);" #
+            "Haltezeit des Termins in der Schaltliste nach Terminende in Minuten (kein Heiz-Nachlauf, Default 30)";
+
 !// Typen
-string tp=  "string;" #                                                          
-            "string;" #                                                          
-            "string";                                                            
+string tp=  "string;" #
+            "string;" #
+            "string;" #
+            "integer;" #
+            "integer";
 
 !// Vorgabe Werte
-string vl=  "";                                                                  
-                                          
-!// Einheit (z.B. °C)
-string vu=  "";                                                                  
+string vl=  ";;;480;30";
 
-!// Zusätzliche Info Texte für 
+!// Einheit (z.B. °C)
+string vu=  ";;;min;min";
+
+!// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
 !//   - Numerisch - min/max durch + getrennt
-string wr=  "";                                                                  
-                        
+string wr=  ";;;60+1440;0+240";
+
 !// Protokollierungs Flags
-string pr=  "1;" #                                                               
-            "1;" #                                                               
-            "1";                                                                 
+string pr=  "1;" #
+            "1;" #
+            "1;" #
+            "1;" #
+            "1";
 
 !//------------------------------------------------------------------------------------------------
 !// Ab hier Standard Code zum erzeugen von Variablen
@@ -77,7 +90,7 @@ while(true){
     object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
     svObj = dom.CreateObject(OT_VARDP);
     svObjects.Add(svObj.ID());
-  
+
     svObj.Name(name);
     svObj.DPInfo(be.StrValueByIndex(";",i));
     svObj.ValueUnit(vu.StrValueByIndex(";",i));
@@ -101,7 +114,7 @@ while(true){
       svObj.ValueType(ivtBinary);
       svObj.ValueSubType(istBool);
       svObj.ValueName0(wr.StrValueByIndex(";",i).StrValueByIndex("+",0));
-      svObj.ValueName1(wr.StrValueByIndex(";",i).StrValueByIndex("+",1));    
+      svObj.ValueName1(wr.StrValueByIndex(";",i).StrValueByIndex("+",1));
       svObj.State(vl.StrValueByIndex(";",i).ToInteger());
     }else{
       quit;
