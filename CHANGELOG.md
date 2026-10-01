@@ -29,6 +29,11 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ### Geändert
 
+- `HK-Skript 2`: Log-Text bei fehlendem Temperatursensor korrigiert: zeigt jetzt
+  den tatsächlich verwendeten Wert `GT.Max(AT)` statt fest „Grundtemperatur GT".
+  Betrifft beide Fälle (kein Aktor zugeordnet, Aktor ohne Temperatur-Datenpunkt).
+- `HK-Skript 2`: Stand-Datum im Header von `30.10.2026` (Tippfehler) auf
+  `01.10.2026` korrigiert.
 - Vor- und Nachlaufzeit der Schaltliste sind nun über Systemvariablen
   konfigurierbar statt hartcodiert; fehlt die Variable, greift der bisherige
   Hardcode-Wert als Fallback (Verhalten unverändert).
