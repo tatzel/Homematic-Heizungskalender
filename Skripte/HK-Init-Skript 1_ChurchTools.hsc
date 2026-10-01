@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (Churchtools)
 !//================================================================================================
-!// Stand:    30.09.2026
+!// Stand:    21.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -24,10 +24,6 @@
 !// Tipp: Sie sollten unbedingt die Variablen organizationId und apiToken vorbelegen, weil dann
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
-!// TT:  2026-09-30 Systemvariable HK1-SchaltlisteVorlauf hinzugefügt (Default 720 = 12h). Vorlaufzeit,
-!//                 wie früh Termine in die Schaltliste kommen; muss >= längste Vorheizzeit.
-!// TT:  2026-09-29 Systemvariable HK1-SchaltlisteNachlauf hinzugefügt (Default 30). Haltezeit
-!//                 des Termins in der Schaltliste nach Terminende, kein Heiz-Nachlauf.
 !// TT:  2026-09-18 iPos>=0-Guard vor Substr ergänzt; rohe Debug-Ausgaben durch verständliche
 !//                 Meldung ersetzt (kein Raum, Typ-Id).
 !// MRi: 2026-02-19 Einlesen mehrerer Ressourcetypen
@@ -67,8 +63,6 @@ string nm=  "HK1-CT-Gemeindename;" #
             "HK1-Schaltliste;" #
             "HK1-R-Liste;" #
             "HK1-CT-Token;" #
-            "HK1-SchaltlisteVorlauf;" #
-            "HK1-SchaltlisteNachlauf;" #
             "HK2-HKG-Liste;";
 
 !// Beschreibungstexte
@@ -76,8 +70,6 @@ string be=  "Name der Gemeinde in Churchtools;" #
             "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Räume aus der Ressourcenverwaltung;" #
             "Sicherheitstoken für ChurchTools;" #
-            "Vorlaufzeit in Minuten: wie frueh Termine in die Schaltliste kommen (muss >= laengste Vorheizzeit der Heizkurve, Default 720);" #
-            "Haltezeit des Termins in der Schaltliste nach Terminende in Minuten (kein Heiz-Nachlauf, Default 30);" #
             "Liste der HK-Raum-Variablen;";
 
 !// Typen
@@ -85,25 +77,21 @@ string tp=  "string;" #
             "string;" #
             "string;" #
             "string;" #
-            "integer;" #
-            "integer;" #
             "string";
 
 !// Vorgabe Werte
-string vl=  ";;;;720;30;";
+string vl=  "";
 
 !// Einheit (z.B. °C)
-string vu=  ";;;;min;min;";
+string vu=  "";
 
 !// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
 !//   - Numerisch - min/max durch + getrennt
-string wr=  ";;;;60+1440;0+240;";
+string wr=  "";
 
 !// Protokollierungs Flags
 string pr=  "1;" #
-            "1;" #
-            "1;" #
             "1;" #
             "1;" #
             "1;" #
