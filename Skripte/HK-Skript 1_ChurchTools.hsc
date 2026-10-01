@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    08.08.2026
+!// Stand:    28.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,9 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-09-28 Log-Ausgabe: Leerzeichen zwischen Raumname und (ID) entfernt.
+!// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
+!//                 Ressource-IDs (z.B. ID 1 wurde in ID 11 gefunden). Fix: Semikolon-Praefix.
 !// TT:  2026-09-22 Konsistenzpruefung der benoetigten Systemvariablen ergaenzt (nur Warnung
 !//                 im Log, kein Abbruch). CCU-verifiziert.
 !// MRi: 2026-08-08 Sonderbefehle #GT# #NH# #NS# werden auch aus Titel und Subtitel gelesen
@@ -114,7 +117,7 @@ string gemeindeName = dom.GetObject(vrp # "HK1-CT-Gemeindename").State();
 string RIdListe=dom.GetObject(vrp#"HK1-R-Liste").State();
 string HKGListe=dom.GetObject(vrp#"HK2-HKG-Liste").State();
 
-!// Suche alle Ids der Ressourcen. Achting es kann ein mit = abgetrennter Name vorhanden sein.
+!// Suche alle Ids der Ressourcen. Achtung es kann ein mit = abgetrennter Name vorhanden sein.
 string filter="";
 string RId;
 foreach(RId,RIdListe.Split(";")){
@@ -198,7 +201,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     }
 
     if (!bGefunden){
-      !// Raum nicht in unserer Liste (dürfte eigentlich nicht passieren, da wir einen
+      !// Raum nicht in unserer Liste - dürfte eigentlich nicht passieren, da wir einen
       !// Filter für Resourcen haben.
       if(DEBUG){
         WriteLine("Raum Resource Id konnte nicht gefunden werden!");
@@ -207,7 +210,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     }
 
     !// In der Multiraumvariante haben wie mehere Raumeinträge durch + getrennt.
-    !// MRi: Nach meinem Dafürhalten st diese Information in der Schaltliste redundant.
+    !// MRi: Nach meinem Dafürhalten ist diese Information in der Schaltliste redundant.
     string RaumVarListe=HKGListe.StrValueByIndex(";",raumIndex);
     string RaumVar = RaumVarListe;
     if (!RaumVarListe){
@@ -326,7 +329,8 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
     !// Verhindern, dass doppelte Einträge erzeugt werden.
  	  string toadd = resId # ";" # startDatum.ToInteger().ToTime() # ";" # endDatum.ToInteger().ToTime() # ";" # cap # ";" # SchaltenHeizen # ";";
     !WriteLine(toadd);
-    if (SLT.Find(toadd)<0){
+    !// Semikolon-Praefix verhindert False-Positive: "1;" wuerde sonst in "11;" gefunden werden.
+    if ((";" # SLT).Find(";" # toadd)<0){
       if (cap){
         !// Schalt Eintrag setzen
         SLT=SLT+toadd;
@@ -346,7 +350,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
             if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
             if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
             if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
-            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+            logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                        toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                        toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                        " Parameter: " # cap # " " #
@@ -355,7 +359,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
       }else{
         !// Wir haben den Sonderbefehl NH/NS
         if (log){
-          logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+          logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                        toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                        toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                        " Nicht Heizen/Schalten (#NH#/#NS#)");

@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus iCal auszulesen
 !//================================================================================================
-!// Stand:    18.09.2026
+!// Stand:    28.09.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,9 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-09-28 Log-Ausgabe: Leerzeichen zwischen Raumname und (ID) entfernt.
+!// TT:  2026-09-28 Bugfix: False-Positive im Duplikat-Check (SLT.Find) fuer einstellige
+!//                 Ressource-IDs (z.B. ID 1 wurde in ID 11 gefunden). Fix: Semikolon-Praefix.
 !// TT:  2026-09-18 RRULE-Fixes: DAILY-Tippfehler ("DAYLY"), iMaxCount-Default ohne COUNT (brach
 !//                 sofort ab), UNTIL nun korrekt aus dem RRULE-Wert. Ungetestet (kein iCal vorhanden).
 !// MRi: 2026-02-19 Heizen mit Schalten eingebaut, Schaltliste umgebaut
@@ -552,7 +555,8 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
     !// Verhindern, dass doppelte Einträge erzeugt werden.
     string toadd = RId # ";" # startDatum.ToInteger().ToTime() # ";" # endDatum.ToInteger().ToTime() # ";" # cap # ";" # SchaltenHeizen # ";";
     !WriteLine(toadd);
-    if (SLT.Find(toadd)<0){
+    !// Semikolon-Praefix verhindert False-Positive: "1;" wuerde sonst in "11;" gefunden werden.
+    if ((";" # SLT).Find(";" # toadd)<0){
       if (cap){
         !// Schalt Eintrag setzen
         SLT=SLT+toadd;
@@ -572,7 +576,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
             if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
             if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
             if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
-            logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+            logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                        toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                        toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                        " Parameter: " # cap # " " #
@@ -581,7 +585,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
       }else{
         !// Wir haben den Sonderbefehl NH/NS
         if (log){
-          logObj.State("Raum: " # RaumName # " ("+toadd.StrValueByIndex(";",0)+") - " #
+          logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                        toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                        toadd.StrValueByIndex(";",2).ToTime().Format("%X") #
                        " Nicht Heizen/Schalten (#NH#/#NS#)");
