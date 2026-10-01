@@ -17,12 +17,6 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ### Hinzugefügt
 
-- Systemvariable `HK1-SchaltlisteNachlauf` (Default 30 min): Haltezeit, die ein
-  Termin nach seinem Ende in der Schaltliste verbleibt. Sicherheitspuffer, damit
-  HK-Skript 2 den Termin noch ausschalten kann — kein Heiz-Nachlauf.
-- Systemvariable `HK1-SchaltlisteVorlauf` (Default 720 min ChurchTools / 480 min
-  übrige Varianten): wie früh ein Termin vor Beginn in die Schaltliste kommt;
-  muss ≥ der längsten Vorheizzeit der Heizkurve `HK2-Kurve` sein.
 - Werkzeuge zum Reproduzieren und Diagnostizieren des Duplikat-Bugs
   (`Tests/Test-Duplikatcheck-Bug.hsc`, `Tools/Tool-Diagnose Raumzuordnung
   ChurchTools.hsc`, `Tests/churchtools.http`).
@@ -34,17 +28,16 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
   Betrifft beide Fälle (kein Aktor zugeordnet, Aktor ohne Temperatur-Datenpunkt).
 - `HK-Skript 2`: Stand-Datum im Header von `30.10.2026` (Tippfehler) auf
   `01.10.2026` korrigiert.
-- Vor- und Nachlaufzeit der Schaltliste sind nun über Systemvariablen
-  konfigurierbar statt hartcodiert; fehlt die Variable, greift der bisherige
-  Hardcode-Wert als Fallback (Verhalten unverändert).
 - Vergangenheits-Check in `HK-Skript 1_ChurchTools` von `<=` auf `<`
-  vereinheitlicht (1-Sekunden-Divergenz am Nachlaufende entfernt — jetzt alle
+  vereinheitlicht (1-Sekunden-Divergenz am Nachlaufende entfernt, jetzt alle
   Skript-1-Varianten gleich).
 - Log-Format der Raumnamen bereinigt: Normalfall `Name(ID)` statt
   `Name (ID)-Name`, Multiraum-Zusatz nur bei Bedarf; betrifft `HK-Skript 2`,
   `HK-Heizkurvenkontrolle` und alle Skript-1-Varianten.
-- Dokumentation (`Skripte/Dokumentation/Readme.md`) um beide neuen Variablen und
-  eine ausführlichere `HK2-Kurve`-Erklärung erweitert.
+- Kommentarblock zum Zeitfenster in allen fünf Skript-1-Varianten vereinheitlicht
+  (Haltezeit-Semantik, kein Heiz-Nachlauf erklärt).
+- Dokumentation (`Skripte/Dokumentation/Readme.md`) um eine ausführlichere
+  `HK2-Kurve`-Erklärung erweitert.
 
 ### Behoben
 
