@@ -23,6 +23,11 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ### Geändert
 
+### Geändert
+
+- `HK-Skript 2`: Fallback-Raumtemperatur bei fehlendem Sensor von `GT` auf
+  `GT.Max(AT)` geändert. Bei milder Außentemperatur wird die Vorheizzeit dadurch
+  kürzer als die volle Kurvenzeit, statt immer 100% zu verwenden.
 - `HK-Skript 2`: Log-Text bei fehlendem Temperatursensor korrigiert: zeigt jetzt
   den tatsächlich verwendeten Wert `GT.Max(AT)` statt fest „Grundtemperatur GT".
   Betrifft beide Fälle (kein Aktor zugeordnet, Aktor ohne Temperatur-Datenpunkt).
