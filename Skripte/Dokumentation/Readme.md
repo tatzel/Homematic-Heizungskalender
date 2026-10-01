@@ -1,6 +1,6 @@
 # Beschreibung der Skripte und Programme
 
-Dieser Ordner enthält alle Hauptkomponenten für den Heizkalender. Ein Teil der Skripte dient nur der Initaialisierung. Diese haben das kürzel _Init_ im Namen.
+Dieser Ordner enthält alle Hauptkomponenten für den Heizkalender. Ein Teil der Skripte dient nur der Initialisierung. Diese haben das Kürzel _Init_ im Namen.
 
 Skripte mit dem Namenskürzel _Skript 1_ beschreiben die verschiedenen Methoden Termine für den Heizkalender auszulesen.
 
@@ -26,13 +26,13 @@ Die folgenden Skripte werden dabei zwingend benötigt und müssen im Programmver
 
 ## Skripte zur Initialisierung
 
-Die folgenden Variablen werden in allen Skripten von Typ 1 und natürlich vom Schaltskript 2 verwendet.
+Die folgenden Variablen werden in allen Skripten vom Typ 1 und natürlich vom Schaltskript 2 verwendet.
 
 | Variable | Bedeutung |
 | :--------------- | :--------- |
-| HK1-Schaltliste | Schaltlisten Einträge. Hier werden vom Skript die ermittelten und zu schaltenden Twermine eingetragen |
+| HK1-Schaltliste | Schaltlisten Einträge. Hier werden vom Skript die ermittelten und zu schaltenden Termine eingetragen |
 | HK1-R-Liste | Raumliste der Churchdesk Ressourcen. Bestehende aus einer Id und optional gefolgt von einem Gleichheitszeichen mit dem Raumnamen als Text |
-| HK2-HKG-Liste | Semikolon getrennte Liste der Raumvariablen. Zu jedem Eintrag der Ressourcen Liste HK1-R-Liste, der entsprechende Raum Eintrag. Jeder Ressource können mehrere Räume zugeordnet werden indem die einzenlen Räume durch ein + Zeichen getrennt werden. |
+| HK2-HKG-Liste | Semikolon getrennte Liste der Raumvariablen. Zu jedem Eintrag der Ressourcen Liste HK1-R-Liste, der entsprechende Raum Eintrag. Jeder Ressource können mehrere Räume zugeordnet werden indem die einzelnen Räume durch ein + Zeichen getrennt werden. |
 
 ### HK-Init-Skript 1_ChurchDesk.hsc
 
@@ -49,12 +49,12 @@ Dieses Skript wird für den Zugriff über die iCal oder API Schnittstelle benöt
 
 ### HK-Init-Skript 1_ChurchTools.hsc
 
-Dieses Skript dient zum Anlegenden aller Systemvariablen um Termine aus den Ressourcen der ChurchTools API zu lesen.
+Dieses Skript dient zum Anlegen aller Systemvariablen um Termine aus den Ressourcen der ChurchTools API zu lesen.
 
 | Variable | Bedeutung |
 | :--------------- | :--------- |
 | HK1-CT-Gemeindename | Name der Gemeinde im ChurchTools URL. `xyz`.church.tools |
-| HK1-CT-Token | Login Token für einen Benutzer in ChurchTools. Dieses Login-Token muss einmalif ermittelt werden. Der Benutzer benötigt ausschließlich lesenden Zugriff auf die Kalender und Ressourcen. |
+| HK1-CT-Token | Login Token für einen Benutzer in ChurchTools. Dieses Login-Token muss einmalig ermittelt werden. Der Benutzer benötigt ausschließlich lesenden Zugriff auf die Kalender und Ressourcen. |
 
 Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen vom Typ `Raum`, die in ChurchTools angelegt wurden. Es werden dann entsprechende Raumvariablen erzeugt.
 
@@ -69,7 +69,7 @@ Dieses Skript legt alle Systemvariablen an, die für den Zugriff auf die Google 
 
 ### HK-Init-Skript 1_iCal.hsc
 
-Dieses Skript legt alle Systemvariablen an, die für den Zugriff auf einen beliebiegen iCal-Kalender benötigt werden.
+Dieses Skript legt alle Systemvariablen an, die für den Zugriff auf einen beliebigen iCal-Kalender benötigt werden.
 
 | Variable | Bedeutung |
 | :--------------- | :--------- |
@@ -85,25 +85,25 @@ Dieses Skript legt alle Systemvariablen an, die für das Schalt-Skript benötigt
 | Variable | Bedeutung |
 | :--------------- | :--------- |
 | HK2-Grundtemperatur | Grundtemperatur für alle Räume außerhalb einer Heizphase |
-| HK2-A.Temp.Grenze | Außentemperatur ab der keine Heizen mehr erfolgt |
-| HK2-Aussentemperatur | Aktuelle Außentemperatur (wird durch Skript *HK-Außentemperatur-Open-Meteo.hsc*) gesetzt oder alternativ durch einen Außentemperatursensor. |
+| HK2-A.Temp.Grenze | Außentemperatur ab der kein Heizen mehr erfolgt |
+| HK2-Aussentemperatur | Aktuelle Außentemperatur (wird durch Skript _HK-Außentemperatur-Open-Meteo.hsc_) gesetzt oder alternativ durch einen Außentemperatursensor. |
 | HK2-Hand-Temp | Wenn `true` Vorrang einer manuell am Thermostat eingestellten Temperatur beim Ausschalten |
 | HK2-Hand-Grundtemp | Wenn `true` Vorrang einer manuell eingestellten Temperatur am Ende einer Heizphase |
 | HK2-VorzeitAus | Globale Grundoffsetzeit in Minuten, um die vor Terminende ausgeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-Kurvenversatz (Einschalt-Offset). Default: 0 |
 | HK2-Kurvenversatz | Globale Grundoffsetzeit in Minuten, um die vor Terminbeginn eingeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-VorzeitAus (Ausschalt-Offset). Default: 0 |
 | HK2-Kurve | Heizkurve: 8 Vorlaufzeiten in Minuten zu den Außentemperatur-Stützpunkten −10, −5, 0, 8, 10, 12, 15, 17,5 °C (semikolongetrennt). Zwischen den Stützpunkten interpoliert HK-Skript 2 linear; der höchste Wert (bei tiefster Außentemperatur) ist die längste Vorheizzeit. Installer-Default (flach): `162;130;100;59;50;41;30;20` (max. 162 min ≈ 2,7 h). Produktive Installationen nutzen oft steilere Kurven (z.B. `451;…;103`, max. 7,5 h). Details siehe [Heizsteuerung-Vorheizzeit.md](Heizsteuerung-Vorheizzeit.md). |
-| HK2-Log | Variable für das Schalt-Log (siehe Abschnitt *HK-Init-Variablen Logging.hsc*) |
-| HK2-Logging | Flag das Logging vom Typ `HK2-Log` steuert (siehe Abschnitt *HK-Init-Variablen Logging.hsc*) |
+| HK2-Log | Variable für das Schalt-Log (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
+| HK2-Logging | Flag das Logging vom Typ `HK2-Log` steuert (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
 
 ### HK-Init-Variablen Logging.hsc
 
 Dieses Skript legt alle Systemvariablen an, die für die Protokollierung über das Systemprotokoll benötigt werden.
 Die Protokollierung erfolgt über die nachfolgenden Kategorien:
 
-- Allgemeindes Log. Einträge tragen den Namen *HK-Log*.
-- Logging für die Skripte vom Typ 1. Hier werden die Zugriffe auf die Kalender protokolliert. Einträge tragen den Namen *HK1-Log*.
-- Logging für das Skript vom Typ 2. Hier werden die Schaltvorgänge der Heizung protokolliert und acuh alle Sonderfunktionen, wie das Rückstellen der Heizung auf Grundtemperatur oder das Abschalten der Heizung, wenn der betroffene Termin gelöscht wird.  Einträge tragen den Namen *HK2-Log*.
-- Logging für die Heizkurvenkontrolle. Um die Heizkurve kontrollieren zu können, werden spezielle Einträge im Systemprotokoll verzeichnet: Start des Heizens, Erreichen der Zieltemperatur, Start des Termins, Ende der Heizphase, Ende des Termines. Protokolliert werden Außentemperatur (beim Start), aktuelle Temperatur, bisher erreichte maximale Temperatur.  Einträge tragen den Namen *HK-LogHeizkurvenkontrolle*.
+- Allgemeines Log. Einträge tragen den Namen _HK-Log_.
+- Logging für die Skripte vom Typ 1. Hier werden die Zugriffe auf die Kalender protokolliert. Einträge tragen den Namen _HK1-Log_.
+- Logging für das Skript vom Typ 2. Hier werden die Schaltvorgänge der Heizung protokolliert und auch alle Sonderfunktionen, wie das Rückstellen der Heizung auf Grundtemperatur oder das Abschalten der Heizung, wenn der betroffene Termin gelöscht wird.  Einträge tragen den Namen _HK2-Log_.
+- Logging für die Heizkurvenkontrolle. Um die Heizkurve kontrollieren zu können, werden spezielle Einträge im Systemprotokoll verzeichnet: Start des Heizens, Erreichen der Zieltemperatur, Start des Termins, Ende der Heizphase, Ende des Termines. Protokolliert werden Außentemperatur (beim Start), aktuelle Temperatur, bisher erreichte maximale Temperatur.  Einträge tragen den Namen _HK-LogHeizkurvenkontrolle_.
 
 | Variable | Bedeutung |
 | :--------------- | :--------- |
@@ -115,11 +115,11 @@ Die Protokollierung erfolgt über die nachfolgenden Kategorien:
 | HK2-Log | Variable um ein einfaches Log im System Protokoll zu erzeugen |
 | HK-LoggingHeizkurvenkontrolle | Flag das Logging vom Typ `HK-LogHeizkurvenkontrolle` steuert |
 | HK-LogHeizkurvenkontrolle | Variable um ein einfaches Log im System Protokoll zu erzeugen |
-| HK-RäumeHeizkurvenkontrolle | Variable in der der Status für die Heizkurvenkontrolle mehrer Räume verzeichnet wird |
+| HK-RäumeHeizkurvenkontrolle | Variable in der der Status für die Heizkurvenkontrolle mehrerer Räume verzeichnet wird |
 
 ## Skripte zum Einlesen der Termindaten aus diversen Quellen
 
-Es wird für den Betrieb des Heizkalenders ein der nachfolgenden Datenquellen (ChurchTools, ChurchDesk, iCal, Google-Kalender) benötigt. Das entsprechende Skript sollte ca. alle 30min laufen um die Termine für die nächsten Heizzyklen zu bestimmen.
+Es wird für den Betrieb des Heizkalenders eine der nachfolgenden Datenquellen (ChurchTools, ChurchDesk, iCal, Google-Kalender) benötigt. Das entsprechende Skript sollte ca. alle 30 min laufen um die Termine für die nächsten Heizzyklen zu bestimmen.
 
 Alle diese Skripte bedienen die Variable `HK1-Schaltliste`. In dieser Variable werden aktuelle Termine eingetragen, die durch das Schaltskript 2 berücksichtigt werden sollen.
 
@@ -163,18 +163,18 @@ Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log
 
 ## Schaltskript
 
-Das Schaltskript ist das Herzstück der Heizkalender Software. Es muss zwingend alle min laufen. Das Skript schaltet die Heizthermostat ein und auch wieder aus.
+Das Schaltskript ist das Herzstück der Heizkalender Software. Es muss zwingend alle 5 Minuten laufen. Das Skript schaltet die Heizthermostate ein und auch wieder aus.
 
 ## HK-Skript 2.hsc
 
 Das Skript 2 ist das Hauptskript um die Thermostate zu schalten.
 
 Benötigte Variablen: `HK1-R-Liste`, `HK1-Schaltliste`, `HK2-A.Temp.Grenze`, `HK2-Aussentemperatur`, `HK2-Grundtemperatur`, `HK2-HKG-Liste`, `HK2-Hand-Grundtemp`, `HK2-Hand-Temp`, `HK2-Kurve`, `HK2-Kurvenversatz`, `HK2-Log`, `HK2-Logging`, `HK2-VorzeitAus`
-Sowie weitere Raum-Variablen `HKR-Raum-*`
+Sowie weitere Raum-Variablen `HKG-Raum-*`
 
 ## Sonstige Skripte
 
-Alle weiteren hier aufgeührten Skripte sind für den Betrieb des Heizkalenders dienlich.
+Alle weiteren hier aufgeführten Skripte sind für den Betrieb des Heizkalenders dienlich.
 
 ### HK-Außentemperatur-Open-Meteo.hsc
 
@@ -207,8 +207,8 @@ Um über einen längeren Zeitraum die Systemprotokolle und damit auch die Heizku
 Das Speichern des Protokolls erfolgt wochenweise. Üblicherweise werden maximal 10 Protokolle gespeichert bevor das älteste Protokoll gelöscht wird.
 Dieses Skript sollte jeweils alle 23-87min laufen.
 
-Beachten Sie, dass ein Neustart oder Stromausfall für den Verlust der Einträge im Systemprotokoll führen kann, die in diesem Zeiutrazum noch nicht wieder gespeichert wurden.
+Beachten Sie, dass ein Neustart oder Stromausfall zum Verlust der Einträge im Systemprotokoll führen kann, die in diesem Zeitraum noch nicht wieder gespeichert wurden.
 
 ### HK-Test-Skript.hsc
 
-Dies ist ein einfaches Testskript, dass die aktuellen Einstellungen des Heizkalenders teilweise prüft und alle Daten ausgibt. Dieses Protokoll kann für den Support oder das eigene Archiv genutzt werden.
+Dies ist ein einfaches Testskript, das die aktuellen Einstellungen des Heizkalenders teilweise prüft und alle Daten ausgibt. Dieses Protokoll kann für den Support oder das eigene Archiv genutzt werden.
