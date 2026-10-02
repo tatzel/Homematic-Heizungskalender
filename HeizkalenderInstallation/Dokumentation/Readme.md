@@ -1,20 +1,20 @@
 # Heizkalender-Installation
 
-Der Heizkalender-Installer ist ein Tool zur Erstellung von Heizkalendern für die HomeMatic, basierend auf Daten aus ChurchTool, ChurchDesk, iCal oder Google Kalender.
+Der Heizkalender-Installer ist ein Tool zur Erstellung von Heizkalendern für die HomeMatic, basierend auf Daten aus ChurchTools, ChurchDesk, iCal oder Google Kalender.
 Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwendigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
 
 ## Systemvoraussetzungen
 
 - Betriebssystem: Windows
 - Die CCU muss in den Sicherheitseinstellungen den Zugriff auf die Remote Homematic-Script API erlauben. Hier muss entweder ein eingeschränkter Zugriff auf die benötigten Funktionen oder ein vollständiger Zugriff gewährt werden, damit der Installer die notwendigen Skripte und Variablen erstellen kann.
-- Ein Administrator Benutzer und das entsprechende Kennwort müssen bekannt sein.
-- Alle Skripte die installiert werden sollen müssen im Programmverzeichnis des Heizkalender-Installers liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können aber weitere Tool-Skripte hinzugefügt werden, die dann ebenfalls aktualisiert werden.
+- Ein Administrator-Benutzer und das entsprechende Kennwort müssen bekannt sein.
+- Alle Skripte, die installiert werden sollen, müssen im Programmverzeichnis des Heizkalender-Installers liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können aber weitere Tool-Skripte hinzugefügt werden, die dann ebenfalls aktualisiert werden.
 - Um auf Ressourcen und externe Kalender zugreifen zu können, muss der Rechner mit dem Internet verbunden sein.
-- Eine lauffähige Kopie des Installers liegt im Skripte Verzeichnis.
+- Eine lauffähige Kopie des Installers liegt im Skripte-Verzeichnis.
 
 ### Vorbereiten der CCU
 
-Damit die Heizkalender-Installation ausgeführt werden kann, muss der Zugriff auf die Homematic-Script-API freigeschaltet werden. Entweder wird hier unter der *HomeMatic-WebUI Einstellungen -> Firewall konfigurieren -> Remote Homematic-Script API -> Vollzugriff* eingestellt
+Damit die Heizkalender-Installation ausgeführt werden kann, muss der Zugriff auf die Homematic-Script-API freigeschaltet werden. Entweder wird hier unter der *HomeMatic-WebUI Einstellungen -> Firewall konfigurieren -> Remote Homematic-Script API -> Vollzugriff* eingestellt.
 
 ![CCU-Vollzugriff](Bilder/CCU-Zugriff-1.png)
 
@@ -37,9 +37,9 @@ Im ersten Schritt muss eine Verbindung mit der CCU aufgebaut werden, bevor weite
 3. Geben Sie das passende Kennwort an.
 4. Prefix für Variablen und Skripte
     > [!NOTE]
-    > Das Feld Prefix bleibt im allgemeinen leer. Es dient dazu mehrere Installationen parallel zu testen, oder eine Installation von bestehenden Systemvariablen abzugrenzen.
+    > Das Feld Prefix bleibt im Allgemeinen leer. Es dient dazu, mehrere Installationen parallel zu testen, oder eine Installation von bestehenden Systemvariablen abzugrenzen.
     > Wird ein Prefix angegeben, erhalten alle Variablen und Programme diesen Prefix im Namen vorangestellt.
-    > Wird eine bestehende CCU ausgelesen, wird auch erwartet, dass alle genutzten Variablen und Programme, diesen Prefix enthalten.
+    > Wird eine bestehende CCU ausgelesen, wird auch erwartet, dass alle genutzten Variablen und Programme diesen Prefix enthalten.
     > **Nutzen Sie dieses Feld nur, wenn Sie sich über die Folgen im Klaren sind!**
 5. Klicken Sie nun auf den Button `Verbinden mit der CCU`
 
@@ -49,7 +49,7 @@ Ist keine Verbindung zur CCU möglich, weil die Verbindungsinformationen nicht s
 
 > [!NOTE]
 > Konnte eine Verbindung hergestellt werden, dann werden die aktuellen Verbindungsinformationen in der Registry des aktuellen Benutzers gespeichert.
-> Wird die HeizkalenderInstallation neu gestartet sind die Felder *IP-Adresse, Benutzername, Kennwort, Prefix* bereits ausgefüllt.
+> Wird die HeizkalenderInstallation neu gestartet, sind die Felder *IP-Adresse, Benutzername, Kennwort, Prefix* bereits ausgefüllt.
 
 ## Einrichten einer neuen Heizkalender Installation
 
@@ -106,7 +106,7 @@ Bei einer bestehenden eingerichteten CCU erhalten Sie eine Anzeige über den Ver
 
 ## Allgemeine Einstellungen des Heizkalenders
 
-Bei der Heizkurve werden die Vorlaufzeiten in Minuten zur Außentemperaturen eingegeben.
+Bei der Heizkurve werden die Vorlaufzeiten in Minuten zu den Außentemperaturen eingegeben.
 
 ![Allgemeine Einstellungen](Bilder/HKI-Einstellungen.png)
 
