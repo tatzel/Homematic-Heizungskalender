@@ -103,9 +103,16 @@ Diese Werte sollten bei der Installation an das eigene Gebäude angepasst werden
 Eine ausführliche Erklärung der Berechnung mit Beispielrechnungen findet sich in
 [Heizsteuerung-Vorheizzeit.md](../Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md).
 
-> [!NOTE]
-> Ob dieser Default-Wert noch aktuell ist, ist ein offener Punkt (siehe
-> [TODO.md](../TODO.md)).
+Als Orientierungshilfe sind drei Beispielkurven bekannt:
+
+| Kurventyp | −10 °C | −5 °C | 0 °C | 8 °C | 10 °C | 12 °C | 15 °C | 17,5 °C | Einsatz |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| Konservativ (Default) | 162 | 130 | 100 | 59 | 50 | 41 | 30 | 20 | Gut gedämmte Gebäude |
+| Mittel | 220 | 180 | 144 | 95 | 85 | 75 | 61 | 50 | Typische Gemeindegebäude |
+| Großzügig | 451 | 370 | 297 | 196 | 174 | 154 | 125 | 103 | Träge Heizsysteme / Fußbodenheizung |
+
+Der `*Faktor` in der Raumvariablen skaliert die Kurvenzeit für einzelne Räume
+zusätzlich (z.B. `*3.5` für eine Fußbodenheizung mit festem Offset von 240 min).
 
 ## Sonderbefehle in Terminen
 

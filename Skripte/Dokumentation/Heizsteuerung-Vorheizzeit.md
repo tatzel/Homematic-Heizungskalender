@@ -52,7 +52,7 @@ Für Außentemperaturen über 17,5 °C extrapoliert das Skript über den letzten
 | 7 | 15 °C | 125 min | 2 h 05 min |
 | 8 | 17,5 °C | 103 min | 1 h 43 min |
 
-_Diese Werte entsprechen der Beispielkonfiguration. Sie werden bei der Installation individuell gesetzt._
+_Diese Werte entsprechen der großzügigen Beispielkonfiguration (`451;370;297;196;174;154;125;103`). Bei der Installation werden sie individuell gesetzt._
 
 ## Die Berechnungsformel
 

@@ -32,7 +32,6 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 
 - [Entwickler-Dokumentation](/Dokumentation/Entwickler.md): Skript-Syntax, Installer-Build, Versionierung, Beitrag-Workflow.
 - [CHANGELOG](/CHANGELOG.md): zentrale Änderungshistorie (Datums-Stände).
-- [Offene Punkte (TODO)](/TODO.md): noch zu klärende Fragen und offene Aufgaben.
 
 ### Archiv (historische Dokumente)
 
