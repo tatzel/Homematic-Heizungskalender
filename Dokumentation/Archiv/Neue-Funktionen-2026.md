@@ -1,3 +1,12 @@
+# Neue Funktionen (historisches Dokument, Stand 2026)
+
+> **Hinweis:** Dies ist ein historisches Release-Begleitdokument (ursprünglich als
+> persönliche E-Mail von Martin Richter verfasst). Die aktuellen Inhalte finden
+> sich strukturiert im [Anwenderhandbuch](../Anwenderhandbuch.md), der
+> [Skript-Referenz](../../Skripte/Dokumentation/Readme.md) und im
+> [CHANGELOG](../../CHANGELOG.md). Es wird nur noch zu Referenzzwecken aufbewahrt;
+> enthaltene Token/Zugangsdaten wurden durch Platzhalter ersetzt.
+
 ## Zusendung der Skripte
 
 Ich werde (wie schon angekündigt) alles demnächst im Paket in einer
@@ -306,7 +315,7 @@ befüllt:**
 |                      |                   |            |   ------------------                                                                                                    |
 +----------------------+-------------------+------------+-------------------------------------------------------------------------------------------------------------------------+
 | HK1-CT-Token         | Sicherheitstoken  | 08.12.2025 |   -----------------------------                                                                                         |
-|                      | für ChurchTools   | 11:38:43   |   **vIRMKgJyf......eWoUuPDa**                                                                                           |
+|                      | für ChurchTools   | 11:38:43   |   **&lt;CT-Token&gt;**                                                                                                  |
 |                      |                   |            |   -----------------------------                                                                                         |
 |                      |                   |            |                                                                                                                         |
 |                      |                   |            |   -----------------------------                                                                                         |
@@ -451,13 +460,13 @@ befüllt:**
 |                        |                         | Änderung   |                                                                                                               |
 +========================+=========================+============+===============================================================================================================+
 | HK1-CD-OrganisationsId | Liste der               | 06.12.2025 |   ----------                                                                                                  |
-|                        | HK-Raum-Variablen       | 21:23:00   |   **7102**                                                                                                    |
+|                        | HK-Raum-Variablen       | 21:23:00   |   **&lt;OrganisationsId&gt;**                                                                                 |
 |                        |                         |            |   ----------                                                                                                  |
 |                        |                         |            |                                                                                                               |
 |                        |                         |            |   ----------                                                                                                  |
 +------------------------+-------------------------+------------+---------------------------------------------------------------------------------------------------------------+
 | HK1-CD-Token           |                         | 06.12.2025 |   ----------------------------                                                                                |
-|                        |                         | 21:23:00   |   **C394ee687...59f72ea308**                                                                                  |
+|                        |                         | 21:23:00   |   **&lt;CD-Token&gt;**                                                                                        |
 |                        |                         |            |   ----------------------------                                                                                |
 |                        |                         |            |                                                                                                               |
 |                        |                         |            |   ----------------------------                                                                                |

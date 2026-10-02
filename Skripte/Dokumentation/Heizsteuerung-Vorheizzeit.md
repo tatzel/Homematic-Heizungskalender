@@ -87,6 +87,20 @@ Minimum: 0,20 (20 %) — es wird immer mindestens 20 % der Kurvenzeit vorgeheizt
 | 20 °C (= Wohlfühltemperatur) | 0,40 (40 %) | 78 min (1 h 18 min) |
 | ≥ 20 °C (wärmer als Ziel) | 0,40 (40 %, gedeckelt) | 78 min (1 h 18 min) |
 
+## Die zwei Anteile der Einschaltverschiebung
+
+Der tatsächliche Einschaltzeitpunkt verschiebt sich durch **zwei** getrennt
+berechnete Offsets, die beide vom Terminbeginn abgezogen werden:
+
+| Anteil | Herkunft | Verhalten |
+| :--- | :--- | :--- |
+| **Fester/raum-individueller Offset** | Feld „Vorheizzeit" der Raumvariablen (optional mit `*Faktor`) plus globaler `HK2-Kurvenversatz` | Fester Minutenwert, unabhängig von der Außentemperatur |
+| **Temperaturabhängiger Offset** | Kurvenwert aus `HK2-Kurve` (siehe oben), skaliert mit dem Raumtemperatur-Korrekturfaktor | Hängt von Außen- und Raumtemperatur ab |
+
+Beide Anteile werden addiert. Der globale `HK2-Kurvenversatz` wirkt dabei als
+Gegenstück zu `HK2-VorzeitAus` (Ausschalt-Offset) und wird **nur bei echten
+Heizvorgängen** berücksichtigt, nicht bei reinem Schalten (Modus `S`).
+
 ## Sonderfälle
 
 ### Außentemperatur-Grenze (harter Schalter)
@@ -205,6 +219,17 @@ Zeitachse:
 ```
 
 Der Raum ist bereits überwarm (21,1 °C). Die Formel begrenzt auf 20 °C → Minimalfaktor 40 %.
+
+```mermaid
+flowchart TD
+    Start["Termin Saal 19:00-22:00<br/>Pruefung um 19:00 Uhr"] --> AT{"Aussentemp. 18,6 C<br/>groesser/gleich Grenze 19 C?"}
+    AT -->|"Nein (18,6 kleiner 19)"| Faktor["Raumtemp. 21,1 C<br/>auf 20 C gedeckelt<br/>Korrekturfaktor = 0,40"]
+    AT -->|"Ja"| Aus1["Heizung bleibt aus"]
+    Faktor --> VZ["Vorheizzeit = 0,40 x 93 min = ca. 37 min<br/>Einschaltzeitpunkt ca. 18:23 Uhr"]
+    VZ --> Ein["Heizung EIN ca. 18:23 Uhr"]
+    Ein --> AusZeit["Heizung AUS 21:30 Uhr<br/>(Terminende 22:00 minus 30 min)"]
+```
+
 Da es um 19:00 Uhr mit 18,6 °C knapp unter der Außentemperatur-Grenze liegt, wird geheizt.
 Das vorzeitige Schaltende (−30 min) schaltet die Heizung um 21:30 ab — die Wärmeträgheit hält den Komfort bis 22:00 aufrecht.
 
@@ -231,6 +256,14 @@ Obwohl rechnerisch ~78 Minuten Vorheizzeit benötigt würden (0,40 × 196 min),
 verhindert die Außentemperatur-Grenze das Heizen vollständig.
 Das Systemprotokoll vermerkt:
 _„Heizen abgebrochen Aussentemperatur 21,0 °C größer Grenzwert 19,0 °C“_
+
+```mermaid
+flowchart TD
+    Start["Termin Bistro 15:00-18:00<br/>Rechnerischer Vorheiz-Start ca. 13:42 Uhr"] --> AT{"Aussentemp. um 13:42 Uhr<br/>groesser/gleich Grenze 19 C?"}
+    AT -->|"Ja (bereits >= 19 C)"| Aus["Heizung bleibt aus<br/>Vorheizzeit = 0 min"]
+    AT -->|"Nein"| Rechnung["(wuerde rechnen:<br/>0,40 x 196 min = ca. 78 min)"]
+    Aus --> Log["Protokoll: Heizen abgebrochen<br/>Aussentemp. 21,0 C groesser Grenzwert 19,0 C"]
+```
 
 ### Use Case 3 — Kellerbüro (ohne Thermostat, Termin 08:00–18:00)
 
@@ -261,6 +294,16 @@ Der Fallback auf die Grundtemperatur (10 °C) ergibt Korrekturfaktor 1,00 → vo
 Die niedrig konfigurierte Grundtemperatur führt hier zu einem sehr frühen Einschaltzeitpunkt.
 Das vorzeitige Schaltende (−30 min) wäre 17:30 Uhr — irrelevant, da der Außentemp.-Grenzwert bereits ab ~14:00 stoppt.
 ⚠ Hinweis: Auch bei real 18–19 °C Raumtemperatur rechnet das Skript ohne Thermostat stets mit der Grundtemperatur (10 °C).
+
+```mermaid
+flowchart TD
+    Start["Termin Kellerbuero 08:00-18:00<br/>kein Thermostat konfiguriert"] --> FB["Fallback: Raumtemp. = Grundtemp. 10 C<br/>Korrekturfaktor = 1,00"]
+    FB --> VZ["Vorheizzeit = 1,00 x 196 min = 196 min<br/>Einschaltzeitpunkt ca. 04:44 Uhr"]
+    VZ --> Ein["Heizung EIN ca. 04:44 Uhr (morgens 8 C)"]
+    Ein --> Lauf{"Aussentemp. im Verlauf<br/>groesser/gleich Grenze 19 C?"}
+    Lauf -->|"ab ca. 14:00 Uhr: Ja"| AusAT["Heizung AUS ca. 14:00 Uhr<br/>(obwohl Termin noch laeuft)"]
+    Lauf -->|"vormittags: Nein"| Weiter["Heizung bleibt an"]
+```
 
 ## Gegenüberstellung der Use Cases
 
