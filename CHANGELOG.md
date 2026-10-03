@@ -54,6 +54,11 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
   Heizversuch" (aus Olafs Handbuch v0.4 übernommen).
 - `Dokumentation/Anwenderhandbuch.md`: Neuer Abschnitt „Globale Einstellungen
   (Systemvariablen für Skript 2)" mit Empfehlwerten (aus Olafs Handbuch v0.4).
+- `Dokumentation/Planung.md` (neu): Planung der Struktur und Nomenklatur
+  (Aktorengruppen/Heizgruppen mit Beispieltabelle), aus Olafs Handbuch v0.4.
+- `Dokumentation/Kalender-einrichten.md` (neu): Ermittlung der Kalender-Zugangsdaten
+  (ChurchTools, ChurchDesk; Google/iCal als Platzhalter), aus Olafs Handbuch v0.4.
+  Beide neuen Dokumente in `Readme.md` und `Anwenderhandbuch.md` referenziert.
 
 ## [2026-10-03]
 
