@@ -15,6 +15,11 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ### Hinzugefügt
 
+- `Dokumentation/Anwenderhandbuch.md`: Neuer Unterabschnitt „Räume mit mehreren
+  Heizkörperthermostaten (Homematic-Heizgruppe)" unter den unterstützten Geräten:
+  Einrichtung einer CCU-Heizgruppe (`HmIP-HEATING`), manueller Modus via
+  `Tool-Heizgruppen Modus zurücksetzen`, Konfiguration im Heizkalender (Heiztyp IP,
+  Kanal 1 der Gruppenadresse), Empfehlung zum separaten Schaltaktor-CCU-Programm.
 - `Dokumentation/Anwenderhandbuch.md`: Neuer Abschnitt „Wie der Heizkalender
   funktioniert" mit detailliertem Mermaid-Architekturdiagramm (alle Systemvariablen
   als Boxen) und Einsparpotential-Erklärung.
