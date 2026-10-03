@@ -258,6 +258,49 @@ Als Orientierungshilfe sind drei Beispielkurven bekannt:
 Der `*Faktor` in der Raumvariablen skaliert die Kurvenzeit für einzelne Räume
 zusätzlich (z.B. `*3.5` für eine Fußbodenheizung mit festem Offset von 240 min).
 
+### Die richtige Grundtemperatur: Heizversuch
+
+Die Grundtemperatur sollte so gewählt werden, dass die Wände nicht zu stark
+auskühlen (sonst wird das Wiederaufheizen lang und teuer), aber auch nicht unnötig
+hoch. Der passende Wert lässt sich näherungsweise durch einen Heizversuch ermitteln:
+
+1. Dazu sollte es draußen kalt sein, idealerweise nahe der mittleren
+   Außentemperatur der Heizperiode. Man braucht eine Möglichkeit, die Raumtemperatur
+   in Schritten von höchstens 15 Minuten aufzuzeichnen (z.B. über ein Wandthermostat)
+   und grafisch darzustellen.
+2. Die Thermostate auf Frostschutz stellen und den Raum über mehrere Tage auskühlen
+   lassen (z.B. von Sonntag nach dem Gottesdienst bis zum folgenden Samstag), dabei
+   den Temperaturverlauf aufzeichnen.
+3. Rechtzeitig vor der nächsten Nutzung auf die Wohlfühltemperatur hochheizen (nicht
+   höher „um schneller aufzuheizen"). In der Aufheizkurve zeigt sich nach einem
+   steilen Anstieg (Raumluft) ein Knick zu einer flacheren Kurve: Dort beginnt das
+   Aufheizen der Wände. Der Knick liegt typischerweise rund 2 °C unter der
+   Wohlfühltemperatur.
+4. Für die Grundtemperatur wählt man einen Wert rund 2 °C über der beobachteten
+   Auskühltemperatur und prüft Auskühl- und Aufheizverhalten erneut.
+
+Richtig eingestellt wird die Energie fast vollständig in die Erwärmung der Raumluft
+investiert, da die Wände über die Woche mit geringem Aufwand auf ihrer
+Speichertemperatur gehalten werden.
+
+## Globale Einstellungen (Systemvariablen für Skript 2)
+
+Diese Systemvariablen gelten global für alle Räume und werden bei der Installation
+angelegt. Die folgenden Empfehlwerte haben sich in der Praxis bewährt:
+
+| Variable | Bedeutung | Empfehlung |
+| :--- | :--- | :--- |
+| `HK2-Grundtemperatur` | Temperatur außerhalb der Nutzungszeit | 16 °C (nicht zu niedrig, sonst kühlen die Wände aus; einzelne Räume können abweichen) |
+| `HK2-A.Temp.Grenze` | Außentemperatur, ab der nicht mehr geheizt wird | 19-20 °C. Zum Testen einen utopisch hohen Wert (z.B. 50 °C) setzen und danach nicht vergessen zurückzustellen |
+| `HK2-Hand-Grundtemp` | Nächtliche Rückstellung auf Grundtemperatur um 01:00 Uhr | Default Wahr (1): Thermostate, die nicht auf Grundtemperatur stehen, werden zurückgestellt (außer in einer aktiven Heizphase) |
+| `HK2-Hand-Temp` | Manuelle Temperatur hat beim Terminende Vorrang | Default Falsch (0): nach Terminende wird immer die Grundtemperatur übernommen |
+| `HK2-VorzeitAus` | Globale Minuten, um die vor Terminende abgeschaltet wird | Besser je Raum einstellen; nicht gleichzeitig mit der raumbezogenen VorzeitAus nutzen (beide Werte addieren sich) |
+
+Die Variable `HK2-Kurvenversatz` ist das globale Einschalt-Offset (Minuten vor
+Terminbeginn) und das Gegenstück zu `HK2-VorzeitAus`; beide wirken nur bei
+Heizvorgängen, nicht bei reinem Schalten (Default jeweils 0). `HK2-Location` wird
+nicht mehr verwendet.
+
 ## Unterstützte Homematic-Geräte
 
 Die Kennung in der Raumvariablen (Feld `Heiztyp`) bestimmt, welcher Datenpunkt des
@@ -269,8 +312,8 @@ den dabei üblichen Kanal:
 | :--- | :--- | :--- | :--- |
 | `IP` | 1 | IP-Thermostate (z.B. BWTH_V1/V2, TRV-/V1–V4, WTH-/2\_V1) | `SET_POINT_TEMPERATURE` |
 | `RT` | 4 | Klassik HM-CC-RT-DN | `SET_TEMPERATURE` |
-| `TC` | 4 | Klassik HM-CC-TC | `SETPOINT` |
-| `IT` | 4 | Klassik HM-TC-IT-WM-W-EU | `SET_TEMPERATURE` |
+| `TC` | 2 | Klassik HM-CC-TC | `SETPOINT` |
+| `IT` | 2 | Klassik HM-TC-IT-WM-W-EU | `SET_TEMPERATURE` |
 | `SW` | 1 (oder 1+2) | Schalt-Aktoren (z.B. HM-LC-Sw1-FM, HM-LC-Sw2-FM) | `STATE` |
 
 Innerhalb einer zu schaltenden Gruppe müssen alle Aktoren der gleichen Serie (Klassik

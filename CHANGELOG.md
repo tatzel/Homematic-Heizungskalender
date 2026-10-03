@@ -47,9 +47,13 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
   nur ChurchTools).
 - `Dokumentation/Anwenderhandbuch.md`: Gültige Grenzen des Raumvariablen-`*Faktor`
   von „0.25 bis 3" auf die tatsächlichen Code-Werte „0.20 bis 5.0" korrigiert.
-- `Dokumentation/Anwenderhandbuch.md`: Gerätetabelle-Kanalspalte auf Kanal 4 für
-  RT/TC/IT vereinheitlicht (gemäß `HK-Skript 2.hsc`) mit Hinweis, dass der Admin
-  die Aktor-Zuordnung inklusive Kanal selbst festlegt.
+- `Dokumentation/Anwenderhandbuch.md`: Gerätetabelle mit Hinweis ergänzt, dass der
+  Admin die Aktor-Zuordnung inklusive Kanal selbst festlegt (Kanäle RT=4, TC=2, IT=2
+  gemäß Olafs Handbuch und den PDF-Vorlagen).
+- `Dokumentation/Anwenderhandbuch.md`: Neuer Abschnitt „Die richtige Grundtemperatur:
+  Heizversuch" (aus Olafs Handbuch v0.4 übernommen).
+- `Dokumentation/Anwenderhandbuch.md`: Neuer Abschnitt „Globale Einstellungen
+  (Systemvariablen für Skript 2)" mit Empfehlwerten (aus Olafs Handbuch v0.4).
 
 ## [2026-10-03]
 
