@@ -12,7 +12,9 @@ benennen, das Heizverhalten über die Vorheizzeit einstellen und einzelne Termin
 Sonderbefehlen steuern.
 
 Für die Erstinstallation siehe die
-[Installer-Anleitung](../HeizkalenderInstallation/Dokumentation/Readme.md).
+[Installer-Anleitung](../HeizkalenderInstallation/Dokumentation/Readme.md). Davor
+helfen die [Planung](Planung.md) (Struktur und Nomenklatur) und das Beschaffen der
+[Kalender-Zugangsdaten](Kalender-einrichten.md).
 Die vollständige Liste aller Systemvariablen steht in der
 [Skript-Referenz](../Skripte/Dokumentation/Readme.md).
 Einen allgemeinen Überblick über das Projekt und weitere Varianten bietet die
