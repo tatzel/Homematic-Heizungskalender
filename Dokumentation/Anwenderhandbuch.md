@@ -326,6 +326,52 @@ Skalenwert 2 (Symbol Schneeflocke) üblicherweise 16 °C.
 Eine aktuelle vollständige Geräteübersicht mit Kanalnummern findet sich in der
 [Homematic-IP-Gerätedokumentation](https://homematic-ip.com/sites/default/files/downloads/hmip_device_documentation.pdf).
 
+### Räume mit mehreren Heizkörperthermostaten (Homematic-Heizgruppe)
+
+Befinden sich in einem Raum mehrere Heizkörperthermostate (z.B. zwei HmIP-eTRV-2),
+können diese über eine **Homematic-Heizgruppe** (Gerätetyp `HmIP-HEATING` in der CCU)
+zusammengefasst werden. Der Heizkalender steuert dann nur die Heizgruppe: ein
+Schreibzugriff auf den Datenpunkt `SET_POINT_TEMPERATURE` der Gruppe wird von der CCU
+automatisch an alle Thermostate in der Gruppe weitergeleitet.
+
+**Voraussetzung:** Alle Thermostate der Gruppe müssen vom Typ Homematic IP sein. Ist
+ein älterer Klassik-Sensor im Spiel, ist die Kopplung aufwändiger (direkte Verbindungen
+müssen manuell eingerichtet werden, die CCU übernimmt das nicht automatisch).
+
+**Einrichtung in der CCU:**
+
+1. In der CCU-WebUI unter „Geräte" eine neue Heizgruppe vom Typ `HmIP-HEATING` anlegen
+   und die betreffenden Thermostate hinzufügen.
+2. Einen Temperatursensor als Referenzsensor der Gruppe zuweisen (empfohlen: ein
+   wandmontierter Sensor, nicht der Sensor am Thermostatventil selbst).
+3. **Alle Thermostate auf manuellen Modus setzen:** Im Skript-Testen der CCU das Tool
+   `Tool-Heizgruppen Modus zurücksetzen.hsc` ausführen (setzt `CONTROL_MODE=1` auf allen
+   Heizgruppen). Im manuellen Modus überschreibt der Heizkalender die Solltemperatur
+   zuverlässig; im Auto-Modus könnte das Wochenprogramm des Thermostats Vorrang
+   bekommen.
+
+**Konfiguration im Heizkalender:**
+
+In der Raumvariablen wird die Heizgruppe als Aktor eingetragen, mit Heiztyp `IP` und
+Kanal 1:
+
+```text
+0;H;IP;21/16;60;0;EG-Kinder-Raum INT0000001:1
+                              ↑
+              Adresse der Homematic-Heizgruppe, Kanal 1
+```
+
+Die Adresse der Heizgruppe (`INT0000001` o.ä.) lässt sich in der CCU-WebUI unter den
+Geräteeigenschaften der Heizgruppe ablesen. Der Installer übernimmt die Adresse, wenn
+der Raum dort entsprechend konfiguriert wird.
+
+**Schaltaktor (Therme):** Soll gleichzeitig ein Schaltaktor (z.B. für das Ventil an
+der Therme) gesteuert werden, empfiehlt sich ein separates CCU-Programm nach folgendem
+Muster: „Wenn Solltemperatur der Heizgruppe ungleich Grundtemperatur, Schaltaktor ein,
+sonst aus." Diesen Aktor **nicht** über den Heizkalender (Modus Heizen+Schalten)
+steuern: der Heizkalender kennt dann keine Thermostate mehr und die Vorheizlogik
+entfällt.
+
 ## Format der Übergabevariablen HK1-Schaltliste
 
 Diese Variable ist die interne Schnittstelle zwischen Skript 1 und Skript 2 und wird
