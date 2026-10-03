@@ -120,6 +120,38 @@ zusätzlich (z.B. `*3.5` für eine Fußbodenheizung mit festem Offset von 240 mi
 Termins steuern. Die Befehle werden in `#...#` eingeschlossen. Groß- und
 Kleinschreibung spielt keine Rolle.
 
+## Nachtschaltung
+
+Ist die Systemvariable `HK2-Hand-Grundtemp` auf `true` gesetzt, führt HK-Skript 2
+täglich zwischen 00:57 und 01:03 Uhr eine Nachtschaltung durch. Dabei werden alle
+Räume aus `HK2-HKG-Liste` geprüft und bei Bedarf zurückgesetzt:
+
+- Räume mit einem aktiven Termin (Schaltzustand „Ein") werden übersprungen.
+- Alle übrigen Räume werden auf Grundtemperatur gesetzt: bei Heizräumen
+  (HSFlag=H) wird die Solltemperatur am Thermostat gesetzt, bei Schaltaktoren
+  (HSFlag=S/HS) wird der Aktor ausgeschaltet.
+
+Die Prüfung und das Schalten erfolgen direkt am Aktor auf der CCU, nicht nur in
+der Systemvariablen. Die Nachtschaltung ist eine Absicherung: Wenn ein Termin
+nicht sauber ausgeschaltet wurde (z.B. durch einen CCU-Neustart während eines
+Termins), stellt sie sicher, dass keine Aktoren dauerhaft eingeschaltet bleiben.
+
+| Systemvariable | Bedeutung |
+| :--- | :--- |
+| `HK2-Hand-Grundtemp` | `true`: Nachtschaltung aktiv; `false`: deaktiviert |
+
+## Schaltlistenprüfung
+
+Unabhängig von der Nachtschaltung prüft HK-Skript 2 bei jedem Lauf (alle 5 Minuten)
+alle Räume aus `HK2-HKG-Liste`. Für jeden Raum mit Schaltzustand „Ein" wird geprüft,
+ob in diesem Lauf ein gültiger Schaltlisteneintrag vorhanden war. Fehlt ein solcher
+Eintrag, wurde der Termin offenbar gelöscht oder der Ausschaltpunkt wurde verpasst.
+Der Raum wird dann sofort zurückgesetzt: die Systemvariable auf Schaltzustand „Aus"
+und der Aktor direkt ausgeschaltet.
+
+Die Schaltlistenprüfung ist das Gegenstück zur Nachtschaltung: sie greift sofort im
+laufenden Betrieb, während die Nachtschaltung als nächtliche Generalabsicherung dient.
+
 | Befehl | Wirkung |
 | :--- | :--- |
 | `#EIN#` | Dauerhaft an |

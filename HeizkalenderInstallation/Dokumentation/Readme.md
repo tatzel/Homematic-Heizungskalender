@@ -108,6 +108,12 @@ Bei einer bestehenden eingerichteten CCU erhalten Sie eine Anzeige über den Ver
 
 Bei der Heizkurve werden die Vorlaufzeiten in Minuten zu den Außentemperaturen eingegeben.
 
+Über die Option **Rückstellverhalten** wird die Nachtschaltungslogik aktiviert
+(Systemvariable `HK2-Hand-Grundtemp`). Ist diese Option aktiv, setzt HK-Skript 2
+täglich zwischen 00:57 und 01:03 Uhr alle Räume ohne aktiven Termin auf
+Grundtemperatur zurück. Details zur Nachtschaltung finden sich im
+[Anwenderhandbuch](../../Dokumentation/Anwenderhandbuch.md).
+
 ![Allgemeine Einstellungen](Bilder/HKI-Einstellungen.png)
 
 ## Ressourcen Kalenderzuordnung
