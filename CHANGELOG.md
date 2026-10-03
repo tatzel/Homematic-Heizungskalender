@@ -13,6 +13,46 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-03]
+
+### Geändert
+
+- `HK-Skript 2`: Nachtschaltungs-Log um „bereits korrekt"-Meldung pro Aktor ergänzt
+  (Schalttyp: Zustand bereits korrekt). Da die Nachtschaltung nur einmal pro Nacht
+  läuft, ist der Zustand der Aktoren jetzt vollständig im Log nachvollziehbar.
+- `HK-Skript 2`: Nachtschaltungs-Log vollständig überarbeitet: Raumnamen-Präfix ergänzt
+  (konsistent zur Hauptschleife); eine Log-Meldung pro Gruppe statt pro Einzelraum;
+  bei Multi-Raum-Gruppen `(inkl. Raum2, Raum3)`
+
+### Dokumentation
+
+- `Skripte/Dokumentation/Readme.md`, `Dokumentation/Anwenderhandbuch.md`: Nachtschaltung
+  und Schaltlistenprüfung dokumentiert (Aktivierung, Zeitfenster, Verhalten für
+  Heizräume und Schaltaktoren, Zweck als Absicherung gegen dauerhaft eingeschaltete Aktoren).
+
+## [2026-10-02]
+
+### Geändert
+
+- `HK-Skript 2`: Log-Text bei fehlendem Temperatursensor verständlicher formuliert.
+  Statt der internen HomeMatic-Syntax `GT.Max(AT)` steht jetzt
+  `Raumtemp.-Schaetzwert=X°C (Max aus Grundtemp./Aussentemp.)`.
+- `Dokumentation/Anwenderhandbuch.md`: Heizkurven-Abschnitt um eine
+  Vergleichstabelle mit drei Beispielkurven (konservativ / mittel / großzügig)
+  und einem Hinweis zum Raumvariablen-`*Faktor` erweitert.
+- `Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md`: Fußnote benennt die
+  Beispieltabelle jetzt explizit als großzügige Kurve
+  (`451;370;297;196;174;154;125;103`).
+- `Skripte/Dokumentation/Readme.md`: Beschreibung von `HK2-Kurve` nennt jetzt
+  alle drei Kurventypen statt nur Default und ein Produktivbeispiel.
+
+### Entfernt
+
+- `HeizkalenderInstallation/res/SYSVAR-Init.txt`: veraltete, unreferenzierte
+  erste Vorlage der Systemvariablen-Initialisierung entfernt.
+- `TODO.md`: Offene-Punkte-Datei entfernt. Der HK2-Kurve-Punkt ist durch die
+  Doku-Erweiterung adressiert; der Installer-Doku-Punkt bleibt vorerst offen.
+
 ## [2026-10-01]
 
 ### Hinzugefügt

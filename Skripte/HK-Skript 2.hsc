@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    02.10.2026
+!// Stand:    03.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,7 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-10-03 Nachtschaltung: Log-Meldungen ueberarbeitet (Raumname-Praefix, Multi-Raum-Zusatz)
 !// TT:  2026-10-02 Log-Text bei fehlendem Sensor/Aktor verstaendlicher formuliert (kein HomeMatic-Code mehr)
 !// TT:  2026-10-01 Log-Text bei fehlendem Sensor/Aktor korrigiert: zeigt jetzt GT.Max(AT)-Wert
 !// MRi: 2026-10-01 Wenn kein Temperatursensor vorhanden ist wird GT.Max(AT) für die Berechnung der
@@ -158,7 +159,7 @@ if (!logObj){
 !// Aus HKG-Raum-GrSaal, wird GrSaal. Aus HKG-Foyer wird Foyer
 string RIDINamen=VarNamen.Replace("HKG-Raum-","").Replace("HKG-","");
 
-if(log){logObj.State("Beginn Schaltskriptlauf===========================");}
+if(log){logObj.State("Beginn Schaltskriptlauf=========================");}
 WriteLine("Beginn Schaltskriptlauf");
 if(SListe!=""){
   !// Log nur, wenn es auch was zu tun gibt
@@ -764,31 +765,48 @@ foreach(SLEintrag,SListe){
 
 !// Code für Prüfung der Nachschaltung immer zwischen 00:57 und 01:03 Uhr!
 !// Die Nachtschaltung kontrolliert nur die Zustände 0,2,3. Ist noch ein normaler
-!// Schaltzustand vorhanden, gehen wir davon aus, dass es einen Sc haltlisten Eintrag gibt.
+!// Schaltzustand vorhanden, gehen wir davon aus, dass es einen Schaltlisten Eintrag gibt.
 
 if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW.ToTime().Format("%H%M")<="0103")){
-  if(log){logObj.State("Beginn Nachtabschaltung");}
+  if(log){logObj.State("Beginn Nachtabschaltung=========================");}
   if(DEBUG) {WriteLine("Beginn Nachtabschaltung");}
 
-  !// Wandle die Raumliste um, sodass auch die multiRaumVariante berücksichtigt wird
-  RVNListe = VarNamen;
-  RVNListe=RVNListe.Replace("+",";");
+  !// Laufe über alle Einträge der Raumliste (je Eintrag ggf. mehrere Räume per +)
+  string RVNGruppe;
+  foreach(RVNGruppe,VarNamen.Split(";")) {
+    if (!RVNGruppe){ continue; }
 
-  !// Laufe über alle Räume
-  foreach(RVN,RVNListe.Split(";")) {
-    !// Es ist möglich, dass eine Ressource keine Zuordnung hat
-    if (!RVN){
-      continue;
+    !// Primaeren Raumnamen fuer den Log ermitteln (erster Eintrag vor dem +)
+    string RVNPrimaer = RVNGruppe.StrValueByIndex("+",0);
+    string RVNPrimaerName = RVNPrimaer.Replace(vrp#"HKG-Raum-","");
+
+    !// Gruppenname fuer den Log aufbauen: "Primaer (inkl. Raum2, Raum3)"
+    string GruppeLogName = RVNPrimaerName;
+    string RVNZusatz;
+    foreach(RVNZusatz,RVNGruppe.Split("+")) {
+      if (!RVNZusatz){ continue; }
+      string RVNZusatzName = RVNZusatz.Replace(vrp#"HKG-Raum-","");
+      if (RVNZusatzName!=RVNPrimaerName){
+        if (GruppeLogName==RVNPrimaerName){
+          GruppeLogName = RVNPrimaerName # " (inkl. " # RVNZusatzName;
+        }else{
+          GruppeLogName = GruppeLogName # ", " # RVNZusatzName;
+        }
+      }
     }
-    !// Anzeigename fuers Log (siehe Referenz-Definition in der ersten Raumschleife).
+    if (GruppeLogName!=RVNPrimaerName){ GruppeLogName = GruppeLogName # ")"; }
+    if(log){logObj.State(GruppeLogName # ": Nachtschaltung prüfen");}
+    if(DEBUG) {WriteLine(GruppeLogName # ": Nachtschaltung prüfen");}
+
+    !// Laufe über alle Räume der Gruppe
+    foreach(RVN,RVNGruppe.Split("+")) {
+    if (!RVN){ continue; }
     string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
-    string RaumLogName = AktSRName;
-    if (AktSRName.StrValueByIndex("(",0)!=RVNName){
-      RaumLogName = AktSRName # "-" # RVNName;
+    string RaumLogName = RVNPrimaerName;
+    if (RVNName!=RVNPrimaerName){
+      RaumLogName = RVNPrimaerName # " (inkl. " # RVNName # ")";
     }
     !// Raum Parameter bestimmen
-    if(log){logObj.State("Gruppe:"+RVN);}
-    if(DEBUG) {WriteLine("Gruppe:"+RVN);}
     RVI = dom.GetObject(RVN).State();
     HSFlag = RVI.StrValueByIndex(";",1);
     AGF = RVI.StrValueByIndex(";",2);
@@ -857,20 +875,20 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
             if(HSFlag=="H"){
               real istTemperatur = objDP.State();
               if(istTemperatur==RTemp){
-                !// Heiztemperatur immer setzen. Es könte eine Gruppe sein, die teilweise verstellt ist.
+                !// Heiztemperatur immer setzen. Es könnte eine Gruppe sein, die teilweise verstellt ist.
                 objDP.State(RTemp);
-                if(log){logObj.State(AktAktor+" Nachtschaltung für \"" #
+                if(log){logObj.State(RaumLogName # ": " # AktAktor # " Nachtschaltung für \"" #
                                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
                                      "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
-                if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung für \"" #
+                if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Nachtschaltung für \"" #
                                      ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
                                      "\" bereits gesetzt auf Temp.: "+RTemp.ToString(1));}
               }else{
                 objDP.State(RTemp);
-                if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
+                if(log){logObj.State(RaumLogName # ": " # AktAktor # " Nachtschaltung setzen für \"" #
                         ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
                         "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
-                if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
+                if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Nachtschaltung setzen für \"" #
                         ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
                         "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
               }
@@ -882,26 +900,30 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
               boolean istZustand = objDP.State()!=0;
               if (istZustand!=(sollZustand!=0)){
                 objDP.State(sollZustand);
-                if(log){logObj.State(AktAktor+" Nachtschaltung setzen für \"" #
+                if(log){logObj.State(RaumLogName # ": " # AktAktor # " Nachtschaltung setzen für \"" #
                         ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                        "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}
-                if(DEBUG) {WriteLine(AktAktor+" Nachtschaltung setzen für \"" #
+                        "\" - Ist: " # ("aus;ein").StrValueByIndex(";",istZustand.ToInteger()) # " Soll: " # ("aus;ein").StrValueByIndex(";",sollZustand) # ". Parameter: " # Param);}
+                if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Nachtschaltung setzen für \"" #
                         ("Aus;Ein;Dauer-Aus;Dauer-Ein").StrValueByIndex(";",aktuellerSchaltZustand) #
-                        "\" - Ist: " # istZustand # " Soll: " # sollZustand #". Parameter: " # Param);}
+                        "\" - Ist: " # ("aus;ein").StrValueByIndex(";",istZustand.ToInteger()) # " Soll: " # ("aus;ein").StrValueByIndex(";",sollZustand) # ". Parameter: " # Param);}
+              }else{
+                if(log){logObj.State(RaumLogName # ": " # AktAktor # " Nachtschaltung bereits korrekt: Zustand=" # ("aus;ein").StrValueByIndex(";",istZustand.ToInteger()));}
+                if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Nachtschaltung bereits korrekt: Zustand=" # ("aus;ein").StrValueByIndex(";",istZustand.ToInteger()));}
               }
             }
           }else{
-            if(log){logObj.State("Datenpunkt " # Param # " nicht vorhanden!");}
-            if(DEBUG) {WriteLine("Datenpunkt " # Param # " nicht vorhanden!");}
+            if(log){logObj.State(RaumLogName # ": Datenpunkt " # Param # " nicht vorhanden!");}
+            if(DEBUG) {WriteLine(RaumLogName # ": Datenpunkt " # Param # " nicht vorhanden!");}
           }
         }else{
           if(log){logObj.State(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
           if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
         }
       }
+      }
     }
   }
-  if(log){logObj.State("Ende Nachtabschaltung");}
+  if(log){logObj.State("Ende Nachtabschaltung=========================");}
   if(DEBUG) {WriteLine("Ende Nachtabschaltung");}
 }
 
@@ -1012,5 +1034,5 @@ foreach(RVN,RVNListe.Split(";")) {
 
 !// -----------------------------------------------------------------
 
-if(log){logObj.State("Ende Schaltskriptlauf=============================");}
+if(log){logObj.State("Ende Schaltskriptlauf=========================");}
 WriteLine("Ende Schaltskriptlauf");
