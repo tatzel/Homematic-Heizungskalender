@@ -88,7 +88,7 @@ Dieses Skript legt alle Systemvariablen an, die für das Schalt-Skript benötigt
 | HK2-A.Temp.Grenze | Außentemperatur ab der kein Heizen mehr erfolgt |
 | HK2-Aussentemperatur | Aktuelle Außentemperatur (wird durch Skript _HK-Außentemperatur-Open-Meteo.hsc_) gesetzt oder alternativ durch einen Außentemperatursensor. |
 | HK2-Hand-Temp | Wenn `true` Vorrang einer manuell am Thermostat eingestellten Temperatur beim Ausschalten |
-| HK2-Hand-Grundtemp | Wenn `true` Vorrang einer manuell eingestellten Temperatur am Ende einer Heizphase |
+| HK2-Hand-Grundtemp | Wenn `true` aktiviert die Nachtschaltung. HK-Skript 2 prüft täglich zwischen 00:57 und 01:03 Uhr alle Räume und setzt sie auf Grundtemperatur, sofern kein aktiver Termin (Schaltzustand=1) vorliegt. Bei Heizräumen (HSFlag=H) wird die Solltemperatur am Thermostat gesetzt, bei Schaltaktoren (HSFlag=S/HS) wird der Aktor ausgeschaltet. Die Prüfung erfolgt direkt am Aktor, nicht nur in der Systemvariablen. |
 | HK2-VorzeitAus | Globale Grundoffsetzeit in Minuten, um die vor Terminende ausgeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-Kurvenversatz (Einschalt-Offset). Default: 0 |
 | HK2-Kurvenversatz | Globale Grundoffsetzeit in Minuten, um die vor Terminbeginn eingeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-VorzeitAus (Ausschalt-Offset). Default: 0 |
 | HK2-Kurve | Heizkurve: 8 Vorlaufzeiten in Minuten zu den Außentemperatur-Stützpunkten −10, −5, 0, 8, 10, 12, 15, 17,5 °C (semikolongetrennt). Zwischen den Stützpunkten interpoliert HK-Skript 2 linear; der höchste Wert (bei tiefster Außentemperatur) ist die längste Vorheizzeit. Installer-Default (konservativ): `162;130;100;59;50;41;30;20` (max. 162 min ≈ 2,7 h). Als Orientierungshilfe sind drei Beispielkurven bekannt (konservativ / mittel / großzügig); Details und eine vollständige Vergleichstabelle siehe [Anwenderhandbuch](../../Dokumentation/Anwenderhandbuch.md) und [Heizsteuerung-Vorheizzeit.md](Heizsteuerung-Vorheizzeit.md). |
@@ -171,6 +171,14 @@ Das Skript 2 ist das Hauptskript um die Thermostate zu schalten.
 
 Benötigte Variablen: `HK1-R-Liste`, `HK1-Schaltliste`, `HK2-A.Temp.Grenze`, `HK2-Aussentemperatur`, `HK2-Grundtemperatur`, `HK2-HKG-Liste`, `HK2-Hand-Grundtemp`, `HK2-Hand-Temp`, `HK2-Kurve`, `HK2-Kurvenversatz`, `HK2-Log`, `HK2-Logging`, `HK2-VorzeitAus`
 Sowie weitere Raum-Variablen `HKG-Raum-*`
+
+### Nachtschaltung
+
+Ist `HK2-Hand-Grundtemp` auf `true` gesetzt, führt HK-Skript 2 täglich zwischen 00:57 und 01:03 Uhr eine Nachtschaltung durch. Dabei werden alle Räume aus `HK2-HKG-Liste` geprüft. Räume mit einem aktiven Termin (Schaltzustand=1) werden übersprungen. Alle übrigen Räume werden auf Grundtemperatur gesetzt: bei Heizräumen (HSFlag=H) wird die Solltemperatur am Thermostat gesetzt, bei Schaltaktoren (HSFlag=S/HS) wird der Aktor ausgeschaltet. Die Prüfung und das Schalten erfolgen direkt am Aktor auf der CCU, nicht nur in der Systemvariablen. Die Nachtschaltung stellt damit sicher, dass keine Aktoren dauerhaft eingeschaltet bleiben, wenn ein Termin nicht sauber ausgeschaltet wurde.
+
+### Schaltlistenprüfung
+
+Bei jedem Skriptlauf (alle 5 Minuten) prüft HK-Skript 2 zusätzlich alle Räume aus `HK2-HKG-Liste`. Für jeden Raum mit Schaltzustand=1 (aktiv) wird geprüft, ob er in diesem Lauf tatsächlich einen gültigen Schaltlisteneintrag hatte. Fehlt ein solcher Eintrag, wurde der Termin offenbar gelöscht oder der Ausschaltpunkt wurde verpasst. Der Raum wird dann sofort zurückgesetzt: die Systemvariable wird auf Schaltzustand=0 gesetzt und der Aktor direkt ausgeschaltet (Heiztyp H: Solltemperatur auf Grundtemperatur; Schalttyp: Relais auf AUS). Die Schaltlistenprüfung ist das Gegenstück zur Nachtschaltung: sie greift sofort im laufenden Betrieb, die Nachtschaltung dient als nächtliche Generalabsicherung.
 
 ## Sonstige Skripte
 

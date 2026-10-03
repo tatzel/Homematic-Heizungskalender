@@ -13,6 +13,23 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-03]
+
+### Geändert
+
+- `HK-Skript 2`: Nachtschaltungs-Log um „bereits korrekt"-Meldung pro Aktor ergänzt
+  (Schalttyp: Zustand bereits korrekt). Da die Nachtschaltung nur einmal pro Nacht
+  läuft, ist der Zustand der Aktoren jetzt vollständig im Log nachvollziehbar.
+- `HK-Skript 2`: Nachtschaltungs-Log vollständig überarbeitet: Raumnamen-Präfix ergänzt
+  (konsistent zur Hauptschleife); eine Log-Meldung pro Gruppe statt pro Einzelraum;
+  bei Multi-Raum-Gruppen `(inkl. Raum2, Raum3)`
+
+### Dokumentation
+
+- `Skripte/Dokumentation/Readme.md`, `Dokumentation/Anwenderhandbuch.md`: Nachtschaltung
+  und Schaltlistenprüfung dokumentiert (Aktivierung, Zeitfenster, Verhalten für
+  Heizräume und Schaltaktoren, Zweck als Absicherung gegen dauerhaft eingeschaltete Aktoren).
+
 ## [2026-10-02]
 
 ### Geändert
