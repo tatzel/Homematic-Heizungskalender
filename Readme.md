@@ -15,6 +15,9 @@ Hanau von Martin Richter stark optimiert und erweitert.
 Das Heizkalender-Team freut sich, dass Sie den kostenlosen Heizkalender anwenden und somit einen
 Beitrag zum Umweltschutz leisten. Es wäre schön, wenn Sie die Nutzung per E-Mail anzeigen an: <info@heizkalender.de>
 
+Weitere Informationen, Varianten (neben Homematic auch Home Assistant und FRITZ!Box),
+Anleitungen und ein Blog finden sich auf der Projekt-Homepage <https://heizkalender.de/>.
+
 Dadurch ergäbe sich eine Übersicht und die Möglichkeit auf Änderungen hinzuweisen. Bitte
 berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 
