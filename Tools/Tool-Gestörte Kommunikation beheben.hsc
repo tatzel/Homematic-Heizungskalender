@@ -1,16 +1,17 @@
 !// Gestörte Kommunikation beheben
 !//================================================================================================
-!// Stand:    04.03.2026
+!// Stand:    04.10.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
-
+!// TT:  2026-10-04 Block fuer "Konfigurationsdaten stehen zur Uebertragung an" ergaenzt
+!//
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe beim erstellen den Systemvariablen geändert wurde.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
@@ -18,6 +19,8 @@ string vrp="";
 
 !//Logging in "Log" mit 1 zwingend einschalten oder mit 0 Ausschalten
 boolean log=0;
+!// Debug Ausgabe ein oder aus
+boolean debug=false;
 
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
@@ -31,7 +34,7 @@ if ((!log) && loggingObj){
     log = true;
   }
 }
-  
+
 !// Logging auschalten, wenn keine Variable vorhanden
 if (!logObj){
   log = false;
@@ -46,22 +49,27 @@ string address;
 string name;
 object aldp_obj;
 string channel;
+string neuerLog;
+string neuerLogCfg;
 var x;
 integer max=5;
+integer maxCfg=5;
 
 foreach(itemID, dom.GetObject(ID_DEVICES).EnumUsedIDs()) {
   address = dom.GetObject(itemID).Address();
   name = dom.GetObject(itemID).Name();
   aldp_obj = dom.GetObject("AL-" # address # ":0.UNREACH");
   if (aldp_obj) {
+    !// if(debug){WriteLine("UNREACH: " # name # " = " # aldp_obj.Value());}
     if (aldp_obj.Value()) {
+      !// if(debug){WriteLine("  -> Kommunikationstest wird ausgefuehrt");}
       foreach (channel, dom.GetObject(itemID).Channels().EnumUsedIDs()) {
         !// Test Lesen vom Channel
-        if (max > 0) {         
+        if (max > 0) {
           if(log){
-            string neuerLog = "Kommunikationstest:" # name # " Objekt: " # aldp_obj # " Adresse: "# address;
-            !// Nur wenn sich was ändert. Wir brauchen nicht x-gleiche Meldungen.
+            neuerLog = "Kommunikationstest:" # name # " Objekt: " # aldp_obj # " Adresse: " # address;
             if (logObj.State()!=neuerLog){
+              if(debug){WriteLine("Log: " # neuerLog);}
               logObj.State(neuerLog);
             }
           }
@@ -73,4 +81,28 @@ foreach(itemID, dom.GetObject(ID_DEVICES).EnumUsedIDs()) {
   }
 }
 
-!  Ende des Scripts
+!// Geräte mit ausstehenden Konfigurationsdaten (CONFIG_PENDING) anstoßen
+foreach(itemID, dom.GetObject(ID_DEVICES).EnumUsedIDs()) {
+  address = dom.GetObject(itemID).Address();
+  name = dom.GetObject(itemID).Name();
+  aldp_obj = dom.GetObject("AL-" # address # ":0.CONFIG_PENDING");
+  if (aldp_obj) {
+    !// if(debug){WriteLine("CONFIG_PENDING: " # name # " = " # aldp_obj.Value());}
+    if (aldp_obj.Value()) {
+      !// if(debug){WriteLine("  -> Konfigurationsuebertragung wird angestossen");}
+      foreach (channel, dom.GetObject(itemID).Channels().EnumUsedIDs()) {
+        if (maxCfg > 0) {
+          if(log){
+            neuerLogCfg = "Konfigurationsuebertragung:" # name # " Adresse: " # address;
+            if (logObj.State()!=neuerLogCfg){
+              if(debug){WriteLine("Log: " # neuerLogCfg);}
+              logObj.State(neuerLogCfg);
+            }
+          }
+          x = dom.GetObject(channel).State();
+          maxCfg = maxCfg - 1;
+        }
+      }
+    }
+  }
+}

@@ -37,6 +37,10 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
   gesendet wurde (SET_POINT_MODE wird erst nach dem nächsten Funk-Zyklus aktualisiert).
 - `Tools/Readme.md`: Beschreibung von `Tool-Heizgruppen Modus zurücksetzen` aktualisiert;
   `Tool-Test Thermostatgruppe auslesen` und `Tool-Test Thermostatgruppe schalten` ergänzt.
+- `Tools/Tool-Gestörte Kommunikation beheben.hsc`: Neuer Block für ausstehende
+  Konfigurationsdaten (CONFIG_PENDING): Geräte mit gesetztem Flag werden ebenfalls
+  angestossen. Log-Eintrag und Debug-Ausgabe ergänzt. Beschreibung in `Tools/Readme.md`
+  aktualisiert.
 
 ### Behoben
 

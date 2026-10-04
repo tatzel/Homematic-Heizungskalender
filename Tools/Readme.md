@@ -24,7 +24,7 @@ Auswertung. Die Skripte werden auf der CCU manuell per „Skript testen" ausgef�
 | Skript | Zweck |
 | :--- | :--- |
 | `Tool-Heizgruppen Modus zurücksetzen` | Setzt den Modus aller Heizgruppen und ihrer Einzelthermostate (HmIP-eTRV) auf Manuell oder Auto. Eignet sich für den nächtlichen Betrieb als Absicherung gegen Modusverlust nach CCU-Neustarts. |
-| `Tool-Gestörte Kommunikation beheben` | Hilfsskript bei Kommunikationsstörungen mit Aktoren. |
+| `Tool-Gestörte Kommunikation beheben` | Behebt Kommunikationsstörungen (UNREACH) und überträgt ausstehende Konfigurationsdaten (CONFIG_PENDING) an Geräte. Eignet sich als nächtliches Wartungsprogramm. |
 | `Tool-Servicemeldungen automatisch bestätigen` | Bestätigt Servicemeldungen der CCU automatisch. |
 | `Tool-Uptime loggen` | Protokolliert die Laufzeit der CCU. |
 | `Tool-Reboot` | Startet die CCU neu. |
