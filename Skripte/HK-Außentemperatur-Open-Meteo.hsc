@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    21.09.2026
+!// Stand:    04.10.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -22,6 +22,8 @@
 !//
 !// Das Skript sollte jede volle Stunde laufen
 
+!// TT: 2026-10-04 Log-Eintrag um Zeitfenster ergaenzt (Fenster: -Xh/+Yh);
+!//                Tippfehler in Kommentaren korrigiert; + durch # in DEBUG-Ausgaben ersetzt
 !// TT: 2026-09-16 Robustheit verbessert: pos<0-Prüfung nach Find() eingebaut, verhindert
 !//                falsches Parsen bei fehlgeschlagener/unvollständiger wget-Antwort.
 !//                lat/lon: unnötige ToFloat()-Konversion und redundante ToString()-Aufrufe entfernt.
@@ -48,7 +50,7 @@ integer stundenZurueck = 18;    !// maximal 48h
 integer stundenVoraus = 6;      !// Maximal 24h
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
-!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+!// Mit 0 wird die Einstellung aus der HKx-Logging übernommen
 integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
@@ -77,7 +79,6 @@ if (!logObj){
   log = false;
 }
 
-
 !//Variablen
 string error="kein";
 string command;
@@ -86,8 +87,8 @@ string lat=system.Latitude();
 string lon=system.Longitude();
 
 if (DEBUG){
-  WriteLine(lat+"\n");
-  WriteLine(lon+"\n");
+  WriteLine(lat # "\n");
+  WriteLine(lon # "\n");
 }
 
 !// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
@@ -98,8 +99,8 @@ integer iRetry = 10;
 while (iRetry>0) {
   system.Exec(command, &stemp, &error);
   if (DEBUG){
-    WriteLine(command+"\n");
-    WriteLine(stemp+"\n");
+    WriteLine(command # "\n");
+    WriteLine(stemp # "\n");
   }
 
   !// passenden eintrag finden
@@ -115,8 +116,8 @@ while (iRetry>0) {
     if (pos<0) {
       bError = true;
     }
-  }  
-  
+  }
+
   !// Fehlerbehandlung wenn Daten nicht gefunden wurden -> Retries
   if (bError){
     !// Schließende Klammer fehlt -> Antwort abgeschnitten
@@ -127,11 +128,11 @@ while (iRetry>0) {
     system.Exec("sleep 1", &dummy, &dummy);
     continue;
   }
-  
+
   !// Daten extrahieren.
   stemp=stemp.Substr(0,pos);
   if (DEBUG){
-    WriteLine(stemp+"\n");
+    WriteLine(stemp # "\n");
   }
 
   !// Alle Einträge summieren und mittelwert bilden
@@ -139,7 +140,7 @@ while (iRetry>0) {
   real summe=0.0;
   integer n=0;
 
-  !// Bestimmen ab wann wir von den alten Daten Teperaturen übernehmen.
+  !// Bestimmen ab wann wir von den alten Daten Temperaturen übernehmen.
   !// Wir nehmen exakt 48h rückwärts zur aktuellen Uhrzeit
   integer h = system.Date("%H").ToInteger();
 
@@ -150,8 +151,8 @@ while (iRetry>0) {
 
   if (DEBUG){
     WriteLine("Uhrzeit:        " # h);
-    WriteLine("Stunden zurück: " # stundenZurueck);
-    WriteLine("Stunden voraus: " # stundenVoraus);
+    WriteLine("Stunden zurück: " # stundenZurueck.ToInteger());
+    WriteLine("Stunden voraus: " # stundenVoraus.ToInteger());
     WriteLine("Überspringen:   " # ueberspringen);
     WriteLine("---------");
 
@@ -197,11 +198,11 @@ while (iRetry>0) {
     WriteLine(n);
   }
   temp = (summe/n).ToString(1);
-  WriteLine("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
+  WriteLine("Akt. Außentemperatur= " # aktuellerWert.ToString(1) # "°C / Durchsch. Außentemperatur= " # temp # "°C (Zeitfenster: -" # stundenZurueck.ToInteger() # "h/+" # stundenVoraus.ToInteger() # "h)");
 
   if (log) {
     if (n!=0) {
-      logObj.State("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
+      logObj.State("Akt. Außentemperatur= " # aktuellerWert.ToString(1) # "°C / Durchsch. Außentemperatur= " # temp # "°C (Zeitfenster: -" # stundenZurueck.ToInteger() # "h/+" # stundenVoraus.ToInteger() # "h)");
     } else {
       logObj.State("Keine Werte für die Außentemperatur gefunden!");
     }
