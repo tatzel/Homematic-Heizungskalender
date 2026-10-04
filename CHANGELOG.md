@@ -22,6 +22,17 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
   Datenpunkte einer Heizgruppe aus (`SET_POINT_TEMPERATURE`, `ACTUAL_TEMPERATURE`,
   `CONTROL_MODE`, `LEVEL`, `SET_POINT_MODE`).
 
+### Geändert
+
+- `Tools/Tool-Test Thermostatgruppe auslesen.hsc`: Einzelthermostate (HmIP-eTRV-2)
+  werden jetzt zusätzlich zur Heizgruppe ausgelesen. Zugriff per Seriennummer
+  (CCU-interne Suche), Ausgabe von `CONTROL_MODE`, `SET_POINT_MODE`, `LOW_BAT`
+  und `RSSI_DEVICE` je Thermostat.
+- `Tools/Tool-Heizgruppen Modus zurücksetzen.hsc`: Einzelthermostate in Heizgruppen
+  werden jetzt ebenfalls auf den gewünschten Modus gesetzt. Bisher wurden nur die
+  Heizgruppen-Datenpunkte geschrieben; die Mitglied-Thermostate fielen nach dem
+  nächsten CCU-Neustart oder Zyklus auf Auto zurück.
+
 ### Behoben
 
 - `Skripte/HK-Test-Skript.hsc`: Modus `HS` (Heizen+Schalten) wurde als
