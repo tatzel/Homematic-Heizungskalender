@@ -23,7 +23,7 @@ Auswertung. Die Skripte werden auf der CCU manuell per „Skript testen" ausgef�
 
 | Skript | Zweck |
 | :--- | :--- |
-| `Tool-Heizgruppen Modus zurücksetzen` | Setzt den Modus aller Heizgruppen zurück. |
+| `Tool-Heizgruppen Modus zurücksetzen` | Setzt den Modus aller Heizgruppen und ihrer Einzelthermostate (HmIP-eTRV) auf Manuell oder Auto. Eignet sich für den nächtlichen Betrieb als Absicherung gegen Modusverlust nach CCU-Neustarts. |
 | `Tool-Gestörte Kommunikation beheben` | Hilfsskript bei Kommunikationsstörungen mit Aktoren. |
 | `Tool-Servicemeldungen automatisch bestätigen` | Bestätigt Servicemeldungen der CCU automatisch. |
 | `Tool-Uptime loggen` | Protokolliert die Laufzeit der CCU. |
@@ -40,7 +40,8 @@ Skripte zum Sichern, Dumpen und Wiederherstellen der CloudMatic-Diagrammdaten:
 Weitere Werkzeuge für seltene oder umgebungsspezifische Aufgaben:
 `Tool-WakeOnLAN BeamerPC`, `Sammlung-Hilfs-Skripte` sowie eine Sammlung von
 Test-Skripten (`Tool-Test Raumvariable auslesen`,
-`Tool-Test Raumvariable setzen`, `Test-Temperatur Verschiebung berechnen`).
+`Tool-Test Raumvariable setzen`, `Test-Temperatur Verschiebung berechnen`,
+`Tool-Test Thermostatgruppe auslesen`, `Tool-Test Thermostatgruppe schalten`).
 
 > [!WARNING]
 > Die Skripte `Tool-Alle Systemvariablen löschen` und

@@ -32,6 +32,11 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
   werden jetzt ebenfalls auf den gewünschten Modus gesetzt. Bisher wurden nur die
   Heizgruppen-Datenpunkte geschrieben; die Mitglied-Thermostate fielen nach dem
   nächsten CCU-Neustart oder Zyklus auf Auto zurück.
+- `Tools/Tool-Heizgruppen Modus zurücksetzen.hsc`: Tippfehler und englische
+  Debug-Ausgaben korrigiert. Log-Einträge kennzeichnen jetzt, dass ein Befehl
+  gesendet wurde (SET_POINT_MODE wird erst nach dem nächsten Funk-Zyklus aktualisiert).
+- `Tools/Readme.md`: Beschreibung von `Tool-Heizgruppen Modus zurücksetzen` aktualisiert;
+  `Tool-Test Thermostatgruppe auslesen` und `Tool-Test Thermostatgruppe schalten` ergänzt.
 
 ### Behoben
 

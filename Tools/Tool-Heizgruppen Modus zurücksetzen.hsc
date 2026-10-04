@@ -12,11 +12,12 @@
 !//
 !// Skript kann einmal in der Nacht in einer ruhigen Nutzungsphase ausgeführt werden.
 !//
-!// Der Code wurde auf Basis des folgenden Samples entwicklet.
+!// Der Code wurde auf Basis des folgenden Samples entwickelt.
 !//   https://github.com/jollyjinx/homematic/blob/master/ThermostatModeSwitch.hms
 !//   https://homematic-forum.de/forum/viewtopic.php?f=26&t=86909
 !//
-!// TT:  2026-10-04 Einzelthermostate in Heizgruppen ebenfalls auf Manuell setzen
+!// TT:  2026-10-04 Einzelthermostate in Heizgruppen ebenfalls auf Manuell setzen,
+!//                 Tippfehler und englische Debug-Ausgaben korrigiert
 !// MRi: 2026-01-31 Raumliste mit Wildcard eingebaut
 !// MRi: 2025-11-27 Individuelles Schalten eingebaut. Urlaubsmodus wurde nicht korrekt berücksichtigt
 
@@ -38,6 +39,8 @@ integer log=0;
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
 
+integer tvstate;
+
 var logObj=dom.GetObject(vrp+"HK-Log");
 var loggingObj=dom.GetObject(vrp+"HK-Logging");
 
@@ -47,7 +50,7 @@ if (log<0) {
   log = false;
 } elseif (log==0) {
 !// Einstellung der Logging Variable prüfen
-  if (loggingObj && loggingObj.State()!=0){
+  if (loggingObj && loggingObj.State()){
     log = true;
   }
 } else {
@@ -55,12 +58,12 @@ if (log<0) {
   log = true;
 }
 
-!// Logging zwinged auschalten, wenn keine Variable vorhanden ist
+!// Logging zwingend ausschalten, wenn keine Variable vorhanden ist
 if (!logObj){
   log = false;
 }
 
-!// Wenn es keine Vorgabe gibt, dann benutzen wir de RaumListe. Gibt es di auch nicht benutzen wir
+!// Wenn es keine Vorgabe gibt, dann benutzen wir die RaumListe. Gibt es die auch nicht, benutzen wir
 !// die automode Vorgabe.
 if (RaumListe==""){
   var objVar=dom.GetObject(vrp+"Tool-Heizgruppen-Modus-Zurücksetzen");
@@ -73,7 +76,7 @@ if (RaumListe!=""){
   RaumListe = ";" # RaumListe # ";";
 }
 !
-!------ Execution nothing needs to be changed below this line -----------
+!// Ausführung: ab hier nichts mehr verändern
 !
 if(debug){WriteLine("Automode:"#automode);}
 if(debug){WriteLine("RaumListe:"#RaumListe);}
@@ -91,7 +94,7 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
     !// Raum in der Raumliste suchen.
     integer iPos = RaumListe.Find(";"#device#"=");
     if (iPos<0){
-      !// Keine Definiton also also suchen wir einen Wildcard
+      !// Keine Definition, also suchen wir einen Wildcard
       iPos = RaumListe.Find(";*=");
       if (iPos<0){
         !// Auch kein Wildcard, also stop
@@ -128,7 +131,7 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
         var     datapoint   =   interface#"."#channel.Address();
         if(debug){WriteLine("\t Datapoint:"#datapoint);}
         integer currentstate=   dom.GetObject(datapoint#".SET_POINT_MODE").Value();
-        if(debug){WriteLine("\t State before:"#currentstate);}
+        if(debug){WriteLine("\t Zustand vorher: "#currentstate);}
 
         !//modes:  0 = auto, 1 = manu, 2 = Urlaub
         boolean thermostatinautomode = false;
@@ -140,20 +143,20 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
 
         if( newMode != thermostatinautomode )
         {
-          if(debug){WriteLine("\t Device not in suggested mode. New mode="#newMode);}
+          if(debug){WriteLine("\t Gerät nicht im gewünschten Modus. Neuer Modus="#newMode);}
           if( 0!=currentstate)
           {
             dom.GetObject(datapoint#".CONTROL_MODE").State(0);
-            if(debug){WriteLine("\t Setting to auto mode");}
+            if(debug){WriteLine("\t Setze auf Auto");}
             if(log){logObj.State("Moduskorrektur für Heizgruppe:" # device # " auf \"Auto\" setzen!");}
           } elseif( 1!=currentstate )
           {
             dom.GetObject(datapoint#".CONTROL_MODE").State(1);
-            if(debug){WriteLine("\t Setting to manual mode");}
-            if(log){logObj.State("Moduskorrektur für Heizgruppe:" # device # " auf  \"Manuell\" setzen!");}
+            if(debug){WriteLine("\t Setze auf Manuell");}
+            if(log){logObj.State("Moduskorrektur für Heizgruppe:" # device # " auf \"Manuell\" setzen!");}
           }
         }
-        !// Wir können aufhören weiter zu sichen, es gibt nur einen Heating Device Channel
+        !// Wir können aufhören weiter zu suchen, es gibt nur einen Heating Device Channel
         break;
       }
     }
@@ -173,19 +176,21 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
         var     tviface  = dom.GetObject(tvchan.Interface());
         var     tvdp     = tviface # "." # tvchan.Address();
         if(debug){WriteLine("\t  Datapoint:"#tvdp);}
-        integer tvstate  = dom.GetObject(tvdp # ".SET_POINT_MODE").Value();
+        !// SET_POINT_MODE wird erst nach dem naechsten Funk-Zyklus des eTRV aktualisiert.
+        !// Der angezeigte Wert kann daher noch den Zustand vor dem letzten Schreibbefehl zeigen.
+        tvstate  = dom.GetObject(tvdp # ".SET_POINT_MODE").Value();
         if(debug){WriteLine("\t  SET_POINT_MODE=" # tvstate # " newMode=" # newMode);}
         if(!newMode && 1!=tvstate)
         {
           dom.GetObject(tvdp # ".CONTROL_MODE").State(1);
-          if(debug){WriteLine("\t  Einzelthermostat auf Manuell gesetzt");}
-          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " auf \"Manuell\" gesetzt");}
+          if(debug){WriteLine("\t  Einzelthermostat: Befehl Manuell gesendet");}
+          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " Befehl \"Manuell\" gesendet");}
         }
         elseif(newMode && 0!=tvstate)
         {
           dom.GetObject(tvdp # ".CONTROL_MODE").State(0);
-          if(debug){WriteLine("\t  Einzelthermostat auf Auto gesetzt");}
-          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " auf \"Auto\" gesetzt");}
+          if(debug){WriteLine("\t  Einzelthermostat: Befehl Auto gesendet");}
+          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " Befehl \"Auto\" gesendet");}
         }
         break;
       }
