@@ -1,6 +1,6 @@
 !// Alle Heizgruppen auf Auto Modus zu setzen
 !//================================================================================================
-!// Stand:    04.03.2026
+!// Stand:    04.10.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@
 !//   https://github.com/jollyjinx/homematic/blob/master/ThermostatModeSwitch.hms
 !//   https://homematic-forum.de/forum/viewtopic.php?f=26&t=86909
 !//
+!// TT:  2026-10-04 Einzelthermostate in Heizgruppen ebenfalls auf Manuell setzen
 !// MRi: 2026-01-31 Raumliste mit Wildcard eingebaut
 !// MRi: 2025-11-27 Individuelles Schalten eingebaut. Urlaubsmodus wurde nicht korrekt berücksichtigt
 
@@ -80,7 +81,7 @@ string  deviceid;
 foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
 {
   var device  = dom.GetObject(deviceid);
-  if(debug){WriteLine("Device:"#device#" (id:"#deviceid#")");}
+  if(debug){WriteLine("Device:"#device#" HssType="#device.HssType()#" (id:"#deviceid#")");}
 
   !// Prüfen ob welchen Modus wir wollen
   boolean newMode = automode;
@@ -145,9 +146,7 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
             dom.GetObject(datapoint#".CONTROL_MODE").State(0);
             if(debug){WriteLine("\t Setting to auto mode");}
             if(log){logObj.State("Moduskorrektur für Heizgruppe:" # device # " auf \"Auto\" setzen!");}
-          }
-
-          if( 1!=currentstate )
+          } elseif( 1!=currentstate )
           {
             dom.GetObject(datapoint#".CONTROL_MODE").State(1);
             if(debug){WriteLine("\t Setting to manual mode");}
@@ -155,6 +154,39 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
           }
         }
         !// Wir können aufhören weiter zu sichen, es gibt nur einen Heating Device Channel
+        break;
+      }
+    }
+  }
+
+  !// TT: Einzelthermostate (HmIP-eTRV-*) ebenfalls auf den gewünschten Modus setzen.
+  !// Die Heizgruppe synchronisiert den Modus nicht automatisch auf alle Mitglieder.
+  if(device.HssType().StartsWith("HmIP-eTRV") && (!skip))
+  {
+    string tvchanid;
+    foreach(tvchanid, device.Channels().EnumUsedIDs())
+    {
+      var tvchan = dom.GetObject(tvchanid);
+      if(debug){WriteLine("\t eTRV Channel:"#tvchan#" HssType="#tvchan.HssType()#" (id:"#tvchanid#")");}
+      if("HEATING_CLIMATECONTROL_TRANSCEIVER" == tvchan.HssType())
+      {
+        var     tviface  = dom.GetObject(tvchan.Interface());
+        var     tvdp     = tviface # "." # tvchan.Address();
+        if(debug){WriteLine("\t  Datapoint:"#tvdp);}
+        integer tvstate  = dom.GetObject(tvdp # ".SET_POINT_MODE").Value();
+        if(debug){WriteLine("\t  SET_POINT_MODE=" # tvstate # " newMode=" # newMode);}
+        if(!newMode && 1!=tvstate)
+        {
+          dom.GetObject(tvdp # ".CONTROL_MODE").State(1);
+          if(debug){WriteLine("\t  Einzelthermostat auf Manuell gesetzt");}
+          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " auf \"Manuell\" gesetzt");}
+        }
+        elseif(newMode && 0!=tvstate)
+        {
+          dom.GetObject(tvdp # ".CONTROL_MODE").State(0);
+          if(debug){WriteLine("\t  Einzelthermostat auf Auto gesetzt");}
+          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " auf \"Auto\" gesetzt");}
+        }
         break;
       }
     }

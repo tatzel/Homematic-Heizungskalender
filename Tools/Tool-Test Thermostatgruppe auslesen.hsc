@@ -27,6 +27,7 @@ object objDP;
 object devObj;
 object chanObj;
 integer tIdx;
+integer mode;
 string AktorName;
 string batText;
 string suchAddr;
@@ -34,6 +35,7 @@ string suchKanal;
 string gefunden;
 string devId;
 string chanId;
+string modeText;
 
 !//===========================================================================
 !// Heizgruppe auslesen
@@ -66,8 +68,8 @@ if (!objAktor) {
   !// Steuermodus: 0=Auto, 1=Manuell, 2=Urlaub
   objDP = objAktor.DPByHssDP("CONTROL_MODE");
   if (objDP) {
-    integer mode = objDP.State().ToInteger();
-    string modeText = "unbekannt";
+    mode = objDP.State().ToInteger();
+    modeText = "unbekannt";
     if (mode==0)      { modeText = "Auto (Wochenprogramm)"; }
     elseif (mode==1)  { modeText = "Manuell (Heizkalender-Modus)"; }
     elseif (mode==2)  { modeText = "Urlaub"; }
@@ -140,6 +142,29 @@ while (tIdx <= 2) {
   !// Luftfeuchte (HmIP-eTRV-2 hat keinen Sensor, trotzdem prüfen)
   objDP = objAktor.DPByHssDP("HUMIDITY");
   if (objDP) { WriteLine("HUMIDITY (Luftfeuchte):        " # objDP.State().ToInteger().ToString() # " %"); }
+
+  !// Steuermodus: 0=Auto, 1=Manuell, 2=Urlaub
+  objDP = objAktor.DPByHssDP("CONTROL_MODE");
+  if (objDP) {
+    mode = objDP.State().ToInteger();
+    modeText = "unbekannt";
+    if (mode==0)      { modeText = "Auto (Wochenprogramm)"; }
+    elseif (mode==1)  { modeText = "Manuell (Heizkalender-Modus)"; }
+    elseif (mode==2)  { modeText = "Urlaub"; }
+    WriteLine("CONTROL_MODE (Modus):          " # mode.ToString() # " = " # modeText);
+  }
+  else { WriteLine("CONTROL_MODE:                  nicht vorhanden"); }
+
+  !// SET_POINT_MODE (tatsaechlicher Geraetezustand, 1=Manuell fuer Heizkalender noetig)
+  objDP = objAktor.DPByHssDP("SET_POINT_MODE");
+  if (objDP) {
+    mode = objDP.State().ToInteger();
+    modeText = "unbekannt";
+    if (mode==0)      { modeText = "Auto"; }
+    elseif (mode==1)  { modeText = "Manuell (fuer Heizkalender korrekt)"; }
+    elseif (mode==2)  { modeText = "Urlaub"; }
+    WriteLine("SET_POINT_MODE (Zustand):      " # mode.ToString() # " = " # modeText);
+  }
 
   !// Ventilstellung
   objDP = objAktor.DPByHssDP("VALVE_STATE");
