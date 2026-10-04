@@ -23,7 +23,8 @@
 !// Das Skript sollte jede volle Stunde laufen
 
 !// TT: 2026-10-04 Log-Eintrag um Zeitfenster ergaenzt (Fenster: -Xh/+Yh);
-!//                Tippfehler in Kommentaren korrigiert; + durch # in DEBUG-Ausgaben ersetzt
+!//                Tippfehler in Kommentaren korrigiert; + durch # in DEBUG-Ausgaben ersetzt;
+!//                Abbruch mit Log-Eintrag wenn keine Geokoordinaten in der CCU hinterlegt
 !// TT: 2026-09-16 Robustheit verbessert: pos<0-Prüfung nach Find() eingebaut, verhindert
 !//                falsches Parsen bei fehlgeschlagener/unvollständiger wget-Antwort.
 !//                lat/lon: unnötige ToFloat()-Konversion und redundante ToString()-Aufrufe entfernt.
@@ -90,6 +91,14 @@ if (DEBUG){
   WriteLine(lat # "\n");
   WriteLine(lon # "\n");
 }
+
+!// Abbruch wenn keine Geokoordinaten in der CCU hinterlegt sind
+if (lat=="" || lon=="" || lat.ToFloat()==0.0 || lon.ToFloat()==0.0){
+  if(log){logObj.State("Open-Meteo: Keine Geokoordinaten in der CCU hinterlegt. Bitte in den CCU-Einstellungen eintragen.");}
+  WriteLine("Open-Meteo: Keine Geokoordinaten in der CCU hinterlegt!");
+}
+else
+{
 
 !// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
 command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude=" # lat # "&longitude=" # lon # "&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
@@ -219,4 +228,6 @@ while (iRetry>0) {
     string dummy;
     system.Exec("sleep 1", &dummy, &dummy);
   }
+}
+
 }
