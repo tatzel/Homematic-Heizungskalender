@@ -41,6 +41,16 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
   Konfigurationsdaten (CONFIG_PENDING): Geräte mit gesetztem Flag werden ebenfalls
   angestossen. Log-Eintrag und Debug-Ausgabe ergänzt. Beschreibung in `Tools/Readme.md`
   aktualisiert.
+- `Skripte/HK-Außentemperatur-Open-Meteo.hsc`: Log-Eintrag erweitert: zeigt jetzt
+  aktuellen Messwert, gleitenden Durchschnitt mit °C und das verwendete Zeitfenster
+  (z.B. `Akt. Außentemperatur= 18.2°C / Durchsch. Außentemperatur= 14.6°C (Zeitfenster: -18h/+6h)`).
+  Tippfehler in Kommentaren korrigiert; `+` durch `#` in DEBUG-Ausgaben ersetzt.
+- `Skripte/HK-Init-Skript 2.hsc`: Beschreibung von `HK2-Aussentemperatur` präzisiert
+  (war: „Zu verwendende Außentemperatur"; jetzt: „Außentemperatur für Vorheizzeit-Berechnung
+  (gleitender Durchschnitt)").
+- `Skripte/Dokumentation/Readme.md`: Abschnitt `HK-Außentemperatur-Open-Meteo` überarbeitet:
+  veraltete 36h-Angabe korrigiert, Zeitfenster-Parameter tabellarisch dokumentiert,
+  Log-Format als Beispiel ergänzt.
 
 ### Behoben
 
