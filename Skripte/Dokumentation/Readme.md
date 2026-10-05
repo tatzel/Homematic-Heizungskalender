@@ -186,11 +186,26 @@ Alle weiteren hier aufgeführten Skripte sind für den Betrieb des Heizkalenders
 
 ### HK-Außentemperatur-Open-Meteo.hsc
 
-Wenn kein Außenthermostat zur Verfügung steht kann mit diesem Skript aus den Geodaten der CCU über den Deutschen-Wetter-Dienst, die aktuelle Außentemperatur verwendet werden. Dieses Skript benutzt nicht die aktuelle Außentemperatur, sondern führt eine Berechnung des gleitenden Mittelwertes über 36h durch.
+Wenn kein Außenthermostat zur Verfügung steht, kann mit diesem Skript über die Geodaten der CCU und den Deutschen Wetterdienst (Open-Meteo API) eine Außentemperatur ermittelt werden. Das Skript verwendet nicht den aktuellen Momentanwert, sondern berechnet einen gleitenden Durchschnitt über ein konfigurierbares Zeitfenster aus Vergangenheit und Prognose.
+
+Konfigurierbare Parameter (im variablen Bereich des Skripts):
+
+| Parameter | Standard | Bedeutung |
+| :--- | :--- | :--- |
+| `stundenZurueck` | 18 | Stunden in die Vergangenheit (max. 48) |
+| `stundenVoraus` | 6 | Stunden Prognose voraus (max. 24) |
+
+Der Durchschnitt wird über das gesamte Fenster (`stundenZurueck + stundenVoraus`) gebildet. Empfehlung laut Kommentar im Skript: `18/6` für Fußbodenheizungen, `12/3` für Heizkörper.
+
+Das Skript schreibt einen Log-Eintrag mit aktuellem Messwert, berechnetem Durchschnitt und dem verwendeten Zeitfenster, z.B.:
+
+```text
+Akt. Außentemperatur= 20.5°C / Durchsch. Außentemperatur= 14.8°C (Zeitfenster: -18h/+6h)
+```
 
 Dieses Skript sollte jede Stunde einmal laufen.
 
-Das Skript trägt die zu verwendende Außentemperatur in die Variable `HK2-Aussentemperatur` ein.
+Das Skript trägt die berechnete Durchschnittstemperatur in die Variable `HK2-Aussentemperatur` ein.
 
 ### HK-Heizkurvenkontrolle.hsc
 

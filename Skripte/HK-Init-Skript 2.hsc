@@ -1,6 +1,6 @@
 !// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2
 !//================================================================================================
-!// Stand:    23.02.2026
+!// Stand:    04.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -18,6 +18,7 @@
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
+!// TT: 2026-10-04 Beschreibung von HK2-Aussentemperatur praezisiert (gleitender Durchschnitt)
 
 !//Dieses Skript erstellt die nötigen Systemvariablen des Heizkalender für Skript 2 zum Schalten des Heizkalender
 !//Hinweis: Ein erneutes Ausführen dieses Programms ändert bestehende Variablen und ihren Inhalt nicht
@@ -42,7 +43,7 @@ string nm=  "HK2-HKG-Liste;" #
 string be=  "Liste der HK-Raum-Variablen;" #
             "Grundtemperatur;" #
             "Außentemperatur-Grenzwert für das Heizen;" #
-            "Zu verwendende Außentemperatur;" #
+            "Außentemperatur für Vorheizzeit-Berechnung (gleitender Durchschnitt);" #
             "Vorrang manuell eingestellte Temperatur beim Ausschalten;" #
             "Rückstellung auf Grundtemperatur;" #
             "Grundoffsetzeit Ausschalten;" #

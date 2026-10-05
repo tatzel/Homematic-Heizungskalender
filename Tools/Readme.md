@@ -23,8 +23,9 @@ Auswertung. Die Skripte werden auf der CCU manuell per „Skript testen" ausgef�
 
 | Skript | Zweck |
 | :--- | :--- |
-| `Tool-Heizgruppen Modus zurücksetzen` | Setzt den Modus aller Heizgruppen zurück. |
-| `Tool-Gestörte Kommunikation beheben` | Hilfsskript bei Kommunikationsstörungen mit Aktoren. |
+| `Tool-Heizgruppen Modus zurücksetzen` | Setzt den Modus aller `HmIP-HEATING`-Heizgruppen auf Manuell oder Auto. Die Heizgruppe überträgt den Modus automatisch auf die zugehörigen Thermostate. Eignet sich für den nächtlichen Betrieb als Absicherung gegen Modusverlust nach CCU-Neustarts. |
+| `Tool-Heizgruppen eTRV Modus setzen` | Sonderfall: setzt `CONTROL_MODE` direkt auf allen `HmIP-eTRV`-Einzelthermostaten, nicht auf der Gruppenadresse. Nur nötig wenn ein Thermostat nach einem Firmware-Update den Gruppenmodus nicht übernommen hat. |
+| `Tool-Gestörte Kommunikation beheben` | Behebt Kommunikationsstörungen (UNREACH) und überträgt ausstehende Konfigurationsdaten (CONFIG_PENDING) an Geräte. Eignet sich als nächtliches Wartungsprogramm. |
 | `Tool-Servicemeldungen automatisch bestätigen` | Bestätigt Servicemeldungen der CCU automatisch. |
 | `Tool-Uptime loggen` | Protokolliert die Laufzeit der CCU. |
 | `Tool-Reboot` | Startet die CCU neu. |
@@ -40,7 +41,8 @@ Skripte zum Sichern, Dumpen und Wiederherstellen der CloudMatic-Diagrammdaten:
 Weitere Werkzeuge für seltene oder umgebungsspezifische Aufgaben:
 `Tool-WakeOnLAN BeamerPC`, `Sammlung-Hilfs-Skripte` sowie eine Sammlung von
 Test-Skripten (`Tool-Test Raumvariable auslesen`,
-`Tool-Test Raumvariable setzen`, `Test-Temperatur Verschiebung berechnen`).
+`Tool-Test Raumvariable setzen`, `Test-Temperatur Verschiebung berechnen`,
+`Tool-Test Thermostatgruppe auslesen`, `Tool-Test Thermostatgruppe schalten`).
 
 > [!WARNING]
 > Die Skripte `Tool-Alle Systemvariablen löschen` und

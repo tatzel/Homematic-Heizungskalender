@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    21.09.2026
+!// Stand:    04.10.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -22,6 +22,9 @@
 !//
 !// Das Skript sollte jede volle Stunde laufen
 
+!// TT: 2026-10-04 Log-Eintrag um Zeitfenster ergaenzt (Fenster: -Xh/+Yh);
+!//                Tippfehler in Kommentaren korrigiert; + durch # in DEBUG-Ausgaben ersetzt;
+!//                Abbruch mit Log-Eintrag wenn keine Geokoordinaten in der CCU hinterlegt
 !// TT: 2026-09-16 Robustheit verbessert: pos<0-Prüfung nach Find() eingebaut, verhindert
 !//                falsches Parsen bei fehlgeschlagener/unvollständiger wget-Antwort.
 !//                lat/lon: unnötige ToFloat()-Konversion und redundante ToString()-Aufrufe entfernt.
@@ -48,7 +51,7 @@ integer stundenZurueck = 18;    !// maximal 48h
 integer stundenVoraus = 6;      !// Maximal 24h
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
-!// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
+!// Mit 0 wird die Einstellung aus der HKx-Logging übernommen
 integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
@@ -63,7 +66,7 @@ if (log<0) {
   !// Zwingend kein logging
   log = false;
 } elseif (log==0) {
-!// Einstellung der Logging Variable prüfen
+  !// Einstellung der Logging Variable prüfen
   if (loggingObj && loggingObj.State()!=0){
     log = true;
   }
@@ -77,8 +80,7 @@ if (!logObj){
   log = false;
 }
 
-
-!//Variablen
+!// Variablen
 string error="kein";
 string command;
 string stemp;
@@ -86,136 +88,144 @@ string lat=system.Latitude();
 string lon=system.Longitude();
 
 if (DEBUG){
-  WriteLine(lat+"\n");
-  WriteLine(lon+"\n");
+  WriteLine(lat # "\n");
+  WriteLine(lon # "\n");
 }
 
-!// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
-command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude=" # lat # "&longitude=" # lon # "&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
+!// Abbruch wenn keine Geokoordinaten in der CCU hinterlegt sind
+if (lat=="" || lon=="" || lat.ToFloat()==0.0 || lon.ToFloat()==0.0){
+  if(log){logObj.State("Open-Meteo: Keine Geokoordinaten in der CCU hinterlegt. Bitte in den CCU-Einstellungen eintragen.");}
+  WriteLine("Open-Meteo: Keine Geokoordinaten in der CCU hinterlegt!");
+} else {
 
-!// Da es immer wieder mal zu Fehlern kommt, wiederholen wir die Anfrage im Abstand von 1 Sekunde mehrfach
-integer iRetry = 10;
-while (iRetry>0) {
-  system.Exec(command, &stemp, &error);
-  if (DEBUG){
-    WriteLine(command+"\n");
-    WriteLine(stemp+"\n");
-  }
+  !// Temperaturwerte lesen 48h davor, 24h (heute) in die Zukunft.
+  command = "wget --timeout=3 -O - 'https://api.open-meteo.com/v1/forecast?latitude=" # lat # "&longitude=" # lon # "&hourly=temperature_2m&models=icon_seamless&current=temperature_2m&timezone=Europe%2FBerlin&past_days=2&forecast_days=2'";
 
-  !// passenden eintrag finden
-  !// 18 = Länge von "temperature_2m":[ -> Sprung hinter die öffnende Klammer
-  integer pos=stemp.Find("\"temperature_2m\":[");
-  boolean bError = false;
-  if (pos<0) {
-    bError = true;
-  } else {
-    !// Ende der Temperaturdaten suchen
-    stemp=stemp.Substr(pos+18,1000);
-    pos=stemp.Find("]");
+  !// Da es immer wieder mal zu Fehlern kommt, wiederholen wir die Anfrage im Abstand von 1 Sekunde mehrfach
+  integer iRetry = 10;
+  while (iRetry>0) {
+    system.Exec(command, &stemp, &error);
+    if (DEBUG){
+      WriteLine(command # "\n");
+      WriteLine(stemp # "\n");
+    }
+
+    !// passenden eintrag finden
+    !// 18 = Länge von "temperature_2m":[ -> Sprung hinter die öffnende Klammer
+    integer pos=stemp.Find("\"temperature_2m\":[");
+    boolean bError = false;
     if (pos<0) {
       bError = true;
+    } else {
+      !// Ende der Temperaturdaten suchen
+      stemp=stemp.Substr(pos+18,1000);
+      pos=stemp.Find("]");
+      if (pos<0) {
+        bError = true;
+      }
     }
-  }  
-  
-  !// Fehlerbehandlung wenn Daten nicht gefunden wurden -> Retries
-  if (bError){
-    !// Schließende Klammer fehlt -> Antwort abgeschnitten
-    if(log){logObj.State("Open-Meteo: Antwort unvollständig, Retry " # (11-iRetry) # "/10");}
-    if(DEBUG){WriteLine("Open-Meteo: Antwort unvollständig, Retry " # (11-iRetry) # "/10\n");}
-    iRetry = iRetry-1;
-    string dummy;
-    system.Exec("sleep 1", &dummy, &dummy);
-    continue;
-  }
-  
-  !// Daten extrahieren.
-  stemp=stemp.Substr(0,pos);
-  if (DEBUG){
-    WriteLine(stemp+"\n");
-  }
 
-  !// Alle Einträge summieren und mittelwert bilden
-  string temp;
-  real summe=0.0;
-  integer n=0;
+    !// Fehlerbehandlung wenn Daten nicht gefunden wurden -> Retries
+    if (bError){
+      !// Schließende Klammer fehlt -> Antwort abgeschnitten
+      if(log){logObj.State("Open-Meteo: Antwort unvollständig, Retry " # (11-iRetry) # "/10");}
+      if(DEBUG){WriteLine("Open-Meteo: Antwort unvollständig, Retry " # (11-iRetry) # "/10\n");}
+      iRetry = iRetry-1;
+      string dummy;
+      system.Exec("sleep 1", &dummy, &dummy);
+      continue;
+    }
 
-  !// Bestimmen ab wann wir von den alten Daten Teperaturen übernehmen.
-  !// Wir nehmen exakt 48h rückwärts zur aktuellen Uhrzeit
-  integer h = system.Date("%H").ToInteger();
+    !// Daten extrahieren.
+    stemp=stemp.Substr(0,pos);
+    if (DEBUG){
+      WriteLine(stemp # "\n");
+    }
 
-  !// Begrenzungen festlegen
-  stundenZurueck = stundenZurueck.Min(48).Max(1);
-  stundenVoraus = stundenVoraus.Min(24).Max(0);
-  integer ueberspringen = h+48-stundenZurueck;
+    !// Alle Einträge summieren und Mittelwert bilden
+    string temp;
+    real summe=0.0;
+    integer n=0;
 
-  if (DEBUG){
-    WriteLine("Uhrzeit:        " # h);
-    WriteLine("Stunden zurück: " # stundenZurueck);
-    WriteLine("Stunden voraus: " # stundenVoraus);
-    WriteLine("Überspringen:   " # ueberspringen);
-    WriteLine("---------");
+    !// Bestimmen ab wann wir von den alten Daten Temperaturen übernehmen.
+    !// Wir nehmen exakt 48h rückwärts zur aktuellen Uhrzeit
+    integer h = system.Date("%H").ToInteger();
 
+    !// Begrenzungen festlegen
+    stundenZurueck = stundenZurueck.Min(48).Max(1);
+    stundenVoraus = stundenVoraus.Min(24).Max(0);
+    integer ueberspringen = h+48-stundenZurueck;
+
+    if (DEBUG){
+      WriteLine("Uhrzeit:        " # h);
+      WriteLine("Stunden zurück: " # stundenZurueck.ToInteger());
+      WriteLine("Stunden voraus: " # stundenVoraus.ToInteger());
+      WriteLine("Überspringen:   " # ueberspringen);
+      WriteLine("---------");
+
+      integer i=0;
+      foreach (temp, stemp.Split(","))
+      {
+        WriteLine((i % 24) # ": " # temp);
+        i = i+1;
+      }
+      WriteLine("---------");
+    }
+
+    !// Werte berechnen
     integer i=0;
+    real aktuellerWert;
     foreach (temp, stemp.Split(","))
     {
-      WriteLine((i % 24) # ": "# temp);
-      i = i+1;
-    }
-    WriteLine("---------");
-  }
-
-  !// Werte berechnen
-  integer i=0;
-  real aktuellerWert;
-  foreach (temp, stemp.Split(","))
-  {
-    !// Werte bis zur aktuellen Stunde überspringen wir.
-    if ((i>h) && i>ueberspringen){
-      if (DEBUG){
-        WriteLine((i % 24) # ": "# temp);
-      }
-      summe = summe+temp.ToFloat();
-      n = n+1;
-      if (n==stundenZurueck){
-        aktuellerWert = temp.ToFloat();
+      !// Werte bis zur aktuellen Stunde überspringen wir.
+      if ((i>h) && i>ueberspringen){
         if (DEBUG){
-          WriteLine("<-- Letzter Wert");
+          WriteLine((i % 24) # ": " # temp);
+        }
+        summe = summe+temp.ToFloat();
+        n = n+1;
+        if (n==stundenZurueck){
+          aktuellerWert = temp.ToFloat();
+          if (DEBUG){
+            WriteLine("<-- Letzter Wert");
+          }
+        }
+        if (n>=(stundenZurueck+stundenVoraus)) {
+          break;
         }
       }
-      if (n>=(stundenZurueck+stundenVoraus)) {
-         break;
+      i = i+1;
+    }
+
+    !// Letzter Wert = Aktuell gemeldete Temperatur
+
+    if (DEBUG){
+      WriteLine("---------");
+      WriteLine(summe);
+      WriteLine(n);
+    }
+    temp = (summe/n).ToString(1);
+    WriteLine("Akt. Außentemperatur= " # aktuellerWert.ToString(1) # "°C / Durchsch. Außentemperatur= " # temp # "°C (Zeitfenster: -" # stundenZurueck.ToInteger() # "h/+" # stundenVoraus.ToInteger() # "h)");
+
+    if (log) {
+      if (n!=0) {
+        logObj.State("Akt. Außentemperatur= " # aktuellerWert.ToString(1) # "°C / Durchsch. Außentemperatur= " # temp # "°C (Zeitfenster: -" # stundenZurueck.ToInteger() # "h/+" # stundenVoraus.ToInteger() # "h)");
+      } else {
+        logObj.State("Keine Werte für die Außentemperatur gefunden!");
       }
     }
-    i = i+1;
-  }
 
-  !// Letzter Wert = Aktuell gemeldete Temperatur
-
-  if (DEBUG){
-    WriteLine("---------");
-    WriteLine(summe);
-    WriteLine(n);
-  }
-  temp = (summe/n).ToString(1);
-  WriteLine("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
-
-  if (log) {
-    if (n!=0) {
-      logObj.State("Akt. Aussentemp.= " # aktuellerWert.ToString(1) # " / Durchsch. Aussentemp.= " # temp);
+    !// Ergebnis schreiben
+    if (n!=0){
+      dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp);
+      break;
     } else {
-      logObj.State("Keine Werte für die Außentemperatur gefunden!");
+      !// Unerwünschtes Ergebnis/Fehler, also ein Retry mehr
+      iRetry = iRetry-1;
+      !// Verzögern
+      string dummy;
+      system.Exec("sleep 1", &dummy, &dummy);
     }
   }
 
-  !// Ergebnis schreiben
-  if (n!=0){
-    dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp);
-    break;
-  } else {
-    !// Unerwünschtes Ergebnis/Fehler, also ein Retry mehr
-    iRetry = iRetry-1;
-    !// Verzögern
-    string dummy;
-    system.Exec("sleep 1", &dummy, &dummy);
-  }
-}
+} !// Ende Geokoordinaten-Prüfung
