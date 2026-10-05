@@ -21,7 +21,7 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
-!// TT:  2026-10-05 Luftfeuchte: Fallback auf ACTUAL_HUMIDITY ergaenzt (HM-TC-IT-WM-W-EU)
+!// TT:  2026-10-05 Luftfeuchte: ACTUAL_HUMIDITY (IP) zuerst pruefen, HUMIDITY (Classic) als Fallback
 !// TT:  2026-10-03 Luftfeuchte (HUMIDITY) optional in der Heizen-Logzeile ausgeben (nur wenn Datenpunkt vorhanden)
 !// TT:  2026-10-03 Nachtschaltung: Log-Meldungen ueberarbeitet (Raumname-Praefix, Multi-Raum-Zusatz)
 !// TT:  2026-10-02 Log-Text bei fehlendem Sensor/Aktor verstaendlicher formuliert (kein HomeMatic-Code mehr)
@@ -483,9 +483,9 @@ foreach(SLEintrag,SListe){
         !// Luftfeuchte optional auslesen (nur wenn Datenpunkt vorhanden)
         string HUMText = "";
         if (AktAktor && objAktor){
-          objDP = objAktor.DPByHssDP("HUMIDITY");
+          objDP = objAktor.DPByHssDP("ACTUAL_HUMIDITY");
           if (!objDP){
-            objDP = objAktor.DPByHssDP("ACTUAL_HUMIDITY");
+            objDP = objAktor.DPByHssDP("HUMIDITY");
           }
           if (objDP){
             HUMText = " / HUM " # objDP.State().ToInteger().ToString() # "%";
