@@ -23,7 +23,8 @@ Auswertung. Die Skripte werden auf der CCU manuell per „Skript testen" ausgef�
 
 | Skript | Zweck |
 | :--- | :--- |
-| `Tool-Heizgruppen Modus zurücksetzen` | Setzt den Modus aller Heizgruppen und ihrer Einzelthermostate (HmIP-eTRV) auf Manuell oder Auto. Eignet sich für den nächtlichen Betrieb als Absicherung gegen Modusverlust nach CCU-Neustarts. |
+| `Tool-Heizgruppen Modus zurücksetzen` | Setzt den Modus aller `HmIP-HEATING`-Heizgruppen auf Manuell oder Auto. Die Heizgruppe überträgt den Modus automatisch auf die zugehörigen Thermostate. Eignet sich für den nächtlichen Betrieb als Absicherung gegen Modusverlust nach CCU-Neustarts. |
+| `Tool-Heizgruppen eTRV Modus setzen` | Sonderfall: setzt `CONTROL_MODE` direkt auf allen `HmIP-eTRV`-Einzelthermostaten, nicht auf der Gruppenadresse. Nur nötig wenn ein Thermostat nach einem Firmware-Update den Gruppenmodus nicht übernommen hat. |
 | `Tool-Gestörte Kommunikation beheben` | Behebt Kommunikationsstörungen (UNREACH) und überträgt ausstehende Konfigurationsdaten (CONFIG_PENDING) an Geräte. Eignet sich als nächtliches Wartungsprogramm. |
 | `Tool-Servicemeldungen automatisch bestätigen` | Bestätigt Servicemeldungen der CCU automatisch. |
 | `Tool-Uptime loggen` | Protokolliert die Laufzeit der CCU. |
