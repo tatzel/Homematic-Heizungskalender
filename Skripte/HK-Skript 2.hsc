@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    03.10.2026
+!// Stand:    05.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,7 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-10-05 Luftfeuchte: Fallback auf ACTUAL_HUMIDITY ergaenzt (HM-TC-IT-WM-W-EU)
 !// TT:  2026-10-03 Luftfeuchte (HUMIDITY) optional in der Heizen-Logzeile ausgeben (nur wenn Datenpunkt vorhanden)
 !// TT:  2026-10-03 Nachtschaltung: Log-Meldungen ueberarbeitet (Raumname-Praefix, Multi-Raum-Zusatz)
 !// TT:  2026-10-02 Log-Text bei fehlendem Sensor/Aktor verstaendlicher formuliert (kein HomeMatic-Code mehr)
@@ -483,6 +484,9 @@ foreach(SLEintrag,SListe){
         string HUMText = "";
         if (AktAktor && objAktor){
           objDP = objAktor.DPByHssDP("HUMIDITY");
+          if (!objDP){
+            objDP = objAktor.DPByHssDP("ACTUAL_HUMIDITY");
+          }
           if (objDP){
             HUMText = " / HUM " # objDP.State().ToInteger().ToString() # "%";
           }

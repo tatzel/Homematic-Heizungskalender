@@ -13,6 +13,13 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+### Behoben
+
+- `HK-Skript 2`: Luftfeuchte-Auslesen unterstützt jetzt auch klassische Thermostate
+  mit Datenpunkt `ACTUAL_HUMIDITY` (z.B. HM-TC-IT-WM-W-EU). Bisher wurde nur
+  `HUMIDITY` (HmIP-Geräte) geprüft; Geräte ohne Feuchtigkeitssensor bleiben
+  unverändert.
+
 ### Hinzugefügt
 
 - `Dokumentation/Anwenderhandbuch.md`: Neuer Unterabschnitt „Räume mit mehreren
