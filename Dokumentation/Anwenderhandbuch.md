@@ -308,7 +308,8 @@ nicht mehr verwendet.
 Die Kennung in der Raumvariablen (Feld `Heiztyp`) bestimmt, welcher Datenpunkt des
 Aktors angesprochen wird. Die konkrete Kanalnummer legt der Administrator bei der
 Aktor-Zuordnung selbst fest (als Teil der Aktor-Adresse); die Spalte „Kanal" nennt
-den dabei üblichen Kanal:
+den dabei üblichen Kanal. Die Kanalnummer ist nur in der CCU3 relevant; der Name des
+Datenpunktes ist entscheidend:
 
 | Kennung | Kanal | Gerätetyp | Datenpunkt |
 | :--- | :--- | :--- | :--- |

@@ -47,6 +47,10 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ### Geändert
 
+- `Dokumentation/Anwenderhandbuch.md`: Hinweis ergänzt, dass die Kanalnummer nur
+  in der CCU3 relevant ist und der Datenpunkt-Name entscheidend ist (Feedback Martin).
+- `Skripte/HK-Skript 2.hsc`: Kommentare für TC (HM-CC-TC) und IT (HM-TC-IT-WM-W-EU)
+  von Kanal 4 auf Kanal 2 korrigiert (laut alter Doku und Bestätigung durch Martin).
 - `Dokumentation/Anwenderhandbuch.md`: Systemarchitektur-Diagramm durch die
   verallgemeinerte Fassung aus `Readme.md` ersetzt (Kalenderquelle generisch statt
   nur ChurchTools).
