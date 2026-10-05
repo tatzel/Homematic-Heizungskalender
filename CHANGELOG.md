@@ -71,6 +71,50 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - `Dokumentation/Kalender-einrichten.md` (neu): Ermittlung der Kalender-Zugangsdaten
   (ChurchTools, ChurchDesk; Google/iCal als Platzhalter), aus Olafs Handbuch v0.4.
   Beide neuen Dokumente in `Readme.md` und `Anwenderhandbuch.md` referenziert.
+### Hinzugefügt
+
+- `Tools/Tool-Test Thermostatgruppe schalten.hsc` (neu): schreibt eine Solltemperatur
+  direkt auf eine Homematic-Heizgruppe (`HmIP-HEATING`) und liest den Datenpunkt
+  `SET_POINT_TEMPERATURE` vorher und nachher aus.
+- `Tools/Tool-Test Thermostatgruppe auslesen.hsc` (neu): liest alle relevanten
+  Datenpunkte einer Heizgruppe aus (`SET_POINT_TEMPERATURE`, `ACTUAL_TEMPERATURE`,
+  `CONTROL_MODE`, `LEVEL`, `SET_POINT_MODE`).
+
+### Geändert
+
+- `Tools/Tool-Test Thermostatgruppe auslesen.hsc`: Einzelthermostate (HmIP-eTRV-2)
+  werden jetzt zusätzlich zur Heizgruppe ausgelesen. Zugriff per Seriennummer
+  (CCU-interne Suche), Ausgabe von `CONTROL_MODE`, `SET_POINT_MODE`, `LOW_BAT`
+  und `RSSI_DEVICE` je Thermostat.
+- `Tools/Tool-Heizgruppen Modus zurücksetzen.hsc`: Einzelthermostate in Heizgruppen
+  werden jetzt ebenfalls auf den gewünschten Modus gesetzt. Bisher wurden nur die
+  Heizgruppen-Datenpunkte geschrieben; die Mitglied-Thermostate fielen nach dem
+  nächsten CCU-Neustart oder Zyklus auf Auto zurück.
+- `Tools/Tool-Heizgruppen Modus zurücksetzen.hsc`: Tippfehler und englische
+  Debug-Ausgaben korrigiert. Log-Einträge kennzeichnen jetzt, dass ein Befehl
+  gesendet wurde (SET_POINT_MODE wird erst nach dem nächsten Funk-Zyklus aktualisiert).
+- `Tools/Readme.md`: Beschreibung von `Tool-Heizgruppen Modus zurücksetzen` aktualisiert;
+  `Tool-Test Thermostatgruppe auslesen` und `Tool-Test Thermostatgruppe schalten` ergänzt.
+- `Tools/Tool-Gestörte Kommunikation beheben.hsc`: Neuer Block für ausstehende
+  Konfigurationsdaten (CONFIG_PENDING): Geräte mit gesetztem Flag werden ebenfalls
+  angestossen. Log-Eintrag und Debug-Ausgabe ergänzt. Beschreibung in `Tools/Readme.md`
+  aktualisiert.
+- `Skripte/HK-Außentemperatur-Open-Meteo.hsc`: Log-Eintrag erweitert: zeigt jetzt
+  aktuellen Messwert, gleitenden Durchschnitt mit °C und das verwendete Zeitfenster
+  (z.B. `Akt. Außentemperatur= 18.2°C / Durchsch. Außentemperatur= 14.6°C (Zeitfenster: -18h/+6h)`).
+  Tippfehler in Kommentaren korrigiert; `+` durch `#` in DEBUG-Ausgaben ersetzt.
+- `Skripte/HK-Init-Skript 2.hsc`: Beschreibung von `HK2-Aussentemperatur` präzisiert
+  (war: „Zu verwendende Außentemperatur"; jetzt: „Außentemperatur für Vorheizzeit-Berechnung
+  (gleitender Durchschnitt)").
+- `Skripte/Dokumentation/Readme.md`: Abschnitt `HK-Außentemperatur-Open-Meteo` überarbeitet:
+  veraltete 36h-Angabe korrigiert, Zeitfenster-Parameter tabellarisch dokumentiert,
+  Log-Format als Beispiel ergänzt.
+
+### Behoben
+
+- `Skripte/HK-Test-Skript.hsc`: Modus `HS` (Heizen+Schalten) wurde als
+  `UNBEKANNT!!! FEHLER!!!` ausgegeben. Fix: `HS` wird jetzt korrekt als
+  `Heizen+Schalten` angezeigt.
 
 ## [2026-10-03]
 
