@@ -1,6 +1,6 @@
 !// Alle Heizgruppen auf Auto Modus zu setzen
 !//================================================================================================
-!// Stand:    04.10.2026
+!// Stand:    05.10.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -16,8 +16,9 @@
 !//   https://github.com/jollyjinx/homematic/blob/master/ThermostatModeSwitch.hms
 !//   https://homematic-forum.de/forum/viewtopic.php?f=26&t=86909
 !//
-!// TT:  2026-10-04 Einzelthermostate in Heizgruppen ebenfalls auf Manuell setzen,
-!//                 Tippfehler und englische Debug-Ausgaben korrigiert
+!// TT:  2026-10-05 Sonderfall eTRV-Direktsteuerung in eigenes Skript ausgelagert
+!//                 (Tool-Heizgruppen eTRV Modus setzen.hsc); Tippfehler und
+!//                 englische Debug-Ausgaben korrigiert
 !// MRi: 2026-01-31 Raumliste mit Wildcard eingebaut
 !// MRi: 2025-11-27 Individuelles Schalten eingebaut. Urlaubsmodus wurde nicht korrekt berücksichtigt
 
@@ -38,8 +39,6 @@ integer log=0;
 
 !//#######---Ende Variabler Bereich---#############################################################
 !//Im Folgenden Hier keine Veränderungen vornehmen!
-
-integer tvstate;
 
 var logObj=dom.GetObject(vrp+"HK-Log");
 var loggingObj=dom.GetObject(vrp+"HK-Logging");
@@ -162,38 +161,4 @@ foreach(deviceid, dom.GetObject(ID_DEVICES).EnumUsedIDs())
     }
   }
 
-  !// TT: Einzelthermostate (HmIP-eTRV-*) ebenfalls auf den gewünschten Modus setzen.
-  !// Die Heizgruppe synchronisiert den Modus nicht automatisch auf alle Mitglieder.
-  if(device.HssType().StartsWith("HmIP-eTRV") && (!skip))
-  {
-    string tvchanid;
-    foreach(tvchanid, device.Channels().EnumUsedIDs())
-    {
-      var tvchan = dom.GetObject(tvchanid);
-      if(debug){WriteLine("\t eTRV Channel:"#tvchan#" HssType="#tvchan.HssType()#" (id:"#tvchanid#")");}
-      if("HEATING_CLIMATECONTROL_TRANSCEIVER" == tvchan.HssType())
-      {
-        var     tviface  = dom.GetObject(tvchan.Interface());
-        var     tvdp     = tviface # "." # tvchan.Address();
-        if(debug){WriteLine("\t  Datapoint:"#tvdp);}
-        !// SET_POINT_MODE wird erst nach dem naechsten Funk-Zyklus des eTRV aktualisiert.
-        !// Der angezeigte Wert kann daher noch den Zustand vor dem letzten Schreibbefehl zeigen.
-        tvstate  = dom.GetObject(tvdp # ".SET_POINT_MODE").Value();
-        if(debug){WriteLine("\t  SET_POINT_MODE=" # tvstate # " newMode=" # newMode);}
-        if(!newMode && 1!=tvstate)
-        {
-          dom.GetObject(tvdp # ".CONTROL_MODE").State(1);
-          if(debug){WriteLine("\t  Einzelthermostat: Befehl Manuell gesendet");}
-          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " Befehl \"Manuell\" gesendet");}
-        }
-        elseif(newMode && 0!=tvstate)
-        {
-          dom.GetObject(tvdp # ".CONTROL_MODE").State(0);
-          if(debug){WriteLine("\t  Einzelthermostat: Befehl Auto gesendet");}
-          if(log){logObj.State("Moduskorrektur Einzelthermostat:" # device # " Befehl \"Auto\" gesendet");}
-        }
-        break;
-      }
-    }
-  }
 }
