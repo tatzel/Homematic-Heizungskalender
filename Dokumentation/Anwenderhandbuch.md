@@ -308,7 +308,8 @@ nicht mehr verwendet.
 Die Kennung in der Raumvariablen (Feld `Heiztyp`) bestimmt, welcher Datenpunkt des
 Aktors angesprochen wird. Die konkrete Kanalnummer legt der Administrator bei der
 Aktor-Zuordnung selbst fest (als Teil der Aktor-Adresse); die Spalte „Kanal" nennt
-den dabei üblichen Kanal:
+den dabei üblichen Kanal. Die Kanalnummer ist nur in der CCU3 relevant; der Name des
+Datenpunktes ist entscheidend:
 
 | Kennung | Kanal | Gerätetyp | Datenpunkt |
 | :--- | :--- | :--- | :--- |
@@ -344,11 +345,18 @@ müssen manuell eingerichtet werden, die CCU übernimmt das nicht automatisch).
    und die betreffenden Thermostate hinzufügen.
 2. Einen Temperatursensor als Referenzsensor der Gruppe zuweisen (empfohlen: ein
    wandmontierter Sensor, nicht der Sensor am Thermostatventil selbst).
-3. **Alle Thermostate auf manuellen Modus setzen:** Im Skript-Testen der CCU das Tool
-   `Tool-Heizgruppen Modus zurücksetzen.hsc` ausführen (setzt `CONTROL_MODE=1` auf allen
-   Heizgruppen). Im manuellen Modus überschreibt der Heizkalender die Solltemperatur
-   zuverlässig; im Auto-Modus könnte das Wochenprogramm des Thermostats Vorrang
-   bekommen.
+3. **Heizgruppe auf manuellen Modus setzen:** Im Skript-Testen der CCU das Tool
+   `Tool-Heizgruppen Modus zurücksetzen.hsc` ausführen. Es setzt `CONTROL_MODE=1` auf
+   der Gruppenadresse; die Heizgruppe überträgt diesen Modus automatisch auf alle
+   zugehörigen Thermostate. Im manuellen Modus überschreibt der Heizkalender die
+   Solltemperatur zuverlässig; im Auto-Modus könnte das Wochenprogramm des Thermostats
+   Vorrang bekommen.
+
+**Sonderfall nach Firmware-Update:** In seltenen Fällen kann ein Thermostat nach einem
+Firmware-Update den Gruppenmodus nicht übernehmen und auf Auto stehen, obwohl die Gruppe
+auf Manuell gesetzt ist. In diesem Fall das Tool `Tool-Heizgruppen eTRV Modus setzen.hsc`
+ausführen: Es setzt `CONTROL_MODE` direkt auf den Einzelthermostaten und korrigiert so
+den Zustand. Danach genügt wieder das normale Tool für den Regelbetrieb.
 
 **Konfiguration im Heizkalender:**
 
