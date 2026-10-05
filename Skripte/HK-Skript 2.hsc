@@ -96,11 +96,11 @@ string AGFParamIP="SET_POINT_TEMPERATURE";
 !//   HM-CC-RT-DN HM-CC-RT-DN
 string AGFParamRT="SET_TEMPERATURE";
 
-!// TC- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!// TC- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)
 !//   HM-CC-TC
 string AGFParamTC="SETPOINT";
 
-!// IT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 4)
+!// IT- Kennung Kanal Klassik-Thermostate-Aktoren-Gerätetyp (Kanal 2)
 !//   HM-TC-IT-WM-W-EU
 string AGFParamIT="SET_TEMPERATURE";
 
