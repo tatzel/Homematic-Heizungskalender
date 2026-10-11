@@ -1,0 +1,263 @@
+/* Heizkalender-Addon: eigene Stile, ergänzend zum CCU-Stylesheet */
+
+/* Addon-Startseite: Logo + Titel nebeneinander */
+.hk-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0.5em;
+}
+
+.hk-header-logo {
+  height: 64px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.hk-header h1 {
+  margin: 0;
+}
+
+.hk-nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5em;
+  padding: 6px 8px;
+  background-color: #dce8f0;
+  border: 1px solid #a8c4d8;
+  border-radius: 4px;
+}
+
+.hk-nav a {
+  display: inline-block;
+  padding: 6px 16px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.05em;
+  color: #1a5276;
+  background-color: #eaf3f8;
+  border: 1px solid #a8c4d8;
+  border-radius: 3px;
+}
+
+.hk-nav a:hover {
+  background-color: #c5dcea;
+  color: #0a2f45;
+}
+
+.hk-doc-link {
+  text-decoration: none;
+  color: #0066cc;
+  font-size: 0.9em;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.hk-doc-link:hover {
+  text-decoration: underline;
+}
+
+.hk-table {
+  border-collapse: collapse;
+  width: auto;
+  table-layout: auto;
+  margin-bottom: 1.5em;
+}
+
+.hk-table th,
+.hk-table td {
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.hk-table th {
+  background-color: #e8e8e8;
+  font-weight: bold;
+}
+
+.hk-table tr:nth-child(even) td {
+  background-color: #f5f5f5;
+}
+
+.hk-empty {
+  color: #888;
+  font-style: italic;
+}
+
+/* Eingebettete Tabelle (z.B. HK1-R-Liste in einer Tabellenzelle) */
+.hk-table-inline {
+  width: auto;
+  table-layout: auto;
+  margin: 0;
+}
+
+.hk-table-inline th,
+.hk-table-inline td {
+  padding: 2px 6px;
+}
+
+/* Log-Seite */
+.hk-log-controls {
+  margin-bottom: 1em;
+}
+
+.hk-log-controls form {
+  display: inline;
+}
+
+fieldset {
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  margin-bottom: 1.5em;
+  padding: 0.8em 1em;
+}
+
+fieldset fieldset {
+  margin-bottom: 0.8em;
+  margin-top: 0.3em;
+}
+
+legend {
+  font-weight: bold;
+  padding: 0 0.4em;
+  color: #333;
+}
+
+.hk-download-link {
+  font-weight: bold;
+  text-decoration: none;
+  color: #0066cc;
+}
+
+.hk-download-link:hover {
+  text-decoration: underline;
+}
+
+.hk-info {
+  cursor: help;
+  font-style: normal;
+  opacity: 0.6;
+}
+
+.hk-hint {
+  border-left: 4px solid #3498db;
+  background: #eaf4fb;
+  padding: 0.5em 0.8em;
+  margin-bottom: 1em;
+  color: #1a5276;
+  font-size: 0.95em;
+}
+
+.hk-log-info {
+  color: #555;
+  font-size: 0.9em;
+  margin-bottom: 0.5em;
+}
+
+.hk-log-table {
+  font-family: monospace;
+  width: 100%;
+  table-layout: auto;
+}
+
+.hk-log-table col.col-log-ts  { width: auto; }
+.hk-log-table col.col-log-src { width: auto; }
+.hk-log-table col.col-log-msg { width: 100%; }
+
+.hk-log-table th:nth-child(1), .hk-log-table td:nth-child(1),
+.hk-log-table th:nth-child(2), .hk-log-table td:nth-child(2) {
+  white-space: nowrap;
+}
+
+.hk-log-hk td {
+  background-color: #fffbe6 !important;
+}
+
+.hk-log-error td {
+  background-color: #fde8e8 !important;
+}
+
+.hk-log-hk1 td {
+  background-color: #e8f4fd !important;
+}
+
+.hk-log-hk2 td {
+  background-color: #e8fde8 !important;
+}
+
+.hk-schaltliste-table { width: auto; }
+.hk-schaltliste-table col.col-sl-status  { width: 30px; }
+.hk-schaltliste-table col.col-sl-raum   { width: 18%; }
+.hk-schaltliste-table col.col-sl-modus  { width: 14%; }
+.hk-schaltliste-table col.col-sl-isttemp { width: 9%; }
+.hk-schaltliste-table col.col-sl-humi   { width: 9%; }
+.hk-schaltliste-table col.col-sl-ein    { width: 14%; }
+.hk-schaltliste-table col.col-sl-aus    { width: 14%; }
+.hk-schaltliste-table col.col-sl-temp   { width: 14%; }
+
+.hk-sl-aktiv td {
+  font-weight: bold;
+}
+
+.hk-sl-legende {
+  font-size: 0.9em;
+  color: #555;
+  margin-top: 0.3em;
+  margin-bottom: 0.5em;
+}
+
+.hk-legende-fieldset {
+  margin-bottom: 0.8em;
+  display: inline-block;
+  padding: 0.3em 0.8em 0.3em;
+}
+
+.hk-sl-status-cell {
+  text-align: center;
+  font-size: 1.1em;
+}
+
+.hk-sl-status-aktiv {
+  color: #cc4400;
+}
+
+.hk-sl-status-keintermin {
+  color: #ccc;
+}
+
+/* Heizkurvenkontrolle-Seite */
+.hk-kurve-table { width: auto; }
+.hk-kurve-table th,
+.hk-kurve-table td { white-space: nowrap; }
+
+.hk-kurve-heizbeginn td { background-color: #d6eaf8 !important; }
+.hk-kurve-warn td       { background-color: #fde8d8 !important; }
+.hk-kurve-terminbeginn td { background-color: #d5f5e3 !important; }
+.hk-kurve-ziel td       { background-color: #e8f8e8 !important; }
+.hk-kurve-terminende td { background-color: #fef9e7 !important; }
+.hk-kurve-heizende td   { background-color: #f0f0f0 !important; }
+.hk-kurve-fehler td     { background-color: #fadbd8 !important; }
+
+.hk-kurve-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-right: 6px;
+  margin-bottom: 4px;
+  border: 1px solid #ccc;
+}
+
+.hk-kurve-heizbeginn.hk-kurve-badge  { background-color: #d6eaf8; }
+.hk-kurve-warn.hk-kurve-badge        { background-color: #fde8d8; }
+.hk-kurve-terminbeginn.hk-kurve-badge { background-color: #d5f5e3; }
+.hk-kurve-ziel.hk-kurve-badge        { background-color: #e8f8e8; }
+.hk-kurve-terminende.hk-kurve-badge  { background-color: #fef9e7; }
+.hk-kurve-heizende.hk-kurve-badge    { background-color: #f0f0f0; }
+.hk-kurve-fehler.hk-kurve-badge      { background-color: #fadbd8; }
+
+.hk-ind-ok  { color: #1a7a1a; margin-left: 4px; }
+.hk-ind-err { color: #c0392b; margin-left: 4px; }

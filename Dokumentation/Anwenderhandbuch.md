@@ -132,29 +132,17 @@ Besondere Sorgfalt braucht die Raumbezeichnung im Kalender:
   Sie bei jedem Termin genau diese fehlerfrei. Umgekehrt darf die Bezeichnung nicht
   auftauchen, wenn der Raum nicht gemeint ist.
 
-## Räume benennen (Raumvariablen)
+## Räume benennen (Raum-Systemvariablen)
 
 Jeder Raum wird über eine Systemvariable mit dem Namensschema
 `HKG-Raum-<Name>` abgebildet, zum Beispiel `HKG-Raum-GrSaal` oder
 `HKG-Raum-Foyer`. Diese Variablen werden normalerweise bei der Installation
 automatisch angelegt.
 
-Der Wert einer Raumvariablen ist eine semikolongetrennte Liste mit folgenden
-Feldern:
-
-```txt
-Status;Modus;Heiztyp;Wohlfühltemp[/Grundtemp];Vorheizzeit[*Faktor];VorzeitAus[;Heizgruppe:Name:N]
-```
-
-| Feld | Bedeutung |
-| :--- | :--- |
-| Status | `0` = keine Heizphase, `1` = Raum ist in einer Heizphase |
-| Modus | `H` = Heizen, `S` = Schalten, `HS` = Heizen und Schalten kombiniert |
-| Heiztyp | Gerätetyp-Kennung des Aktors: `IP` (Homematic IP Thermostat), `RT`, `TC`, `IT` (Klassik-Thermostate), `SW` (Schalt-Aktor) |
-| Wohlfühltemp | Zieltemperatur während des Termins, optional mit `/Grundtemp` für eine abweichende Grundtemperatur |
-| Vorheizzeit | Individuelle Vorheizzeit in Minuten, optional mit `*Faktor` (siehe unten) |
-| VorzeitAus | Minuten, um die vor Terminende abgeschaltet wird |
-| Heizgruppe | Optional: `Heizgruppe:Name:N` zur Zuordnung mehrerer Aktoren |
+Der Wert enthält u.a. den Gerätetyp des Aktors, die Wohlfühltemperatur,
+die individuelle Vorheizzeit und die Zeit, nach der vor Terminende abgeschaltet
+wird. Das genaue Feldformat ist in der
+[Entwickler-Dokumentation](Entwickler.md#hkg-raum-) beschrieben.
 
 Beispielwert: `0;H;IP;18;0;30` bedeutet: kein aktives Heizen, Modus Heizen,
 Homematic-IP-Thermostat, Wohlfühltemperatur 18 °C, keine zusätzliche individuelle
@@ -163,13 +151,18 @@ Vorheizzeit, 30 Minuten vor Terminende abschalten.
 ### Mehrere Räume gemeinsam schalten
 
 In der Variablen `HK2-HKG-Liste` lassen sich mehrere Räume mit einem `+`-Zeichen
-zu einer gemeinsam geschalteten Einheit zusammenfassen; verschiedene
-Einheiten werden mit `;` getrennt. Jeder Raum behält dabei seine eigene
-Raumvariable mit eigener Vorheizzeit und Wohlfühltemperatur.
+zu einer gemeinsam geschalteten Gruppe zusammenfassen; verschiedene
+Gruppen werden mit `;` getrennt. Jeder Raum behält dabei seine eigene
+Raum-Systemvariable mit eigener Vorheizzeit und Wohlfühltemperatur.
 
-Beispiel: `HKG-Raum-GrSaal+HKG-Raum-Foyer+HKG-Raum-WCs;HKG-Raum-KlSaal`
-fasst Großen Saal, Foyer und WCs zusammen; der Kleine Saal bildet eine eigene
-Einheit.
+Das ist nützlich, wenn Nebenräume immer mitgeheizt werden sollen, sobald ein
+Hauptraum gebucht wird. Wird z.B. der Große Saal im Kalender eingetragen, heizt
+HK-Skript 2 automatisch auch das Foyer und das Gäste-WC, ohne dass dafür
+separate Kalendereinträge nötig sind.
+
+Beispiel: `HKG-Raum-GrSaal+HKG-Raum-Foyer+HKG-Raum-GaesteWC;HKG-Raum-KlSaal`
+schaltet Großen Saal, Foyer und Gäste-WC gemeinsam; der Kleine Saal bildet eine
+eigene Gruppe.
 
 ## Vorheizzeit
 
@@ -177,7 +170,7 @@ Die Vorheizzeit bestimmt, wie lange vor Terminbeginn ein Raum von der
 Grundtemperatur auf die Wohlfühltemperatur gebracht wird. Sie setzt sich aus zwei
 Anteilen zusammen:
 
-1. der **individuell** in der Raumvariablen definierten Vorheizzeit und
+1. der **individuell** in der Raum-Systemvariablen definierten Vorheizzeit und
 2. der **automatisch aus der Außentemperatur** errechneten Vorheizzeit
    (über die Heizkurve `HK2-Kurve`).
 
@@ -257,7 +250,7 @@ Als Orientierungshilfe sind drei Beispielkurven bekannt:
 | Mittel | 220 | 180 | 144 | 95 | 85 | 75 | 61 | 50 | Typische Gemeindegebäude |
 | Großzügig | 451 | 370 | 297 | 196 | 174 | 154 | 125 | 103 | Träge Heizsysteme / Fußbodenheizung |
 
-Der `*Faktor` in der Raumvariablen skaliert die Kurvenzeit für einzelne Räume
+Der `*Faktor` in der Raum-Systemvariablen skaliert die Kurvenzeit für einzelne Räume
 zusätzlich (z.B. `*3.5` für eine Fußbodenheizung mit festem Offset von 240 min).
 
 ### Die richtige Grundtemperatur: Heizversuch
@@ -305,7 +298,7 @@ nicht mehr verwendet.
 
 ## Unterstützte Homematic-Geräte
 
-Die Kennung in der Raumvariablen (Feld `Heiztyp`) bestimmt, welcher Datenpunkt des
+Die Kennung in der Raum-Systemvariablen (Feld `Heiztyp`) bestimmt, welcher Datenpunkt des
 Aktors angesprochen wird. Die konkrete Kanalnummer legt der Administrator bei der
 Aktor-Zuordnung selbst fest (als Teil der Aktor-Adresse); die Spalte „Kanal" nennt
 den dabei üblichen Kanal. Die Kanalnummer ist nur in der CCU3 relevant; der Name des
@@ -360,7 +353,7 @@ den Zustand. Danach genügt wieder das normale Tool für den Regelbetrieb.
 
 **Konfiguration im Heizkalender:**
 
-In der Raumvariablen wird die Heizgruppe als Aktor eingetragen, mit Heiztyp `IP` und
+In der Raum-Systemvariablen wird die Heizgruppe als Aktor eingetragen, mit Heiztyp `IP` und
 Kanal 1:
 
 ```text
@@ -384,19 +377,9 @@ entfällt.
 
 Diese Variable ist die interne Schnittstelle zwischen Skript 1 und Skript 2 und wird
 von den Skripten automatisch befüllt und ausgelesen. Sie sollte **niemals manuell
-verändert werden**. Das Format ist hier dokumentiert, damit Fehlermeldungen im Log
-besser verstanden werden können.
-
-Jeder Eintrag besteht aus fünf semikolongetrennten Feldern, mehrere Einträge folgen
-direkt hintereinander:
-
-| Feld | Inhalt |
-| :--- | :--- |
-| 1 | Ressourcen-ID (gemäß `HK1-R-Liste`) |
-| 2 | Startzeit im UNIX-Timestamp (UTC) |
-| 3 | Endezeit im UNIX-Timestamp (UTC) |
-| 4 | Steuerungswert aus dem Kalender-Eintrag (`#...#`-Befehle), sonst `0` |
-| 5 | Modus: `§` = Heizen, `&` = Schalten |
+verändert werden**. Das Format ist dokumentiert, damit Fehlermeldungen im Log
+besser verstanden werden können. Die vollständige Feldbeschreibung findet sich in der
+[Entwickler-Dokumentation](Entwickler.md#hk1-schaltliste).
 
 Beispiele:
 
@@ -404,7 +387,7 @@ Beispiele:
   einschalten (`-1` = `#EIN#`), Schalt-Modus.
 - `18;1720951200;1720954800;0;&`: Ressource 18, gleicher Zeitraum, normal schalten.
 - `16;1720951200;1720954800;0;§`: Ressource 16, gleicher Zeitraum, heizen (Skript 2
-  berechnet Vorlaufzeit und Zieltemperatur aus der Raumvariablen).
+  berechnet Vorlaufzeit und Zieltemperatur aus der Raum-Systemvariablen).
 
 ## Sonderbefehle in Terminen
 
@@ -501,3 +484,12 @@ Gründe für die Wahl von Homematic:
 teurer als ZigBee und ähnliche Systeme. Das Heizkalender-Team ist offen für andere
 Smarthome-Systeme und würde eine Verknüpfung unterstützen. Eine eigene Initiative dazu
 ist jedoch nicht möglich.
+
+## Heizkalender Addon
+
+Das Heizkalender Addon stellt eine Weboberfläche auf der CCU bereit, über die der
+laufende Betrieb beobachtet und konfiguriert werden kann (Raumübersicht, HK-Log,
+Systemlog, Heizkurvenkontrolle, Systemvariablen, Grundeinstellungen).
+
+Die vollständige Beschreibung aller Seiten findet sich im
+[Addon-Anwenderhandbuch](Addon/Anwenderhandbuch.md).

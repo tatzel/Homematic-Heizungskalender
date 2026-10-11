@@ -1,0 +1,61 @@
+#!/bin/sh
+# rc.d-Script für das Heizkalender-Addon
+# Dieses Addon hat keinen eigenen Daemon; das Script liefert nur Metadaten.
+
+case "$1" in
+  ""|info)
+    VERSION=$(cat "/usr/local/addons/heizkalender/VERSION" 2>/dev/null || echo "0.0.0")
+    echo "Name: Heizkalender"
+    echo "Version: ${VERSION}"
+    echo "Info: <center><img src=\"../addons/heizkalender/hk-logo-50.png\" height=\"50\"><br><b>HomeMatic-Heizungskalender</b><br><a href=\"https://github.com/xMRi/Homematic-Heizungskalender\" target=\"_blank\">Projektseite auf GitHub</a></center>"
+    echo "Config-Url: /addons/heizkalender/index.cgi"
+    echo "Update: /addons/heizkalender/update_check.cgi"
+    echo "Operations: uninstall"
+    # hm_addons.cfg aktualisieren
+    tclsh << 'TCLEOF'
+set cfg "/usr/local/etc/config/hm_addons.cfg"
+set id "heizkalender"
+set tooltip {<li>Raum&uuml;bersicht</li><li>Heizkurve</li><li>HK-Log</li><li>Systemlog</li><li>Systemvariablen</li><li>Grundeinstellungen</li>}
+if {[file exists $cfg]} {
+    set fh [open $cfg r]
+    set data [read $fh]
+    close $fh
+    array set addons {}
+    if {[string length $data] > 0} { array set addons $data }
+    set addons($id) "CONFIG_URL /addons/heizkalender/index.cgi CONFIG_DESCRIPTION {de {$tooltip} en {$tooltip}} ID $id CONFIG_NAME Heizkalender"
+    set fh [open $cfg w]
+    puts -nonewline $fh [array get addons]
+    close $fh
+}
+TCLEOF
+    ;;
+  uninstall)
+    ADDON="heizkalender"
+    rm -f  "/usr/local/etc/config/rc.d/${ADDON}"
+    rm -rf "/usr/local/addons/${ADDON}"
+    rm -f  "/usr/local/etc/config/addons/www/${ADDON}"
+    # Eintrag aus hm_addons.cfg entfernen
+    tclsh << 'TCLEOF'
+set cfg "/usr/local/etc/config/hm_addons.cfg"
+set id "heizkalender"
+if {[file exists $cfg]} {
+    set fh [open $cfg r]
+    set data [read $fh]
+    close $fh
+    array set addons {}
+    if {[string length $data] > 0} {
+        array set addons $data
+    }
+    unset -nocomplain addons($id)
+    set fh [open $cfg w]
+    puts -nonewline $fh [array get addons]
+    close $fh
+}
+TCLEOF
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0

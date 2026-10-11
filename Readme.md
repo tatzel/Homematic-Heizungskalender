@@ -28,6 +28,7 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 - [Planung](/Dokumentation/Planung.md): Struktur planen, Nomenklatur für Aktoren- und Heizgruppen (vor der Installation).
 - [Kalender-Zugangsdaten ermitteln](/Dokumentation/Kalender-einrichten.md): Token/IDs für ChurchTools, ChurchDesk usw. beschaffen.
 - [Anwenderhandbuch](/Dokumentation/Anwenderhandbuch.md): Sonderbefehle, Raumvariablen, Vorheizzeit im laufenden Betrieb.
+- [Heizkalender Addon](/Dokumentation/Addon/Anwenderhandbuch.md): Installation und Seiten-Übersicht des CCU-Addons zur Anzeige von Räumen, Protokollen und Heizkurvenkontrolle.
 - [Installer-Anleitung](/HeizkalenderInstallation/Dokumentation/Readme.md): Einrichtung und Updates auf der CCU.
 - [Skript-Referenz](/Skripte/Dokumentation/Readme.md): alle Skripte und Systemvariablen im Detail.
 - [Heizsteuerung und Vorheizzeit](/Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md): Berechnung der Vorheizzeit mit Beispielen.
@@ -36,6 +37,7 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 ### Für Entwickler
 
 - [Entwickler-Dokumentation](/Dokumentation/Entwickler.md): Skript-Syntax, Installer-Build, Versionierung, Beitrag-Workflow.
+- [Addon-Entwicklerdokumentation](/Dokumentation/Addon/Entwickler.md): Aufbau des CCU-Addons, CGI-Seiten, Paketformat, Tcl-8.2-Besonderheiten.
 - [CHANGELOG](/CHANGELOG.md): zentrale Änderungshistorie (Datums-Stände).
 
 ### Archiv (historische Dokumente)
@@ -52,6 +54,7 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 | `Tools/` | Optionale Zusatzwerkzeuge (Diagnose, Logging, Wartung). |
 | `Tests/` | Entwickler-Testfälle, nicht für den Produktivbetrieb. |
 | `HeizkalenderInstallation/` | Windows-Installer-Quellcode (C++/MFC) und dessen Doku. Die gebaute `.exe` liegt als Kopie in `Skripte/`. |
+| `Addon/` | CCU-Addon (Weboberfläche): Tcl-CGI-Seiten, rc.d-Service-Skript und Installationsskript. Wird als `heizkalender-addon.tar.gz` paketiert und über die CCU-Zusatzsoftware installiert. Doku: [Anwender](/Dokumentation/Addon/Anwenderhandbuch.md), [Entwickler](/Dokumentation/Addon/Entwickler.md). |
 | `Dokumentation/` | Übergreifende Anwender-, Entwickler- und Archiv-Doku. |
 | `Backup-Originale/` | Historische Original-Skripte, nur zur Referenz. |
 

@@ -17,7 +17,7 @@ Content-Type: application/json
 # @name getBookings
 # @title Get Bookings
 # @description
-GET https://{{name}}.church.tools/api/bookings?login_token={{loginToken}}&resource_ids[]=1&resource_ids[]=2&resource_ids[]=3&resource_ids[]=4&resource_ids[]=6&from=2026-09-27&to=2026-09-27
+GET https://{{name}}.church.tools/api/bookings?login_token={{loginToken}}&resource_ids[]=1&resource_ids[]=2&resource_ids[]=3&resource_ids[]=4&resource_ids[]=6&resource_ids[]=11&from=2026-10-04&to=2026-10-04
 Content-Type: application/json
 
 ?? status == 20
@@ -27,7 +27,7 @@ Content-Type: application/json
 # @name getBookings2
 # @title Get Bookings for Kinderraum(1), Raum 1(6), Eltern-Kind-Raum(11)
 # @description
-GET https://{{name}}.church.tools/api/bookings?login_token={{loginToken}}&resource_ids[]=1&resource_ids[]=6&resource_ids[]=11&from=2026-09-29&to=2026-09-29
+GET https://{{name}}.church.tools/api/bookings?login_token={{loginToken}}&resource_ids[]=1&resource_ids[]=6&resource_ids[]=11&from=2026-10-04&to=2026-10-04
 Content-Type: application/json
 
 ?? status == 20
