@@ -13,6 +13,29 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-11]
+
+### Behoben
+
+- Addon `kurve.cgi`: Raumgruppen wurden in der Raum-Spalte ohne den Gruppenanteil
+  angezeigt (z.B. `EG-Eltern-Kind-Raum` statt `EG-Eltern-Kind-Raum-UG-Büro`).
+- Addon `kurve.cgi`: Roter Pfeil bei Ist-Temperatur >= Zieltemperatur durch
+  nachgestelltes Komma im Log-Format verhindert (Parsing-Fehler).
+
+### Hinzugefügt
+
+- Addon `kurve.cgi`: Zeitraum-Filter „Heute" ergänzt (neuer Standard).
+- Addon `kurve.cgi`: Gruppenräume erscheinen im Raum-Filter-Dropdown und werden
+  beim Filtern nach dem Hauptraum mitangezeigt.
+- Addon `index.cgi`: Raumstatus direkt aus Feld 0 der `HKG-Raum-*`-Systemvariablen
+  gelesen statt aus der Schaltliste berechnet. Vorheizphase wird damit korrekt
+  angezeigt.
+
+### Geändert
+
+- Addon `index.cgi`: Gelber Zeilenhintergrund für heizende Räume entfernt
+  (fette Schrift bleibt).
+
 ## [2026-10-06]
 
 ### Geändert
