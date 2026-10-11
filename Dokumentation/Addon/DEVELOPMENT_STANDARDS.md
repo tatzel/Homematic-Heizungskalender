@@ -1,0 +1,137 @@
+# Heizkalender Addon: Development Standards
+
+## Inhalt
+
+- [Laufzeitumgebung](#laufzeitumgebung)
+- [Tcl-8.2-Einschränkungen](#tcl-82-einschränkungen)
+- [Zeichenkodierung](#zeichenkodierung)
+- [HTML-Ausgabe](#html-ausgabe)
+- [ReGa-API](#rega-api)
+- [CSS-Konventionen](#css-konventionen)
+- [Deployment](#deployment)
+- [Entschiedene Design-Fragen](#entschiedene-design-fragen)
+
+---
+
+## Laufzeitumgebung
+
+- CCU3-Originalfirmware: Tcl 8.2.3, Linux
+- Shebang: `#!/bin/tclsh`
+- Tcl-Bibliothek: `load tclrega.so` für ReGa-Zugriff
+- Webserver: eingebetteter CCU-Webserver, CGI-Ausführung
+- Pfad auf der CCU: `/usr/local/addons/heizkalender/www/`
+- URL im Browser: `http://<CCU-IP>/addons/heizkalender/`
+
+---
+
+## Tcl-8.2-Einschränkungen
+
+Folgende Sprachfeatures sind in Tcl 8.2 nicht verfügbar und dürfen nicht verwendet werden:
+
+| Nicht verfügbar | Workaround |
+| --------------- | ---------- |
+| `dict` | Flat-Listen als Key-Value-Paare (`lsearch`, `lindex`) |
+| `lreverse` | Manuelle While-Schleife mit Index |
+| `{*}` (Argument-Expansion) | `eval` oder umstrukturieren |
+| `clock scan` mit ISO-Format | Regex-Extraktion + Rekonstruktion als `MM/DD/JJJJ HH:MM:SS` |
+| `encoding convertfrom iso8859-1` | Nicht nötig, da CCU bereits ISO-8859-1 liefert (siehe [Zeichenkodierung](#zeichenkodierung)) |
+| `file tempfile` | Temporäre Dateien vermeiden |
+| `string equal -nocase` | `string tolower` + `string equal` |
+
+Geschweifte Klammern in ReGa-Rückgaben erfordern eine manuelle Tiefenzählung, da reguläre Ausdrücke dafür ungeeignet sind. Die Prozedur `extract_stdout` (in `index.cgi`, `kurve.cgi`) implementiert dieses Muster.
+
+---
+
+## Zeichenkodierung
+
+**Grundregel:** Alle CGI-Dateien senden `Content-Type: text/html; charset=iso-8859-1` und deklarieren dasselbe im `<meta charset>`-Tag.
+
+**Warum ISO-8859-1:** Tcl 8.2 unterstützt kein UTF-8-Encoding. Die verfügbaren Encodings beschränken sich auf `utf-8`, `identity` und `unicode`; `encoding convertfrom iso8859-1` schlägt fehl. Die CCU liefert Systemvariablen, Logdateien und alle ReGa-Daten in ISO-8859-1. Tcl gibt diese Bytes unverändert aus. Der Browser interpretiert sie korrekt, wenn `charset=iso-8859-1` deklariert ist.
+
+**Sonderzeichen im Quellcode:** Die CGI-Dateien sind als UTF-8 auf dem Entwicklungsrechner gespeichert. Sonderzeichen, die direkt im Tcl-Quellcode stehen (z.B. `°`, `ü`, `ä`), liegen als UTF-8-Mehrbyte-Sequenzen vor und werden von Tcl 8.2 nicht korrekt verarbeitet. Regel:
+
+- Alle Sonderzeichen in HTML-Ausgaben als HTML-Entities schreiben: `&deg;`, `&uuml;`, `&auml;`, `&ouml;` usw.
+- `format "%c" 176` erzeugt kein zuverlässiges ISO-8859-1-Byte auf der CCU; stattdessen `&deg;` verwenden.
+- Kommentare im Tcl-Quellcode dürfen Umlaute enthalten (sie werden nicht ausgegeben).
+
+---
+
+## HTML-Ausgabe
+
+**`htmlquote`:** Alle Werte, die aus externen Quellen stammen (ReGa, Logdateien, URL-Parameter), müssen durch `htmlquote` laufen, bevor sie in HTML eingefügt werden. Ausnahme: Strings, die bereits ausschließlich HTML-Entities und sichere numerische Werte enthalten (z.B. Temperaturstrings aus `format_temp`), dürfen nicht nochmals durch `htmlquote` laufen, da `&` sonst zu `&amp;` escapt wird.
+
+**Temperaturanzeige:** Die Prozedur `format_temp` in `sysvars.cgi` gibt fertige HTML-Strings zurück (`"$t &deg;C"`). Diese nicht durch `htmlquote` leiten.
+
+**Keine Inline-Styles in CGI-Dateien** (Ausnahme: `config.cgi` enthält einen `<style>`-Block für die Heizkurven-Kacheln, da diese Stile nur auf dieser einen Seite benötigt werden).
+
+---
+
+## ReGa-API
+
+ReGa-Scripte werden mit `rega_script {... HomeMatic-Script ...}` ausgeführt. Die Rückgabe hat die Form:
+
+```txt
+STDOUT {<inhalt>} sessionId {} httpUserAgent {} result {<inhalt>}
+```
+
+Enthält `<inhalt>` geschweifte Klammern, schlägt `array set` fehl. Deshalb wird der STDOUT-Block immer manuell mit Tiefenzählung extrahiert (`extract_stdout`-Prozedur oder inline).
+
+**Daten aus der ReGa immer als ISO-8859-1 behandeln**, kein Encoding-Umbau nötig.
+
+---
+
+## CSS-Konventionen
+
+- Alle Stile in `heizkalender.css`; Inline-Styles in CGI-Dateien vermeiden.
+- Keine globale `body`- oder `html`-`font-size` gesetzt; Browser-Default wird verwendet.
+- Keine externe Schriftart, kein CDN.
+- Klassen-Präfix: immer `hk-` (z.B. `.hk-table`, `.hk-nav`, `.hk-hint`).
+- `font-size`-Regeln in Klassen nur setzen, wenn eine bewusste Abweichung vom Fließtext gewünscht ist (z.B. Navigationsleiste `1.05em`). Nicht zur Normalisierung verwenden.
+- Log-Tabellen verwenden `font-family: monospace` ohne explizite `font-size` (erbt Browser-Default).
+- Eingebettete Tabellen (`.hk-table-inline`) erhalten keine abweichende `font-size` (gleiche Größe wie die umgebende Tabelle).
+
+---
+
+## Deployment
+
+**Einzelne Datei auf CCU übertragen:**
+
+```bash
+scp Addon/heizkalender/www/<datei>.cgi root@<CCU-IP>:/usr/local/addons/heizkalender/www/
+```
+
+Pfade immer relativ ab dem Projektverzeichnis angeben (nicht absolut).
+
+**Mehrere Dateien gleichzeitig:**
+
+```bash
+scp Addon/heizkalender/www/index.cgi Addon/heizkalender/www/heizkalender.css \
+    root@<CCU-IP>:/usr/local/addons/heizkalender/www/
+```
+
+**Vollständiges Paket für ein Release:**
+
+```bash
+git archive --prefix=heizkalender/ HEAD:Addon | gzip > heizkalender-addon.tar.gz
+```
+
+Das Asset muss den Namen `heizkalender-addon.tar.gz` tragen, damit `update_check.cgi` es über die GitHub Releases API findet.
+
+**CCU-IP:** siehe lokale Konfiguration, SSH-Benutzer: `root`.
+
+---
+
+## Entschiedene Design-Fragen
+
+Diese Entscheidungen sind getroffen und sollen nicht ohne neuen Grund wieder aufgegriffen werden.
+
+| Thema | Entscheidung | Begründung |
+| ----- | ------------ | ---------- |
+| Zeichenkodierung | ISO-8859-1 durchgehend, keine UTF-8-Konvertierung | Tcl 8.2 hat kein funktionierendes UTF-8-Encoding; CCU liefert ohnehin ISO-8859-1 |
+| Sonderzeichen im Quellcode | HTML-Entities (`&deg;`, `&uuml;` usw.) | CGI-Dateien sind als UTF-8 gespeichert; Tcl 8.2 verarbeitet UTF-8-Mehrbyte-Sequenzen nicht korrekt |
+| JavaScript | Kein JavaScript auf den Seiten | Alle Seiten müssen ohne JS funktionieren; Filterlogik läuft serverseitig |
+| Schreiben auf die CCU | Keine Schreiboperationen | Das Addon ist ein reines Beobachtungswerkzeug |
+| Gemeinsames Stylesheet | Alle Seiten teilen `heizkalender.css` | Einheitliches Erscheinungsbild, keine CSS-Duplikation |
+| Kein `source`/`package` | Jede CGI-Datei ist standalone | CCU hat keine Tcl-Package-Infrastruktur; Deployment-Einfachheit |
+| Favicon | `hk-logo-50.png` auf allen Seiten | Wiedererkennbarkeit im Browser-Tab |
+| Temperaturtyp in Heizkurvenkontrolle | Format `16.3 °C (AT)` statt `AT: 16.3 °C` | Lesbarkeit: Wert zuerst, Typ als Ergänzung in Klammern |

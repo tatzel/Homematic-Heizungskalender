@@ -6,6 +6,15 @@ Skripte mit dem Namenskürzel _Skript 1_ beschreiben die verschiedenen Methoden 
 
 Das _Skript 2_ ist das Hauptskript zum Schalten der Heizung.
 
+## Inhalt
+
+- [HeizkalenderInstallation.exe](#heizkalenderinstallationexe)
+- [Skripte zur Initialisierung](#skripte-zur-initialisierung)
+- [Skripte zum Einlesen der Termindaten aus diversen Quellen](#skripte-zum-einlesen-der-termindaten-aus-diversen-quellen)
+- [Schaltskript](#schaltskript)
+- [HK-Skript 2.hsc](#hk-skript-2hsc)
+- [Sonstige Skripte](#sonstige-skripte)
+
 ## HeizkalenderInstallation.exe
 
 Die HeizkalenderInstallation.exe dient zur Installation und Einrichtung der verschiedenen Skriptvarianten.
@@ -32,7 +41,7 @@ Die folgenden Variablen werden in allen Skripten vom Typ 1 und natürlich vom Sc
 | :--------------- | :--------- |
 | HK1-Schaltliste | Schaltlisten Einträge. Hier werden vom Skript die ermittelten und zu schaltenden Termine eingetragen |
 | HK1-R-Liste | Raumliste der Churchdesk Ressourcen. Bestehende aus einer Id und optional gefolgt von einem Gleichheitszeichen mit dem Raumnamen als Text |
-| HK2-HKG-Liste | Semikolon getrennte Liste der Raumvariablen. Zu jedem Eintrag der Ressourcen Liste HK1-R-Liste, der entsprechende Raum Eintrag. Jeder Ressource können mehrere Räume zugeordnet werden indem die einzelnen Räume durch ein + Zeichen getrennt werden. |
+| HK2-HKG-Liste | Semikolon getrennte Liste der Raum-Systemvariablen. Zu jedem Eintrag der Ressourcen Liste HK1-R-Liste, der entsprechende Raum Eintrag. Jeder Ressource können mehrere Räume zugeordnet werden indem die einzelnen Räume durch ein + Zeichen getrennt werden. |
 
 ### HK-Init-Skript 1_ChurchDesk.hsc
 
@@ -43,7 +52,7 @@ Dieses Skript legt alle Systemvariablen an, die für den Zugriff auf ChruchDesk 
 | HK1-CD-OrganisationsId | ChurchDesk Id der Kirche oder Gemeinde |
 | HK1-CD-Token | API-Token für den Zugriff auf die Pull-API von ChurchDesk. Dieses Token wird durch den Support von ChurchDesk vergeben. |
 
-Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen, die in ChurchDesk angelegt wurden. Es werden dann entsprechende Raumvariablen erzeugt.
+Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen, die in ChurchDesk angelegt wurden. Es werden dann entsprechende Raum-Systemvariablen erzeugt.
 
 Dieses Skript wird für den Zugriff über die iCal oder API Schnittstelle benötigt.
 
@@ -56,7 +65,7 @@ Dieses Skript dient zum Anlegen aller Systemvariablen um Termine aus den Ressour
 | HK1-CT-Gemeindename | Name der Gemeinde im ChurchTools URL. `xyz`.church.tools |
 | HK1-CT-Token | Login Token für einen Benutzer in ChurchTools. Dieses Login-Token muss einmalig ermittelt werden. Der Benutzer benötigt ausschließlich lesenden Zugriff auf die Kalender und Ressourcen. |
 
-Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen vom Typ `Raum`, die in ChurchTools angelegt wurden. Es werden dann entsprechende Raumvariablen erzeugt.
+Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen vom Typ `Raum`, die in ChurchTools angelegt wurden. Es werden dann entsprechende Raum-Systemvariablen erzeugt.
 
 ### HK-Init-Skript 1_Google.hsc
 
@@ -91,7 +100,7 @@ Dieses Skript legt alle Systemvariablen an, die für das Schalt-Skript benötigt
 | HK2-Hand-Grundtemp | Wenn `true` aktiviert die Nachtschaltung. HK-Skript 2 prüft täglich zwischen 00:57 und 01:03 Uhr alle Räume und setzt sie auf Grundtemperatur, sofern kein aktiver Termin (Schaltzustand=1) vorliegt. Bei Heizräumen (HSFlag=H) wird die Solltemperatur am Thermostat gesetzt, bei Schaltaktoren (HSFlag=S/HS) wird der Aktor ausgeschaltet. Die Prüfung erfolgt direkt am Aktor, nicht nur in der Systemvariablen. |
 | HK2-VorzeitAus | Globale Grundoffsetzeit in Minuten, um die vor Terminende ausgeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-Kurvenversatz (Einschalt-Offset). Default: 0 |
 | HK2-Kurvenversatz | Globale Grundoffsetzeit in Minuten, um die vor Terminbeginn eingeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-VorzeitAus (Ausschalt-Offset). Default: 0 |
-| HK2-Kurve | Heizkurve: 8 Vorlaufzeiten in Minuten zu den Außentemperatur-Stützpunkten −10, −5, 0, 8, 10, 12, 15, 17,5 °C (semikolongetrennt). Zwischen den Stützpunkten interpoliert HK-Skript 2 linear; der höchste Wert (bei tiefster Außentemperatur) ist die längste Vorheizzeit. Installer-Default (konservativ): `162;130;100;59;50;41;30;20` (max. 162 min ≈ 2,7 h). Als Orientierungshilfe sind drei Beispielkurven bekannt (konservativ / mittel / großzügig); Details und eine vollständige Vergleichstabelle siehe [Anwenderhandbuch](../../Dokumentation/Anwenderhandbuch.md) und [Heizsteuerung-Vorheizzeit.md](Heizsteuerung-Vorheizzeit.md). |
+| HK2-Kurve | Heizkurve: 8 Vorlaufzeiten in Minuten zu den Außentemperatur-Stützpunkten −10, −5, 0, 8, 10, 12, 15, 17,5 °C (semikolongetrennt). Zwischen den Stützpunkten interpoliert HK-Skript 2 linear; der höchste Wert (bei tiefster Außentemperatur) ist die längste Vorheizzeit. Installer-Default (konservativ): `162;130;100;59;50;41;30;20` (max. 162 min ≈ 2,7 h). Als Orientierungshilfe sind drei Beispielkurven bekannt (konservativ / mittel / großzügig); Details und eine vollständige Vergleichstabelle siehe [Anwenderhandbuch](../../Dokumentation/Anwenderhandbuch.md) und [Heizsteuerung-Vorheizzeit.md](Heizsteuerung-Vorheizzeit.md). Feldformat: [Entwickler-Dokumentation](../../Dokumentation/Entwickler.md#hk2-kurve). |
 | HK2-Log | Variable für das Schalt-Log (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
 | HK2-Logging | Flag das Logging vom Typ `HK2-Log` steuert (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
 
