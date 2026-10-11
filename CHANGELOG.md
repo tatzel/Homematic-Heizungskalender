@@ -19,7 +19,7 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 - Aufteilung der Skripte im Tools Ordner in Programme und Debug+Test Code
 - `Best practice` ergänzt in einigen Skripten
-- Sicherheits Code quit in gefährlichen Skripten eingebaut um versehentliche Nutzung zu 
+- Sicherheits Code quit in gefährlichen Skripten eingebaut um versehentliche Nutzung zu
   verhindern.
 - Anpassung der Dokumentation
 

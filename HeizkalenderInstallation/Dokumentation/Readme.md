@@ -3,6 +3,18 @@
 Der Heizkalender-Installer ist ein Tool zur Erstellung von Heizkalendern für die HomeMatic, basierend auf Daten aus ChurchTools, ChurchDesk, iCal oder Google Kalender.
 Der Installer ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwendigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
 
+## Inhalt
+
+- [Systemvoraussetzungen](#systemvoraussetzungen)
+- [Verbinden mit der CCU](#verbinden-mit-der-ccu)
+- [Einrichten einer neuen Heizkalender Installation](#einrichten-einer-neuen-heizkalender-installation)
+- [Nach dem Verbindungsaufbau mit der CCU](#nach-dem-verbindungsaufbau-mit-der-ccu)
+- [Programme / Skripte](#programme--skripte)
+- [Allgemeine Einstellungen des Heizkalenders](#allgemeine-einstellungen-des-heizkalenders)
+- [Ressourcen Kalenderzuordnung](#ressourcen-kalenderzuordnung)
+- [Räume](#räume)
+- [Systemvariablen](#systemvariablen)
+
 ## Systemvoraussetzungen
 
 - Betriebssystem: Windows
