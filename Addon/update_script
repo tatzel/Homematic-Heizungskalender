@@ -1,0 +1,48 @@
+#!/bin/sh
+# Installationsskript für das Heizkalender-Addon
+# Basiert auf der Vorlage aus https://github.com/homematic-community/ccu-addon-howto
+
+ADDON="heizkalender"
+ADDONS_DIR="/usr/local/addons"
+ADDON_DIR="${ADDONS_DIR}/${ADDON}"
+WWW_DIR="/usr/local/etc/config/addons/www/${ADDON}"
+RCD_DIR="/usr/local/etc/config/rc.d"
+
+# /usr/local einbinden (CCU3); Fehler ignorieren falls bereits gemountet
+mount /usr/local 2>/dev/null || true
+
+# Prüfen ob es eine Neuinstallation oder ein Update ist
+FRESH_INSTALL=0
+if [ ! -d "${ADDON_DIR}" ]; then
+  FRESH_INSTALL=1
+fi
+
+# Verzeichnisse sicherstellen
+mkdir -p "${ADDON_DIR}/www"
+mkdir -p "${RCD_DIR}"
+
+# Eventuell laufenden Dienst stoppen (bei Update)
+if [ "${FRESH_INSTALL}" = "0" ] && [ -x "${RCD_DIR}/${ADDON}" ]; then
+  ${RCD_DIR}/${ADDON} stop
+fi
+
+# Addon-Dateien kopieren
+cp VERSION "${ADDON_DIR}/VERSION"
+cp -r heizkalender/www/* "${ADDON_DIR}/www/"
+
+# rc.d-Script installieren
+cp rc.d/heizkalender "${RCD_DIR}/${ADDON}"
+chmod 755 "${RCD_DIR}/${ADDON}"
+
+# WWW-Symlink anlegen
+if [ ! -L "${WWW_DIR}" ]; then
+  ln -sf "${ADDON_DIR}/www" "${WWW_DIR}"
+fi
+
+if [ "${FRESH_INSTALL}" = "1" ]; then
+  # Neuinstallation: CCU3 startet neu (Exit-Code 10)
+  exit 10
+else
+  # Update: kein Neustart nötig
+  exit 0
+fi

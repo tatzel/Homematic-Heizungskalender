@@ -12,6 +12,18 @@ Dabei legt die `HeizkalenderInstallation.exe` alle für den Betrieb des Heizkale
 
 Bei der Nutzung von ChurchTools/ChurchDesk werden bei Bedarf auch alle Raumvariablen automatisch erzeugt und zugewiesen.
 
+## Inhalt
+
+- [Systemvoraussetzungen](#systemvoraussetzungen)
+- [Verbinden mit der CCU](#verbinden-mit-der-ccu)
+- [Einrichten einer neuen Heizkalender Installation](#einrichten-einer-neuen-heizkalender-installation)
+- [Nach dem Verbindungsaufbau mit der CCU](#nach-dem-verbindungsaufbau-mit-der-ccu)
+- [Programme / Skripte](#programme--skripte)
+- [Allgemeine Einstellungen des Heizkalenders](#allgemeine-einstellungen-des-heizkalenders)
+- [Ressourcen Kalenderzuordnung](#ressourcen-kalenderzuordnung)
+- [Räume](#räume)
+- [Systemvariablen](#systemvariablen)
+
 ## Systemvoraussetzungen
 
 - Betriebssystem: Windows
