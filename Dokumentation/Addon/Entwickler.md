@@ -237,13 +237,32 @@ Einzelne Dateien für schnelle Tests direkt auf die CCU übertragen:
 scp Addon/heizkalender/www/index.cgi root@<CCU-IP>:/usr/local/addons/heizkalender/www/
 ```
 
-Vollständiges Paket für ein Release:
+Vollständiges Paket bauen (aus dem Projektverzeichnis):
 
 ```bash
-git archive --prefix=heizkalender/ HEAD:Addon | gzip > heizkalender-addon.tar.gz
+cd Addon && tar -czf ../Skripte/heizkalender-addon.tar.gz \
+  --owner=0 --group=0 \
+  VERSION update_script heizkalender/www/ rc.d/
 ```
 
-Weitere Details zu Deployment-Konventionen und Pfadregeln: siehe [DEVELOPMENT_STANDARDS.md](DEVELOPMENT_STANDARDS.md).
+Das Paket landet in `Skripte/heizkalender-addon.tar.gz` (analog zu `HeizkalenderInstallation.exe`).
+
+### Versionierung und Git-Tags
+
+Das Addon verwendet ein eigenes Versionierungsschema, unabhängig von den Datums-Tags der Skripte:
+
+- Die Versionsnummer steht in `Addon/VERSION` (z.B. `0.1.1`).
+- Git-Tags für Addon-Releases haben das Format `addon-v<Version>` (z.B. `addon-v0.1.1`).
+- Skript-Releases verwenden weiterhin Datums-Tags (`v2026-10-11`).
+
+Tag setzen und pushen:
+
+```bash
+git tag addon-v0.1.1
+git push fork addon-v0.1.1
+```
+
+`update_check.cgi` sucht auf GitHub nach dem neuesten Release mit einem `addon-v*`-Tag.
 
 ---
 

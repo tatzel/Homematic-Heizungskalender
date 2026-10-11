@@ -63,7 +63,7 @@ proc ereignis_class {ereignis delta} {
 # Query-Parameter
 # ---------------------------------------------------------------------------
 set filter_raum "alle"
-set filter_tage "7"
+set filter_tage "1"
 set filter_ereignis "alle"
 set submitted 0
 
@@ -81,7 +81,7 @@ foreach param [split $query_string "&"] {
     if {[string equal $key "raum"]} { set filter_raum $val }
     if {[string equal $key "ereignis"]} { set filter_ereignis $val }
     if {[string equal $key "tage"]} {
-        if {[string equal $val "7"] || [string equal $val "30"] || [string equal $val "90"]} {
+        if {[string equal $val "1"] || [string equal $val "7"] || [string equal $val "30"] || [string equal $val "90"]} {
             set filter_tage $val
         }
     }
@@ -136,6 +136,37 @@ foreach entry [split $hkg_raw ";"] {
     if {![string equal $rname ""]} { lappend alle_raeume_komplett $rname }
 }
 set alle_raeume_komplett [unique_sorted $alle_raeume_komplett]
+
+# ---------------------------------------------------------------------------
+# Raumliste aus Log-Dateien ergänzen (Gruppenräume tauchen nur im Log auf)
+# ---------------------------------------------------------------------------
+set alle_raeume_log {}
+if {[llength $log_files] > 0} {
+    set fpaths {}
+    foreach lf $log_files { lappend fpaths "$usb_dir/$lf" }
+    catch {
+        set grep_out [eval exec grep -h [list $hkk_src] $fpaths]
+        foreach line [split $grep_out "\n"] {
+            set line [string trim $line]
+            set parts [split $line "\t"]
+            if {[llength $parts] < 3} { continue }
+            set msg [join [lrange $parts 2 end] "\t"]
+            set sp [string first " " $msg]
+            set dp [string first ":" $msg]
+            set rn ""
+            if {$sp > 0 && ($dp < 0 || $sp < $dp)} {
+                set rn [string range $msg 0 [expr {$sp-1}]]
+            } elseif {$dp > 0} {
+                set rn [string range $msg 0 [expr {$dp-1}]]
+            }
+            set pidx [string first "(" $rn]
+            if {$pidx > 0} { set rn [string range $rn 0 [expr {$pidx-1}]] }
+            set rn [string trim $rn]
+            if {![string equal $rn ""]} { lappend alle_raeume_log $rn }
+        }
+    }
+}
+set alle_raeume_komplett [unique_sorted [concat $alle_raeume_komplett $alle_raeume_log]]
 
 # ---------------------------------------------------------------------------
 # Ereignisse einlesen (nur nach Submit, via grep)
@@ -193,6 +224,7 @@ if {$submitted && [llength $log_files] > 0} {
                         set after [string trim [string range $rest2 [expr {$ip+4}] end]]
                         set sp2 [string first " " $after]
                         if {$sp2 > 0} { set ist [string range $after 0 [expr {$sp2-1}]] } else { set ist $after }
+                        set ist [string trimright $ist ","]
                     }
                     set zp [string first "Ziel:" $rest2]
                     if {$zp >= 0} {
@@ -226,11 +258,20 @@ if {$submitted && [llength $log_files] > 0} {
         }
 
         set pidx [string first "(" $raumname]
-        if {$pidx > 0} { set raumname [string range $raumname 0 [expr {$pidx-1}]] }
+        if {$pidx > 0} {
+            set cidx [string first ")" $raumname $pidx]
+            if {$cidx > 0} {
+                set raumname [string range $raumname 0 [expr {$pidx-1}]][string range $raumname [expr {$cidx+1}] end]
+            } else {
+                set raumname [string range $raumname 0 [expr {$pidx-1}]]
+            }
+        }
         set raumname [string trim $raumname]
         if {[string equal $raumname ""]} { continue }
 
-        if {![string equal $filter_raum "alle"] && ![string equal $raumname $filter_raum]} { continue }
+        if {![string equal $filter_raum "alle"] && \
+            ![string equal $raumname $filter_raum] && \
+            ![string equal [string range $raumname 0 [expr {[string length $filter_raum]-1}]] $filter_raum]} { continue }
         if {![string equal $filter_ereignis "alle"] && ![string equal $ereignis $filter_ereignis]} { continue }
 
         lappend alle_ereignisse [list $raumname $ts $ereignis $delta $ist $ziel $at_max $at_max_typ]
@@ -273,7 +314,7 @@ puts "      <input type=\"hidden\" name=\"submitted\" value=\"1\">"
 puts {      <fieldset>}
 puts {        <legend>Filter</legend>}
 puts "        <label>Zeitraum: <select name=\"tage\">"
-foreach {tval tlabel} {7 "Letzte 7 Tage" 30 "Letzte 30 Tage" 90 "Letzte 90 Tage"} {
+foreach {tval tlabel} {1 "Heute" 7 "Letzte 7 Tage" 30 "Letzte 30 Tage" 90 "Letzte 90 Tage"} {
     set sel [expr {[string equal $tval $filter_tage] ? " selected" : ""}]
     puts "          <option value=\"$tval\"${sel}>$tlabel</option>"
 }

@@ -92,8 +92,8 @@ Die Heizkurvenkontrolle wertet die aufgezeichneten Heizereignisse aus dem USB-St
 
 | Filter | Bedeutung |
 | ------ | --------- |
-| Zeitraum | Letzte 7 Tage (Standard), letzte 30 Tage oder letzte 90 Tage |
-| Raum | Alle Räume oder ein bestimmter Raum |
+| Zeitraum | Heute (Standard), letzte 7 Tage, letzte 30 Tage oder letzte 90 Tage |
+| Raum | Alle Räume oder ein bestimmter Raum (inkl. Gruppenräume) |
 | Ereignis | Alle Ereignisse (Standard) oder ein bestimmter Typ |
 
 Nach Auswahl der Filter auf **Anzeigen** klicken. Die Seite lädt erst dann Daten.
