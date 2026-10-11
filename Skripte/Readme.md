@@ -1,7 +1,14 @@
 # HomeMatic-Heizungskalender
 
-Der HomeMatic-Heizungskalender dient zur Steuerung der Homematic über ChurchTool, ChurchDesk, iCal oder Google.
-Er umfasst Skripte, Tools und eine Installations- und Update-Software. Die Skripte werden intern über Systemvariablen gesteuert.
+> [!NOTE]
+> Diese Datei ist im Markdown-Format geschrieben. Wenn sie in einem normalen Texteditor
+> geöffnet wird, sind darin Formatierungszeichen (z. B. `#`, `**`, `|`) sichtbar.
+> Mit allen Formatierungen lässt sie sich online ansehen unter:
+> <https://github.com/xMRi/Homematic-Heizungskalender/blob/main/Skripte/Readme.md>
+
+Der HomeMatic-Heizungskalender dient zur Steuerung der Homematic über ChurchTool, ChurchDesk, iCal oder
+Google. Er umfasst Skripte, Tools und eine Installations- und Update-Software. Die Skripte werden 
+intern über Systemvariablen gesteuert.
 
 ## Allgemeines
 
@@ -65,7 +72,7 @@ Diese Dateien befinden sich alle [in diesem Ordner](/Backup-Originale/3.2.1)
 
 ## Lizenz
 
-Der Heizkalender-Installer ist freie Software.
+Die `HeizkalenderInstallation.exe` ist freie Software.
 
 - Copyright (C) 2026 by Martin Richter (xMRi-Software)
 
@@ -96,7 +103,7 @@ Verwaltung von zeitbasierten Heizungssteuerungen entwickelt,
 insbesondere im Umfeld von Homematic-, CCU- und vergleichbaren
 IoT-Systemen.
 
-Der Heizkalender-Installer steht in keiner Verbindung zur
+Die `HeizkalenderInstallation.exe` steht in keiner Verbindung zur
 eQ-3 AG oder anderen Herstellern von Smart-Home-Komponenten.
 
 Die Software:
