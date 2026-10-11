@@ -36,6 +36,24 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - Addon `index.cgi`: Gelber Zeilenhintergrund für heizende Räume entfernt
   (fette Schrift bleibt).
 
+## [2026-10-09]
+
+### Behoben
+
+- Unter Umständen wurde bei einem Abbruch des Installers nicht gewarnt, dass Daten geändert wurden.
+- Beim Speichern kam unter Umständen eine falsche Meldung über eine geänderte Raumliste
+
+### Hinzugefügt
+
+- Logo im Haupt-Readme eingefügt
+- Erweiterung der Dokumentation für den Installer
+- Doku um neue Bilder und texte angereichert.
+- In einigen Dialogen Des Insatllers werden Felder jetzt fett hervorgehoben.
+- Im Installer können nun in den Raumdialogen auch negative Vorheizteiten und Abschaltzeiten eingegeben werden.
+
+### Geändert
+- Installer *About Dialog* zeigt jetzt auch einen Link auf das GitHub Projekt
+
 ## [2026-10-06]
 
 ### Geändert
