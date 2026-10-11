@@ -2,7 +2,7 @@
 
 Dieser Ordner enthält optionale Zusatz-Skripte rund um den Heizkalender. Sie sind
 für den Betrieb nicht zwingend nötig, erleichtern aber Diagnose, Wartung und
-Auswertung. 
+Auswertung.
 
 **Diese Skripte werden im Allgemeinden auf der CCU manuell per „Skript testen" ausgeführt.**
 
@@ -38,16 +38,16 @@ Skripte zum Sichern, Dumpen und Wiederherstellen der CloudMatic-Diagrammdaten:
 `Sammlung-Hilfs-Skripte` enthält einige hilfreiche Skript Snippets.
 
 Weitere Werkzeuge für seltene oder umgebungsspezifische Aufgaben sowie eine Sammlung von
-Test-Skripten:<br>
-`Tool-Test Raumvariable auslesen`<br>
-`Tool-Test Raumvariable setzen`<br>
-`Test-Temperatur Verschiebung berechnen`<br>
-`Tool-Test Thermostatgruppe auslesen`<br>
-`Tool-Test Thermostatgruppe schalten`
+Test-Skripten:
+
+- `Tool-Test Raumvariable auslesen`
+- `Tool-Test Raumvariable setzen`
+- `Test-Temperatur Verschiebung berechnen`
+- `Tool-Test Thermostatgruppe auslesen`
+- `Tool-Test Thermostatgruppe schalten`
 
 > [!WARNING]
-> Die Skripte `Tool-Alle Systemvariablen löschen` und
-> `Tool-Alle Systemvariablen und Programme löschen` entfernen unwiderruflich
-> Daten aus der CCU.<br>Diese Skripte sollten nur mit Bedacht und nach einem Backup verwenden werden. Sie dienen dazu Testmaschinen zu säubern oder zu bereinigen, ohne die Gerätezuordnungen zu beeinflussen.<br>
+> Die Skripte `Tool-Alle Systemvariablen löschen` und `Tool-Alle Systemvariablen und Programme löschen` entfernen unwiderruflich Daten aus der CCU.<br>
+> Diese Skripte sollten nur mit Bedacht und nach einem Backup verwenden werden. Sie dienen dazu Testmaschinen zu säubern oder zu bereinigen, ohne die Gerätezuordnungen zu beeinflussen.<br>
 > **Diese Programme sind wirklich nur mit äußerster Vorsicht und Expertenwissen zu benutzen.**<br>
-> Um eine versehentliche Nutzung zu verhindern wurden `quit` 
+> Um eine versehentliche Nutzung zu verhindern wurde der `quit`-Befehl am Anfang der Skripte ergänzt. Dieser muss vor der Ausführung bewusst entfernt werden.

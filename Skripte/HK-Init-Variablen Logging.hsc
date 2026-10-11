@@ -46,7 +46,7 @@ string be=  "Flag um das Logging für Tools ein- und auszuschalten;" #
             "Variable um ein einfaches Log im System Protokoll zu erzeugen;" #
             "Flag um das Logging für die Heizkurvenkontrolle ein- und auszuschalten;" #
             "Variable um ein einfaches Log im System Protokoll zu erzeugen;" #
-            "Aktuelle Raumdaten in der Heizkurvenkontrlle;";
+            "Aktuelle Raumdaten in der Heizkurvenkontrolle;";
 
 !// Typen
 string tp=  "boolean;" #
