@@ -69,7 +69,7 @@ if (oSV) {
 		oSV.Variable ("");}
 } elseif (bcreate) {
 	neu=neu+1;oSV = dom.CreateObject (1089); rSV.Add (oSV.ID()); oSV.Name (svName); oSV.ValueType (20); oSV.ValueSubType (11);
-	oSV.DPInfo("Aktuelle Raumdaten in der Heizkurvenkontrlle"); oSV.ValueUnit(""); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
+	oSV.DPInfo("Aktuelle Raumdaten in der Heizkurvenkontrolle"); oSV.ValueUnit(""); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
 	oSV.DPArchive (true && barchive);
 		oSV.Variable ("");
 	WriteLine (svName # neut);}

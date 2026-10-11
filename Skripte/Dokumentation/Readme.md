@@ -6,6 +6,15 @@ Skripte mit dem Namenskürzel _Skript 1_ beschreiben die verschiedenen Methoden 
 
 Das _Skript 2_ ist das Hauptskript zum Schalten der Heizung.
 
+## Inhalt
+
+- [HeizkalenderInstallation.exe](#heizkalenderinstallationexe)
+- [Skripte zur Initialisierung](#skripte-zur-initialisierung)
+- [Skripte zum Einlesen der Termindaten aus diversen Quellen](#skripte-zum-einlesen-der-termindaten-aus-diversen-quellen)
+- [Schaltskript](#schaltskript)
+- [HK-Skript 2.hsc](#hk-skript-2hsc)
+- [Sonstige Skripte](#sonstige-skripte)
+
 ## HeizkalenderInstallation.exe
 
 Die HeizkalenderInstallation.exe dient zur Installation und Einrichtung der verschiedenen Skriptvarianten.
@@ -32,7 +41,7 @@ Die folgenden Variablen werden in allen Skripten vom Typ 1 und natürlich vom Sc
 | :--------------- | :--------- |
 | HK1-Schaltliste | Schaltlisten Einträge. Hier werden vom Skript die ermittelten und zu schaltenden Termine eingetragen |
 | HK1-R-Liste | Raumliste der Churchdesk Ressourcen. Bestehende aus einer Id und optional gefolgt von einem Gleichheitszeichen mit dem Raumnamen als Text |
-| HK2-HKG-Liste | Semikolon getrennte Liste der Raumvariablen. Zu jedem Eintrag der Ressourcen Liste HK1-R-Liste, der entsprechende Raum Eintrag. Jeder Ressource können mehrere Räume zugeordnet werden indem die einzelnen Räume durch ein + Zeichen getrennt werden. |
+| HK2-HKG-Liste | Semikolon getrennte Liste der Raum-Systemvariablen. Zu jedem Eintrag der Ressourcen Liste HK1-R-Liste, der entsprechende Raum Eintrag. Jeder Ressource können mehrere Räume zugeordnet werden indem die einzelnen Räume durch ein + Zeichen getrennt werden. |
 
 ### HK-Init-Skript 1_ChurchDesk.hsc
 
@@ -43,7 +52,7 @@ Dieses Skript legt alle Systemvariablen an, die für den Zugriff auf ChruchDesk 
 | HK1-CD-OrganisationsId | ChurchDesk Id der Kirche oder Gemeinde |
 | HK1-CD-Token | API-Token für den Zugriff auf die Pull-API von ChurchDesk. Dieses Token wird durch den Support von ChurchDesk vergeben. |
 
-Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen, die in ChurchDesk angelegt wurden. Es werden dann entsprechende Raumvariablen erzeugt.
+Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen, die in ChurchDesk angelegt wurden. Es werden dann entsprechende Raum-Systemvariablen erzeugt.
 
 Dieses Skript wird für den Zugriff über die iCal oder API Schnittstelle benötigt.
 
@@ -56,7 +65,7 @@ Dieses Skript dient zum Anlegen aller Systemvariablen um Termine aus den Ressour
 | HK1-CT-Gemeindename | Name der Gemeinde im ChurchTools URL. `xyz`.church.tools |
 | HK1-CT-Token | Login Token für einen Benutzer in ChurchTools. Dieses Login-Token muss einmalig ermittelt werden. Der Benutzer benötigt ausschließlich lesenden Zugriff auf die Kalender und Ressourcen. |
 
-Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen vom Typ `Raum`, die in ChurchTools angelegt wurden. Es werden dann entsprechende Raumvariablen erzeugt.
+Werden diese beiden Variablen im Init-Skript korrekt ausgefüllt ermittelt das Skript alle Ressourcen vom Typ `Raum`, die in ChurchTools angelegt wurden. Es werden dann entsprechende Raum-Systemvariablen erzeugt.
 
 ### HK-Init-Skript 1_Google.hsc
 
