@@ -341,7 +341,10 @@ puts {<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Heizkalender: Raum&uuml;bersicht</title>
   <link rel="stylesheet" href="heizkalender.css">
-  <link rel="icon" type="image/png" href="hk-logo-50.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
 </head>
 <body>
 <div id="content">
@@ -351,11 +354,11 @@ puts {<!DOCTYPE html>
   </div>
   <nav class="hk-nav">
     <a href="index.cgi">Raum&uuml;bersicht</a>
-    <a href="kurve.cgi">Heizkurve</a>
+    <a href="hkkurve.cgi">Heizkurve</a>
     <a href="hklog.cgi">HK-Log</a>
-    <a href="log.cgi">Systemlog</a>
+    <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="config.cgi">Grundeinstellungen</a>
+    <a href="hkconfig.cgi">Grundeinstellungen</a>
   </nav>}
 
 set deg "&deg;"

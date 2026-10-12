@@ -240,7 +240,10 @@ puts {<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Heizkalender: Grundeinstellungen</title>
   <link rel="stylesheet" href="heizkalender.css">
-  <link rel="icon" type="image/png" href="hk-logo-50.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
   <style>
     .hk-config-table-auto { border-collapse:collapse; width:auto; }
     .hk-config-table-auto th, .hk-config-table-auto td { padding:0.35em 0.7em; border:1px solid #ddd; vertical-align:top; }
@@ -263,11 +266,11 @@ puts {<!DOCTYPE html>
   </div>
   <nav class="hk-nav">
     <a href="index.cgi">Raum&uuml;bersicht</a>
-    <a href="kurve.cgi">Heizkurve</a>
+    <a href="hkkurve.cgi">Heizkurve</a>
     <a href="hklog.cgi">HK-Log</a>
-    <a href="log.cgi">Systemlog</a>
+    <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="config.cgi">Grundeinstellungen</a>
+    <a href="hkconfig.cgi">Grundeinstellungen</a>
   </nav>}
 
 puts {<p class="hk-hint">Alle Werte werden direkt von der CCU gelesen und k&ouml;nnen hier nicht ge&auml;ndert werden.</p>}

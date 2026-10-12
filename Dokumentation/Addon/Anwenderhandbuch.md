@@ -80,7 +80,7 @@ Ganz oben wird, falls vorhanden, die aktuelle Außentemperatur (gleitender Mitte
 
 ## Heizkurvenkontrolle
 
-**Erreichbar unter:** `/addons/heizkalender/kurve.cgi`
+**Erreichbar unter:** `/addons/heizkalender/hkkurve.cgi`
 
 Die Heizkurvenkontrolle wertet die aufgezeichneten Heizereignisse aus dem USB-Stick-Archiv aus und zeigt, wie gut die Heizung die gewünschte Temperatur zum Terminbeginn erreicht hat.
 
@@ -151,7 +151,7 @@ Die Anzeige entspricht einem `tail`: die letzten N Zeilen der Datei, älteste ob
 
 ## Systemlog
 
-**Erreichbar unter:** `/addons/heizkalender/log.cgi`
+**Erreichbar unter:** `/addons/heizkalender/syslog.cgi`
 
 Das Systemlog zeigt die letzten Einträge aus dem Linux-Systemprotokoll der CCU (`/var/log/messages`).
 
@@ -193,7 +193,7 @@ Die Seite ist rein lesend. Werte können nur direkt in der CCU-Weboberfläche ge
 
 ## Grundeinstellungen
 
-**Erreichbar unter:** `/addons/heizkalender/config.cgi`
+**Erreichbar unter:** `/addons/heizkalender/hkconfig.cgi`
 
 Die Seite zeigt die wichtigsten Einstellungen des Heizkalenders in aufbereiteter Form: Logging-Flags, Kurveneinstellungen und eine Übersicht aller Raumkonfigurationen. Die Abschnitte entsprechen 1:1 den Seiten des Windows-Installers und dienen als Nachschlagewerk, wenn man gerade nicht am passenden PC sitzt oder remote auf die CCU zugreift.
 
