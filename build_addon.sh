@@ -1,12 +1,13 @@
 #!/bin/sh
-# Baut das Heizkalender-Addon-Paket (heizkalender-addon.tar.gz)
+# Baut das Heizkalender-Addon-Paket (heizkalender-addon-<version>.tar.gz)
 # Aufruf: ./build_addon.sh
-# Ablage: Skripte/heizkalender-addon.tar.gz
+# Ablage: build/heizkalender-addon-<version>.tar.gz
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-OUT="${SCRIPT_DIR}/build/heizkalender-addon.tar.gz"
+VERSION="$(cat "${SCRIPT_DIR}/Addon/VERSION")"
+OUT="${SCRIPT_DIR}/build/heizkalender-addon-${VERSION}.tar.gz"
 
 mkdir -p "${SCRIPT_DIR}/build"
 cd "${SCRIPT_DIR}/Addon"
