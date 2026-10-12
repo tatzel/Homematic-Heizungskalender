@@ -53,15 +53,41 @@ Addon/
 
 ## Paketformat und Installation
 
-Das Installationspaket ist ein tar.gz-Archiv mit dem Namen `heizkalender-addon.tar.gz`.
+Das Installationspaket ist ein tar.gz-Archiv mit dem Namen `heizkalender-addon-<Version>.tar.gz` (z.B. `heizkalender-addon-0.3.0.tar.gz`).
 
-**Archiv erstellen:**
+**Paketstruktur:**
 
-```bash
-git archive --prefix=heizkalender/ HEAD:Addon | gzip > heizkalender-addon.tar.gz
+```txt
+heizkalender-addon-<Version>.tar.gz
+├── VERSION
+├── update_script
+├── heizkalender/
+│   └── www/
+│       ├── index.cgi
+│       ├── hkkurve.cgi
+│       ├── hklog.cgi
+│       ├── hklogdownload.cgi
+│       ├── syslog.cgi
+│       ├── sysvars.cgi
+│       ├── hkconfig.cgi
+│       ├── update_check.cgi
+│       ├── heizkalender.css
+│       ├── hk-logo-300.png
+│       ├── hk-logo-50.png
+│       └── (Favicons und App-Icons)
+└── rc.d/
+    └── heizkalender
 ```
 
-Das Archiv enthält im Root das `update_script` und das Verzeichnis `heizkalender/`.
+**Archiv erstellen** (aus dem Projektverzeichnis):
+
+```bash
+./build_addon.sh
+```
+
+Das Skript liest die Version aus `Addon/VERSION` und legt das Archiv unter `build/heizkalender-addon-<Version>.tar.gz` ab. Das `build/`-Verzeichnis ist per `.gitignore` vom Repository ausgeschlossen.
+
+Das Archiv enthält im Root `VERSION`, `update_script` und die Verzeichnisse `heizkalender/` und `rc.d/`.
 
 **Ablauf bei Installation/Update durch die CCU:**
 
@@ -225,9 +251,13 @@ Klassen-Übersicht (Auswahl):
 
 ## Update-Check
 
-`update_check.cgi` prüft auf neue Releases unter `https://api.github.com/repos/tatzel/Homematic-Heizungskalender/releases/latest`. Die aktuelle Version liest es aus `/usr/local/addons/heizkalender/VERSION`.
+`update_check.cgi` prüft auf neue Releases, indem es die `VERSION`-Datei direkt aus dem GitHub-Repository liest:
 
-Das Release-Asset muss den Namen `heizkalender-addon.tar.gz` tragen, damit die CCU es direkt installieren kann.
+```txt
+https://raw.githubusercontent.com/xMRi/Homematic-Heizungskalender/main/Addon/VERSION
+```
+
+Das entspricht dem Vorbild von `hm-watchdog`. Kein JSON-Parsing, kein fester Asset-Name. Beim Download-Befehl leitet das Script auf die GitHub-Releases-Seite weiter; der Nutzer lädt das passende Asset dort selbst herunter.
 
 ---
 
@@ -242,29 +272,25 @@ scp Addon/heizkalender/www/index.cgi root@<CCU-IP>:/usr/local/addons/heizkalende
 Vollständiges Paket bauen (aus dem Projektverzeichnis):
 
 ```bash
-cd Addon && tar -czf ../Skripte/heizkalender-addon.tar.gz \
-  --owner=0 --group=0 \
-  VERSION update_script heizkalender/www/ rc.d/
+./build_addon.sh
 ```
 
-Das Paket landet in `Skripte/heizkalender-addon.tar.gz` (analog zu `HeizkalenderInstallation.exe`).
+Das Paket landet in `build/heizkalender-addon-<Version>.tar.gz`.
 
-### Versionierung und Git-Tags
+### Versionierung und Release-Prozess
 
 Das Addon verwendet ein eigenes Versionierungsschema, unabhängig von den Datums-Tags der Skripte:
 
-- Die Versionsnummer steht in `Addon/VERSION` (z.B. `0.1.1`).
-- Git-Tags für Addon-Releases haben das Format `addon-v<Version>` (z.B. `addon-v0.1.1`).
-- Skript-Releases verwenden weiterhin Datums-Tags (`v2026-10-11`).
+- Die Versionsnummer steht in `Addon/VERSION` (z.B. `0.3.0`).
+- Git-Tags für Addon-Releases haben das Format `<Version>` ohne Prefix (z.B. `0.3.0`).
+- Skript-Releases verwenden weiterhin Datums-Tags (`v2026-10-12`).
 
-Tag setzen und pushen:
+Release-Prozess:
 
-```bash
-git tag addon-v0.1.1
-git push fork addon-v0.1.1
-```
-
-`update_check.cgi` sucht auf GitHub nach dem neuesten Release mit einem `addon-v*`-Tag.
+1. `Addon/VERSION` auf die neue Version setzen.
+2. `./build_addon.sh` ausführen.
+3. Änderungen committen und pushen.
+4. GitHub-Release mit dem Versions-Tag anlegen und `build/heizkalender-addon-<Version>.tar.gz` als Asset anhängen.
 
 ---
 
