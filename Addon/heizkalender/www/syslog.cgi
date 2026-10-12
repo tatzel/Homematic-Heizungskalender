@@ -98,11 +98,11 @@ puts {  <nav class="hk-nav">
     <a href="hklog.cgi">HK-Log</a>
     <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="hkconfig.cgi">Grundeinstellungen</a>
+    <a href="hkconfig.cgi">Einstellungen</a>
   </nav>}
 
 puts "  <div class=\"hk-log-controls\">"
-puts "    <form method=\"get\" action=\"log.cgi\">"
+puts "    <form method=\"get\" action=\"syslog.cgi\">"
 puts {      <fieldset>}
 puts {        <legend>Filter</legend>}
 puts "        <label>Zeilen: <select name=\"n\">"
@@ -132,7 +132,7 @@ puts "  <p class=\"hk-log-info\">$count Eintr&auml;ge ($filter_label, letzte $li
 if {$count == 0} {
     puts "  <p class=\"hk-empty\">Keine Eintr&auml;ge gefunden.</p>"
 } else {
-    puts "  <div class=\"hk-log-box\">"
+    puts "  <div class=\"hk-table-scroll\">"
     puts "    <table class=\"hk-table hk-log-table\">"
     puts "      <colgroup><col class=\"col-log-ts\"><col class=\"col-log-src\"><col class=\"col-log-msg\"></colgroup>"
     puts "      <tr><th>Zeitstempel</th><th>Quelle</th><th>Meldung</th></tr>"

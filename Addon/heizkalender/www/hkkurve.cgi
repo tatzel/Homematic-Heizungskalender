@@ -335,7 +335,7 @@ puts {<!DOCTYPE html>
     <a href="hklog.cgi">HK-Log</a>
     <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="hkconfig.cgi">Grundeinstellungen</a>
+    <a href="hkconfig.cgi">Einstellungen</a>
   </nav>}
 
 puts {  <div class="hk-log-controls">}
@@ -388,7 +388,7 @@ if {[llength $log_files] == 0} {
     set deg "&deg;"
     set n_dateien [llength $log_files]
     puts "  <p class=\"hk-log-info\">[llength $alle_ereignisse] Eintr&auml;ge aus $n_dateien Datei(en) im gew&auml;hlten Zeitraum</p>"
-    puts {  <table class="hk-table hk-kurve-table">}
+    puts {  <div class="hk-table-scroll"><table class="hk-table hk-kurve-table">}
     puts {    <colgroup>
       <col class="col-kurve-raum">
       <col class="col-kurve-ts">
@@ -456,7 +456,7 @@ if {[llength $log_files] == 0} {
         puts "      <td>${at_str}</td>"
         puts "    </tr>"
     }
-    puts {  </table>}
+    puts {  </table></div>}
     puts {  <p class="hk-hint"><strong>&Delta; min (Terminbeginn):</strong> Minuten relativ zum Terminbeginn: negativ = vor Terminbeginn, positiv = nach Terminbeginn.<br>Beispiel: Heizende +90min bedeutet, die Heizung schaltete 90 Minuten nach Terminbeginn ab (nicht die Termindauer, da VorzeitAus abgezogen wird).</p>}
     puts {  <fieldset class="hk-legende-fieldset">}
     puts {    <legend>Legende</legend>}
