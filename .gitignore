@@ -11,3 +11,4 @@ CLAUDE.md
 .vscode/*
 .claude/*
 /HeizkalenderInstallation/enc_temp_folder
+/build/
