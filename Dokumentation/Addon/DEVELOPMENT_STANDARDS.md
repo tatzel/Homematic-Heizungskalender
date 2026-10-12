@@ -38,7 +38,7 @@ Folgende Sprachfeatures sind in Tcl 8.2 nicht verfügbar und dürfen nicht verwe
 | `file tempfile` | Temporäre Dateien vermeiden |
 | `string equal -nocase` | `string tolower` + `string equal` |
 
-Geschweifte Klammern in ReGa-Rückgaben erfordern eine manuelle Tiefenzählung, da reguläre Ausdrücke dafür ungeeignet sind. Die Prozedur `extract_stdout` (in `index.cgi`, `kurve.cgi`) implementiert dieses Muster.
+Geschweifte Klammern in ReGa-Rückgaben erfordern eine manuelle Tiefenzählung, da reguläre Ausdrücke dafür ungeeignet sind. Die Prozedur `extract_stdout` (in `index.cgi`, `hkkurve.cgi`) implementiert dieses Muster.
 
 ---
 
@@ -62,7 +62,7 @@ Geschweifte Klammern in ReGa-Rückgaben erfordern eine manuelle Tiefenzählung, 
 
 **Temperaturanzeige:** Die Prozedur `format_temp` in `sysvars.cgi` gibt fertige HTML-Strings zurück (`"$t &deg;C"`). Diese nicht durch `htmlquote` leiten.
 
-**Keine Inline-Styles in CGI-Dateien** (Ausnahme: `config.cgi` enthält einen `<style>`-Block für die Heizkurven-Kacheln, da diese Stile nur auf dieser einen Seite benötigt werden).
+**Keine Inline-Styles in CGI-Dateien** (Ausnahme: `hkconfig.cgi` enthält einen `<style>`-Block für die Heizkurven-Kacheln, da diese Stile nur auf dieser einen Seite benötigt werden).
 
 ---
 

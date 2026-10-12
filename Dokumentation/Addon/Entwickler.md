@@ -33,12 +33,12 @@ Addon/
   heizkalender/
     www/
       index.cgi                    Raumübersicht
-      kurve.cgi                    Heizkurvenkontrolle
-      hklog.cgi                    HK-Log (USB-Stick-Archiv)
+      hkkurve.cgi                    Heizkurvenkontrolle
+      hksyslog.cgi                    HK-Log (USB-Stick-Archiv)
       hklogdownload.cgi            HK-Log-Datei-Download
-      log.cgi                      Systemlog (/var/log/messages)
+      syslog.cgi                      Systemlog (/var/log/messages)
       sysvars.cgi                  Systemvariablen-Übersicht
-      config.cgi                   Grundeinstellungen
+      hkconfig.cgi                   Grundeinstellungen
       update_check.cgi             Update-Check (GitHub Releases API)
       heizkalender.css             Eigenes Stylesheet
       hk-logo-300.png              Logo (Navigation)
@@ -126,7 +126,7 @@ Liest über die ReGa-API:
 
 Schaltlisten-Zeitstempel (`JJJJ-MM-TT HH:MM:SS`) werden mit einer eigenen `parse_ts`-Prozedur in Unix-Timestamps umgewandelt, da `clock scan` in Tcl 8.2 kein ISO-Datumsformat versteht (nur US-Format `MM/DD/JJJJ HH:MM:SS`).
 
-### kurve.cgi: Heizkurvenkontrolle
+### hkkurve.cgi: Heizkurvenkontrolle
 
 Liest Logdateien vom USB-Stick (`/media/usb1/HK-Log_*.log`) per `grep`. Die Ereignisse werden nach Zeitstempel aufsteigend sortiert (`lsort -index 1`).
 
@@ -161,9 +161,9 @@ Name(ID): Temperatur-Sensor <Kanalname> existiert nicht - ...
 | `<at>` | Außentemperatur (nur bei Heizbeginn) |
 | `<max>` | Maximale gemessene Temperatur in dieser Heizphase (alle außer Heizbeginn) |
 
-Fehler-Zeilen (kein Sensor) haben statt Leerzeichen vor dem Ereignis einen Doppelpunkt: `Name(ID): ...`. Der Parser in `kurve.cgi` erkennt dieses Muster und ordnet sie als Ereignistyp `Fehler` ein.
+Fehler-Zeilen (kein Sensor) haben statt Leerzeichen vor dem Ereignis einen Doppelpunkt: `Name(ID): ...`. Der Parser in `hkkurve.cgi` erkennt dieses Muster und ordnet sie als Ereignistyp `Fehler` ein.
 
-### hklog.cgi: HK-Log
+### hksyslog.cgi: HK-Log
 
 Liest direkt aus Logdateien auf dem USB-Stick. Kein ReGa-Aufruf. Die Seite zeigt die letzten N Zeilen der gewählten Datei (tail-Prinzip).
 
@@ -171,19 +171,19 @@ Zeitstempel im Log haben das Format `JJJJ-MM-TT HH:MM:SS` (aus der CCU-Historien
 
 ### hklogdownload.cgi: HK-Log-Download
 
-Liefert eine Logdatei vom USB-Stick als Download (`Content-Disposition: attachment`). Wird von `hklog.cgi` über den **Download**-Link aufgerufen. Der Dateiname wird als Query-Parameter übergeben; das Script prüft, dass der Pfad innerhalb des Log-Verzeichnisses bleibt (kein Directory Traversal).
+Liefert eine Logdatei vom USB-Stick als Download (`Content-Disposition: attachment`). Wird von `hksyslog.cgi` über den **Download**-Link aufgerufen. Der Dateiname wird als Query-Parameter übergeben; das Script prüft, dass der Pfad innerhalb des Log-Verzeichnisses bleibt (kein Directory Traversal).
 
-### log.cgi: Systemlog
+### syslog.cgi: Systemlog
 
 Liest `/var/log/messages` direkt. Kein ReGa-Aufruf. Zeitstempel im Linux-Syslog-Format (`Mmm DD HH:MM:SS`). Zeigt die letzten N Zeilen (tail-Prinzip, älteste oben).
 
-**Abgrenzung zum CCU-Systemprotokoll:** Die CCU-Weboberfläche unter *Startseite > Status und Bedienung > Systemprotokoll* zeigt eine andere Datenquelle: das ReGa-interne Ereignisprotokoll (Programmausführungen, Gerätekommunikation, Alarme). Diese Daten liegen in der ReGaHss-Datenbank und sind über die ReGa-API abfragbar (z.B. `dom.GetObject(ID_SYSTEMLOG)`), nicht über `/var/log/messages`. Eine Einbindung dieses Protokolls in `log.cgi` wäre möglich, wurde aber bisher nicht umgesetzt.
+**Abgrenzung zum CCU-Systemprotokoll:** Die CCU-Weboberfläche unter *Startseite > Status und Bedienung > Systemprotokoll* zeigt eine andere Datenquelle: das ReGa-interne Ereignisprotokoll (Programmausführungen, Gerätekommunikation, Alarme). Diese Daten liegen in der ReGaHss-Datenbank und sind über die ReGa-API abfragbar (z.B. `dom.GetObject(ID_SYSTEMLOG)`), nicht über `/var/log/messages`. Eine Einbindung dieses Protokolls in `syslog.cgi` wäre möglich, wurde aber bisher nicht umgesetzt.
 
 ### sysvars.cgi: Systemvariablen
 
 Liest alle `HK-*`-, `HK1-*`-, `HK2-*`- und `HKG-Raum-*`-Variablen über die ReGa-API. Rein lesend.
 
-### config.cgi: Grundeinstellungen
+### hkconfig.cgi: Grundeinstellungen
 
 Zeigt Logging-Flags, Kurveneinstellungen und eine Raumübersicht in aufbereiteter Form. Rein lesend.
 
