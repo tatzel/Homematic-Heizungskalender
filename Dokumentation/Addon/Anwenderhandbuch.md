@@ -78,7 +78,7 @@ Ganz oben wird, falls vorhanden, die aktuelle Außentemperatur (gleitender Mitte
 
 **Hinweis:** Die Seite zeigt ausschließlich Heizdaten. Der ursprüngliche Terminname aus dem Kalender ist in der Schaltliste nicht enthalten.
 
-Hier liegt ein Sonderfall vor: Der Raum _UG-Büro_ wurde dem Raum _EG-Eltern-Kind-Raum_ zugewiesen, sodass sie eine Raumgruppe bilden. Entsprechend wird der Raum _UG-Büro_ mitgeheizt. Der Termin enthält allerdings nur den Raum _EG-Eltern-Kind-Raum_.
+Hier liegt ein Sonderfall vor: Der Raum *UG-Büro* wurde dem Raum *EG-Eltern-Kind-Raum* zugewiesen, sodass sie eine Raumgruppe bilden. Entsprechend wird der Raum *UG-Büro* mitgeheizt. Der Termin enthält allerdings nur den Raum *EG-Eltern-Kind-Raum*.
 
 ![Raumübersicht mit aktiven Terminen für EG-Kinderraum, EG-Foyer, EG-Eltern-Kind-Raum und EG-Saal sowie UG-Büro](../../Dokumentation/Bilder/raumuebersicht-raumgruppe.png "Heizkalender: Raumübersicht mit Raumgruppe")
 
