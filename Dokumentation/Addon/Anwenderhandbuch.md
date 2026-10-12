@@ -54,7 +54,7 @@ Nach dem Neustart erscheint der Heizkalender in der Liste der installierten Zusa
 
 Die Raumübersicht zeigt für jeden konfigurierten Raum den aktuellen Heizstatus auf einen Blick.
 
-![Raumübersicht mit aktiven Terminen für EG-Kinderraum, EG-Foyer und EG-Eltern-Kind-Raum sowie EG-Saal (Abendveranstaltung)](../../Dokumentation/Bilder/raumuebersicht.png "Heizkalender: Raumübersicht")
+![Raumübersicht mit aktiven Terminen für EG-Kinderraum, EG-Foyer und EG-Eltern-Kind-Raum sowie EG-Saal](../../Dokumentation/Bilder/raumuebersicht.png "Heizkalender: Raumübersicht")
 
 | Spalte | Bedeutung |
 | ------ | --------- |
@@ -77,6 +77,10 @@ Die Raumübersicht zeigt für jeden konfigurierten Raum den aktuellen Heizstatus
 Ganz oben wird, falls vorhanden, die aktuelle Außentemperatur (gleitender Mittelwert) angezeigt, die für die Vorheizzeitberechnung verwendet wird.
 
 **Hinweis:** Die Seite zeigt ausschließlich Heizdaten. Der ursprüngliche Terminname aus dem Kalender ist in der Schaltliste nicht enthalten.
+
+Hier liegt ein Sonderfall vor: Der Raum _UG-Büro_ wurde dem Raum _EG-Eltern-Kind-Raum_ zugewiesen, sodass sie eine Raumgruppe bilden. Entsprechend wird der Raum _UG-Büro_ mitgeheizt. Der Termin enthält allerdings nur den Raum _EG-Eltern-Kind-Raum_.
+
+![Raumübersicht mit aktiven Terminen für EG-Kinderraum, EG-Foyer, EG-Eltern-Kind-Raum und EG-Saal sowie UG-Büro](../../Dokumentation/Bilder/raumuebersicht-raumgruppe.png "Heizkalender: Raumübersicht mit Raumgruppe")
 
 ---
 
