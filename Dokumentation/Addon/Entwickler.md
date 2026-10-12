@@ -18,6 +18,8 @@
 
 Das Heizkalender Addon ist ein reines Weboberflächen-Addon ohne eigenen Daemon. Es liefert CGI-Scripte, die auf der CCU laufen und Daten über die HomeMatic ReGa-API sowie direkt aus dem Dateisystem lesen.
 
+Die Oberfläche ist grundlegend responsiv gestaltet (Navigation bricht um, Tabellen scrollen horizontal). Eine vollständige Optimierung für Mobilgeräte ist nicht angestrebt, da die breiten Datentabellen auf kleinen Displays immer eine horizontale Scrollmöglichkeit erfordern.
+
 Referenz für das allgemeine CCU-Addon-Format: [ccu-addon-howto](https://github.com/homematic-community/ccu-addon-howto)
 
 ---

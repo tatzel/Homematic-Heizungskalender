@@ -172,7 +172,7 @@ puts {<html lang="de">
     <a href="hklog.cgi">HK-Log</a>
     <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="hkconfig.cgi">Grundeinstellungen</a>
+    <a href="hkconfig.cgi">Einstellungen</a>
   </nav>
   <p class="hk-hint">Die Logdateien werden auf einem USB-Stick gespeichert, der an der CCU angeschlossen ist (<code>/media/usb1/HK-Log_JJJJ-MM-TT.log</code>). Es werden die Eintr&auml;ge der letzten 60 Tage angezeigt.</p>}
 
@@ -235,7 +235,7 @@ if {$count == 0} {
     }
 } else {
     puts "  <p class=\"hk-log-info\">[htmlquote $source_label] &mdash; $count Eintr&auml;ge</p>"
-    puts {  <table class="hk-table hk-log-table">}
+    puts {  <div class="hk-table-scroll"><table class="hk-table hk-log-table">}
     puts {    <colgroup><col class="col-log-ts"><col class="col-log-src"><col class="col-log-msg"></colgroup>}
     puts {    <tr><th>Zeitstempel</th><th>Quelle</th><th>Meldung</th></tr>}
     set pat_err "*ERROR*"
@@ -270,7 +270,7 @@ if {$count == 0} {
         }
         puts "    <tr${rowclass}><td>[htmlquote $ts]</td><td>[htmlquote $src]</td><td>[htmlquote $msg]</td></tr>"
     }
-    puts {  </table>}
+    puts {  </table></div>}
 }
 
 puts {</div>

@@ -358,7 +358,7 @@ puts {<!DOCTYPE html>
     <a href="hklog.cgi">HK-Log</a>
     <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="hkconfig.cgi">Grundeinstellungen</a>
+    <a href="hkconfig.cgi">Einstellungen</a>
   </nav>}
 
 set deg "&deg;"
@@ -376,7 +376,7 @@ if {![string equal $aussentemp_str ""]} {
 if {[llength $raeume] == 0} {
     puts {  <p class="hk-empty">Keine Raum-Systemvariablen (HKG-Raum-*) gefunden.</p>}
 } else {
-    puts {  <table class="hk-table hk-schaltliste-table">}
+    puts {  <div class="hk-table-scroll"><table class="hk-table hk-schaltliste-table">}
     puts {    <colgroup>
       <col class="col-sl-status">
       <col class="col-sl-raum">
@@ -445,9 +445,8 @@ if {[llength $raeume] == 0} {
         set modus_str [format_hsflag $modus]
         puts "    <tr${rowclass}><td class=\"hk-sl-status-cell\">$status_cell</td><td>[htmlquote $rname]</td><td>[htmlquote $modus_str]</td><td>$isttemp_str</td><td>[htmlquote $humi_str]</td><td>[htmlquote $ein_str]</td><td>[htmlquote $aus_str]</td><td>$wtemp_str</td></tr>"
     }
-    puts {  </table>}
+    puts {  </table></div>}
     puts {  <fieldset class="hk-legende-fieldset">}
-    puts {    <legend>Legende</legend>}
     puts {    <p class="hk-sl-legende"><span class="hk-sl-status-aktiv">&#9632;</span> wird gerade geheizt &nbsp;&nbsp; <span class="hk-sl-status-keintermin">&#8212;</span> nicht heizend</p>}
     puts {  </fieldset>}
 }
