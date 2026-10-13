@@ -28,23 +28,30 @@ Referenz für das allgemeine CCU-Addon-Format: [ccu-addon-howto](https://github.
 
 ```txt
 Addon/
-  VERSION                          Versionsnummer (z.B. 0.1.0)
-  update_script                    Installations-/Update-Script (Shell)
-  rc.d/
-    heizkalender                   rc.d-Script (start/stop/info/uninstall)
-  heizkalender/
-    www/
-      index.cgi                    Raumübersicht
-      hkkurve.cgi                    Heizkurvenkontrolle
-      hksyslog.cgi                    HK-Log (USB-Stick-Archiv)
-      hklogdownload.cgi            HK-Log-Datei-Download
-      syslog.cgi                      Systemlog (/var/log/messages)
-      sysvars.cgi                  Systemvariablen-Übersicht
-      hkconfig.cgi                   Grundeinstellungen
-      update_check.cgi             Update-Check (GitHub Releases API)
-      heizkalender.css             Eigenes Stylesheet
-      hk-logo-300.png              Logo (Navigation)
-      hk-logo-50.png               Logo (CCU-Zusatzsoftware-Seite)
+  build_addon.sh                   Build-Skript
+  src/
+    VERSION                        Versionsnummer (z.B. 0.1.0)
+    update_script                  Installations-/Update-Script (Shell)
+    rc.d/
+      heizkalender                 rc.d-Script (start/stop/info/uninstall)
+    heizkalender/
+      www/
+        index.cgi                  Raumübersicht
+        hkkurve.cgi                Heizkurvenkontrolle
+        hklog.cgi                  HK-Log (USB-Stick-Archiv)
+        hklogdownload.cgi          HK-Log-Datei-Download
+        syslog.cgi                 Systemlog (/var/log/messages)
+        sysvars.cgi                Systemvariablen-Übersicht
+        hkconfig.cgi               Grundeinstellungen
+        update_check.cgi           Update-Check (GitHub Releases API)
+        heizkalender.css           Eigenes Stylesheet
+        hk-logo-300.png            Logo (Navigation)
+        hk-logo-50.png             Logo (CCU-Zusatzsoftware-Seite)
+  docs/
+    Entwickler.md                  Diese Datei
+    Anwenderhandbuch.md            Anwender-Dokumentation
+    DEVELOPMENT_STANDARDS.md       Entwicklungsstandards
+  build/                           Ausgabeverzeichnis (per .gitignore ausgeschlossen)
 ```
 
 **Auf der CCU** wird das Addon unter `/usr/local/addons/heizkalender/` installiert. Die Webinhalte sind über einen Symlink unter `/usr/local/etc/config/addons/www/heizkalender` erreichbar und damit im Browser unter `/addons/heizkalender/` verfügbar.
@@ -82,10 +89,10 @@ heizkalender-addon-<Version>.tar.gz
 **Archiv erstellen** (aus dem Projektverzeichnis):
 
 ```bash
-./build_addon.sh
+./Addon/build_addon.sh
 ```
 
-Das Skript liest die Version aus `Addon/VERSION` und legt das Archiv unter `build/heizkalender-addon-<Version>.tar.gz` ab. Das `build/`-Verzeichnis ist per `.gitignore` vom Repository ausgeschlossen.
+Das Skript liest die Version aus `Addon/src/VERSION` und legt das Archiv unter `Addon/build/heizkalender-addon-<Version>.tar.gz` ab. Das `build/`-Verzeichnis ist per `.gitignore` vom Repository ausgeschlossen.
 
 Das Archiv enthält im Root `VERSION`, `update_script` und die Verzeichnisse `heizkalender/` und `rc.d/`.
 
@@ -281,31 +288,31 @@ Das entspricht dem Vorbild von `hm-watchdog`. Kein JSON-Parsing, kein fester Ass
 Einzelne Dateien für schnelle Tests direkt auf die CCU übertragen:
 
 ```bash
-scp Addon/heizkalender/www/index.cgi root@<CCU-IP>:/usr/local/addons/heizkalender/www/
+scp Addon/src/heizkalender/www/index.cgi root@<CCU-IP>:/usr/local/addons/heizkalender/www/
 ```
 
 Vollständiges Paket bauen (aus dem Projektverzeichnis):
 
 ```bash
-./build_addon.sh
+./Addon/build_addon.sh
 ```
 
-Das Paket landet in `build/heizkalender-addon-<Version>.tar.gz`.
+Das Paket landet in `Addon/build/heizkalender-addon-<Version>.tar.gz`.
 
 ### Versionierung und Release-Prozess
 
 Das Addon verwendet ein eigenes Versionierungsschema, unabhängig von den Datums-Tags der Skripte:
 
-- Die Versionsnummer steht in `Addon/VERSION` (z.B. `0.3.0`).
+- Die Versionsnummer steht in `Addon/src/VERSION` (z.B. `0.3.0`).
 - Git-Tags für Addon-Releases haben das Format `<Version>` ohne Prefix (z.B. `0.3.0`).
 - Skript-Releases verwenden weiterhin Datums-Tags (`v2026-10-12`).
 
 Release-Prozess:
 
-1. `Addon/VERSION` auf die neue Version setzen.
-2. `./build_addon.sh` ausführen.
+1. `Addon/src/VERSION` auf die neue Version setzen.
+2. `./Addon/build_addon.sh` ausführen.
 3. Änderungen committen und pushen.
-4. GitHub-Release mit dem Versions-Tag anlegen und `build/heizkalender-addon-<Version>.tar.gz` als Asset anhängen.
+4. GitHub-Release mit dem Versions-Tag anlegen und `Addon/build/heizkalender-addon-<Version>.tar.gz` als Asset anhängen.
 
 ---
 
