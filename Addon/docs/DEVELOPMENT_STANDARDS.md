@@ -122,7 +122,7 @@ Enthält `<inhalt>` geschweifte Klammern, schlägt `array set` fehl. Deshalb wir
 **Einzelne Datei auf CCU übertragen:**
 
 ```bash
-scp Addon/heizkalender/www/<datei>.cgi root@<CCU-IP>:/usr/local/addons/heizkalender/www/
+scp Addon/src/heizkalender/www/<datei>.cgi root@<CCU-IP>:/usr/local/addons/heizkalender/www/
 ```
 
 Pfade immer relativ ab dem Projektverzeichnis angeben (nicht absolut).
@@ -130,17 +130,17 @@ Pfade immer relativ ab dem Projektverzeichnis angeben (nicht absolut).
 **Mehrere Dateien gleichzeitig:**
 
 ```bash
-scp Addon/heizkalender/www/index.cgi Addon/heizkalender/www/heizkalender.css \
+scp Addon/src/heizkalender/www/index.cgi Addon/src/heizkalender/www/heizkalender.css \
     root@<CCU-IP>:/usr/local/addons/heizkalender/www/
 ```
 
 **Vollständiges Paket für ein Release:**
 
 ```bash
-git archive --prefix=heizkalender/ HEAD:Addon | gzip > heizkalender-addon.tar.gz
+./Addon/build_addon.sh
 ```
 
-Das Asset muss den Namen `heizkalender-addon.tar.gz` tragen, damit `update_check.cgi` es über die GitHub Releases API findet.
+Das Paket landet in `Addon/build/heizkalender-addon-<Version>.tar.gz` und wird als GitHub-Release-Asset angehängt.
 
 **CCU-IP:** siehe lokale Konfiguration, SSH-Benutzer: `root`.
 
