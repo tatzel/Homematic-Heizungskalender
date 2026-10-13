@@ -8,16 +8,6 @@ proc htmlquote {s} {
     return [string map {& &amp; < &lt; > &gt; \" &quot;} $s]
 }
 
-proc unique_sorted {lst} {
-    set s [lsort $lst]
-    set result {}
-    set prev ""
-    foreach x $s {
-        if {![string equal $x $prev]} { lappend result $x; set prev $x }
-    }
-    return $result
-}
-
 proc extract_stdout {rega_raw} {
     set ob [format "%c" 123]
     set cb [format "%c" 125]
@@ -59,8 +49,25 @@ proc ereignis_class {ereignis delta} {
     return ""
 }
 
-proc ascii_key {s} {
-    regsub -all {[^ -~]} $s {} r
+proc url_decode {s} {
+    # Umlaute werden entfernt statt dekodiert. Grund: exec-Strings (Log-Daten
+    # via grep) und Skript-Literale (\xfc) haben in Tcl 8.2 unterschiedliche
+    # interne Repräsentationen, obwohl binary scan dasselbe Byte zeigt.
+    # string first schlägt dann fehl. Lösung: Beide Seiten (filter_raum und
+    # raumname) auf ASCII normalisieren via to_ascii; Vergleich ist dann
+    # encoding-neutral.
+    set s [string map {+ { }} $s]
+    set s [string map {%FC {} %fc {} %E4 {} %e4 {} %F6 {} %f6 {}
+                       %DC {} %dc {} %C4 {} %c4 {} %D6 {} %d6 {}
+                       %DF {} %df {}} $s]
+    regsub -all {%[0-9A-Fa-f]{2}} $s {} s
+    return $s
+}
+
+proc to_ascii {s} {
+    # Gegenstück zu url_decode: entfernt Non-ASCII aus exec-Strings damit
+    # string first mit url_decode-Ergebnissen funktioniert.
+    regsub -all {[^\x00-\x7f]} $s {} r
     return $r
 }
 
@@ -70,7 +77,7 @@ proc ascii_key {s} {
 set filter_raum "alle"
 set filter_tage "1"
 set filter_ereignis "alle"
-set submitted 0
+set submitted 1
 
 set query_string ""
 catch {set query_string $env(QUERY_STRING)}
@@ -80,17 +87,14 @@ foreach param [split $query_string "&"] {
     if {$eqpos < 0} { continue }
     set key [string range $param 0 [expr {$eqpos-1}]]
     set val [string range $param [expr {$eqpos+1}] end]
-    set val [string map {+ { }} $val]
-    regsub -all {%([0-9A-Fa-f]{2})} $val {[format %c 0x\1]} val
-    set val [subst -nocommands -novariables $val]
-    if {[string equal $key "raum"]} { set filter_raum [ascii_key $val] }
+    set val [url_decode $val]
+    if {[string equal $key "raum"]} { set filter_raum $val }
     if {[string equal $key "ereignis"]} { set filter_ereignis $val }
     if {[string equal $key "tage"]} {
         if {[string equal $val "1"] || [string equal $val "7"] || [string equal $val "30"] || [string equal $val "90"]} {
             set filter_tage $val
         }
     }
-    if {[string equal $key "submitted"] && [string equal $val "1"]} { set submitted 1 }
 }
 
 # ---------------------------------------------------------------------------
@@ -127,18 +131,15 @@ set hkk_src "HK-LogHeizkurvenkontrolle"
 
 # ---------------------------------------------------------------------------
 # Raumliste aus HK1-R-Liste via ReGa
-# value im Dropdown = ASCII-bereinigter Raumname (ohne Sonderzeichen, URL-sicher)
-# Anzeige im Dropdown = Originalname mit Umlauten aus HK1-R-Liste
+# value und Anzeige im Dropdown = Originalname (mit Umlauten, URL-kodiert übergeben)
 # ---------------------------------------------------------------------------
 set r_liste_raw [extract_stdout [rega_script {
     var sv = dom.GetObject("HK1-R-Liste");
     if (sv) { WriteLine(sv.Value()); } else { WriteLine(""); }
 }]]
 
-# alle_raeume_komplett: Liste von {ascii_key anzeige_name}, nach Anzeigename sortiert
-# log_name_map: ASCII-Key -> Originalname mit Umlauten (für Tabellenanzeige)
-set alle_raeume_komplett {}
-array set log_name_map {}
+# alle_raeume: Liste von {name name} aus HK1-R-Liste, nach Name sortiert
+set alle_raeume {}
 foreach entry [split $r_liste_raw ";"] {
     set entry [string trim $entry]
     if {[string equal $entry ""]} { continue }
@@ -149,50 +150,9 @@ foreach entry [split $r_liste_raw ";"] {
         set anzeige [string trim $entry]
     }
     if {[string equal $anzeige ""]} { continue }
-    set akey [ascii_key $anzeige]
-    lappend alle_raeume_komplett [list $akey $anzeige]
-    set log_name_map($akey) $anzeige
+    lappend alle_raeume [list $anzeige $anzeige]
 }
-set alle_raeume_komplett [lsort -index 1 $alle_raeume_komplett]
-
-# ---------------------------------------------------------------------------
-# Raumliste aus Log-Dateien ergänzen (Gruppenräume tauchen nur im Log auf)
-# ---------------------------------------------------------------------------
-set alle_raeume_log_keys {}
-if {[llength $log_files] > 0} {
-    set fpaths {}
-    foreach lf $log_files { lappend fpaths "$usb_dir/$lf" }
-    catch {
-        set grep_out [eval exec grep -h [list $hkk_src] $fpaths]
-        foreach line [split $grep_out "\n"] {
-            set line [string trim $line]
-            set parts [split $line "\t"]
-            if {[llength $parts] < 3} { continue }
-            set msg [join [lrange $parts 2 end] "\t"]
-            set sp [string first " " $msg]
-            set dp [string first ":" $msg]
-            set rn ""
-            if {$sp > 0 && ($dp < 0 || $sp < $dp)} {
-                set rn [string range $msg 0 [expr {$sp-1}]]
-            } elseif {$dp > 0} {
-                set rn [string range $msg 0 [expr {$dp-1}]]
-            }
-            set pidx [string first "(" $rn]
-            if {$pidx > 0} { set rn [string range $rn 0 [expr {$pidx-1}]] }
-            set rn [string trim $rn]
-            if {![string equal $rn ""]} { lappend alle_raeume_log_keys [ascii_key $rn] }
-        }
-    }
-}
-# Log-Räume ergänzen, die noch nicht in alle_raeume_komplett sind
-set vorhandene_keys {}
-foreach pair $alle_raeume_komplett { lappend vorhandene_keys [lindex $pair 0] }
-foreach rn [unique_sorted $alle_raeume_log_keys] {
-    if {[lsearch -exact $vorhandene_keys $rn] < 0} {
-        lappend alle_raeume_komplett [list $rn $rn]
-    }
-}
-set alle_raeume_komplett [lsort -index 1 $alle_raeume_komplett]
+set alle_raeume [lsort -index 1 $alle_raeume]
 
 # ---------------------------------------------------------------------------
 # Ereignisse einlesen (nur nach Submit, via grep)
@@ -282,22 +242,11 @@ if {$submitted && [llength $log_files] > 0} {
             continue
         }
 
-        set pidx [string first "(" $raumname]
-        if {$pidx > 0} {
-            set cidx [string first ")" $raumname $pidx]
-            if {$cidx > 0} {
-                set raumname [string range $raumname 0 [expr {$pidx-1}]][string range $raumname [expr {$cidx+1}] end]
-            } else {
-                set raumname [string range $raumname 0 [expr {$pidx-1}]]
-            }
-        }
         set raumname [string trim $raumname]
         if {[string equal $raumname ""]} { continue }
 
         if {![string equal $filter_raum "alle"]} {
-            set rn_key [ascii_key $raumname]
-            if {![string equal $rn_key $filter_raum] && \
-                ![string equal [string range $rn_key 0 [expr {[string length $filter_raum]-1}]] $filter_raum]} { continue }
+            if {[string first $filter_raum [to_ascii $raumname]] < 0} { continue }
         }
         if {![string equal $filter_ereignis "alle"] && ![string equal $ereignis $filter_ereignis]} { continue }
 
@@ -332,15 +281,14 @@ puts {<!DOCTYPE html>
   <nav class="hk-nav">
     <a href="index.cgi">Raum&uuml;bersicht</a>
     <a href="hkkurve.cgi">Heizkurve</a>
+    <a href="hkconfig.cgi">Einstellungen</a>
     <a href="hklog.cgi">HK-Log</a>
     <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="hkconfig.cgi">Einstellungen</a>
   </nav>}
 
 puts {  <div class="hk-log-controls">}
 puts "    <form method=\"get\" action=\"hkkurve.cgi\">"
-puts "      <input type=\"hidden\" name=\"submitted\" value=\"1\">"
 puts {      <fieldset>}
 puts {        <legend>Filter</legend>}
 puts "        <label>Zeitraum: <select name=\"tage\">"
@@ -352,11 +300,10 @@ puts "        </select></label> &nbsp;"
 puts "        <label>Raum: <select name=\"raum\">"
 set sel [expr {[string equal $filter_raum "alle"] ? " selected" : ""}]
 puts "          <option value=\"alle\"${sel}>Alle R&auml;ume</option>"
-foreach pair $alle_raeume_komplett {
-    set logkey  [lindex $pair 0]
-    set anzeige [lindex $pair 1]
-    set sel [expr {[string equal $logkey $filter_raum] ? " selected" : ""}]
-    puts "          <option value=\"[htmlquote $logkey]\"${sel}>[htmlquote $anzeige]</option>"
+foreach pair $alle_raeume {
+    set name [lindex $pair 0]
+    set sel [expr {[string equal [to_ascii $name] $filter_raum] ? " selected" : ""}]
+    puts "          <option value=\"[htmlquote $name]\"${sel}>[htmlquote $name]</option>"
 }
 puts "        </select></label> &nbsp;"
 puts "        <label>Ereignis: <select name=\"ereignis\">"
@@ -446,8 +393,7 @@ if {[llength $log_files] == 0} {
         }
 
         puts "    <tr${rowcls}>"
-        set raumanzeige [expr {[info exists log_name_map($raumname)] ? $log_name_map($raumname) : $raumname}]
-        puts "      <td>[htmlquote $raumanzeige]</td>"
+        puts "      <td>[htmlquote $raumname]</td>"
         puts "      <td>[htmlquote $ts]</td>"
         puts "      <td>[htmlquote $ereignis]</td>"
         puts "      <td>[htmlquote $delta_str]</td>"

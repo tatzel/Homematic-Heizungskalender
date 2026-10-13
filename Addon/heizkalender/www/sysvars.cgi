@@ -428,24 +428,28 @@ puts {<!DOCTYPE html>
   <nav class="hk-nav">
     <a href="index.cgi">Raum&uuml;bersicht</a>
     <a href="hkkurve.cgi">Heizkurve</a>
+    <a href="hkconfig.cgi">Einstellungen</a>
     <a href="hklog.cgi">HK-Log</a>
     <a href="syslog.cgi">Systemlog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
-    <a href="hkconfig.cgi">Einstellungen</a>
   </nav>
 }
 
-puts "<h2 id=\"hk\">Allgemein (HK-*)</h2>"
+puts {<fieldset><legend>Allgemein (HK-*)</legend>}
 puts [render_table $vars_hk]
+puts {</fieldset>}
 
-puts "<h2 id=\"hk1\">Kalender (HK1-*)</h2>"
+puts {<fieldset><legend>Kalender (HK1-*)</legend>}
 puts [render_table $vars_hk1]
+puts {</fieldset>}
 
-puts "<h2 id=\"hk2\">Schalten (HK2-*)</h2>"
+puts {<fieldset><legend>Schalten (HK2-*)</legend>}
 puts [render_table $vars_hk2]
+puts {</fieldset>}
 
-puts "<h2 id=\"raeume\">R&auml;ume (HKG-Raum-*)</h2>"
+puts {<fieldset><legend>R&auml;ume (HKG-Raum-*)</legend>}
 puts [render_room_table $vars_hkg]
+puts {</fieldset>}
 
 puts {</div>
 </body>
