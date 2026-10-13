@@ -36,12 +36,7 @@ proc extract_stdout {rega_raw} {
 
 proc ereignis_class {ereignis delta} {
     if {[string equal $ereignis "Fehler"]}         { return "hk-kurve-fehler" }
-    if {[string equal $ereignis "Heizbeginn"]} {
-        set d 0
-        catch {set d [expr {int($delta)}]}
-        if {$d > 0} { return "hk-kurve-warn" }
-        return "hk-kurve-heizbeginn"
-    }
+    if {[string equal $ereignis "Heizbeginn"]} { return "hk-kurve-heizbeginn" }
     if {[string equal $ereignis "Terminbeginn"]}   { return "hk-kurve-terminbeginn" }
     if {[string equal $ereignis "Zieltemperatur"]} { return "hk-kurve-ziel" }
     if {[string equal $ereignis "Terminende"]}     { return "hk-kurve-terminende" }
@@ -259,14 +254,21 @@ set alle_ereignisse [lsort -index 1 $alle_ereignisse]
 # ---------------------------------------------------------------------------
 # HTML
 # ---------------------------------------------------------------------------
+set hk_version "?"
+catch {
+    set vfh [open "/usr/local/addons/heizkalender/VERSION" r]
+    gets $vfh hk_version
+    close $vfh
+    set hk_version [string trim $hk_version]
+}
 puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\n"
 puts {<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="iso-8859-1">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Heizkalender: Heizkurvenkontrolle</title>
-  <link rel="stylesheet" href="heizkalender.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">}
+puts "  <title>Heizkalender ${hk_version}: Heizkurvenkontrolle</title>"
+puts {  <link rel="stylesheet" href="heizkalender.css">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -369,18 +371,10 @@ if {[llength $log_files] == 0} {
             set at_str    $delta
         }
 
-        # Indikator: grüner/roter Kreis in der Ereignis-Spalte
+        # Indikator: Dreieck in der Ist-Temperatur-Spalte
         set indikator ""
-        if {[string equal $ereignis "Zieltemperatur"] && ![string equal $delta ""]} {
-            set d 0
-            catch {set d [expr {int($delta)}]}
-            if {$d <= 0} {
-                set indikator { <span class="hk-ind-ok">&#9650;</span>}
-            } else {
-                set indikator { <span class="hk-ind-err">&#9660;</span>}
-            }
-        }
-        if {[string equal $ereignis "Terminbeginn"] && ![string equal $ist ""] && ![string equal $ziel ""]} {
+        if {([string equal $ereignis "Terminbeginn"] || [string equal $ereignis "Terminende"]) \
+                && ![string equal $ist ""] && ![string equal $ziel ""]} {
             set ist_num  0
             set ziel_num 0
             catch {set ist_num  [expr {double($ist)}]}
@@ -403,7 +397,7 @@ if {[llength $log_files] == 0} {
         puts "    </tr>"
     }
     puts {  </table></div>}
-    puts {  <p class="hk-hint"><strong>&Delta; min (Terminbeginn):</strong> Minuten relativ zum Terminbeginn: negativ = vor Terminbeginn, positiv = nach Terminbeginn.<br>Beispiel: Heizende +90min bedeutet, die Heizung schaltete 90 Minuten nach Terminbeginn ab (nicht die Termindauer, da VorzeitAus abgezogen wird).</p>}
+    puts {  <p class="hk-hint"><strong>&Delta; min (Terminbeginn):</strong> Minuten relativ zum Terminbeginn: negativ = p&uuml;nktlich (vor Terminbeginn), positiv = versp&auml;tet (nach Terminbeginn).<br>Beispiel: Terminbeginn -15min bedeutet, der Raum war 15 Minuten vor dem Termin auf Temperatur.<br>Beispiel: Heizende +90min bedeutet, die Heizung schaltete 90 Minuten nach Terminbeginn ab (nicht die Termindauer, da VorzeitAus abgezogen wird).</p>}
     puts {  <fieldset class="hk-legende-fieldset">}
     puts {    <legend>Legende</legend>}
     puts {    <p class="hk-sl-legende">

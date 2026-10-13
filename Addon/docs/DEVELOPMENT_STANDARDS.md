@@ -137,7 +137,7 @@ scp Addon/src/heizkalender/www/index.cgi Addon/src/heizkalender/www/heizkalender
 **Vollständiges Paket für ein Release:**
 
 ```bash
-./Addon/build_addon.sh
+./Addon/build.sh
 ```
 
 Das Paket landet in `Addon/build/heizkalender-addon-<Version>.tar.gz` und wird als GitHub-Release-Asset angehängt.
