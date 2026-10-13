@@ -191,6 +191,21 @@ Name(ID): Temperatur-Sensor <Kanalname> existiert nicht - ...
 
 Fehler-Zeilen (kein Sensor) haben statt Leerzeichen vor dem Ereignis einen Doppelpunkt: `Name(ID): ...`. Der Parser in `hkkurve.cgi` erkennt dieses Muster und ordnet sie als Ereignistyp `Fehler` ein.
 
+**Herkunft der Namen im Log:**
+
+Alle Skripte arbeiten ausschließlich mit Kalender-Ressourcennamen, nicht mit CCU-internen Bezeichnungen. Die Verbindung zwischen den Systemvariablen und dem Log-Format:
+
+- `HK1-R-Liste` enthält `ID=Kalendername`, z.B. `11=EG-Eltern-Kind-Raum`
+- `HK2-HKG-Liste` enthält die zugehörigen CCU-Raumvariablen, z.B. `HKG-Raum-EG-Eltern-Kind-Raum+HKG-Raum-UG-Büro`
+- Die Namen in `HK2-HKG-Liste` (ohne Präfix `HKG-Raum-`) sind identisch mit den Kalender-Ressourcennamen aus `HK1-R-Liste`
+
+Daraus ergibt sich das Log-Format:
+
+- **Normalfall** (ein Raum pro Ressource): `EG-Eltern-Kind-Raum(11)` — Raumname und Ressourcenname sind identisch, kein Suffix
+- **Gruppenfall** (mehrere Räume per `+` verbunden): `EG-Eltern-Kind-Raum(11)-UG-Büro` — der zweite Raum der Gruppe wird als Suffix angehängt; `UG-Büro` ist dabei ebenfalls ein eigenständiger Eintrag in `HK1-R-Liste`
+
+Der Dropdown in `hkkurve.cgi` verwendet `HK1-R-Liste` als Quelle. Eine Substring-Suche auf den gewählten Namen findet damit sowohl den Normalfall (`UG-Büro(22)`) als auch alle Gruppeneinträge, in denen dieser Raum vorkommt (`EG-Eltern-Kind-Raum(11)-UG-Büro`).
+
 ### hksyslog.cgi: HK-Log
 
 Liest direkt aus Logdateien auf dem USB-Stick. Kein ReGa-Aufruf. Die Seite zeigt die letzten N Zeilen der gewählten Datei (tail-Prinzip).
