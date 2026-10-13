@@ -28,7 +28,7 @@ Referenz für das allgemeine CCU-Addon-Format: [ccu-addon-howto](https://github.
 
 ```txt
 Addon/
-  build_addon.sh                   Build-Skript
+  build.sh                         Build-Skript
   src/
     VERSION                        Versionsnummer (z.B. 0.1.0)
     update_script                  Installations-/Update-Script (Shell)
@@ -89,7 +89,7 @@ heizkalender-addon-<Version>.tar.gz
 **Archiv erstellen** (aus dem Projektverzeichnis):
 
 ```bash
-./Addon/build_addon.sh
+./Addon/build.sh
 ```
 
 Das Skript liest die Version aus `Addon/src/VERSION` und legt das Archiv unter `Addon/build/heizkalender-addon-<Version>.tar.gz` ab. Das `build/`-Verzeichnis ist per `.gitignore` vom Repository ausgeschlossen.
@@ -276,7 +276,7 @@ Klassen-Übersicht (Auswahl):
 `update_check.cgi` prüft auf neue Releases, indem es die `VERSION`-Datei direkt aus dem GitHub-Repository liest:
 
 ```txt
-https://raw.githubusercontent.com/xMRi/Homematic-Heizungskalender/main/Addon/VERSION
+https://raw.githubusercontent.com/xMRi/Homematic-Heizungskalender/main/Addon/src/VERSION
 ```
 
 Das entspricht dem Vorbild von `hm-watchdog`. Kein JSON-Parsing, kein fester Asset-Name. Beim Download-Befehl leitet das Script auf die GitHub-Releases-Seite weiter; der Nutzer lädt das passende Asset dort selbst herunter.
@@ -294,7 +294,7 @@ scp Addon/src/heizkalender/www/index.cgi root@<CCU-IP>:/usr/local/addons/heizkal
 Vollständiges Paket bauen (aus dem Projektverzeichnis):
 
 ```bash
-./Addon/build_addon.sh
+./Addon/build.sh
 ```
 
 Das Paket landet in `Addon/build/heizkalender-addon-<Version>.tar.gz`.
@@ -303,16 +303,17 @@ Das Paket landet in `Addon/build/heizkalender-addon-<Version>.tar.gz`.
 
 Das Addon verwendet ein eigenes Versionierungsschema, unabhängig von den Datums-Tags der Skripte:
 
-- Die Versionsnummer steht in `Addon/src/VERSION` (z.B. `0.3.0`).
-- Git-Tags für Addon-Releases haben das Format `<Version>` ohne Prefix (z.B. `0.3.0`).
+- Die Versionsnummer steht in `Addon/src/VERSION` (z.B. `0.5.0`).
+- Git-Tags für Addon-Releases haben das Format `addon-v<Version>` (z.B. `addon-v0.5.0`). Tag nur in den eigenen Fork pushen (`git push fork addon-v<Version>`), nicht nach `origin`.
 - Skript-Releases verwenden weiterhin Datums-Tags (`v2026-10-12`).
 
 Release-Prozess:
 
 1. `Addon/src/VERSION` auf die neue Version setzen.
-2. `./Addon/build_addon.sh` ausführen.
+2. `./Addon/build.sh` ausführen (legt Paket in `Addon/build/` ab).
 3. Änderungen committen und pushen.
-4. GitHub-Release mit dem Versions-Tag anlegen und `Addon/build/heizkalender-addon-<Version>.tar.gz` als Asset anhängen.
+4. Tag setzen und in den Fork pushen: `git tag addon-v<Version> && git push fork addon-v<Version>`.
+5. GitHub-Release mit dem Versions-Tag anlegen und `Addon/build/heizkalender-addon-<Version>.tar.gz` als Asset anhängen.
 
 ---
 
