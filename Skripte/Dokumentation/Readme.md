@@ -17,8 +17,7 @@ Das _Skript 2_ ist das Hauptskript zum Schalten der Heizung.
 
 ## HeizkalenderInstallation.exe
 
-Die HeizkalenderInstallation.exe dient zur Installation und Einrichtung der verschiedenen Skriptvarianten.
-Dieses Programm kann bestehende Installationen aktualisieren oder kann einfach neue Installationen erzeugen.
+Die HeizkalenderInstallation.exe dient zur Installation und Einrichtung der verschiedenen Skriptvarianten. Dieses Programm kann bestehende Installationen aktualisieren oder kann einfach neue Installationen erzeugen.
 
 Das Programm legt dazu die notwendigen Skripte und Systemvariablen an. Die notwendigen passenden Skripte müssen dazu im Programmverzeichnis liegen.
 Die folgenden Skripte werden dabei zwingend benötigt und müssen im Programmverzeichnis liegen, auch wenn diese evtl. nicht benutzt werden:
@@ -33,7 +32,14 @@ Die folgenden Skripte werden dabei zwingend benötigt und müssen im Programmver
 - HK-Skript 2
 - HK-SystemProtokoll sichern
 
+Die komplette [Dokumentation für die `HeizkalenderInstallation.exe`](..\..\HeizkalenderInstallation\Dokumentation\Readme.md) ist hier zu finden.
+
 ## Skripte zur Initialisierung
+
+> [!WARNING]
+> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht benutzt werden!**
+>
+> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
 
 Die folgenden Variablen werden in allen Skripten vom Typ 1 und natürlich vom Schaltskript 2 verwendet.
 
@@ -128,6 +134,12 @@ Die Protokollierung erfolgt über die nachfolgenden Kategorien:
 
 ## Skripte zum Einlesen der Termindaten aus diversen Quellen
 
+> [!WARNING]
+> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.**
+>
+> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
+
+
 Es wird für den Betrieb des Heizkalenders eine der nachfolgenden Datenquellen (ChurchTools, ChurchDesk, iCal, Google-Kalender) benötigt. Das entsprechende Skript sollte ca. alle 30 min laufen um die Termine für die nächsten Heizzyklen zu bestimmen.
 
 Alle diese Skripte bedienen die Variable `HK1-Schaltliste`. In dieser Variable werden aktuelle Termine eingetragen, die durch das Schaltskript 2 berücksichtigt werden sollen.
@@ -172,6 +184,11 @@ Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log
 
 ## Schaltskript
 
+> [!WARNING]
+> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.**
+>
+> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
+
 Das Schaltskript ist das Herzstück der Heizkalender Software. Es muss zwingend alle 5 Minuten laufen. Das Skript schaltet die Heizthermostate ein und auch wieder aus.
 
 ## HK-Skript 2.hsc
@@ -190,6 +207,11 @@ Ist `HK2-Hand-Grundtemp` auf `true` gesetzt, führt HK-Skript 2 täglich zwische
 Bei jedem Skriptlauf (alle 5 Minuten) prüft HK-Skript 2 zusätzlich alle Räume aus `HK2-HKG-Liste`. Für jeden Raum mit Schaltzustand=1 (aktiv) wird geprüft, ob er in diesem Lauf tatsächlich einen gültigen Schaltlisteneintrag hatte. Fehlt ein solcher Eintrag, wurde der Termin offenbar gelöscht oder der Ausschaltpunkt wurde verpasst. Der Raum wird dann sofort zurückgesetzt: die Systemvariable wird auf Schaltzustand=0 gesetzt und der Aktor direkt ausgeschaltet (Heiztyp H: Solltemperatur auf Grundtemperatur; Schalttyp: Relais auf AUS). Die Schaltlistenprüfung ist das Gegenstück zur Nachtschaltung: sie greift sofort im laufenden Betrieb, die Nachtschaltung dient als nächtliche Generalabsicherung.
 
 ## Sonstige Skripte
+
+> [!WARNING]
+> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.**
+>
+> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
 
 Alle weiteren hier aufgeführten Skripte sind für den Betrieb des Heizkalenders dienlich.
 
