@@ -265,18 +265,10 @@ proc render_hkgliste {val} {
         return "<em>(leer)</em>"
     }
     set html "<table class=\"hk-table hk-table-inline\">\n"
-    append html "  <tr><th>Raum-Systemvariable</th><th>Gruppe</th></tr>\n"
+    append html "  <tr><th>Raum-Systemvariable(n)</th></tr>\n"
     foreach entry $entries {
         if {[string equal $entry ""]} { continue }
-        set pluspos [string first "+" $entry]
-        if {$pluspos >= 0} {
-            set raum    [string range $entry 0 [expr {$pluspos-1}]]
-            set gruppe  [string range $entry [expr {$pluspos+1}] end]
-        } else {
-            set raum   $entry
-            set gruppe ""
-        }
-        append html "  <tr><td>[htmlquote $raum]</td><td>[htmlquote $gruppe]</td></tr>\n"
+        append html "  <tr><td>[htmlquote $entry]</td></tr>\n"
     }
     append html "</table>\n"
     return $html
