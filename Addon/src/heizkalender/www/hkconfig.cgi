@@ -222,7 +222,7 @@ foreach re [split $rliste_raw ";"] {
             }
             lappend raumteile $teil
         }
-        set raumzuo [join $raumteile ", "]
+        set raumzuo [join $raumteile "; "]
     }
     lappend zuordnungen [list $rid $rname $raumzuo]
     incr idx
