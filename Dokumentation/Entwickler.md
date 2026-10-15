@@ -203,10 +203,10 @@ RessourcenID;Startzeit;Endezeit;Steuerung;ModusRessourcenID;Startzeit;...
 | Feld | Typ | Inhalt |
 | :--- | :--- | :--- |
 | RessourcenID | Integer | Ressourcen-ID (gemäß `HK1-R-Liste`) |
-| Startzeit | Integer | UNIX-Timestamp (UTC) des Terminbeginns |
-| Endezeit | Integer | UNIX-Timestamp (UTC) des Terminendes |
-| Steuerung | Integer | Steuerungswert aus dem Termintext: `0` = normal, `-1` = `#EIN#`, `-2` = `#AUS#`, `-3` = `#RESET#`, positive Zahl = Minuten aus `#<Zahl>#` |
-| Modus | String | `§` = Heizen, `&` = Schalten |
+| Startzeit | Datum | Terminbeginn im Format yyyy-mm-dd hh:mm:ss|
+| Endezeit | Datum | Terminende im Terminbeginn im Format yyyy-mm-dd hh:mm:ss|
+| Spezielle Steuerbefehle | Integer | Steuerungswert aus dem Termintext:<br>`0` = normal, `-1` = `#EIN#`, `-2` = `#AUS#`, `-3` = `#RESET#`,<br>positive Zahl = Temperatur aus `#<Zahl>#` |
+| Modus | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen+Schalten|
 
 Trennzeichen:
 
@@ -217,8 +217,8 @@ Trennzeichen:
 
 Beispiele:
 
-- Ein Eintrag: `17;1720951200;1720954800;0;§` (Ressource 17, 14.07.2024 12–13 Uhr, Heizmodus)
-- Zwei Einträge hintereinander: `17;1720951200;1720954800;0;§16;1720951200;1720958400;0;&` (Ressource 17 heizen, Ressource 16 schalten, gleicher Startzeitpunkt)
+- Ein Eintrag: `4;2026-10-14 18:30:00;2026-10-14 20:30:00;0;H` (Ressource 4, 14.10.2026 18:30 Uhr bis 20:30 Uhr, Heizmodus)
+- Zwei Einträge hintereinander: `4;2026-10-14 18:30:00;2026-10-14 20:30:00;0;H;2;2026-10-14 18:30:00;2026-10-14 20:30:00;0;S;` (Ressource 4 Heizen, Ressource 2 Schalten, gleicher Startzeitpunkt)
 
 ### HK2-Kurve
 
@@ -315,4 +315,4 @@ Das Heizkalender Addon ist eine eigenständige Komponente mit eigener Entwickler
 Sie beschreibt Verzeichnisstruktur, Paketformat, rc.d-Script, CGI-Seiten und die
 Besonderheiten von Tcl 8.2 auf der CCU3.
 
-Vollständige Dokumentation: [Addon/docs/Entwickler.md](../Addon/docs/Entwickler.md)
+Vollständige Dokumentation: [Addon/Entwickler.md](Addon/Entwickler.md)
