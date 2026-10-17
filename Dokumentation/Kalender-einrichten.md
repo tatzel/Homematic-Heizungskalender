@@ -41,5 +41,4 @@ Raumname mit vorangestelltem `#` eindeutig im Termintitel stehen.
 ## Weiter geht es
 
 - Vorab die Struktur planen: [Planung](Planung.md)
-- Danach die eigentliche Einrichtung über den
-  [`HeizkalenderInstallation.exe`](../HeizkalenderInstallation/Dokumentation/Readme.md).
+- Danach die [Einrichtung der CCU](CCU-Einrichten)

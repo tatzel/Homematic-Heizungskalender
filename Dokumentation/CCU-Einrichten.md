@@ -301,3 +301,7 @@ Fahren Sie dann mit dem folgenden Kapitel „Systemvariablen einrichten"
 fort und beginnen somit mit der eigentlichen Installation des
 Heizkalenders.
 
+## Weiter geht es
+
+- Zuvor Zugangsdaten des Kalenders beschaffen: [Kalender-Zugangsdaten ermitteln](Kalender-einrichten.md)
+- Danach die eigentliche Einrichtung über die [`HeizkalenderInstallation.exe`](../HeizkalenderInstallation/Dokumentation/Readme.md).

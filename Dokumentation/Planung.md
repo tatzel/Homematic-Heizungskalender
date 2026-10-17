@@ -60,6 +60,4 @@ angehängt.
 
 ## Weiter geht es
 
-- Zugangsdaten des Kalenders beschaffen: [Kalender-Zugangsdaten ermitteln](Kalender-einrichten.md)
-- Danach die eigentliche Einrichtung über die
-  [`HeizkalenderInstallation.exe`](../HeizkalenderInstallation/Dokumentation/Readme.md).
+- Jetzt die Zugangsdaten des Kalenders beschaffen: [Kalender-Zugangsdaten ermitteln](Kalender-einrichten.md)
