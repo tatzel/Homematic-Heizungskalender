@@ -27,10 +27,10 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 
 ### Für Anwender
 
-- [Planung](/Dokumentation/Planung.md): Struktur planen, Nomenklatur für Aktoren- und Heizgruppen (vor der Installation).
-- [Einrichtung der CCU](/Dokumentation/CCU-Konfiguration.md): Einrichtung der CCU und Installation der Aktoren/Thermostate
-- [Kalender-Zugangsdaten ermitteln](/Dokumentation/Kalender-einrichten.md): Token/IDs für ChurchTools, ChurchDesk usw. beschaffen.
 - [Anwenderhandbuch](/Dokumentation/Anwenderhandbuch.md): Sonderbefehle, Raumvariablen, Vorheizzeit im laufenden Betrieb.
+- [Planung](/Dokumentation/Planung.md): Struktur planen, Nomenklatur für Aktoren- und Heizgruppen (vor der Installation).
+- [Kalender-Zugangsdaten ermitteln](/Dokumentation/Kalender-einrichten.md): Token/IDs für ChurchTools, ChurchDesk usw. beschaffen.
+- [Einrichtung der CCU](/Dokumentation/CCU-Konfiguration.md): Einrichtung der CCU und Installation der Aktoren/Thermostate
 - [Heizkalender-Installation Anleitung](/HeizkalenderInstallation/Dokumentation/Readme.md): Einrichtung und Updates auf der CCU.
 - [Heizkalender Addon](/Addon/docs/Anwenderhandbuch.md): Installation und Seiten-Übersicht des CCU-Addons zur Anzeige von Räumen, Protokollen und Heizkurvenkontrolle.
 - [Skript-Referenz](/Skripte/Dokumentation/Readme.md): alle Skripte und Systemvariablen im Detail.
