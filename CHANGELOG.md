@@ -13,6 +13,21 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Unveröffentlicht]</u>
 
+## [2026-10-17]
+
+### Hinzugefügt
+- Übernahme der Doku für das Einrichten der CCU
+- Einfügen neuer Links im Readme zu den neuen Docs.
+- Ergänzung der Version 04 der alten Doku
+
+### Geändert
+
+- Readme umgebaut.
+- Reihenfolge und Index für die Anleitung eingebaut
+- Grafik für die Vorheizzeit
+- Diverse Korrekturen
+- Umstrukturierung der Dokus.
+
 ## [2026-10-14]
 
 ### Hinzugefügt

@@ -28,6 +28,7 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 ### Für Anwender
 
 - [Planung](/Dokumentation/Planung.md): Struktur planen, Nomenklatur für Aktoren- und Heizgruppen (vor der Installation).
+- [Einrichtung der CCU](/Dokumentation/CCU-Konfiguration.md): Einrichtung der CCU und Installation der Aktoren/Thermostate
 - [Kalender-Zugangsdaten ermitteln](/Dokumentation/Kalender-einrichten.md): Token/IDs für ChurchTools, ChurchDesk usw. beschaffen.
 - [Anwenderhandbuch](/Dokumentation/Anwenderhandbuch.md): Sonderbefehle, Raumvariablen, Vorheizzeit im laufenden Betrieb.
 - [Heizkalender-Installation Anleitung](/HeizkalenderInstallation/Dokumentation/Readme.md): Einrichtung und Updates auf der CCU.
@@ -45,20 +46,22 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 ### Archiv (historische Dokumente)
 
 - [Neue Funktionen 2026](/Dokumentation/Archiv/Neue-Funktionen-2026.md): historisches Release-Begleitdokument.
+- [Handbuch-ENTWURF04-20260228.pdf](/Dokumentation/Archiv/Handbuch-ENTWURF04-20260228.pdf): früher Handbuch-Entwurf (PDF).
 - [Handbuch-ENTWURF01-20260110.pdf](/Dokumentation/Archiv/Handbuch-ENTWURF01-20260110.pdf): früher Handbuch-Entwurf (PDF).
 - [HK-Anleitung V3.1.1.pdf](/Backup-Originale/3.2.1/HK-Anleitung%20V3.1.1.pdf): ältere Anleitung (PDF, im Ordner der Original-Skripte).
+- [Backup-Originale](/Backup-Originale) : Historische Original-Skripte, nur zur Referenz.
 
 ## Ordner-Konvention
 
 | Ordner | Inhalt |
 | :--- | :--- |
-| `Skripte/` | Release-Ordner: die `.hsc`-Kern-Skripte (Skript-1-Varianten, Skript 2, Init-Skripte, HK-Test-Skript, Heizkurvenkontrolle, Außentemperatur, Protokoll-Sicherung), eine lauffähige Kopie der `HeizkalenderInstallation.exe` sowie die mitgelieferte Skript-Referenz. So ist ein GitHub-Release direkt nutzbar. |
-| `Tools/` | Optionale Zusatzwerkzeuge (Diagnose, Logging, Wartung). |
-| `Tests/` | Entwickler-Testfälle, nicht für den Produktivbetrieb. |
-| `HeizkalenderInstallation/` | Windows-Installationsprogramm-Quellcode (C++/MFC) und dessen Doku. Die gebaute `.exe` liegt als Kopie in `Skripte/`. |
-| `Addon/` | CCU-Addon (Weboberfläche): Tcl-CGI-Seiten, rc.d-Service-Skript und Installationsskript. Wird als `heizkalender-addon.tar.gz` paketiert und über die CCU-Zusatzsoftware installiert. Doku: [Anwender](/Addon/docs/Anwenderhandbuch.md), [Entwickler](/Addon/docs/Entwickler.md). |
-| `Dokumentation/` | Übergreifende Anwender-, Entwickler- und Archiv-Doku. |
-| `Backup-Originale/` | Historische Original-Skripte, nur zur Referenz. |
+| [`Dokumentation/`](/Dokumentation) | Übergreifende Anwender-, Entwickler- und Archiv-Doku. |
+| [`Skripte/`](/skripte) | Release-Ordner: die `.hsc`-Kern-Skripte (Skript-1-Varianten, Skript 2, Init-Skripte, HK-Test-Skript, Heizkurvenkontrolle, Außentemperatur, Protokoll-Sicherung), eine lauffähige Kopie der `HeizkalenderInstallation.exe` sowie die mitgelieferte Skript-Referenz. So ist ein GitHub-Release direkt nutzbar. |
+| [`Tools/`](/Tools) | Optionale Zusatzwerkzeuge (Diagnose, Logging, Wartung). |
+| [`Tests/`](/Tests) | Entwickler-Testfälle, nicht für den Produktivbetrieb. |
+| [`HeizkalenderInstallation/`](/HeizkalenderInstallation) | Windows-Installationsprogramm-Quellcode (C++/MFC) und dessen Doku. Die gebaute `.exe` liegt als Kopie in `Skripte/`. Doku: [Heizkalender-Installation](/HeizkalenderInstallation/Dokumentation/Readme.md)|
+| [`Addon/`](/Addon) | CCU-Addon (Weboberfläche): Tcl-CGI-Seiten, rc.d-Service-Skript und Installationsskript. Wird als `heizkalender-addon.tar.gz` paketiert und über die CCU-Zusatzsoftware installiert. Doku: [Anwender](/Addon/docs/Anwenderhandbuch.md), [Entwickler](/Addon/docs/Entwickler.md). |
+| [`Backup-Originale/`](/Backup-Originale) | Historische Original-Skripte/Anleitungen, nur zur Referenz. |
 
 Das `HK-Test-Skript.hsc` liegt bewusst unter `Skripte/`, wird aber von der 
 `HeizkalenderInstallation.exe` **nicht** installiert (es steht nicht auf dessen fest einkompilierter 
@@ -114,11 +117,11 @@ Eine Zusammenfassung der Tools und eine Beschreibung ist [hier](/Tools/Readme.md
 ## Heizkalender-Installation
 
 Die `HeizkalenderInstallation.exe` ist ein Tool zur Einrichtung und Updates der Heizkalender Software auf einer CCU. 
-DIe `HeizkalenderInstallation.exe` ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Er bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender und unterstützt die Generierung von Skripten und notwendigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
+Dieses Installationsprogramm ermöglicht die Neuinstallation oder auch Updates bestehender Installationen. Auch wenn Sie wenig Erfahrung mit Homematic haben, können Sie die Einrichtung bequem über die Programmoberfläche vornehmen. Das Installationsprogramm bietet eine benutzerfreundliche Oberfläche zur Konfiguration der Heizkalender, Einstellungen und Räume. Es unterstützt die Generierung von Skripten und notwendigen Systemvariablen, die in der HomeMatic CCU oder ähnlichen Systemen verwendet werden können.
 
 [Weitere Informationen und eine Anleitung finden sich hier.](/HeizkalenderInstallation/Dokumentation/Readme.md)
 
-## Systemvoraussetzungen für die Heizkalender-Installation
+### Systemvoraussetzungen für die Heizkalender-Installation
 
 - Betriebssystem: Windows 10 oder höher
 - Die CCU muss in den Sicherheitseinstellungen den Zugriff auf die Remote Homematic-Script API erlauben. Hier muss entweder ein eingeschränkter Zugriff auf die benötigten Funktionen oder ein vollständiger Zugriff gewährt werden, damit die `HeizkalenderInstallation.exe` die notwendigen Skripte und Variablen erstellen kann.
@@ -184,6 +187,12 @@ Die Nutzung erfolgt ausschließlich auf eigene Verantwortung.
 Vor jeder Änderung wird dringend empfohlen, ein vollständiges
 Backup der CCU-Konfiguration anzufertigen.
 
-## Änderungen am Projekt-Homepage
+## Mitarbeit/Contribution
+
+Das ist ein offenes Projekt. Wir freuen uns über jegliche Mitarbeit. Information dazu findest in der [CONTRIBUTING.md](/CONTRIBUTING.md). 
+
+Wir bitten Fehler, Verbesserungen und Ideen entsprechend über [Issues](https://github.com/xMRi/Homematic-Heizungskalender/issues) einzureichen.
+
+## Änderungen am Projekt / Homepage
 
 Im [`CHANGELOG`](/CHANGELOG.md) werden alle nennenswerten Änderungen an diesem Projekt dokumentiert.

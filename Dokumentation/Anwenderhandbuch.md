@@ -11,13 +11,21 @@ konfigurieren. Es erklärt die wiederkehrenden Aufgaben im laufenden Betrieb: R�
 benennen, das Heizverhalten über die Vorheizzeit einstellen und einzelne Termine mit
 Sonderbefehlen steuern.
 
-Für die Erstinstallation siehe die
-[`HeizkalenderInstallation.exe`-Anleitung](../HeizkalenderInstallation/Dokumentation/Readme.md). Davor
-helfen die [Planung](Planung.md) (Struktur und Nomenklatur) und das Beschaffen der
-[Kalender-Zugangsdaten](Kalender-einrichten.md).
-Die vollständige Liste aller Systemvariablen steht in der
+Durch die gesamte Instalation führen folgende Dokumente:
+
+- [Struktur planen](Planung.md)
+- [Zugangsdaten für Kalender beschaffen](Kalender-einrichten.md)
+- [Einrichtung der CCU](CCU-Einrichten)
+- [Einrichtung des Heizkalenders mir der `HeizkalenderInstallation.exe`-Anleitung](../HeizkalenderInstallation/Dokumentation/Readme.md).
+
+> [!WARNING]
+> **In dieser Beschreibung werden Systemvariablen direkt mir Ihrem Namen benannt. Wenn der `HeizkalenderInstallation.exe` verwendet wird, kann dieses Programm für die Einstellung aller hier beschrieben Parameter verwendet werden!**
+>
+> ** Systemvariablen sollten nicht mit der Hand, oder anderen Tools verändert werden, außer man ist sicher über die Auswirkungen im klaren.**
+
+#Die vollständige Liste aller Systemvariablen findet sich in der
 [Skript-Referenz](../Skripte/Dokumentation/Readme.md).
-Einen allgemeinen Überblick über das Projekt und weitere Varianten bietet die
+Einen allgemeinen Überblick über das Projekt und weitere Varianten bietet auch die
 Projekt-Homepage <https://heizkalender.de/>.
 
 ## Wie der Heizkalender funktioniert
@@ -52,7 +60,7 @@ flowchart TD
 
 Ablauf im Detail:
 
-1. **Einmalig:** Die `HeizkalenderInstallation.exe` schreibt über die Init-Skripte die Systemvariablen.
+1. **Einmalig:** Die `HeizkalenderInstallation.exe` erzeugt über die Init-Skripte die Systemvariablen.
 2. **Stündlich:** `HK-Außentemperatur-Open-Meteo` aktualisiert die Außentemperatur in `HK2-Aussentemperatur`.
 3. **Alle 30 Minuten:** Skript 1 liest den Kalender und schreibt die anstehenden Termine in `HK1-Schaltliste`.
 4. **Alle 5 Minuten:** Skript 2 berechnet aus der Schaltliste, der Außentemperatur und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
@@ -74,6 +82,7 @@ Unterstützte Kalenderquellen:
 - ChurchTools (via API)
 - Google-Kalender (via API)
 - ChurchDesk (mit spezieller ICS-Version)
+- ChurchDesk (mit API Zugriff)
 - Sonstige ICS/iCal-kompatible Kalender (mit allgemeiner ICS-Version)
 
 ### Homematic-Hardware
@@ -144,9 +153,9 @@ die individuelle Vorheizzeit und die Zeit, nach der vor Terminende abgeschaltet
 wird. Das genaue Feldformat ist in der
 [Entwickler-Dokumentation](Entwickler.md#hkg-raum-) beschrieben.
 
-Beispielwert: `0;H;IP;18;0;30` bedeutet: kein aktives Heizen, Modus Heizen,
+Beispielwert: `0;H;IP;18;0;30;Heizgruppe-xyz` bedeutet: kein aktives Heizen, Modus Heizen,
 Homematic-IP-Thermostat, Wohlfühltemperatur 18 °C, keine zusätzliche individuelle
-Vorheizzeit, 30 Minuten vor Terminende abschalten.
+Vorheizzeit, 30 Minuten vor Terminende abschalten. *Heizgruppe-xyz* bezeichnet die Heizgruppe, die angesteuiert werden soll. 
 
 ### Mehrere Räume gemeinsam schalten
 
@@ -164,6 +173,16 @@ Beispiel: `HKG-Raum-GrSaal+HKG-Raum-Foyer+HKG-Raum-GaesteWC;HKG-Raum-KlSaal`
 schaltet Großen Saal, Foyer und Gäste-WC gemeinsam; der Kleine Saal bildet eine
 eigene Gruppe.
 
+## Berücksichtigung von Terminänderungen
+
+Im günstigsten Fall sollten alle Termine eingetragen und fix sein, bevor, die Heizphase eines Raumes beginnt. Die Heizphase hat immer eine Vorheiz- oder auch feste Vorlaufzeit. (siehe unten). 
+
+Es ist jedoch möglich, dass der Terminkalender sich kurzfristig ändert. Haben sich Termine geändert liest `Skript 1`, die neuen Termine ein (normalerweise alle 30min).
+
+Wird ein neuer Termin gefunden, dessen Heizphase schon begonnen haben sollte, wird sofort die Heizung im nächsten Schaltzyklus von `Skript 2` eingeschaltet. Aufgrund der Verzögerung ist es dann natürlich möglich, dass die Vorheizzeit nicht erreicht wird.
+
+Wird im umgekehrten Fall ein Termin gelöscht dessen Heizphase beerits begonnen hat, wird die Heizung im im nächsten Schaltzyklus von `Skript 2` ausgeschaltet.
+
 ## Vorheizzeit
 
 Die Vorheizzeit bestimmt, wie lange vor Terminbeginn ein Raum von der
@@ -178,6 +197,8 @@ Ist ein Raum zu Beginn bereits wärmer als die Grundtemperatur (z.B. durch einen
 vorhergehenden Termin, Nachbarräume oder Sonneneinstrahlung), verkürzt
 HK-Skript 2 die Vorheizzeit automatisch. Hat der Raum die Zieltemperatur schon
 erreicht, entfällt die Vorheizzeit ganz. Die Neuberechnung erfolgt alle 5 Minuten.
+
+**Grundsätzlich sollte die in der `HK2-Kurve` angegebene Vorheizzeit so berechnet sein, dass der Raum von der jeweiligen Grundtemperatur auf die Wohlfühltemperatur gebracht werden kann.**
 
 ### Wann heizt ein Raum? (Entscheidungsablauf)
 
@@ -249,6 +270,10 @@ Als Orientierungshilfe sind drei Beispielkurven bekannt:
 | Konservativ (Default) | 162 | 130 | 100 | 59 | 50 | 41 | 30 | 20 | Gut gedämmte Gebäude |
 | Mittel | 220 | 180 | 144 | 95 | 85 | 75 | 61 | 50 | Typische Gemeindegebäude |
 | Großzügig | 451 | 370 | 297 | 196 | 174 | 154 | 125 | 103 | Träge Heizsysteme / Fußbodenheizung |
+
+Zur Vewranschauchlichung hier die Heizkurven in einer Grafik visualisiert:
+
+![Heizkurven](Bilder/Heizkurven.png)
 
 Der `*Faktor` in der Raum-Systemvariablen skaliert die Kurvenzeit für einzelne Räume
 zusätzlich (z.B. `*3.5` für eine Fußbodenheizung mit festem Offset von 240 min).
