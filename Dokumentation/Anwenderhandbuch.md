@@ -15,7 +15,7 @@ Durch die gesamte Instalation führen folgende Dokumente:
 
 - [Struktur planen](Planung.md)
 - [Zugangsdaten für Kalender beschaffen](Kalender-einrichten.md)
-- [Einrichtung der CCU](CCU-Einrichten)
+- [Einrichtung der CCU](CCU-Einrichten.md)
 - [Einrichtung des Heizkalenders mir der `HeizkalenderInstallation.exe`-Anleitung](../HeizkalenderInstallation/Dokumentation/Readme.md).
 
 > [!WARNING]
