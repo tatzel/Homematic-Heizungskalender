@@ -45,8 +45,10 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 ### Archiv (historische Dokumente)
 
 - [Neue Funktionen 2026](/Dokumentation/Archiv/Neue-Funktionen-2026.md): historisches Release-Begleitdokument.
+- [Handbuch-ENTWURF04-20260228.pdf](/Dokumentation/Archiv/Handbuch-ENTWURF04-20260228.pdf): früher Handbuch-Entwurf (PDF).
 - [Handbuch-ENTWURF01-20260110.pdf](/Dokumentation/Archiv/Handbuch-ENTWURF01-20260110.pdf): früher Handbuch-Entwurf (PDF).
 - [HK-Anleitung V3.1.1.pdf](/Backup-Originale/3.2.1/HK-Anleitung%20V3.1.1.pdf): ältere Anleitung (PDF, im Ordner der Original-Skripte).
+- [Backup-Originale](/Backup-Originale) : Historische Original-Skripte, nur zur Referenz.
 
 ## Ordner-Konvention
 
@@ -58,7 +60,7 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 | `HeizkalenderInstallation/` | Windows-Installationsprogramm-Quellcode (C++/MFC) und dessen Doku. Die gebaute `.exe` liegt als Kopie in `Skripte/`. |
 | `Addon/` | CCU-Addon (Weboberfläche): Tcl-CGI-Seiten, rc.d-Service-Skript und Installationsskript. Wird als `heizkalender-addon.tar.gz` paketiert und über die CCU-Zusatzsoftware installiert. Doku: [Anwender](/Addon/docs/Anwenderhandbuch.md), [Entwickler](/Addon/docs/Entwickler.md). |
 | `Dokumentation/` | Übergreifende Anwender-, Entwickler- und Archiv-Doku. |
-| `Backup-Originale/` | Historische Original-Skripte, nur zur Referenz. |
+| `Backup-Originale/` | Historische Original-Skripte/Anleitungen, nur zur Referenz. |
 
 Das `HK-Test-Skript.hsc` liegt bewusst unter `Skripte/`, wird aber von der 
 `HeizkalenderInstallation.exe` **nicht** installiert (es steht nicht auf dessen fest einkompilierter 
