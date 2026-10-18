@@ -368,7 +368,7 @@ catch {
     close $vfh
     set hk_version [string trim $hk_version]
 }
-puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\n"
+puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\nCache-Control: no-cache, no-store\n"
 puts {<!DOCTYPE html>
 <html lang="de">
 <head>
