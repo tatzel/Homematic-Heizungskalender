@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (ChurchDesk)
 !//================================================================================================
-!// Stand:    21.09.2026
+!// Stand:    18.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -25,6 +25,7 @@
 !// automatisch alle benötigten Variablen automatisch erzeugt.
 
 
+!// TT:  2026-10-18 HK1-Vorlaufzeit: neue optionale Systemvariable (Integer, Default 720 min)
 !// TT:  2026-09-18 color-Guard iPos>=0 statt iPos&& (verfehlte Position 0 / -1).
 !// MRi: 2026-01-13 HK1-R-Liste erhält nun auch den Namen der Resource getrennt mit Gleichheitszeichen
 !// MRi: 2025-12-21 Anlegen von zusätzlichen Räumen ermöglicht. Damit müssen nun keine Variablen mehr
@@ -62,35 +63,54 @@ string nm=  "HK1-Schaltliste;" #
             "HK1-R-Liste;" #
             "HK1-CD-OrganisationsId;" #
             "HK1-CD-Token;" #
-            "HK2-HKG-Liste;";
+            "HK2-HKG-Liste;" #
+            "HK1-Vorlaufzeit";
 
 !// Beschreibungstexte
 string be=  "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Räume aus der Ressourcenverwaltung;" #
             "Organisations ID in ChurchDesk;" #
             "API-Token für ChurchDesk;" #
-            "Liste der HK-Raum-Variablen;";
+            "Liste der HK-Raum-Variablen;" #
+            "Zeithorizont fuer Terminabfrage in Minuten (Default 720, max. 1380)";
 
 !// Typen
 string tp=  "string;" #
             "string;" #
             "string;" #
             "string;" #
-            "string";
+            "string;" #
+            "integer";
 
 !// Vorgabe Werte
-string vl=  "";
+string vl=  ";" #
+            ";" #
+            ";" #
+            ";" #
+            ";" #
+            "720";
 
 !// Einheit (z.B. °C)
-string vu=  "";
+string vu=  ";" #
+            ";" #
+            ";" #
+            ";" #
+            ";" #
+            "min";
 
 !// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
 !//   - Numerisch - min/max durch + getrennt
-string wr=  "";
+string wr=  ";" #
+            ";" #
+            ";" #
+            ";" #
+            ";" #
+            "0+1380";
 
 !// Protokollierungs Flags
 string pr=  "1;" #
+            "1;" #
             "1;" #
             "1;" #
             "1;" #

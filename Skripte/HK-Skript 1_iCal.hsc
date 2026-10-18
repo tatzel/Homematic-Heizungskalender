@@ -23,6 +23,7 @@
 !//
 
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
+!// TT:  2026-10-18 HK1-Vorlaufzeit: zeitVorlauf aus optionaler Systemvariable lesen (Default 12h)
 !// TT:  2026-10-01 Vorlauf von 8h auf 12h vereinheitlicht (alle Skript-1-Varianten jetzt
 !//                 12h). DIVERGENZ-Hinweis entfernt.
 !// TT:  2026-10-01 Kommentarblock zum Zeitfenster aktualisiert.
@@ -50,7 +51,11 @@ boolean DEBUG=0;
 !// (wirkt wie Terminende plus Haltezeit). zeitNachlauf haelt einen beendeten
 !// Termin in der Schaltliste, damit HK-Skript 2 ihn noch ausschalten kann.
 !// Kein Heiz-Nachlauf.
-integer zeitVorlauf=12*60;   !// 12 Stunden
+integer zeitVorlauf=12*60;   !// 12 Stunden (Default, falls HK1-Vorlaufzeit nicht gesetzt)
+object objVorlaufzeit = dom.GetObject(vrp#"HK1-Vorlaufzeit");
+if(objVorlaufzeit) {
+  zeitVorlauf = objVorlaufzeit.State().ToInteger();
+}
 integer zeitNachlauf=30;   !// 30 Minuten
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten

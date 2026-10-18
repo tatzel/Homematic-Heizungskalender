@@ -1,6 +1,6 @@
 !// Skript zum Anlegen der Systemvariablen für Skript 1 (iCal)
 !//================================================================================================
-!// Stand:    23.02.2026
+!// Stand:    18.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -23,6 +23,8 @@
 !//Dieses Skript erstellt die nötigen Systemvariablen des Heizkalender für Skript 1 iCal
 !//Hinweis: Ein erneutes Ausführen dieses Programms ändert bestehende Variablen und ihren Inhalt nicht
 
+!// TT:  2026-10-18 HK1-Vorlaufzeit: neue optionale Systemvariable (Integer, Default 720 min)
+
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
 !//Wird hier ein Präfix eingeben so muss dieser in allen Skripten auch angegeben werden.
@@ -33,32 +35,45 @@ string be1="Hier bitte nichts verändern;;Namensliste der Gruppen";
 !// Namen der Variablen, die angelegt werden sollen
 string nm=  "HK1-Schaltliste;" #
             "HK1-R-Liste;" #
-            "HK1-ICS-Url";
-            
+            "HK1-ICS-Url;" #
+            "HK1-Vorlaufzeit";
+
 !// Beschreibungstexte
 string be=  "Schaltliste. Hier bitte nichts verändern!;" #
             "Zuordnung der Räume aus der Ressourcenverwaltung;" #
-            "URL des iCal Kalender";              
-            
+            "URL des iCal Kalender;" #
+            "Zeithorizont fuer Terminabfrage in Minuten (Default 720, max. 1380)";
+
 !// Typen
-string tp=  "string;" #                                                          
-            "string;" #                                                          
-            "string";                                                            
+string tp=  "string;" #
+            "string;" #
+            "string;" #
+            "integer";
 
 !// Vorgabe Werte
-string vl=  "";                                                                  
-                                          
-!// Einheit (z.B. °C)
-string vu=  "";                                                                  
+string vl=  ";" #
+            ";" #
+            ";" #
+            "720";
 
-!// Zusätzliche Info Texte für 
+!// Einheit (z.B. °C)
+string vu=  ";" #
+            ";" #
+            ";" #
+            "min";
+
+!// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
 !//   - Numerisch - min/max durch + getrennt
-string wr=  "";                                                                  
-                        
+string wr=  ";" #
+            ";" #
+            ";" #
+            "0+1380";
+
 !// Protokollierungs Flags
-string pr=  "1;" #                                                               
-            "1;" #                                                               
+string pr=  "1;" #
+            "1;" #
+            "1;" #
             "1";                                                                 
 
 !//------------------------------------------------------------------------------------------------
