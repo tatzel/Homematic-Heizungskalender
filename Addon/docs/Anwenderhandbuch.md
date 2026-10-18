@@ -8,7 +8,7 @@
 - [Raumübersicht](#raumübersicht)
 - [Heizkurvenkontrolle](#heizkurvenkontrolle)
 - [HK-Log](#hk-log)
-- [Systemlog](#systemlog)
+- [Syslog](#syslog)
 - [Systemvariablen](#systemvariablen)
 - [Grundeinstellungen](#grundeinstellungen)
 
@@ -154,26 +154,21 @@ Die Anzeige entspricht einem `tail`: die letzten N Zeilen der Datei, älteste ob
 
 ---
 
-## Systemlog
+## Syslog
 
 **Erreichbar unter:** `/addons/heizkalender/syslog.cgi`
 
-Das Systemlog zeigt die letzten Einträge aus dem Linux-Systemprotokoll der CCU (`/var/log/messages`).
+Das Syslog zeigt die letzten Einträge aus dem Linux-Systemprotokoll der CCU (`/var/log/messages`).
 
-![Systemlog mit den letzten Meldungen des Heizkalenders](images/systemlog.png "Heizkalender: Systemlog")
+![Syslog mit den letzten Meldungen](images/systemlog.png "Heizkalender: Syslog")
 
 **Zeitstempel-Format:** `Mmm DD HH:MM:SS` (Linux-Syslog-Format, ohne Jahreszahl).
 
-**Filter:**
-
-| Filter | Bedeutung |
-| ------ | --------- |
-| Nur Heizkalender | Zeigt nur Zeilen mit Bezug zum Heizkalender |
+| Einstellung | Bedeutung |
+| ----------- | --------- |
 | Letzte Zeilen | Anzahl der angezeigten Zeilen (Standard: 50, max. 2000) |
 
 Die Anzeige entspricht einem `tail`: älteste Zeilen oben, neueste unten.
-
-**Hinweis:** Das Systemprotokoll ist flüchtig. Es überlebt keinen CCU-Neustart und wird bei vollem Speicher automatisch gekürzt. Für eine dauerhafte Aufzeichnung ist `HK-SystemProtokoll sichern.hsc` zuständig.
 
 ---
 

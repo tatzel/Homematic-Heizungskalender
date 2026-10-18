@@ -203,10 +203,10 @@ RessourcenID;Startzeit;Endezeit;Steuerung;ModusRessourcenID;Startzeit;...
 | Feld | Typ | Inhalt |
 | :--- | :--- | :--- |
 | RessourcenID | Integer | Ressourcen-ID (gemäß `HK1-R-Liste`) |
-| Startzeit | Datum | Terminbeginn im Format yyyy-mm-dd hh:mm:ss|
-| Endezeit | Datum | Terminende im Terminbeginn im Format yyyy-mm-dd hh:mm:ss|
-| Spezielle Steuerbefehle | Integer | Steuerungswert aus dem Termintext:<br>`0` = normal, `-1` = `#EIN#`, `-2` = `#AUS#`, `-3` = `#RESET#`,<br>positive Zahl = Temperatur aus `#<Zahl>#` |
-| Modus | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen+Schalten|
+| Startzeit | Datum | Terminbeginn im Format yyyy-mm-dd hh:mm:ss |
+| Endezeit | Datum | Terminende im Terminbeginn im Format yyyy-mm-dd hh:mm:ss |
+| Spezielle Steuerbefehle | Integer | Steuerungswert aus dem Termintext: `0` = normal, `-1` = `#EIN#`, `-2` = `#AUS#`, `-3` = `#RESET#`, positive Zahl = Temperatur aus `#<Zahl>#` |
+| Modus | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen+Schalten |
 
 Trennzeichen:
 
@@ -236,6 +236,31 @@ Zwischen den Stützpunkten interpoliert HK-Skript 2 linear. Der erste Wert
 Beispielkurven und Berechnungshintergrund:
 [Anwenderhandbuch](Anwenderhandbuch.md#die-heizkurve-hk2-kurve),
 [Heizsteuerung-Vorheizzeit.md](../Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md)
+
+### HK-RäumeHeizkurvenkontrolle
+
+Speichert den laufenden Zustand der Heizkurvenkontrolle für alle überwachten Räume. Wird von `HK-Heizkurvenkontrolle.hsc` geschrieben und bei jedem Skriptlauf aktualisiert. Die Variable ist flüchtig (kein USB-Backup).
+
+```txt
+#<Raumvariable>;<Status>;<IstTemp>#<Raumvariable>;<Status>;<IstTemp>#...
+```
+
+| Feld | Typ | Bedeutung |
+| ---- | --- | --------- |
+| Raumvariable | String | Name der `HKG-Raum-*`-Systemvariable |
+| Status | Integer (Bitmap) | Zustand des Raums in der aktuellen Heizphase |
+| IstTemp | Float | Zuletzt gemessene Ist-Temperatur des Temperatursensors |
+
+**Status-Bitmap:**
+
+| Bit | Wert | Bedeutung |
+| --- | ---- | --------- |
+| 0 | 1 | Heizung an |
+| 1 | 2 | Zieltemperatur erreicht |
+| 2 | 4 | Heizung ausgeschaltet |
+| 3 | 8 | Hinweis „kein Temperatursensor" bereits geloggt (wird nur einmal pro Heizphase eingetragen) |
+
+Beispiel: `#HKG-Raum-EG-Saal;1;18.1#HKG-Raum-UG-Buero;3;20.3#`
 
 ## Skript-Syntax (HomeMatic HSC)
 

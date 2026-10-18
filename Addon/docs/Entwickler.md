@@ -40,7 +40,7 @@ Addon/
         hkkurve.cgi                Heizkurvenkontrolle
         hklog.cgi                  HK-Log (USB-Stick-Archiv)
         hklogdownload.cgi          HK-Log-Datei-Download
-        syslog.cgi                 Systemlog (/var/log/messages)
+        syslog.cgi                 Syslog (/var/log/messages)
         sysvars.cgi                Systemvariablen-Übersicht
         hkconfig.cgi               Grundeinstellungen
         update_check.cgi           Update-Check (GitHub Releases API)
@@ -223,15 +223,24 @@ Zeitstempel im Log haben das Format `JJJJ-MM-TT HH:MM:SS` (aus der CCU-Historien
 
 Liefert eine Logdatei vom USB-Stick als Download (`Content-Disposition: attachment`). Wird von `hksyslog.cgi` über den **Download**-Link aufgerufen. Der Dateiname wird als Query-Parameter übergeben; das Script prüft, dass der Pfad innerhalb des Log-Verzeichnisses bleibt (kein Directory Traversal).
 
-### syslog.cgi: Systemlog
+### syslog.cgi: Syslog
 
-Liest `/var/log/messages` direkt. Kein ReGa-Aufruf. Zeitstempel im Linux-Syslog-Format (`Mmm DD HH:MM:SS`). Zeigt die letzten N Zeilen (tail-Prinzip, älteste oben).
+Liest `/var/log/messages` direkt. Kein ReGa-Aufruf. Zeitstempel im Linux-Syslog-Format (`Mmm DD HH:MM:SS`). Zeigt die letzten N Zeilen (tail-Prinzip, älteste oben). Liefert `Cache-Control: no-cache, no-store`, damit der Browser bei jedem Aufruf frische Daten holt.
 
-**Abgrenzung zum CCU-Systemprotokoll:** Die CCU-Weboberfläche unter *Startseite > Status und Bedienung > Systemprotokoll* zeigt eine andere Datenquelle: das ReGa-interne Ereignisprotokoll (Programmausführungen, Gerätekommunikation, Alarme). Diese Daten liegen in der ReGaHss-Datenbank und sind über die ReGa-API abfragbar (z.B. `dom.GetObject(ID_SYSTEMLOG)`), nicht über `/var/log/messages`. Eine Einbindung dieses Protokolls in `syslog.cgi` wäre möglich, wurde aber bisher nicht umgesetzt.
+**Abgrenzung zum CCU-Systemprotokoll:** Die CCU-Weboberfläche unter *Startseite > Status und Bedienung > Systemprotokoll* zeigt das ReGa-interne Ereignisprotokoll (Programmausführungen, `WriteLog()`-Ausgaben der HomeMatic-Skripte). Diese Daten liegen im ReGaHss-Prozessspeicher. `system.logList()` steht auf CCU3-Firmware 3.x nicht mehr zur Verfügung; das ReGa-Protokoll ist damit vom Addon nicht abrufbar.
 
 ### sysvars.cgi: Systemvariablen
 
 Liest alle `HK-*`-, `HK1-*`-, `HK2-*`- und `HKG-Raum-*`-Variablen über die ReGa-API. Rein lesend.
+
+Besondere Darstellung für `HK-RäumeHeizkurvenkontrolle`: Der Wert hat das Format `#Raumvariable;Status;IstTemp#...`. Der Status-Wert ist ein Bitmap:
+
+| Bit | Wert | Bedeutung |
+| --- | ---- | --------- |
+| 0 | 1 | Heizung an |
+| 1 | 2 | Zieltemperatur erreicht |
+| 2 | 4 | Heizung ausgeschaltet |
+| 3 | 8 | Hinweis „kein Temperatursensor" bereits geloggt |
 
 ### hkconfig.cgi: Grundeinstellungen
 
