@@ -272,13 +272,13 @@ catch {
     close $vfh
     set hk_version [string trim $hk_version]
 }
-puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\n"
+puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\nCache-Control: no-cache, no-store\n"
 puts {<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="iso-8859-1">
   <meta name="viewport" content="width=device-width, initial-scale=1">}
-puts "  <title>Heizkalender ${hk_version}: Heizkurvenkontrolle</title>"
+puts "  <title>Heizkurvenkontrolle | Heizkalender ${hk_version}</title>"
 puts {  <link rel="stylesheet" href="heizkalender.css">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -296,7 +296,7 @@ puts {  <link rel="stylesheet" href="heizkalender.css">
     <a href="hkkurve.cgi">Heizkurve</a>
     <a href="hkconfig.cgi">Einstellungen</a>
     <a href="hklog.cgi">HK-Log</a>
-    <a href="syslog.cgi">Systemlog</a>
+    <a href="syslog.cgi">Syslog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
   </nav>}
 

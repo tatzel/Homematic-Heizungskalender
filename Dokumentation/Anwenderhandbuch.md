@@ -15,15 +15,15 @@ Durch die gesamte Instalation führen folgende Dokumente:
 
 - [Struktur planen](Planung.md)
 - [Zugangsdaten für Kalender beschaffen](Kalender-einrichten.md)
-- [Einrichtung der CCU](CCU-Einrichten)
+- [Einrichtung der CCU](CCU-Einrichten.md)
 - [Einrichtung des Heizkalenders mir der `HeizkalenderInstallation.exe`-Anleitung](../HeizkalenderInstallation/Dokumentation/Readme.md).
 
 > [!WARNING]
 > **In dieser Beschreibung werden Systemvariablen direkt mir Ihrem Namen benannt. Wenn der `HeizkalenderInstallation.exe` verwendet wird, kann dieses Programm für die Einstellung aller hier beschrieben Parameter verwendet werden!**
 >
-> ** Systemvariablen sollten nicht mit der Hand, oder anderen Tools verändert werden, außer man ist sicher über die Auswirkungen im klaren.**
+> **Systemvariablen sollten nicht mit der Hand, oder anderen Tools verändert werden, außer man ist sicher über die Auswirkungen im klaren.**
 
-#Die vollständige Liste aller Systemvariablen findet sich in der
+Die vollständige Liste aller Systemvariablen findet sich in der
 [Skript-Referenz](../Skripte/Dokumentation/Readme.md).
 Einen allgemeinen Überblick über das Projekt und weitere Varianten bietet auch die
 Projekt-Homepage <https://heizkalender.de/>.
@@ -155,7 +155,7 @@ wird. Das genaue Feldformat ist in der
 
 Beispielwert: `0;H;IP;18;0;30;Heizgruppe-xyz` bedeutet: kein aktives Heizen, Modus Heizen,
 Homematic-IP-Thermostat, Wohlfühltemperatur 18 °C, keine zusätzliche individuelle
-Vorheizzeit, 30 Minuten vor Terminende abschalten. *Heizgruppe-xyz* bezeichnet die Heizgruppe, die angesteuiert werden soll. 
+Vorheizzeit, 30 Minuten vor Terminende abschalten. *Heizgruppe-xyz* bezeichnet die Heizgruppe, die angesteuiert werden soll.
 
 ### Mehrere Räume gemeinsam schalten
 
@@ -175,7 +175,7 @@ eigene Gruppe.
 
 ## Berücksichtigung von Terminänderungen
 
-Im günstigsten Fall sollten alle Termine eingetragen und fix sein, bevor, die Heizphase eines Raumes beginnt. Die Heizphase hat immer eine Vorheiz- oder auch feste Vorlaufzeit. (siehe unten). 
+Im günstigsten Fall sollten alle Termine eingetragen und fix sein, bevor, die Heizphase eines Raumes beginnt. Die Heizphase hat immer eine Vorheiz- oder auch feste Vorlaufzeit. (siehe unten).
 
 Es ist jedoch möglich, dass der Terminkalender sich kurzfristig ändert. Haben sich Termine geändert liest `Skript 1`, die neuen Termine ein (normalerweise alle 30min).
 
