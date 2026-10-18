@@ -555,6 +555,12 @@ Die folgenden Werte haben sich in der Praxis bewährt.
 | `HK2-VorzeitAus` | Globale Minuten, um die vor Terminende abgeschaltet wird | **0**|Besser je Raum einstellen; nicht gleichzeitig mit der raumbezogenen VorzeitAus nutzen (beide Werte addieren sich). Das vorzeitige Heizende kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
 | `HK2-Kurvenversatz` | Gibt einen globalen Einschalt-Offset an | **0**|Minuten vor Terminbeginn und ist das Gegenstück zu `HK2-VorzeitAus`.  Das vorgezogene Heizbeginn kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
 
+## Einstellungen für Skript 1 (Termineinlesen)
+
+| Variable | Bedeutung |
+| :--- | :--- |
+| `HK1-Vorlaufzeit` | Optional. Zeithorizont für die Terminabfrage in Minuten: wie weit in die Zukunft schaut Skript 1 beim Lesen des Kalenders. Default: 720 min (12 Stunden). Wird die Variable nicht angelegt, bleibt der Defaultwert aktiv. Sinnvolle Werte: 60 bis 1380 (23 Stunden). |
+
 ## Unterstützte Homematic-Geräte
 
 Leider haben die unterschiedlichen Generationen von Heizkörperthermostaten und Temperatursensoren unterschiedliche Kanäle und Datenpunkte. Der Heizkalender muss dazu wissen, mit welcher Gerätegeneration er es zu tun hat.

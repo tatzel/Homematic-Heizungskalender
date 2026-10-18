@@ -132,6 +132,7 @@ set doc_links [list \
     HK2-Kurve                     $doc_awh_kurve  \
     HK2-Kurvenversatz             $doc_awh_global \
     HK2-VorzeitAus                $doc_awh_global \
+    HK2-Vorlaufzeit               $doc_dev \
 ]
 
 proc lookup_doc_url {name doc_links_var} {
@@ -274,6 +275,39 @@ proc render_hkgliste {val} {
     return $html
 }
 
+proc render_vlzliste {val} {
+    if {[string equal $val ""]} {
+        return "<em>(leer)</em>"
+    }
+    set entries [split $val "~"]
+    set clean {}
+    foreach e $entries {
+        if {![string equal $e ""]} { lappend clean $e }
+    }
+    if {[llength $clean] == 0} { return "<em>(leer)</em>" }
+    set html "<table class=\"hk-table hk-table-inline\">\n"
+    append html "  <tr><th>ID</th><th>Vorlauf (min)</th><th>Heizen ab</th><th>Termin ab</th><th>Termin bis</th><th>Nachlauf (min)</th></tr>\n"
+    foreach entry $clean {
+        set fields [split $entry ";"]
+        set rid    [lindex $fields 0]
+        set vmin   [lindex $fields 1]
+        set heiab  [lindex $fields 2]
+        set tab    [lindex $fields 3]
+        set tbis   [lindex $fields 4]
+        set nlmin  [lindex $fields 5]
+        append html "  <tr>"
+        append html "<td>[htmlquote $rid]</td>"
+        append html "<td>[htmlquote $vmin]</td>"
+        append html "<td>[htmlquote $heiab]</td>"
+        append html "<td>[htmlquote $tab]</td>"
+        append html "<td>[htmlquote $tbis]</td>"
+        append html "<td>[htmlquote $nlmin]</td>"
+        append html "</tr>\n"
+    }
+    append html "</table>\n"
+    return $html
+}
+
 proc format_temp {val} {
     set t $val
     catch {set t [format "%.1f" $val]}
@@ -313,6 +347,8 @@ proc render_table {varlist} {
             set cell [render_rliste $display_val]
         } elseif {[string equal $name "HK2-HKG-Liste"]} {
             set cell [render_hkgliste $display_val]
+        } elseif {[string equal $name "HK2-Vorlaufzeit"]} {
+            set cell [render_vlzliste $display_val]
         } elseif {[string match "HK-R*umeHeizkurvenkontrolle" $name]} {
             set cell [render_hk_raeume_hkk $display_val]
         } elseif {[is_temp_var $name]} {

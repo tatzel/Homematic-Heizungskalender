@@ -39,6 +39,7 @@ Die folgenden Variablen werden in allen Skripten vom Typ 1 und natürlich vom Sc
 | HK1-Schaltliste | Schaltlisten Einträge. Hier werden vom Skript die ermittelten und zu schaltenden Termine eingetragen |
 | HK1-R-Liste | Raumliste der Churchdesk Ressourcen. Bestehende aus einer Id und optional gefolgt von einem Gleichheitszeichen mit dem Raumnamen als Text |
 | HK2-HKG-Liste | Semikolon getrennte Liste der Raum-Systemvariablen. Zu jedem Eintrag der Ressourcen Liste HK1-R-Liste, der entsprechende Raum Eintrag. Jeder Ressource können mehrere Räume zugeordnet werden indem die einzelnen Räume durch ein + Zeichen getrennt werden. |
+| HK1-Vorlaufzeit | Optional. Zeithorizont für die Terminabfrage in Minuten (wie weit in die Zukunft soll geschaut werden). Default: 720 (12 Stunden). Wird die Variable nicht angelegt, bleibt der Defaultwert aktiv. Maximum: 1380 (23 Stunden). |
 
 ### HK-Init-Skript 1_ChurchDesk.hsc
 
@@ -98,6 +99,7 @@ Dieses Skript legt alle Systemvariablen an, die für das Schalt-Skript benötigt
 | HK2-VorzeitAus | Globale Grundoffsetzeit in Minuten, um die vor Terminende ausgeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-Kurvenversatz (Einschalt-Offset). Default: 0 |
 | HK2-Kurvenversatz | Globale Grundoffsetzeit in Minuten, um die vor Terminbeginn eingeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-VorzeitAus (Ausschalt-Offset). Default: 0 |
 | HK2-Kurve | Heizkurve: 8 Vorlaufzeiten in Minuten zu den Außentemperatur-Stützpunkten −10, −5, 0, 8, 10, 12, 15, 17,5 °C (semikolongetrennt). Zwischen den Stützpunkten interpoliert HK-Skript 2 linear; der höchste Wert (bei tiefster Außentemperatur) ist die längste Vorheizzeit. Installtion-Default (konservativ): `162;130;100;59;50;41;30;20` (max. 162 min ≈ 2,7 h). Als Orientierungshilfe sind drei Beispielkurven bekannt (konservativ / mittel / großzügig); Details und eine vollständige Vergleichstabelle siehe [Anwenderhandbuch](../heizkalender/anwenderhandbuch.md) und [../heizkalender/heizsteuerung-vorheizzeit.md](../heizkalender/heizsteuerung-vorheizzeit.md). |
+| HK2-Vorlaufzeit | Wird von HK-Skript 2 am Ende jedes Laufs geschrieben (optional, nur wenn die Variable vorhanden ist). Enthält die berechneten Schaltzeiten aller Ressourcen des letzten Skriptlaufs. Format: `RessourcenID;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...` (Einträge durch `~` getrennt). Dient zur Anzeige im Addon. Nicht manuell setzen. |
 | HK2-Log | Variable für das Schalt-Log (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
 | HK2-Logging | Flag das Logging vom Typ `HK2-Log` steuert (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
 
@@ -143,6 +145,7 @@ Skript für den Zugriff auf die internen Kalender in ChurchDesk über die Church
 
 Benötigte Variablen: `HK1-CD-OrganisationsId`, `HK1-CD-Token`
 Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log`, `HK1-Logging`
+Optional: `HK1-Vorlaufzeit`
 
 ### HK-Skript 1_ChurchDeskiCal.hsc
 
@@ -150,6 +153,7 @@ Skript für den Zugriff auf die internen Kalender in ChurchDesk über die Church
 
 Benötigte Variablen: `HK1-CD-OrganisationsId`, `HK1-CD-Token`
 Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log`, `HK1-Logging`
+Optional: `HK1-Vorlaufzeit`
 
 ### HK-Skript 1_ChurchTools.hsc
 
@@ -157,6 +161,7 @@ Skript für den Zugriff auf die internen Kalender in ChurchTools über die Churc
 
 Benötigte Variablen: `HK1-CT-Gemeindename`, `HK1-CT-Token`
 Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log`, `HK1-Logging`
+Optional: `HK1-Vorlaufzeit`
 
 ### HK-Skript 1_Google.hsc
 
@@ -164,6 +169,7 @@ Skript für den Zugriff auf einen Kalender in Google über die Google Calendar-A
 
 Benötigte Variablen: `HK1-GK-API-Key`, `HK1-GK-Kalender-ID`
 Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log`, `HK1-Logging`
+Optional: `HK1-Vorlaufzeit`
 
 ### HK-Skript 1_iCal.hsc
 
@@ -171,6 +177,7 @@ Skript für den Zugriff auf einen iCal-Kalender über eine URL. Bei diesem Verfa
 
 Benötigte Variablen: `HK1-ICS-Url`
 Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log`, `HK1-Logging`
+Optional: `HK1-Vorlaufzeit`
 
 ## Schaltskript
 
@@ -185,7 +192,7 @@ Das Schaltskript ist das Herzstück der Heizkalender Software. Es muss zwingend 
 
 Das Skript 2 ist das Hauptskript um die Thermostate zu schalten.
 
-Benötigte Variablen: `HK1-R-Liste`, `HK1-Schaltliste`, `HK2-A.Temp.Grenze`, `HK2-Aussentemperatur`, `HK2-Grundtemperatur`, `HK2-HKG-Liste`, `HK2-Hand-Grundtemp`, `HK2-Hand-Temp`, `HK2-Kurve`, `HK2-Kurvenversatz`, `HK2-Log`, `HK2-Logging`, `HK2-VorzeitAus`
+Benötigte Variablen: `HK1-R-Liste`, `HK1-Schaltliste`, `HK2-A.Temp.Grenze`, `HK2-Aussentemperatur`, `HK2-Grundtemperatur`, `HK2-HKG-Liste`, `HK2-Hand-Grundtemp`, `HK2-Hand-Temp`, `HK2-Kurve`, `HK2-Kurvenversatz`, `HK2-Log`, `HK2-Logging`, `HK2-VorzeitAus`. Optional (wird beschrieben falls vorhanden): `HK2-Vorlaufzeit`
 Sowie weitere Raum-Variablen `HKG-Raum-*`
 
 ### Nachtschaltung

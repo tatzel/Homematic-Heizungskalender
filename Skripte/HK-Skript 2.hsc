@@ -23,6 +23,8 @@
 !//
 !// MRi: 2026-10-21 Zieltemperatur in Log ergänzt.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
+!// TT:  2026-10-18 HK2-Vorlaufzeit: berechnete Vorlauf- und Schaltzeiten pro Ressource
+!//                 am Ende des Skriptlaufs in Systemvariable schreiben (falls vorhanden).
 !// TT:  2026-10-05 Luftfeuchte: Wert 0 wird ignoriert (kein Sensor vorhanden, z.B. IP-Thermostat)
 !// TT:  2026-10-05 Luftfeuchte: ACTUAL_HUMIDITY (IP) zuerst pruefen, HUMIDITY (Classic) als Fallback
 !// TT:  2026-10-03 Luftfeuchte (HUMIDITY) optional in der Heizen-Logzeile ausgeben (nur wenn Datenpunkt vorhanden)
@@ -136,6 +138,7 @@ object objDP;
 string AGF;
 string AGFParam;
 string Param;
+string HK2VLZListe="";
 
 !// Logging vorbereiten
 var logObj=dom.GetObject(vrp # "HK2-Log");
@@ -523,7 +526,10 @@ foreach(SLEintrag,SListe){
         logText = logText # (offsetRaumAn/60) #"min ";
         if (offsetTempAn==0){ logText=logText#" - "; }
         logText = logText # (offsetTempAn/60) # "min = ";
+        integer EIN_orig = EIN;
         EIN = EIN + offsetRaumAn + offsetTempAn;
+        integer vorlaufMin = (EIN_orig - EIN) / 60;
+        HK2VLZListe = HK2VLZListe # AktSR # ";" # vorlaufMin # ";" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # EIN_orig.ToTime().Format("%Y-%m-%d %X") # ";" # AUS.ToTime().Format("%Y-%m-%d %X") # ";0~";
         logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
         if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
         AUS = AUS + offsetRaumAus;
@@ -543,6 +549,7 @@ foreach(SLEintrag,SListe){
       if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
       logText = logText # (offsetRaumAn/60) #"min = ";
       EIN = EIN + offsetRaumAn;
+      HK2VLZListe = HK2VLZListe # AktSR # ";0;" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # AUS.ToTime().Format("%Y-%m-%d %X") # ";0~";
       logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
       if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
       AUS = AUS + offsetRaumAus;
@@ -1129,6 +1136,12 @@ foreach(RVN,RVNListe.Split(";")) {
 }
 
 !// -----------------------------------------------------------------
+
+!// HK2-Vorlaufzeit schreiben (optional, nur wenn Variable auf CCU vorhanden und Liste nicht leer)
+object objVLZ = dom.GetObject(vrp#"HK2-Vorlaufzeit");
+if(objVLZ && HK2VLZListe!="") {
+  objVLZ.State(HK2VLZListe);
+}
 
 if(log){logObj.State("Ende Schaltskriptlauf=========================");}
 WriteLine("Ende Schaltskriptlauf");
