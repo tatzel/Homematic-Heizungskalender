@@ -1,0 +1,42 @@
+site_name: Homematic Heizungskalender
+site_url: https://xmri.github.io/Homematic-Heizungskalender/
+repo_url: https://github.com/xMRi/Homematic-Heizungskalender
+repo_name: xMRi/Homematic-Heizungskalender
+edit_uri: edit/main/
+
+theme:
+  name: material
+  language: de
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.action.edit
+
+nav:
+  - Startseite: README.md
+  - Anwender:
+    - Anwenderhandbuch: Dokumentation/Anwenderhandbuch.md
+    - CCU einrichten: Dokumentation/CCU-Einrichten.md
+    - Kalender einrichten: Dokumentation/Kalender-einrichten.md
+  - Skripte:
+    - Übersicht: Skripte/Dokumentation/Readme.md
+    - Vorheizzeit: Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md
+  - Tools: Tools/Readme.md
+  - Installer: HeizkalenderInstallation/Dokumentation/Readme.md
+  - Addon:
+    - Anwenderhandbuch: Addon/docs/Anwenderhandbuch.md
+    - Entwickler: Addon/docs/Entwickler.md
+  - Entwickler: Dokumentation/Entwickler.md
+
+docs_dir: .
+exclude_docs: |
+  **/node_modules/**
+  **/.git/**
+  Addon/src/**
+  Backup-Originale/**
+  HeizkalenderInstallation/HeizkalenderInstallation/**
+  Tests/**
+  Logos/**
