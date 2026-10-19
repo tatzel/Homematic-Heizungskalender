@@ -2,7 +2,7 @@
 
 Dieser Ordner enthält optionale Zusatz-Skripte rund um den Heizkalender. Sie sind
 für den Betrieb nicht zwingend nötig, erleichtern aber Diagnose, Wartung und
-Auswertung. 
+Auswertung.
 
 Diese Skripte können als eigenes Programm in der CCU installiert werden.
 
@@ -18,10 +18,11 @@ Diese Skripte können als eigenes Programm in der CCU installiert werden.
 
 Im Dateikopf der Programme finden sich weitere Informationen und Hinweise.
 
-Die folgenden Programme sollten zusätzlich installiert werden, um einen vollkommen unbeaufsichtigten Betrieb zu ermöglichen:<br>
-`Tool-Heizgruppen Modus zurücksetzen`<br>
-`Tool-Gestörte Kommunikation beheben`<br>
-`Tool-Servicemeldungen automatisch bestätigen`
+Die folgenden Programme sollten zusätzlich installiert werden, um einen vollkommen unbeaufsichtigten Betrieb zu ermöglichen:
+
+- `Tool-Heizgruppen Modus zurücksetzen`
+- `Tool-Gestörte Kommunikation beheben`
+- `Tool-Servicemeldungen automatisch bestätigen`
 
 ## Sonstige Hilfsmittel
 
@@ -29,7 +30,7 @@ Weitere Werkzeuge für seltene oder umgebungsspezifische Aufgaben:
 
 | Skript | Zweck |
 | :--- | :--- |
-| `Tool-WakeOnLAN BeamerPC` | Beispiel Programm mit dem man einen oder mehrere Rechner über ein Skript aufwecken kann. Dieses Programm könnte zum Beispiel über die CloudMatic angestoßen werden.|
+| `Tool-WakeOnLAN BeamerPC` | Beispiel Programm mit dem man einen oder mehrere Rechner über ein Skript aufwecken kann. Dieses Programm könnte zum Beispiel über die CloudMatic angestoßen werden. |
 
 > [!WARNING]
 `Tool-Reboot` startet die CCU neu. Das Skript muss unbedingt mit einem zeitlichen Trigger versehen werden. Geschieht dies nicht, dann kann dies zu einem endlosen Reboot der CCU führen.

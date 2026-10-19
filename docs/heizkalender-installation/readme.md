@@ -1,7 +1,3 @@
-> [!NOTE]
-> Diese Datei ist im Markdown-Format geschrieben. Wird sie in einem normalen Texteditor geöffnet, sind darin Formatierungszeichen (z. B. `#`, `**`, `|`) sichtbar. Mit allen Formatierungen können Sie die Datei online ansehen unter:
-> <https://github.com/xMRi/Homematic-Heizungskalender/blob/main/Skripte/Readme.md>
-
 # `HeizkalenderInstallation.exe`
 
 Die `HeizkalenderInstallation.exe` ist ein Tool zur Erstellung von Heizkalendern für die Homematic auf Basis von Daten aus ChurchTools, ChurchDesk, iCal oder Google Kalender.
@@ -11,29 +7,6 @@ Sie ermöglicht die Neuinstallation sowie Updates bestehender Installationen und
 Dabei legt die `HeizkalenderInstallation.exe` alle für den Betrieb des Heizkalenders erforderlichen Programme und Systemvariablen an. Einzig die Geräte müssen angemeldet und nach Möglichkeit in Heizgruppen zusammengefasst werden.
 
 Bei der Nutzung von ChurchTools/ChurchDesk werden bei Bedarf auch alle Raumvariablen automatisch erzeugt und zugewiesen.
-
-## Inhalt
-
-- [Systemvoraussetzungen](#systemvoraussetzungen)
-- [Vorsichtsmaßnahmen](#Vorsichtsmaßnahmen)
-- [Vorbereiten der CCU](#vorbereiten-der-ccu)
-- [Kurzanleitung](#kurzanleitung)
-  - [Neuinstallation](#neuinstallation)
-  - [Parameter ändern oder Update installieren](#parameter-ändern-oder-update-installieren)
-  - [Anpassung der Raumliste](#anpassung-der-raumliste)
-- [Beschreibung der `HeizkalenderInstallation.exe`](#beschreibung-der-heizkalenderinstallationexe)
-  - [Eigenschaftsseite *Verbinden mit der CCU*](#eigenschaftsseite-verbinden-mit-der-ccu)
-  - [Einrichten einer neuen Installation](#einrichten-einer-neuen-installation)
-  - [Nach dem Verbindungsaufbau mit der CCU](#nach-dem-verbindungsaufbau-mit-der-ccu)
-  - [Eigenschaftsseite *Programme / Skripte*](#eigenschaftsseite-programme--skripte)
-  - [Eigenschaftsseite *Einstellungen*](#eigenschaftsseite-einstellungen)
-  - [Eigenschaftsseite *Kalenderzuordnung*](#eigenschaftsseite-kalenderzuordnung)
-  - [Eigenschaftsseite *Räume*](#eigenschaftsseite-räume)
-  - [Eigenschaftsseite *Systemvariablen*](#eigenschaftsseite-systemvariablen)
-- [Speichern der Einstellungen](#speichern-der-einstellungen)
-  - [Abbrechen der Installation](#abbrechen-der-installation)
-- [Logdateien der `HeizkalenderInstallation.exe`](#logdateien-der-heizkalenderinstallationexe)
-- [Zugriff von außerhalb mit dem `HeizkalenderInstallation.exe`](#zugriff-von-außerhalb-mit-dem-heizkalenderinstallationexe)
 
 ## Systemvoraussetzungen
 
@@ -57,15 +30,15 @@ Bei der Nutzung von ChurchTools/ChurchDesk werden bei Bedarf auch alle Raumvaria
 
 Damit die `HeizkalenderInstallation.exe` ausgeführt werden kann, muss der Zugriff auf die Homematic-Script-API freigeschaltet werden. Dies geschieht in der Homematic-WebUI unter *Einstellungen → Firewall konfigurieren → Remote Homematic-Script API*. Dort wird entweder *Vollzugriff* eingestellt:
 
-![CCU-Zugriff: Vollzugriff](Bilder/CCU-Zugriff-1.png)
+![CCU-Zugriff: Vollzugriff](bilder/CCU-Zugriff-1.png)
 
 Oder es wird *Eingeschränkter Zugriff* erteilt und die IP-Adresse des Rechners, von dem aus zugegriffen wird, freigegeben:
 
-![CCU-Zugriff: Eingeschränkter Zugriff](Bilder/CCU-Zugriff-2.png)
+![CCU-Zugriff: Eingeschränkter Zugriff](bilder/CCU-Zugriff-2.png)
 
 Freigegebene IP-Adresse für den Zugriff:
 
-![CCU-Zugriff: Freigegebene IP-Adresse](Bilder/CCU-Zugriff-3.png)
+![CCU-Zugriff: Freigegebene IP-Adresse](bilder/CCU-Zugriff-3.png)
 
 ## Kurzanleitung
 
@@ -111,18 +84,17 @@ Im Folgenden werden die einzelnen Seiten der `HeizkalenderInstallation.exe` besc
 
 Greundsätzlich kann die *Eigenschaftseite Vwerbindung zur CCU* nicht verlassen werden, solange keine Verbindung erfolgreich hergestellt wurde.
 
-
 Die Eigenschaftseiten *Programme, Einstellungen, Kalenderzuordnungen, Räume* und *Systemvariablen* werden im nachfolgenden beschrieben.
 
 ### Eigenschaftsseite *Verbinden mit der CCU*
 
 Der Startbildschirm enthält wichtige Informationen über die `HeizkalenderInstallation.exe`. Hier finden sich die aktuelle Version des Heizkalenders und der aktuelle Stand der Skripte, die installiert werden können.
 
-![Mit CCU verbinden](Bilder/HKI-Verbinden.png)
+![Mit CCU verbinden](bilder/HKI-Verbinden.png)
 
 Über den Schalter **Info über...** können der genaue Softwarestand und die Lizenz der `HeizkalenderInstallation.exe` angezeigt werden. Außerdem lässt sich ein Browserfenster mit dem GitHub-Projekt öffnen, um gegebenenfalls eine neue Programmversion herunterzuladen.
 
-![Info über](Bilder/HKI-InfoÜber.png)
+![Info über](bilder/HKI-InfoÜber.png)
 
 #### Verbinden mit der CCU
 
@@ -139,6 +111,8 @@ Im ersten Schritt muss eine Verbindung zur CCU aufgebaut werden, bevor weitere E
 >
 > Damit lassen sich mehrere Installationen parallel testen oder eine Installation von bereits bestehenden Systemvariablen oder Programmen abgrenzen. Wird die bestehende Installation einer CCU ausgelesen, wird erwartet, dass alle bisher genutzten Variablen und Programme diesen Prefix verwenden.
 
+<!-- HTML Kommentar zum Trennen der beiden Blockquotes -->
+
 > [!CAUTION]
 > Wird der Prefix falsch verwendet, können Skripte und Variablen mehrfach installiert werden. Das kann zu Fehlfunktionen und zu einer Überlastung der CCU führen. Sollen mehrere Installationen parallel getestet werden, achten Sie darauf, dass immer nur ein Satz Programme aktiviert ist.
 >
@@ -148,7 +122,7 @@ Im ersten Schritt muss eine Verbindung zur CCU aufgebaut werden, bevor weitere E
 
 Ist keine Verbindung zur CCU möglich, weil die Verbindungsdaten (IP, Benutzername und Kennwort) nicht stimmen, erhalten Sie eine Fehlermeldung:
 
-![Keine Verbindung](Bilder/HKI-Verbindungsfehler.png)
+![Keine Verbindung](bilder/HKI-Verbindungsfehler.png)
 
 > [!NOTE]
 > Konnte eine Verbindung hergestellt werden, werden die aktuellen Verbindungsinformationen in der Registry des aktuellen Benutzers gespeichert. Beim Neustart der `HeizkalenderInstallation.exe` sind die Felder **IP-Adresse**, **Benutzername**, **Kennwort** und **Prefix** dann bereits ausgefüllt.
@@ -157,45 +131,45 @@ Ist keine Verbindung zur CCU möglich, weil die Verbindungsdaten (IP, Benutzerna
 
 Ist bisher keine Installation auf der CCU vorhanden, erhalten Sie diese Meldung:
 
-![Neue Installation](Bilder/HKI-NeueInstallation1.png)
+![Neue Installation](bilder/HKI-NeueInstallation1.png)
 
 #### Auswahl der Ressourcen-/Terminquelle
 
 Wählen Sie die gewünschte Quelle für Ihre Termine (ChurchTools, ChurchDesk, iCal, Google):
 
-![Neue Installation: Ressourcenquelle](Bilder/HKI-NeueInstallation2.png)
+![Neue Installation: Ressourcenquelle](bilder/HKI-NeueInstallation2.png)
 
 Beachten Sie, dass die Terminquelle auch nachträglich geändert werden kann. Die entsprechenden Skripte werden in diesem Fall geändert und überschrieben, und die Verbindungsdaten müssen angepasst werden.
 
 Für jede Heizkalender-Variante sind unterschiedliche Informationen zum Auslesen/Aktualisieren der Ressourcen und Kalender notwendig. Diese werden nachfolgend beschrieben.
 
-![Neue Installation: Angaben zur Terminquelle](Bilder/HKI-NeueInstallation3.png)
+![Neue Installation: Angaben zur Terminquelle](bilder/HKI-NeueInstallation3.png)
 
 ##### Verbindungsdaten angeben – ChurchDesk
 
 Die benötigten Zugangsdaten für ChurchDesk sind bei den Varianten API und iCal identisch.
 
-![ChurchDesk-iCal-Zugangsdaten](Bilder/HKI-ModusCDiCal.png)
+![ChurchDesk-iCal-Zugangsdaten](bilder/HKI-ModusCDiCal.png)
 
-![ChurchDesk-API-Zugangsdaten](Bilder/HKI-ModusCDAPI.png)
+![ChurchDesk-API-Zugangsdaten](bilder/HKI-ModusCDAPI.png)
 
 ##### Verbindungsdaten angeben – ChurchTools
 
-![ChurchTools-Zugangsdaten](Bilder/HKI-ModusCT.png)
+![ChurchTools-Zugangsdaten](bilder/HKI-ModusCT.png)
 
 ##### Verbindungsdaten angeben – iCal
 
-![iCal-Zugangsdaten](Bilder/HKI-ModusiCal.png)
+![iCal-Zugangsdaten](bilder/HKI-ModusiCal.png)
 
 ##### Verbindungsdaten angeben – Google
 
-![Google-Zugangsdaten](Bilder/HKI-ModusGoogle.png)
+![Google-Zugangsdaten](bilder/HKI-ModusGoogle.png)
 
 ### Nach dem Verbindungsaufbau mit der CCU
 
 Bei einer bestehenden, eingerichteten CCU erhalten Sie eine Anzeige über den Verbindungsstatus und die Art der genutzten Ressourcen, wie in der folgenden Abbildung zu sehen ist.
 
-![Verbunden mit der CCU](Bilder/HKI-Verbunden.png)
+![Verbunden mit der CCU](bilder/HKI-Verbunden.png)
 
 #### Wechsel zu einer anderen Ressourcen-Variante
 
@@ -213,9 +187,9 @@ Die Programme mit den folgenden Namen sind reserviert und werden von der `Heizka
 - `HK-Skript 2.hsc`
 - `HK-Systemprotokoll sichern.hsc`
 
-Liegen im Installationsverzeichnis der `HeizkalenderInstallation.exe` auch Dateien mit dem Namen `Tool-*.hsc`, werden gleichnamige Programme in der CCU bei Bedarf ebenfalls aktualisiert. Das normale Installationspaket enthält keine Tools; diese befinden sich im separaten Ordner [Tools](../Tools).
+Liegen im Installationsverzeichnis der `HeizkalenderInstallation.exe` auch Dateien mit dem Namen `Tool-*.hsc`, werden gleichnamige Programme in der CCU bei Bedarf ebenfalls aktualisiert. Das normale Installationspaket enthält keine Tools; diese befinden sich im separaten Ordner [Tools](https://github.com/xMRi/Homematic-Heizungskalender/tree/main/Tools).
 
-![Übersicht der Programme](Bilder/HKI-Programme.png)
+![Übersicht der Programme](bilder/HKI-Programme.png)
 
 #### Änderungen in Skripten anzeigen
 
@@ -225,7 +199,7 @@ Ist das optionale Programm [WinMerge](https://winmerge.org) installiert, startet
 
 Die Einstellungen auf dieser Seite beeinflussen das Grundverhalten des Heizkalenders.
 
-![Allgemeine Einstellungen](Bilder/HKI-Einstellungen.png)
+![Allgemeine Einstellungen](bilder/HKI-Einstellungen.png)
 
 #### Protokollierung im Systemprotokoll
 
@@ -256,7 +230,7 @@ Beachten Sie, dass das Systemprotokoll nicht unendlich lang ist. Um das Heizverh
 - **Alle Räume Nachts um 01:00 Uhr auf Grundtemperatur zurückgestellt werden**<br>
   Ist diese Funktion aktiviert, kontrolliert `HK-Skript 2` nachts um 01:00 Uhr (genauer: täglich zwischen 00:57 und 01:03 Uhr), ob ein Heizkörper noch auf Heizen steht, also nicht auf die Grundtemperatur gestellt wurde. Das betrifft alle Räume ohne aktiven Termin. Ist dies der Fall, wird der Heizkörper bzw. die Heizgruppe auf die Raumgrundtemperatur zurückgesetzt.<br>
   Dieser Wert wird in der Variable `HK2-Hand-Grundtemp` gespeichert.<br>
-  Details zur Nachtschaltung finden sich im [Anwenderhandbuch](../Dokumentation/Anwenderhandbuch.md).
+  Details zur Nachtschaltung finden sich im [Anwenderhandbuch](../heizkalender/anwenderhandbuch.md).
   <br>
   **Diese Option sollte immer eingeschaltet werden.**
 - **Am Ende eines Termines eine manuell eingestellte/abweichende Temperatur für den Raum beibehalten**<br>
@@ -278,7 +252,7 @@ Beachten Sie, dass das Systemprotokoll nicht unendlich lang ist. Um das Heizverh
 
 Bei der Heizkurve werden die Vorheizzeiten in Minuten zu den Außentemperaturen eingegeben.
 
-Diese Werte sollten bei der Installation an das eigene Gebäude angepasst werden. Eine ausführliche Erklärung der Berechnung mit Beispielrechnungen findet sich im Artikel [Heizsteuerung-Vorheizzeit](Dokumentation/Heizsteuerung-Vorheizzeit.md).
+Diese Werte sollten bei der Installation an das eigene Gebäude angepasst werden. Eine ausführliche Erklärung der Berechnung mit Beispielrechnungen findet sich im Artikel [Heizsteuerung-Vorheizzeit](../heizkalender/heizsteuerung-vorheizzeit.md).
 
 Als Orientierungshilfe gibt es drei Beispielkurven:
 
@@ -298,7 +272,7 @@ Diese Werte werden in der Variable `HK2-Kurve` gespeichert.
 
 In dieser Übersicht werden die Ressourcen-IDs und die Namen der entsprechenden Kalender/Räume angezeigt.
 
-![Kalenderzuordnung](Bilder/HKI-Kalenderzuordnung.png)
+![Kalenderzuordnung](bilder/HKI-Kalenderzuordnung.png)
 
 Wird eine Ressource eingelesen, für die keine zu steuernden Thermostate oder Aktoren existieren (weil sie zum Beispiel einen Beamer oder ein Fahrzeug darstellt), kann sie über den Schalter **Löschen...** entfernt werden. Das sorgt für mehr Übersicht im Heizkalender. Beim Löschen eines Kalendereintrags gehen allerdings alle zugeordneten Räume verloren. Eine gelöschte Ressource wird erneut angelegt, wenn die Funktion **Ressourcen / Räume einlesen** ausgelöst wird.
 
@@ -312,7 +286,7 @@ Diese Werte werden in der Variable `HK1-R-Liste` gespeichert.
 
 Die Zuordnung mehrerer Räume ist sinnvoll, wenn zum Beispiel bei der Nutzung eines Saales grundsätzlich auch Foyer und WCs beheizt werden sollen. Sonst müssten auch Foyer und WCs als eigene Ressourcen verwaltet und gebucht werden, was oft nicht praktikabel ist. Räume können beliebig oft beliebigen Kalendereinträgen zugeordnet werden. So lassen sich zum Beispiel WCs und Foyer immer beheizen, wenn ein bestimmter anderer Raum gebucht wurde.
 
-![Raumzuordnung zu den Kalenderressourcen](Bilder/HKI-Raumzuordnung.png)
+![Raumzuordnung zu den Kalenderressourcen](bilder/HKI-Raumzuordnung.png)
 
 Wird einem Kalendereintrag kein Raum zugeordnet, erfolgt auch keine Schaltung für diesen Kalender.
 
@@ -322,7 +296,7 @@ Diese Zuordnung wird in der Variable `HK2-HKG-Liste` gespeichert.
 
 Auf der Eigenschaftsseite *Räume* werden die aktuellen Räume angezeigt, die im Heizkalender benutzt werden. Alle hier aufgeführten Räume können einem oder mehreren Kalendereinträgen/Ressourcen zugeordnet werden (siehe Eigenschaftsseite *Kalenderzuordnung*).
 
-![Übersicht der Räume](Bilder/HKI-Räume.png)
+![Übersicht der Räume](bilder/HKI-Räume.png)
 
 Über die Funktion **Löschen...** kann ein Raum aus dem Heizkalender entfernt werden. Alle Raumzuordnungen und Einstellungen des Raumes werden dabei aus dem System entfernt.
 
@@ -336,7 +310,7 @@ Für jeden Raum wird eine eigene Raumvariable `HKG-Raum-<Name>` angelegt, die di
 
 In diesem Dialog legen Sie die individuellen Eigenschaften eines Raumes sowie die Zuordnung der Aktoren, Thermostate bzw. Heizgruppen fest.
 
-![Raum-Eigenschaften](Bilder/HKI-Raum.png)
+![Raum-Eigenschaften](bilder/HKI-Raum.png)
 
 - **Name**<br>
   Das Feld Name bestimmt, welche Variable `HKG-Raum-<Name>` zum Speichern der Informationen verwendet wird. Der Name wird außerdem intern in der `HeizkalenderInstallation.exe` bei der *Kalenderzuordnung* verwendet.
@@ -370,7 +344,7 @@ In diesem Dialog legen Sie die individuellen Eigenschaften eines Raumes sowie di
 
 Der Modus legt fest, wie die Thermostate oder Aktoren des Raumes angesteuert werden.
 
-![Auswahl des Modus](Bilder/HKI-Modus.png)
+![Auswahl des Modus](bilder/HKI-Modus.png)
 
 Es stehen die folgenden Modis zur Verfügung:
 
@@ -394,13 +368,13 @@ Bei den Geräten ist es möglich mehere Aktoren durch Semikolon getrennt anzugeb
 
 Heizgruppen erleichtern die Verwaltung und reduzieren den Schaltaufwand.
 
-![Zuordnung im Modus Heizen](Bilder/HKI-HeizenAktoren.png)
+![Zuordnung im Modus Heizen](bilder/HKI-HeizenAktoren.png)
 
 ###### Modus Schalten
 
 Wurde der Modus **Schalten** gewählt lassen sich nur entsprechende Aktoren auswählen, die über einen Datenpunkt Ein/Aus verfügen.
 
-![Zuordnung im Modus Schalten](Bilder/HKI-SchaltenAktoren.png)
+![Zuordnung im Modus Schalten](bilder/HKI-SchaltenAktoren.png)
 
 Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
 
@@ -408,7 +382,7 @@ Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
 
 Im Modus **Heizen+Schalten** werden im ersten Feld ein Temperatursensor ausgewählt und im zweiten Feld ein Schaltaktor, der wie beim Modus Schalten einen Datenpunkt Ein/Aus verfügt.
 
-![Zuordnung im Modus Heizen+Schalten](Bilder/HKI-HeizenSchaltenAktoren.png)
+![Zuordnung im Modus Heizen+Schalten](bilder/HKI-HeizenSchaltenAktoren.png)
 
 Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
 
@@ -416,7 +390,7 @@ Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
 
 Der Gerätetyp wird benötigt um den entsprechenden Datenpunkt für die Steuerung eines Homematic Gerätes zu bestimmen. Dedr Gerätetyp wird nur im Modus Heizen benötigt. In allen anderen Fällen steht er auf *SW = Sonstiges*.
 
-![Auswahl des Gerätetyps](Bilder/HKI-GeräteTyp.png)
+![Auswahl des Gerätetyps](bilder/HKI-GeräteTyp.png)
 
 Wenn das Gerät ausgewählt wurde, wird wird der entsprechende Gerätetyp überlicherweise automatisch ermittelt und eingestellt.
 
@@ -436,11 +410,11 @@ Wurde ein Gerät und der korrekte Gerätetyp ausgewählt, kann über den Schalte
 
 Bei einem erfolgreichen Test werden aktuelle Raumtemperatur und eingestellte Solltemperatur bei einem Thermostat ermittelt.
 
-![Gerätetest](Bilder/HKI_Gerätetest.png)
+![Gerätetest](bilder/HKI_Gerätetest.png)
 
 Bei einem fehlgeschlagenem oder auch nur teilweise fehlgeschlagenem Test wird ein entsprechende Nachricht angezeigt, welcher Datenpunkt einen Fehler meldet.
 
-![Fehler bei Gerätetest](Bilder/HKI_GerätetestFehler.png)
+![Fehler bei Gerätetest](bilder/HKI_GerätetestFehler.png)
 
 ### Eigenschaftsseite *Systemvariablen*
 
@@ -448,7 +422,7 @@ Auf der Eigenschaftsseite *Systemvariablen* werden alle aktuellen Systemvariable
 
 Auf dieser Seite können keine Änderungen direkt durchgeführt werden. Diese Seite dient zur Kontrolle der Änderungen, die das Installatinsprogramm vornimmt.
 
-![Übersicht der Systemvariablen](Bilder/HKI-Systemvariablen.png)
+![Übersicht der Systemvariablen](bilder/HKI-Systemvariablen.png)
 
 Es werden alle Systemvariablen mit ihrem Inhalt angezeigt, außerdem der Status, ob die Variable verändert wurde. Alle Änderungen in den Einstellungen, den Raumparametern und den Kalenderzuordnungen führen letztlich dazu, dass Systemvariablen angepasst werden. Änderungen an den Raumeinstellungen lassen sich daher sofort in den Änderungen der entsprechenden Systemvariablen nachverfolgen.
 
@@ -458,26 +432,26 @@ Durch einen Doppelklick auf eine Systemvariable oder auf den Schalter **Änderun
 
 Dieser Dialog zeigt den aktuellen Status einer Systemvariablen: die interne ID, den Typ und den Namen sowie den alten und den neuen Inhalt. Außerdem werden der Status (Geändert/Unverändert) und die Angabe angezeigt, ob die Variable im Systemprotokoll protokolliert wird.
 
-![Änderungsinformationen der Systemvariablen](Bilder/HKI-SystemvariablenÄnderungen.png)
+![Änderungsinformationen der Systemvariablen](bilder/HKI-SystemvariablenÄnderungen.png)
 
 ## Speichern der Einstellungen
 
 Die Einstellungen werden gespeichert, indem Sie im Hauptdialog auf den Schalter **OK** klicken.
 
 - Sind Programme vorhanden, die aktualisiert oder installiert werden müssen wird automatisch auf die Änderungen hingewiesen, wenn die *Eigenschaftsseite Programme/Skripte* bisher nicht kontrolliert wurde.<br>
-![Geänderte Programme](Bilder/HKI-ProgrammeGeändert.png)<br>
+![Geänderte Programme](bilder/HKI-ProgrammeGeändert.png)<br>
 Nach Betätigen des **OK**-Schalters wird die Eigenschaftseite zur Kontrolle aufgerufen.
 
 - Wurden neue Räume eingelesen und die *Eigenschaftsseite Kalenderzuordnung* bisher nicht kontrolliert, wird auf die Änderungen hingewiesen um eine Kontrolle zu ermöglichen.<br>
-![Geänderte Raumliste](Bilder/HKI-RaumListeGeändert.png)<br>
+![Geänderte Raumliste](bilder/HKI-RaumListeGeändert.png)<br>
 Nach Betätigen des **OK**-Schalters wird die Eigenschaftseite zur Kontrolle aufgerufen.
 
 - Wurden Systemvariablen geändert oder angepasst und die *Eigenschaftsseite Systemvariablen* bisher nicht kontrolliert, wird auf die Änderungen hingewiesen um eine Kontrolle zu ermöglichen.<br>
-![Geänderte Systemvariablen](Bilder/HKI-SystemvariablenGeändert.png)<br>
+![Geänderte Systemvariablen](bilder/HKI-SystemvariablenGeändert.png)<br>
 Nach Betätigen des **OK**-Schalters wird die Eigenschaftseite zur Kontrolle aufgerufen.
 
 Wurden alle Einstellungen kontrolliert erfolgt vor dem Update der CCU die folgende Frage:<br>
-![Änderungen speichern](Bilder/HKI-ÄnderungenSpeichern2.png)
+![Änderungen speichern](bilder/HKI-ÄnderungenSpeichern2.png)
 
 Wird diese Frage mit **Ja** beantwortet, erfolgt ein Update der CCU.Beachten Sie, dass viele der Änderungen, insbesondere bei Änderungen der Kalenderquelle oder dem Aktualisieren der Raumliste, nicht rückgängig gemacht werden können.<br>
 Halten Sie aus diesem Grund immer ein aktuelle Backup bereit.
@@ -485,7 +459,7 @@ Halten Sie aus diesem Grund immer ein aktuelle Backup bereit.
 Wird die Frage mit **Nein** beantwortet kehrt man in das Installationsprogramm zurück und kann weitere Korrekturen oder Änderungen vornehmen.
 
 Wenn die Daten erfolgreich gespeichert werden wird dies durch die folgende Meldung bestätigt.<br>
-![Änderungen gespeichert](Bilder/HKI_Gespeichert.png)
+![Änderungen gespeichert](bilder/HKI_Gespeichert.png)
 
 **Wird nun der **OK**-Schalter betätigt wird die `HeizkalenderInstallation.exe` automatisch beendet.**
 
@@ -495,7 +469,7 @@ Wenn die Daten erfolgreich gespeichert werden wird dies durch die folgende Meldu
 
 Wird versucht das Programm durch Anklicken von **Abbrechen** zu beenden und wurden Änderungen vorgenommen oder stehen Aktualisierungen/Updates für Programme oder Skripte an, dann erfolgt immer die Frage, ob das Programm dennoch beendet werden soll.
 
-![Rückfrage beim Abbrechen](Bilder/HKI-ÄnderungenSpeichern.png)
+![Rückfrage beim Abbrechen](bilder/HKI-ÄnderungenSpeichern.png)
 
 Wird diese Frage mit **Ja** beantwortet gehen alle Änderungen verloren und das Installationsprogramm wird beendet.
 
@@ -505,10 +479,11 @@ Wird die Frage mit **Nein** beantwortet, kann man weiterhin Änderungen vornehme
 
 Die folgenden Log-Dateien werden bei Programmstart direkt erzeugt. Sie dienen keinem internen technische Zweck und können bei der Fehlerursache und beim evtl. Korrekturen oder Fehlerbehebungen helfen.
 
-Die Ausgabe der Log-Dateien erfolgt automatisch im zugehörigen Ordner für temporäre Dateien von Windows (Envirnment Variable %TMP%(.<br>
-Üblicherweise heiß dieser Ordner *C:\Users\<Benutzername>\AppData\Local\Temp*. Der Ordner kann einfach geöffnet werden in dem man in der Adressenleiste des Explorers *%TMP%* eingibt un die Eigabetaste drückt.
+Die Ausgabe der Log-Dateien erfolgt automatisch im zugehörigen Ordner für temporäre Dateien von Windows (Environment Variable %TMP%).<br>
+Üblicherweise heiß dieser Ordner `C:\Users\<Benutzername>\AppData\Local\Temp`. Der Ordner kann einfach geöffnet werden in dem man in der Adressenleiste des Explorers *%TMP%* eingibt un die Eigabetaste drückt.
 
-**Folgenden Logdateien werden beim Start des Installatinsprogramms erzeugt**
+### Folgenden Logdateien werden beim Start des Installatinsprogramms erzeugt
+
 - `HeizkalenderInstallation_Devices.log`<br>
 Diese Datei enthält eine Liste der auf der CCU installierten Geräte. Für jedes Gerät wird eine Ausgabezeile erzeugt.
 - `HeizkalenderInstallation_Programs.log`<br>
@@ -516,13 +491,10 @@ Alle installierten Programme werden heruntergeladen und in dieser Protokolldatei
 - `HeizkalenderInstallation_SysVars.log`<br>
 Bei Programmstart werden alle Systemvariablen, deren Inhalt und Typ in dieser Datei ausgegeben.
 
-**Folgenden Logdateien werden beim Beenden des Installatinsprogramms erzeugt, wenn die CCU aktualisiert wird**
+### Folgenden Logdateien werden beim Beenden des Installatinsprogramms erzeugt, wenn die CCU aktualisiert wird
 
 - `HeizkalenderInstallation_update.log`<br>
 Alle Änderungen, die der Installer per Skript an der CCU vornimmt werden in diesem Update-Protokoll verzeichnet. Sollte es zu Problemen bei einem Update kommen, kann man über diese Datei nachvollziehen welche Änderungen das Installationsprogramm über das Skript-Interface durchgeführt hat.
-
-
-
 
 ## Zugriff von außerhalb mit dem `HeizkalenderInstallation.exe`
 
@@ -533,4 +505,3 @@ Mit einer modernen FRITZ!Box ab FRITZ!OS Version 7.50 kann dieser Zugriff einfac
 Auf er Webseite von ELV findet sich dazu folgende [Anleitung](
 https://ch.elv.com/elvwissen/elvprojekte/sicherheit/fernzugriff-auf-die-CCU-webui-und-hcu-web-per-wireguard-fritzbox/) zur Installation von WireGuard und dem Zugriff auf eine CCU.<br>
 Auch ein passendes [Erklärvideo](https://www.youtube.com/watch?v=j7wpmiuKrxY) steht auf YouTube zur Verfügung.
-

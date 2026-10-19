@@ -85,10 +85,10 @@ durchführen**. Das Update erfolgt mit mehreren Eingabeaufforderungen, es
 wird die aktuelle Firmware heruntergeladen, ein Backup erstellt (das auf
 dem lokalen Computer gespeichert wird) und erst dann wird die
 Neuinstallation der Firmware, verbunden mit einem Systemneustart
-durchgeführt. 
+durchgeführt.
 
 Sofern eingerichtet oder gewünscht notieren Sie z.B. auf dem
-[Datenblatt](#planungsdatenblatt) den System-Sicherheitsschlüssel, den
+Datenblatt den System-Sicherheitsschlüssel, den
 Sie für ein Zurückspielen des Backups benötigen.
 
 Abhängig von der vorgesehen Bedienung sollten aus Sicherheitsgründen
@@ -107,7 +107,7 @@ Um später über eine korrekte Temperaturermittlung über OpenMeteo zu
 verfügen, müssen Sie noch die Geokoordinaten des Standortes der Gemeinde
 eintragen:
 
-![Eingabe von Geokoordinaten und Kontrolle der Uhrzeit](Bilder/CCU-Einstellungen.png)
+![Eingabe von Geokoordinaten und Kontrolle der Uhrzeit](bilder/CCU-Einstellungen.png)
 
 Öffnen Sie in der CCU **Einstellungen →
 Systemsteuerung → Zeit-/ Positionseinstellung**.
@@ -129,7 +129,7 @@ OpenCCU an:
 
 1)  Öffnen Sie in der CCU **Einstellungen → Gruppen** und klicken Sie
     unten auf den Schalter **Neu**.<br>
-	![Heizgruppe anlegen](Bilder/CCU-GruppeAnlegen.png)
+    ![Heizgruppe anlegen](bilder/CCU-GruppeAnlegen.png)
 2)  Geben Sie als Gruppennamen die jeweils
     den Namen einer Aktorengruppe gemäß Ihrer Planung ein, lassen Sie
     den Gruppentyp auf „HmIP-Heizungssteuerung" und bestätigen Sie unten
@@ -169,7 +169,7 @@ schnellsten in einer Art Fließbandarbeit:
 1)  Alle neuen Aktoren auspacken, dabei:
 
     -   Den jeweils beiliegenden QR-Code auf eine Liste aufkleben und
-        dazu die geplante Verwendung und die bei der [Planung](#planung)
+        dazu die geplante Verwendung und die bei der [Planung](planung.md)
         festgelegte eindeutige Bezeichnung notieren.\
         Homematic stellt hierfür ein
         [Formblatt](https://homematic-ip.com/sites/default/files/downloads/hmip_qr-code-aufkleber_uebersicht_web.pdf)
@@ -210,7 +210,7 @@ schnellsten in einer Art Fließbandarbeit:
 
 3)  Wechseln Sie in den „Posteingang". Hier sehen Sie die Auflistung der
     angelernten Aktoren. Klicken Sie auf die Namen der Aktoren, gleichen
-    die Seriennummer mit Ihrer QR-Code-Liste und der [Planung](#planung)
+    die Seriennummer mit Ihrer QR-Code-Liste und der [Planung](planung.md)
     ab und benennen sie entsprechend. Anlernen und (Um-)Benennen können
     Sie im Wechsel und dann den Aktor durch Klick auf den Button
     „Fertig" in der letzten Spalte aus dem Posteingang entfernen.\
@@ -231,7 +231,7 @@ nächsten Raumes anzulernen.
 
 1)  Öffnen Sie in der CCU **Einstellungen → Gruppen**, wählen sie die
     Zeile der Gruppe aus, deren Aktoren sie gerade angelernt haben und
-    klicken Sie in der letzten Spalte auf „Bearbeiten".<br>![Zuordnung von Aktoren](Bilder/CCU-AktorenZuordnen.png)
+    klicken Sie in der letzten Spalte auf „Bearbeiten".<br>![Zuordnung von Aktoren](bilder/CCU-AktorenZuordnen.png)
 2)  Suchen Sie in der Tabelle
     „Hinzufügbare Geräte" mit Hilfe Ihrer QR-Code-Liste anhand der
     Seriennummern die zu diesem Raum (also dieser Aktorengruppe)
@@ -271,7 +271,7 @@ Effekte zu vermeiden, nehmen Sie folgende Einstellungen vor:
     (oder die von Ihnen für Ihr Gebäude festgelegte Minimaltemperatur).
 
 2)  Temperaturprofile Sonntag bis Freitag: „wie Vortag" (Häkchen setzen)<br>
-![](Bilder/CCU-AktorenDefault.png)
+![CCU Temperaturprofile](bilder/CCU-AktorenDefault.png)
 
 3)  Maximale Temperatur: 24°C\
     (oder eine von Ihnen festgelegte Temperatur, die bei manueller
@@ -282,10 +282,10 @@ Effekte zu vermeiden, nehmen Sie folgende Einstellungen vor:
 
 Eventuell erhalten Sie eine Fehlermeldung:
 
-![Fehler bei Datenübertagung](Bilder/CCU-FehlerDatenübertragung.png)
+![Fehler bei Datenübertagung](bilder/CCU-FehlerDatenübertragung.png)
 
 „Die Übertragung der Daten konnte nicht ordnungsgemäß durchgeführt
-werden \[...\]". Diese kann unbesorgt durch Klicken auf den Schalter 
+werden \[...\]". Diese kann unbesorgt durch Klicken auf den Schalter
 **Ignorieren** abgeschlossen werden. Sie tritt auf, wenn in diesem Moment
 keine Funkverbindung zum Aktor aufgenommen werden kann oder auch der
 Duty Cycle überschritten ist. Anders als beim Anlernen werden nun aber
@@ -303,5 +303,5 @@ Heizkalenders.
 
 ## Weiter geht es
 
-- Zuvor Zugangsdaten des Kalenders beschaffen: [Kalender-Zugangsdaten ermitteln](Kalender-einrichten.md)
-- Danach die eigentliche Einrichtung über die [`HeizkalenderInstallation.exe`](../HeizkalenderInstallation/Dokumentation/Readme.md).
+- Zuvor Zugangsdaten des Kalenders beschaffen: [Kalender-Zugangsdaten ermitteln](kalender-einrichten.md)
+- Danach die eigentliche Einrichtung über die [`HeizkalenderInstallation.exe`](../heizkalender-installation/readme.md).
