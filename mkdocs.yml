@@ -7,6 +7,8 @@ edit_uri: edit/main/
 theme:
   name: material
   language: de
+  logo: assets/logo.png
+  favicon: assets/favicon.png
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -19,7 +21,6 @@ theme:
         icon: material/brightness-4
         name: Zu hellem Modus wechseln
   features:
-    - navigation.tabs
     - navigation.sections
     - navigation.top
     - search.suggest
@@ -29,6 +30,7 @@ theme:
 plugins:
   - search:
       lang: de
+  - callouts
 
 markdown_extensions:
   - tables
@@ -36,30 +38,32 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
-  - Startseite: README.md
-  - Anwender:
-    - Anwenderhandbuch: Dokumentation/Anwenderhandbuch.md
-    - CCU einrichten: Dokumentation/CCU-Einrichten.md
-    - Kalender einrichten: Dokumentation/Kalender-einrichten.md
-  - Skripte:
-    - Übersicht: Skripte/Dokumentation/Readme.md
-    - Vorheizzeit: Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md
-  - Tools: Tools/Readme.md
-  - Installer: HeizkalenderInstallation/Dokumentation/Readme.md
+  - Startseite: index.md
+  - Heizkalender:
+    - Anwenderhandbuch: heizkalender/anwenderhandbuch.md
+    - CCU einrichten: heizkalender/ccu-einrichten.md
+    - Kalender einrichten: heizkalender/kalender-einrichten.md
+    - Vorheizzeit: heizkalender/heizsteuerung-vorheizzeit.md
+    - Planung: heizkalender/planung.md
+    - Entwickler: heizkalender/entwickler.md
+  - Skripte: skripte/readme.md
+  - Heizkalender-Installation: heizkalender-installation/readme.md
+  - Tools:
+    - Übersicht: tools/readme.md
+    - Debug und Test: tools/debug-test.md
   - Addon:
-    - Anwenderhandbuch: Addon/docs/Anwenderhandbuch.md
-    - Entwickler: Addon/docs/Entwickler.md
-  - Entwickler: Dokumentation/Entwickler.md
+    - Anwenderhandbuch: addon/anwenderhandbuch.md
+    - Entwickler: addon/entwickler.md
+    - Development Standards: addon/development-standards.md
 
-docs_dir: .
+docs_dir: docs
 exclude_docs: |
-  **/node_modules/**
-  **/.git/**
-  Addon/src/**
-  Backup-Originale/**
-  HeizkalenderInstallation/res/**
-  Tests/**
-  Logos/**
+  archiv/**
+  addon/prd.md
