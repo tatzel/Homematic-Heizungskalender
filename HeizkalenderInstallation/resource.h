@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by HeizkalenderInstallation.rc
 //
-#define IDCANCEL2                       4
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
 #define IDS_ABOUTBOX                    101
@@ -67,6 +66,8 @@
 #define IDS_TITLE_ROOMS                 141
 #define IDS_SIMULATION                  142
 #define IDP_SIMULATION_GESTARTET        143
+#define IDB_PNG1                        143
+#define IDB_LOGO                        143
 #define IDP_QUERY_SIMULATION_LADEN      144
 #define IDP_QUERY_UPDATE_CCU            145
 #define IDP_RAUMVAR_NAMEN_KORREKTUR     146
@@ -144,6 +145,7 @@
 #define IDC_BUTTON1                     1028
 #define IDC_BT_NEW                      1028
 #define IDC_ED_FAKTOR                   1028
+#define IDC_BT_LOGO                     1028
 #define IDC_ED_KURVE_3                  1029
 #define IDC_BUTTON2                     1029
 #define IDC_BT_MODIFY                   1029
@@ -186,7 +188,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        142
+#define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           101
