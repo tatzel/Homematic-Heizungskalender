@@ -13,6 +13,18 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Unveröffentlicht]</u>
 
+## {2026-10-19]
+
+### Hinzugefügt
+
+- Installationsprogramm: Fehlende Spalten im Raum Dialog
+
+### Geändert
+
+- Installationsprogramm: Eigenschaftsseite vergrößert, damit mehr Informationen sichtbar
+werden.
+- Installationsprogramm: Logo im Connect Dialog vergrößert.
+
 ## [2026-10-17]
 
 ### Hinzugefügt
