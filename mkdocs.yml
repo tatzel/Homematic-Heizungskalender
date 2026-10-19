@@ -60,6 +60,5 @@ exclude_docs: |
   **/.git/**
   Addon/src/**
   Backup-Originale/**
-  HeizkalenderInstallation/HeizkalenderInstallation/**
   Tests/**
   Logos/**
