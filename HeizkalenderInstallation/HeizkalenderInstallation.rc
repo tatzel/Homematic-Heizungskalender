@@ -95,50 +95,50 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,264,96,50,14,WS_GROUP
 END
 
-IDD_PAGE_CONNECT DIALOGEX 0, 0, 377, 244
+IDD_PAGE_CONNECT DIALOGEX 0, 0, 421, 244
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Verbinden"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "IP-Adresse der CCU3:",IDC_STATIC,7,10,135,8
-    EDITTEXT        IDC_ED_HOST,168,8,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_HOST,161,8,173,12,ES_AUTOHSCROLL
     LTEXT           "Benutzername:",IDC_STATIC,7,28,135,8
-    EDITTEXT        IDC_ED_USERNAME,168,26,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_USERNAME,161,26,173,12,ES_AUTOHSCROLL
     LTEXT           "Kennwort:",IDC_STATIC,7,46,135,8
-    EDITTEXT        IDC_ED_PASSWORD,168,44,173,12,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_PASSWORD,161,44,173,12,ES_PASSWORD | ES_AUTOHSCROLL
     LTEXT           "Prefix für Variablen und Skripte",IDC_STATIC,7,62,135,8
-    EDITTEXT        IDC_ED_PREFIX,168,60,173,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "&Verbinden mit der CCU",IDC_BT_CONNECT,168,78,92,14
+    EDITTEXT        IDC_ED_PREFIX,161,60,173,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Verbinden mit der CCU",IDC_BT_CONNECT,161,78,92,14
     LTEXT           "Einlesen der Termine über:",IDC_STATIC,7,100,135,8
-    COMBOBOX        IDC_CB_MODE,168,98,173,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "&Ressourcen/Räume einlesen",IDC_BT_READRES,168,172,103,14
+    COMBOBOX        IDC_CB_MODE,161,98,173,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Ressourcen/Räume einlesen",IDC_BT_READRES,161,172,103,14
     LTEXT           "Name der Gemeinde in Churchtools:",IDC_ST_CHURCHTOOL1,7,118,135,8
-    EDITTEXT        IDC_ED_CHURCHNAME,168,116,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_CHURCHNAME,161,116,173,12,ES_AUTOHSCROLL
     LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHTOOL2,7,138,135,8
-    EDITTEXT        IDC_ED_LOGINTOKEN,168,136,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_LOGINTOKEN,161,136,173,12,ES_AUTOHSCROLL
     LTEXT           "ChurchDesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,118,135,8
-    EDITTEXT        IDC_ED_ORGAID,168,116,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_ORGAID,161,116,173,12,ES_AUTOHSCROLL
     LTEXT           "Login Token für ChurchDesk:",IDC_ST_CHURCHDESK2,7,138,135,8
-    EDITTEXT        IDC_ED_APITOKEN,168,136,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_APITOKEN,161,136,173,12,ES_AUTOHSCROLL
     LTEXT           "Google API-Key:",IDC_ST_GOOGLE1,7,118,135,8
-    EDITTEXT        IDC_ED_GOOGLE_APIKEY,168,116,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_GOOGLE_APIKEY,161,116,173,12,ES_AUTOHSCROLL
     LTEXT           "Google Kalender-Id:",IDC_ST_GOOGLE2,7,138,135,8
-    EDITTEXT        IDC_ED_GOOGLE_KALID,168,136,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_GOOGLE_KALID,161,136,173,12,ES_AUTOHSCROLL
     LTEXT           "URL für iCal-Kalender:",IDC_ST_ICALURL,7,118,135,8
-    EDITTEXT        IDC_ED_ICALURL,168,116,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_ICALURL,161,116,173,12,ES_AUTOHSCROLL
     LTEXT           "Raumliste:",IDC_ST_RAUMLISTE,7,156,135,8
-    EDITTEXT        IDC_ED_RAUMLISTE,168,154,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_RAUMLISTE,161,154,173,12,ES_AUTOHSCROLL
     LTEXT           "Version %1 - Softwarestand vom: %2",IDC_ST_VERSION,7,224,214,8,SS_NOPREFIX
-    PUSHBUTTON      "Info über...",IDC_ABOUT,314,218,55,14
-    ICON            IDR_MAINFRAME,IDC_STATIC,346,7,20,20,SS_SUNKEN,WS_EX_STATICEDGE
+    PUSHBUTTON      "Info über...",IDC_ABOUT,356,218,55,14
+    PUSHBUTTON      "",IDC_BT_LOGO,343,7,22,20
 END
 
-IDD_PAGE_SETTINGS DIALOGEX 0, 0, 377, 240
+IDD_PAGE_SETTINGS DIALOGEX 0, 0, 421, 240
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Einstellungen"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    GROUPBOX        "&Protokollierung im Systemprotokoll",IDC_STATIC,7,7,363,78
+    GROUPBOX        "&Protokollierung im Systemprotokoll",IDC_STATIC,7,7,407,78
     CONTROL         "Allgemeine Protokollierung der Heizkalenderfunktionen",IDC_CH_LOG,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,21,346,10
     CONTROL         "Protokollierung für Skript 1 (Termindaten lesen und in Schaltliste eintragen) ",IDC_CH_LOG1,
@@ -147,67 +147,67 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,53,346,10
     CONTROL         "Protokollierung für die Heizkurvenkontrolle",IDC_CH_LOG_HEIZKURVE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,69,346,10
-    GROUPBOX        "Rückstellungsverhalten",IDC_STATIC,7,89,363,46
+    GROUPBOX        "Rückstellungsverhalten",IDC_STATIC,7,89,407,46
     CONTROL         "Alle Räume Nachts um 01:00 Uhr auf Grundtemperatur zurückgestellt werden",IDC_CH_HANDGRUNDTEMP,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,103,346,10
     CONTROL         "Am Ende eines Termines eine manuell eingestellte/abweichende Temperatur für den Raum beibehalten",IDC_CH_HANDTEMP,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,119,346,10
-    GROUPBOX        "Temperatureinstellungen",IDC_STATIC,7,139,363,46
+    GROUPBOX        "Temperatureinstellungen",IDC_STATIC,7,139,407,46
     LTEXT           "Grundtemperatur für alle Räume, wenn kein Heizvorgang läuft:",IDC_STATIC,12,153,258,8
-    EDITTEXT        IDC_ED_GRUNDTEMP,277,151,40,12,ES_AUTOHSCROLL
-    LTEXT           "°C",IDC_STATIC,328,153,12,8
+    EDITTEXT        IDC_ED_GRUNDTEMP,289,151,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,338,153,12,8
     LTEXT           "Außentemperaturgrenze ab der kein Heizvorgang mehr ausgeführt werden soll:",IDC_STATIC,11,169,260,8
-    EDITTEXT        IDC_ED_ATEMPGRENZE,277,167,40,12,ES_AUTOHSCROLL
-    LTEXT           "°C",IDC_STATIC,328,169,12,8
-    GROUPBOX        "Heizkurve / Vorlaufzeiten bei entsprechenden Außentemperaturen",IDC_STATIC,7,187,363,46
+    EDITTEXT        IDC_ED_ATEMPGRENZE,289,167,40,12,ES_AUTOHSCROLL
+    LTEXT           "°C",IDC_STATIC,338,169,12,8
+    GROUPBOX        "Heizkurve / Vorlaufzeiten bei entsprechenden Außentemperaturen",IDC_STATIC,7,187,407,46
     RTEXT           "-10 °C",IDC_STATIC,12,202,35,8
-    RTEXT           "-5 °C",IDC_STATIC,57,202,35,8
-    RTEXT           "0 °C",IDC_STATIC,102,202,35,8
-    RTEXT           "8°C",IDC_STATIC,147,202,35,8
-    RTEXT           "10 °C",IDC_STATIC,192,202,35,8
-    RTEXT           "12 °C",IDC_STATIC,237,202,35,8
-    RTEXT           "15 °C",IDC_STATIC,282,202,35,8
-    RTEXT           "17.5°C",IDC_STATIC,327,202,35,8
+    RTEXT           "-5 °C",IDC_STATIC,59,202,35,8
+    RTEXT           "0 °C",IDC_STATIC,106,202,35,8
+    RTEXT           "8°C",IDC_STATIC,153,202,35,8
+    RTEXT           "10 °C",IDC_STATIC,200,202,35,8
+    RTEXT           "12 °C",IDC_STATIC,247,202,35,8
+    RTEXT           "15 °C",IDC_STATIC,294,202,35,8
+    RTEXT           "17.5°C",IDC_STATIC,341,202,35,8
     EDITTEXT        IDC_ED_KURVE_1,12,212,35,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ED_KURVE_2,57,212,35,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ED_KURVE_3,102,212,35,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ED_KURVE_4,147,212,35,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ED_KURVE_5,192,212,35,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ED_KURVE_6,237,212,35,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ED_KURVE_7,282,212,35,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ED_KURVE_8,327,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_2,59,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_3,106,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_4,153,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_5,200,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_6,247,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_7,294,212,35,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_KURVE_8,341,212,35,14,ES_AUTOHSCROLL
 END
 
-IDD_PAGE_PROGRAMS DIALOGEX 0, 0, 377, 244
+IDD_PAGE_PROGRAMS DIALOGEX 0, 0, 421, 244
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Programme"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "Programme des Heizkalenders:",IDC_STATIC,7,11,173,8
-    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,26,299,205
-    PUSHBUTTON      "&Änderungen...",IDC_BT_WINMERGE,311,26,60,14
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,26,340,205
+    PUSHBUTTON      "&Änderungen...",IDC_BT_WINMERGE,354,26,60,14
 END
 
-IDD_PAGE_SYSVARS DIALOGEX 0, 0, 377, 240
+IDD_PAGE_SYSVARS DIALOGEX 0, 0, 421, 240
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Systemvariablen"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "Liste der Systemvariablen im Heizkalender:",IDC_STATIC,7,11,173,8
-    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,26,299,205
-    PUSHBUTTON      "&Änderungen...",IDC_BT_INFO,311,26,60,14
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,26,340,205
+    PUSHBUTTON      "&Änderungen...",IDC_BT_INFO,356,26,60,14
 END
 
-IDD_PAGE_ROOMS DIALOGEX 0, 0, 377, 244
+IDD_PAGE_ROOMS DIALOGEX 0, 0, 421, 244
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Räume"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "Räume im Heizkalenders:",IDC_STATIC,7,14,173,8
-    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,28,308,204
-    PUSHBUTTON      "&Neu...",IDC_BT_NEW,321,29,50,14
-    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,321,49,50,14
-    PUSHBUTTON      "Löschen...",IDC_BT_DELETE,321,69,50,14
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,28,340,204
+    PUSHBUTTON      "&Neu...",IDC_BT_NEW,360,29,50,14
+    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,360,49,50,14
+    PUSHBUTTON      "Löschen...",IDC_BT_DELETE,360,69,50,14
 END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 271, 199
@@ -262,15 +262,15 @@ BEGIN
     PUSHBUTTON      "Test",IDC_BT_TEST,187,168,50,14
 END
 
-IDD_PAGE_RESOURCES DIALOGEX 0, 0, 377, 244
+IDD_PAGE_RESOURCES DIALOGEX 0, 0, 421, 244
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Kalenderzuordnung"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "Zuordnungen der Räume zu den Resourcekalendern:",IDC_STATIC,7,14,173,8
-    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,28,308,204
-    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,321,29,50,14
-    PUSHBUTTON      "Löschen...",IDC_BT_DELETE,321,49,50,14
+    CONTROL         "",IDC_LC_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,28,340,204
+    PUSHBUTTON      "&Ändern...",IDC_BT_MODIFY,364,29,50,14
+    PUSHBUTTON      "Löschen...",IDC_BT_DELETE,364,49,50,14
 END
 
 IDD_RESSOURCE DIALOGEX 0, 0, 195, 196
@@ -313,8 +313,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,7,0,0
- PRODUCTVERSION 3,7,0,0
+ FILEVERSION 3,8,0,0
+ PRODUCTVERSION 3,8,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -331,12 +331,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "3.7.0.0"
+            VALUE "FileVersion", "3.8.0.0"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
             VALUE "ProductName", "Heizkalender"
-            VALUE "ProductVersion", "3.7.0.0"
+            VALUE "ProductVersion", "3.8.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -365,7 +365,6 @@ BEGIN
     IDD_PAGE_CONNECT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 302
         VERTGUIDE, 168
         TOPMARGIN, 7
         BOTTOMMARGIN, 192
@@ -374,7 +373,7 @@ BEGIN
     IDD_PAGE_SETTINGS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 370
+        RIGHTMARGIN, 414
         TOPMARGIN, 7
         BOTTOMMARGIN, 233
     END
@@ -382,15 +381,14 @@ BEGIN
     IDD_PAGE_PROGRAMS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 274
+        RIGHTMARGIN, 415
         TOPMARGIN, 7
-        BOTTOMMARGIN, 139
     END
 
     IDD_PAGE_SYSVARS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 243
+        RIGHTMARGIN, 287
         TOPMARGIN, 7
         BOTTOMMARGIN, 153
     END
@@ -416,6 +414,7 @@ BEGIN
     IDD_PAGE_RESOURCES, DIALOG
     BEGIN
         LEFTMARGIN, 7
+        RIGHTMARGIN, 377
         TOPMARGIN, 7
     END
 
@@ -578,6 +577,14 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// PNG
+//
+
+IDB_LOGO                PNG                     "res\\logo.png"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -644,7 +651,7 @@ BEGIN
     IDS_TITLE_SYSVARS       "Name;Inhalt;Info"
     IDS_NEW                 "Neu"
     IDS_UPDATE              "Geändert"
-    IDS_TITLE_ROOMS         "Name;S/H;Temp.;Einsch.;Aussch.;Heizgr.;Info"
+    IDS_TITLE_ROOMS         "Name;S/H/HS;Temp.;Grund.;Faktor;Einsch.;Aussch.;Heizgr.;Info"
     IDS_SIMULATION          "Simulation"
     IDP_SIMULATION_GESTARTET 
                             "Sie haben die Heizkalender-Installation im Simulationsmodus gestartet.\nEs wird keine Verbindung zu einer CCU benötigt. Die Änderungen werden lokal in der Registry gespeichert und können später wieder geladen und bearbeitet werden."

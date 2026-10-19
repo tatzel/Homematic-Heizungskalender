@@ -251,6 +251,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\HeizkalenderInstallation.ico" />
+    <Image Include="res\logo.png" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Readme.txt" />

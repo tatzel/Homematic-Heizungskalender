@@ -52,6 +52,7 @@ public:
 				m_ediCalUrl, m_edGoogleApiKey, m_edGoogleKalId, m_edRaumListe,
 				m_edCDOrgaId, m_edCDApiToken;
 	CFont	m_fontBold;
+	CMFCButton	m_logo;  // Ich benutze CMFCButton, da ich die Möglichkeit habe, ein Bild zu hinterlegen. Das ist bei CButton nicht möglich.	
 
 private:
 	bool m_bBlockFirstOnKillActive{ true };
@@ -65,7 +66,6 @@ protected:
 	afx_msg void OnBnClickedAbout();
 	afx_msg void OnCbnSelchangeCbMode();
 	afx_msg void OnBnClickedBtReadres();
-
 };
 
 //-----------------------------------------------------------------------------
@@ -136,10 +136,12 @@ public:
 	static int const COL_NAME = 0;
 	static int const COL_SH = 1;
 	static int const COL_TEMP = 2;
-	static int const COL_EIN = 3;
-	static int const COL_AUS = 4;
-	static int const COL_HEIZGR = 5;
-	static int const COL_INFO = 6;
+	static int const COL_TEMP_BASE = 3;
+	static int const COL_FAKTOR = 4;
+	static int const COL_EIN = 5;
+	static int const COL_AUS = 6;
+	static int const COL_HEIZGR = 7;
+	static int const COL_INFO = 8;
 
 	void EnableControls();
 

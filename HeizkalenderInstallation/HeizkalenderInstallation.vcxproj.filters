@@ -155,6 +155,9 @@
     <Image Include="res\HeizkalenderInstallation.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\logo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\Readme.txt">

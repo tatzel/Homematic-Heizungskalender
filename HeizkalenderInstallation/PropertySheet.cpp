@@ -192,6 +192,7 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ED_GOOGLE_APIKEY, m_edGoogleApiKey);
 	DDX_Control(pDX, IDC_ED_GOOGLE_KALID, m_edGoogleKalId);
 	DDX_Control(pDX, IDC_ED_RAUMLISTE, m_edRaumListe);
+	DDX_Control(pDX, IDC_BT_LOGO, m_logo);
 	DDX_Text(pDX, IDC_ED_HOST, theApp.m_strCCU_host);
 	DDX_Text(pDX, IDC_ED_USERNAME, theApp.m_strCCU_username);
 	DDX_Text(pDX, IDC_ED_PASSWORD, theApp.m_strCCU_password);
@@ -294,6 +295,13 @@ struct {
 BOOL CPageConnect::OnInitDialog()
 {
 	CPageBase::OnInitDialog();
+
+	// MFC Button benutzen um Logo anzuzeigen.
+	m_logo.m_bTransparent = TRUE;
+	m_logo.m_bDrawFocus = FALSE;
+	m_logo.m_nFlatStyle = CMFCButton::BUTTONSTYLE_NOBORDERS; // Rahmenlos
+	m_logo.SetImage(IDB_LOGO); 
+	m_logo.SizeToContent(); 
 
 	LOGFONT logfont;
 	GetFont()->GetObject(sizeof(LOGFONT),&logfont);
@@ -1002,9 +1010,21 @@ void CPageRooms::DoDataExchange(CDataExchange* pDX)
 			int n = m_lcData.InsertItem(m_lcData.GetItemCount(), theApp.RemoveRoomPrefix(e.m_strName));
 			if (n>=0)
 			{
+				auto Format = [](const CString& strText)
+					{
+						return DoubleToString(StringToDouble(strText), 1);
+					};
 				m_lcData.SetItemData(n,reinterpret_cast<DWORD_PTR>(&e));
 				m_lcData.SetItemText(n, COL_SH, StrValueByIndex(e.m_strContent,1,_T(';')));
-				m_lcData.SetItemText(n, COL_TEMP, StrValueByIndex(StrValueByIndex(e.m_strContent,3,_T(';')),0,_T('/')));
+				m_lcData.SetItemText(n, COL_TEMP,  Format(StrValueByIndex(StrValueByIndex(e.m_strContent,3,_T(';')),0,_T('/'))));
+				CString strTemp{ StrValueByIndex(StrValueByIndex(e.m_strContent,3,_T(';')),1,_T('/')) };
+				if (strTemp.IsEmpty())
+					strTemp = DoubleToString(theApp.GetGrundTemperatur(),-1);
+				m_lcData.SetItemText(n, COL_TEMP_BASE, Format(strTemp));
+				strTemp = StrValueByIndex(StrValueByIndex(e.m_strContent,4,_T(';')),1,_T('*'));
+				if (strTemp.IsEmpty())
+					strTemp = _T("1");
+				m_lcData.SetItemText(n, COL_FAKTOR, Format(strTemp));
 				m_lcData.SetItemText(n, COL_EIN, StrValueByIndex(StrValueByIndex(e.m_strContent,4,_T(';')),0,_T('*')));
 				m_lcData.SetItemText(n, COL_AUS, StrValueByIndex(e.m_strContent,5,_T(';')));
 				// 6 Einträge überspringen
@@ -1051,8 +1071,10 @@ BOOL CPageRooms::OnInitDialog()
 	CString strTitle{ MAKEINTRESOURCE(IDS_TITLE_ROOMS) };
 
 	m_lcData.InsertColumn(COL_NAME,		StrValueByIndex(strTitle, COL_NAME,		_T(';')), LVCFMT_LEFT,  m_lcData.GetStringWidth(CString(_T('9'), 15)));
-	m_lcData.InsertColumn(COL_SH,		StrValueByIndex(strTitle, COL_SH,		_T(';')), LVCFMT_LEFT,  m_lcData.GetStringWidth(CString(_T('9'), 5)));
-	m_lcData.InsertColumn(COL_TEMP,		StrValueByIndex(strTitle, COL_TEMP,		_T(';')), LVCFMT_RIGHT, m_lcData.GetStringWidth(CString(_T('9'), 7)));
+	m_lcData.InsertColumn(COL_SH,		StrValueByIndex(strTitle, COL_SH,		_T(';')), LVCFMT_LEFT,  m_lcData.GetStringWidth(CString(_T('9'), 8)));
+	m_lcData.InsertColumn(COL_TEMP,		StrValueByIndex(strTitle, COL_TEMP,		_T(';')), LVCFMT_RIGHT, m_lcData.GetStringWidth(CString(_T('9'), 8)));
+	m_lcData.InsertColumn(COL_TEMP_BASE,StrValueByIndex(strTitle, COL_TEMP_BASE,_T(';')), LVCFMT_RIGHT, m_lcData.GetStringWidth(CString(_T('9'), 8)));
+	m_lcData.InsertColumn(COL_FAKTOR,	StrValueByIndex(strTitle, COL_FAKTOR,	_T(';')), LVCFMT_RIGHT, m_lcData.GetStringWidth(CString(_T('9'), 8)));
 	m_lcData.InsertColumn(COL_EIN,		StrValueByIndex(strTitle, COL_EIN,		_T(';')), LVCFMT_RIGHT, m_lcData.GetStringWidth(CString(_T('9'), 8)));
 	m_lcData.InsertColumn(COL_AUS,		StrValueByIndex(strTitle, COL_AUS,		_T(';')), LVCFMT_RIGHT, m_lcData.GetStringWidth(CString(_T('9'), 8)));
 	m_lcData.InsertColumn(COL_HEIZGR,	StrValueByIndex(strTitle, COL_HEIZGR,	_T(';')), LVCFMT_LEFT,  1);
@@ -1440,8 +1462,8 @@ BOOL CPageResources::OnInitDialog()
 
 	CString strTitle{ MAKEINTRESOURCE(IDS_TITLE_RESOURCES) };
 
-	m_lcData.InsertColumn(COL_ID,		StrValueByIndex(strTitle, COL_ID,		_T(';')), LVCFMT_LEFT,  m_lcData.GetStringWidth(CString(_T('9'), 8)));
-	m_lcData.InsertColumn(COL_NAME,		StrValueByIndex(strTitle, COL_NAME,		_T(';')), LVCFMT_LEFT,  m_lcData.GetStringWidth(CString(_T('9'), 18)));
+	m_lcData.InsertColumn(COL_ID,		StrValueByIndex(strTitle, COL_ID,		_T(';')), LVCFMT_LEFT,  m_lcData.GetStringWidth(CString(_T('9'), 9)));
+	m_lcData.InsertColumn(COL_NAME,		StrValueByIndex(strTitle, COL_NAME,		_T(';')), LVCFMT_LEFT,  m_lcData.GetStringWidth(CString(_T('9'), 25)));
 	m_lcData.InsertColumn(COL_ROOMS,	StrValueByIndex(strTitle, COL_ROOMS,	_T(';')), LVCFMT_LEFT,	1);
 
 	// Rest errechnen
