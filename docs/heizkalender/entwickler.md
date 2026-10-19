@@ -3,16 +3,6 @@
 Diese Seite richtet sich an Mitwirkende, die am Code des Heizkalenders arbeiten:
 an den HomeMatic-Skripten oder am Windows-Installations-Programm.
 
-## Inhalt
-
-- [Architektur-Überblick](#architektur-überblick)
-- [Systemvariablen-Formate](#systemvariablen-formate)
-- [Skript-Syntax (HomeMatic HSC)](#skript-syntax-homematic-hsc)
-- [Build des Installers (Windows, Visual Studio)](#build-der-heizkalenderinstallationexe-windows-visual-studio)
-- [Versionierung](#versionierung)
-- [Änderungs-Workflow](#änderungs-workflow)
-- [Heizkalender Addon](#heizkalender-addon)
-
 ## Architektur-Überblick
 
 Der Heizkalender besteht aus drei Teilen:
@@ -234,8 +224,8 @@ Zwischen den Stützpunkten interpoliert HK-Skript 2 linear. Der erste Wert
 `162;130;100;59;50;41;30;20`.
 
 Beispielkurven und Berechnungshintergrund:
-[Anwenderhandbuch](Anwenderhandbuch.md#die-heizkurve-hk2-kurve),
-[Heizsteuerung-Vorheizzeit.md](../Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md)
+[Anwenderhandbuch](anwenderhandbuch.md#die-heizkurve-hk2-kurve),
+[Heizsteuerung-Vorheizzeit.md](heizsteuerung-vorheizzeit.md)
 
 ### HK-RäumeHeizkurvenkontrolle
 
@@ -270,10 +260,10 @@ Beispiel: `#HKG-Raum-EG-Saal;1;18.1#HKG-Raum-UG-Buero;3;20.3#`
 - `break` und `continue` werden unterstützt (CCU3/RaspberryMatic, nicht CCU2).
 - Sonderbefehle in Termintexten: `#EIN#`, `#AUS#`, `#RESET#`, `#GT#`, `#NS#`,
   `#NH#`, `#<Zahl><Text>#` (siehe
-  [Anwenderhandbuch](Anwenderhandbuch.md#sonderbefehle-in-terminen)).
+  [Anwenderhandbuch](anwenderhandbuch.md#sonderbefehle-in-terminen)).
 
 Die Dateiendung `.hsc` ist eine bewusste Wahl (siehe
-[Skripte/Readme.md](../Skripte/Readme.md)); historisch wurde `.c` verwendet.
+[Skripte/Readme.md](../skripte/readme.md)); historisch wurde `.c` verwendet.
 
 ## Build der `HeizkalenderInstallation.exe` (Windows, Visual Studio)
 
@@ -302,7 +292,7 @@ als Datum im Datei-Header (`!// Stand:`). Kompatible Skripte finden sich immer i
 einem GitHub-Release mit demselben Datums-Tag (`vJJJJ-MM-TT`).
 
 Die Änderungshistorie über alle Stände hinweg steht im zentralen
-[CHANGELOG.md](../CHANGELOG.md).
+[CHANGELOG.md](https://github.com/xMRi/Homematic-Heizungskalender/blob/main/CHANGELOG.md).
 
 ## Änderungs-Workflow
 
@@ -314,11 +304,11 @@ immer die folgenden Schritte:
 2. **Changelog im Header fortschreiben:** Neuen `!// MRi: JJJJ-MM-TT`-Eintrag ganz
    oben in den Changelog-Block des Headers einfügen (neueste Einträge oben). Kurz
    beschreiben, *was* und *warum* geändert wurde.
-3. **Zentrales [CHANGELOG.md](../CHANGELOG.md) fortschreiben:** Eintrag unter dem
+3. **Zentrales [CHANGELOG.md](https://github.com/xMRi/Homematic-Heizungskalender/blob/main/CHANGELOG.md) fortschreiben:** Eintrag unter dem
    passenden Datums-Stand ergänzen (Keep-a-Changelog-Format, Kategorien
    Hinzugefügt/Geändert/Behoben/Entfernt).
 4. **Dokumentation prüfen:** Neue oder umbenannte Systemvariablen müssen in der
-   [Skript-Referenz](../Skripte/Dokumentation/Readme.md) erscheinen.
+   [Skript-Referenz](../skripte/readme.md) erscheinen.
 5. **`HeizkalenderInstallation.exe` anpassen (nur bei neuen/geänderten Systemvariablen):** Die
    `HeizkalenderInstallation.exe`
    liest die Systemvariablen NICHT aus den `.hsc`-Dateien, sondern legt sie über
@@ -340,4 +330,4 @@ Das Heizkalender Addon ist eine eigenständige Komponente mit eigener Entwickler
 Sie beschreibt Verzeichnisstruktur, Paketformat, rc.d-Script, CGI-Seiten und die
 Besonderheiten von Tcl 8.2 auf der CCU3.
 
-Vollständige Dokumentation: [Addon/Entwickler.md](Addon/Entwickler.md)
+Vollständige Dokumentation: [../addon/entwickler.md](../addon/entwickler.md)

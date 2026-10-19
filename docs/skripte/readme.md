@@ -6,15 +6,6 @@ Skripte mit dem Namenskürzel _Skript 1_ beschreiben die verschiedenen Methoden 
 
 Das _Skript 2_ ist das Hauptskript zum Schalten der Heizung.
 
-## Inhalt
-
-- [HeizkalenderInstallation.exe](#heizkalenderinstallationexe)
-- [Skripte zur Initialisierung](#skripte-zur-initialisierung)
-- [Skripte zum Einlesen der Termindaten aus diversen Quellen](#skripte-zum-einlesen-der-termindaten-aus-diversen-quellen)
-- [Schaltskript](#schaltskript)
-- [HK-Skript 2.hsc](#hk-skript-2hsc)
-- [Sonstige Skripte](#sonstige-skripte)
-
 ## HeizkalenderInstallation.exe
 
 Die HeizkalenderInstallation.exe dient zur Installation und Einrichtung der verschiedenen Skriptvarianten. Dieses Programm kann bestehende Installationen aktualisieren oder kann einfach neue Installationen erzeugen.
@@ -32,14 +23,14 @@ Die folgenden Skripte werden dabei zwingend benötigt und müssen im Programmver
 - HK-Skript 2
 - HK-SystemProtokoll sichern
 
-Die komplette [Dokumentation für die `HeizkalenderInstallation.exe`](..\..\HeizkalenderInstallation\Dokumentation\Readme.md) ist hier zu finden.
+Die komplette [Dokumentation für die `HeizkalenderInstallation.exe`](../heizkalender-installation/readme.md) ist hier zu finden.
 
 ## Skripte zur Initialisierung
 
 > [!WARNING]
-> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht benutzt werden!**
+> __Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht benutzt werden!__
 >
-> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
+> _Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss._
 
 Die folgenden Variablen werden in allen Skripten vom Typ 1 und natürlich vom Schaltskript 2 verwendet.
 
@@ -106,7 +97,7 @@ Dieses Skript legt alle Systemvariablen an, die für das Schalt-Skript benötigt
 | HK2-Hand-Grundtemp | Wenn `true` aktiviert die Nachtschaltung. HK-Skript 2 prüft täglich zwischen 00:57 und 01:03 Uhr alle Räume und setzt sie auf Grundtemperatur, sofern kein aktiver Termin (Schaltzustand=1) vorliegt. Bei Heizräumen (HSFlag=H) wird die Solltemperatur am Thermostat gesetzt, bei Schaltaktoren (HSFlag=S/HS) wird der Aktor ausgeschaltet. Die Prüfung erfolgt direkt am Aktor, nicht nur in der Systemvariablen. |
 | HK2-VorzeitAus | Globale Grundoffsetzeit in Minuten, um die vor Terminende ausgeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-Kurvenversatz (Einschalt-Offset). Default: 0 |
 | HK2-Kurvenversatz | Globale Grundoffsetzeit in Minuten, um die vor Terminbeginn eingeschaltet wird. Wird nur bei Heizvorgängen angewendet, nicht bei reinem Schalten. Gegenstück zu HK2-VorzeitAus (Ausschalt-Offset). Default: 0 |
-| HK2-Kurve | Heizkurve: 8 Vorlaufzeiten in Minuten zu den Außentemperatur-Stützpunkten −10, −5, 0, 8, 10, 12, 15, 17,5 °C (semikolongetrennt). Zwischen den Stützpunkten interpoliert HK-Skript 2 linear; der höchste Wert (bei tiefster Außentemperatur) ist die längste Vorheizzeit. Installtion-Default (konservativ): `162;130;100;59;50;41;30;20` (max. 162 min ≈ 2,7 h). Als Orientierungshilfe sind drei Beispielkurven bekannt (konservativ / mittel / großzügig); Details und eine vollständige Vergleichstabelle siehe [Anwenderhandbuch](../../Dokumentation/Anwenderhandbuch.md) und [Heizsteuerung-Vorheizzeit.md](Heizsteuerung-Vorheizzeit.md). |
+| HK2-Kurve | Heizkurve: 8 Vorlaufzeiten in Minuten zu den Außentemperatur-Stützpunkten −10, −5, 0, 8, 10, 12, 15, 17,5 °C (semikolongetrennt). Zwischen den Stützpunkten interpoliert HK-Skript 2 linear; der höchste Wert (bei tiefster Außentemperatur) ist die längste Vorheizzeit. Installtion-Default (konservativ): `162;130;100;59;50;41;30;20` (max. 162 min ≈ 2,7 h). Als Orientierungshilfe sind drei Beispielkurven bekannt (konservativ / mittel / großzügig); Details und eine vollständige Vergleichstabelle siehe [Anwenderhandbuch](../heizkalender/anwenderhandbuch.md) und [../heizkalender/heizsteuerung-vorheizzeit.md](../heizkalender/heizsteuerung-vorheizzeit.md). |
 | HK2-Log | Variable für das Schalt-Log (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
 | HK2-Logging | Flag das Logging vom Typ `HK2-Log` steuert (siehe Abschnitt _HK-Init-Variablen Logging.hsc_) |
 
@@ -135,10 +126,9 @@ Die Protokollierung erfolgt über die nachfolgenden Kategorien:
 ## Skripte zum Einlesen der Termindaten aus diversen Quellen
 
 > [!WARNING]
-> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.**
+> __Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.__
 >
-> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
-
+> _Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss._
 
 Es wird für den Betrieb des Heizkalenders eine der nachfolgenden Datenquellen (ChurchTools, ChurchDesk, iCal, Google-Kalender) benötigt. Das entsprechende Skript sollte ca. alle 30 min laufen um die Termine für die nächsten Heizzyklen zu bestimmen.
 
@@ -185,9 +175,9 @@ Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log
 ## Schaltskript
 
 > [!WARNING]
-> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.**
+> __Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.__
 >
-> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
+> _Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss._
 
 Das Schaltskript ist das Herzstück der Heizkalender Software. Es muss zwingend alle 5 Minuten laufen. Das Skript schaltet die Heizthermostate ein und auch wieder aus.
 
@@ -209,9 +199,9 @@ Bei jedem Skriptlauf (alle 5 Minuten) prüft HK-Skript 2 zusätzlich alle Räume
 ## Sonstige Skripte
 
 > [!WARNING]
-> **Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.**
+> __Wenn der `HeizkalenderInstallation.exe` verwendet wird, müssen die nachfolgenden Skripte für die Installation nicht installiert werden! Das Installationsprogramm führt alle notwendigen Operationen durch.__
 >
-> *Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss.*
+> _Die Dokumentation dient nur zur Erklärung der Skript-Grundlagen und wenn es notwendig sein sollte, dass eine manuelle Installation erfolgen muss._
 
 Alle weiteren hier aufgeführten Skripte sind für den Betrieb des Heizkalenders dienlich.
 

@@ -40,5 +40,5 @@ Raumname mit vorangestelltem `#` eindeutig im Termintitel stehen.
 
 ## Weiter geht es
 
-- Vorab die Struktur planen: [Planung](Planung.md)
-- Danach die [Einrichtung der CCU](CCU-Einrichten.md)
+- Vorab die Struktur planen: [Planung](planung.md)
+- Danach die [Einrichtung der CCU](ccu-einrichten.md)

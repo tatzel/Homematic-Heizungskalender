@@ -1,19 +1,5 @@
 # Heizkalender Addon: Anwenderhandbuch
 
-## Inhalt
-
-- [Überblick](#überblick)
-- [Voraussetzungen](#voraussetzungen)
-- [Installation](#installation)
-- [Raumübersicht](#raumübersicht)
-- [Heizkurvenkontrolle](#heizkurvenkontrolle)
-- [HK-Log](#hk-log)
-- [Syslog](#syslog)
-- [Systemvariablen](#systemvariablen)
-- [Grundeinstellungen](#grundeinstellungen)
-
----
-
 ## Überblick
 
 Das Heizkalender Addon stellt eine Weboberfläche auf der CCU bereit, über die der laufende Betrieb des Heizkalenders beobachtet werden kann. Die Oberfläche ist über den Browser erreichbar und erfordert keine zusätzliche Software.

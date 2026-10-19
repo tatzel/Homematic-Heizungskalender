@@ -1,19 +1,5 @@
 # Heizkalender Addon: Entwicklerdokumentation
 
-## Inhalt
-
-- [Überblick](#überblick)
-- [Verzeichnisstruktur](#verzeichnisstruktur)
-- [Paketformat und Installation](#paketformat-und-installation)
-- [rc.d-Script](#rcd-script)
-- [CGI-Seiten](#cgi-seiten)
-- [CSS und Assets](#css-und-assets)
-- [Update-Check](#update-check)
-- [Entwicklungsworkflow](#entwicklungsworkflow)
-- [Technische Besonderheiten (CCU3 / Tcl 8.2)](#technische-besonderheiten-ccu3--tcl-82)
-
----
-
 ## Überblick
 
 Das Heizkalender Addon ist ein reines Weboberflächen-Addon ohne eigenen Daemon. Es liefert CGI-Scripte, die auf der CCU laufen und Daten über die HomeMatic ReGa-API sowie direkt aus dem Dateisystem lesen.
@@ -328,7 +314,7 @@ Release-Prozess:
 
 ## Technische Besonderheiten (CCU3 / Tcl 8.2)
 
-Verbindliche Regeln für alle CGI-Scripte (Tcl-8.2-Einschränkungen, Zeichenkodierung, HTML-Ausgabe, CSS-Konventionen, entschiedene Design-Fragen): siehe [DEVELOPMENT_STANDARDS.md](DEVELOPMENT_STANDARDS.md).
+Verbindliche Regeln für alle CGI-Scripte (Tcl-8.2-Einschränkungen, Zeichenkodierung, HTML-Ausgabe, CSS-Konventionen, entschiedene Design-Fragen): siehe [DEVELOPMENT_STANDARDS.md](development-standards.md).
 
 **ReGa-API:** Scripte mit `rega_script` ausführen, Rückgabe mit `extract_stdout` auswerten. Geschweifte Klammern in der Rückgabe erfordern eine manuelle Tiefenzählung (kein regulärer Ausdruck).
 
