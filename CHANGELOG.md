@@ -13,6 +13,12 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Unveröffentlicht]</u>
 
+## [2026-10-18]
+
+### Hinzugefügt
+
+- Schaltmodus "V" für "Variable setzen" eingeführt, dazu wurden alle Haupt-Skripte  angepasst
+
 ## [2026-10-17]
 
 ### Hinzugefügt

@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchTools auszulesen (API)
 !//================================================================================================
-!// Stand:    01.10.2026
+!// Stand:    19.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -22,6 +22,7 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-01 DIVERGENZ-Hinweis entfernt: alle Skript-1-Varianten nutzen jetzt 12h Vorlauf.
 !// TT:  2026-10-01 Vergangenheits-Check von <= auf < vereinheitlicht (wie andere
 !//                 Skript-1-Varianten). 1-Sekunden-Divergenz am Nachlaufende entfernt.
@@ -353,6 +354,7 @@ if (stdout.Contains("\"meta\":{\"count\":0}")){
             if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
             if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
             if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
+            if (SchaltenHeizen=="V")  { strTemp = "Variable"; }
             logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                        toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                        toadd.StrValueByIndex(";",2).ToTime().Format("%X") #

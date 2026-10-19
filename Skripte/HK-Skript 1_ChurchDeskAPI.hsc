@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (API)
 !//================================================================================================
-!// Stand:    01.10.2026
+!// Stand:    19.10.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -17,6 +17,7 @@
 !// "öffentlich" werden aktuell von der API zurückgegegeben.
 !// ***********************************************************************************************
 
+!// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-01 Vorlauf von 8h auf 12h vereinheitlicht (alle Skript-1-Varianten jetzt
 !//                 12h). DIVERGENZ-Hinweis entfernt.
 !// TT:  2026-10-01 Kommentarblock zum Zeitfenster aktualisiert.
@@ -331,6 +332,7 @@ if (stdout=="[]"){
             if (SchaltenHeizen=="H")  { strTemp = "Heizen"; }
             if (SchaltenHeizen=="S")  { strTemp = "Schalten"; }
             if (SchaltenHeizen=="HS") { strTemp = "Heizen/Schalten"; }
+            if (SchaltenHeizen=="V")  { strTemp = "Variable"; }
             logObj.State("Raum: " # RaumName # "("+toadd.StrValueByIndex(";",0)+") - " #
                          toadd.StrValueByIndex(";",1).ToTime().Format("%X") # " / " #
                          toadd.StrValueByIndex(";",2).ToTime().Format("%X") #

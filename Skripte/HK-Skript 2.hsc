@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    10.10.2026
+!// Stand:    19.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,7 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-05 Luftfeuchte: Wert 0 wird ignoriert (kein Sensor vorhanden, z.B. IP-Thermostat)
 !// TT:  2026-10-05 Luftfeuchte: ACTUAL_HUMIDITY (IP) zuerst pruefen, HUMIDITY (Classic) als Fallback
 !// TT:  2026-10-03 Luftfeuchte (HUMIDITY) optional in der Heizen-Logzeile ausgeben (nur wenn Datenpunkt vorhanden)
@@ -227,8 +228,8 @@ foreach(SLEintrag,SListe){
   }
 
   !// Dieser Code hat keine Schaltwirkung, er ist rein informativ.
-  if(HSFlag!="S"){
-    !// Sonderbefehl kontrollieren und Raumtemperatur Sonderbefehl bestimmen
+  if((HSFlag=="H") || (HSFlag=="HS")){
+    !// HEIZEN Sonderbefehl kontrollieren und Raumtemperatur Sonderbefehl bestimmen
     string cap;
     if (SDFlag<0){
       cap = ("AUS;EIN;NORMAL").StrValueByIndex(";",(1+SDFlag)*(-1));
@@ -249,7 +250,7 @@ foreach(SLEintrag,SListe){
     if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource " # AktSRName # "(" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
   }else{
-    !// Schalten kennt kein Offset
+    !// SCHALTEN / VARIABLE kennt kein Offset
     if(log) {logObj.State("---Schaltlisteneintrag für Ressource (" # AktSR # ") Schalten: " # EIN.ToTime().Format("%X").Substr(0,5) # " - " #
                                             AUS.ToTime().Format("%X").Substr(0,5));}
     if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource (" # AktSR # ") Schalten: " # EIN.ToTime().Format("%X").Substr(0,5) # " - " #
@@ -363,8 +364,9 @@ foreach(SLEintrag,SListe){
       !// Die  Einschaltverschiebung, kann mit einem Faktor versehen sein.
       offsetRaumAn = 0-(RVI.StrValueByIndex(";",4).StrValueByIndex("*",0).ToInteger()*60);
       offsetRaumAus = 0-(RVI.StrValueByIndex(";",5).ToInteger()*60);
+      
       !// Wir berücksichtigen die Offset Zeiten nur, bei normalen Heizvorgängen.
-      if(HSFlag!="S"){
+      if((HSFlag=="H") || (HSFlag=="HS")){
         offsetRaumAn = offsetRaumAn-(GrundOffsetRaumEin*60);
         offsetRaumAus = offsetRaumAus-(GrundOffsetRaumAus*60);
       }
@@ -389,8 +391,8 @@ foreach(SLEintrag,SListe){
     real uy=0.0;
     real lx=0.0;
     real ly=0.0;
-    if (HSFlag!="S"){
-      !// Schaltparameter bestimmen
+    if((HSFlag=="H") || (HSFlag=="HS")){
+      !// Parameter bestimmen für Temperatur
       AGFParam = "AGFParam"#AGF.ToUpper();
       Param = AGFParamIP;
       if (system.IsVar(AGFParam)){
@@ -562,13 +564,21 @@ foreach(SLEintrag,SListe){
           foreach(AktAktor,AktorenListe.Split(";")){
             objAktor = dom.GetObject(AktAktor);
             if (AktAktor && objAktor){
-              objDP = objAktor.DPByHssDP(Param);
+              if (HSFlag=="V"){
+                !// VARIABLE. Hier ist der Datenpunkt identisch mit dem Aktor/Variablen-Objekt
+                objDP = objAktor;
+              }else{
+                !// Datenpunkt bestimmen
+                objDP = objAktor.DPByHssDP(Param);
+              }
               if (objDP){
                 if(HSFlag=="H"){
+                  !// HEIZEN
                   objDP.State(GT);
                   if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
                   if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet auf Temp.: "+GT.ToString(1));}
                 }else{
+                !// SCHALTEN/VARIABLE
                   objDP.State(0);
                   if(log){logObj.State(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
                   if(DEBUG) {WriteLine(AktAktor+" wird dauerhaft ausgeschaltet. Parameter:" # Param);}
@@ -600,13 +610,21 @@ foreach(SLEintrag,SListe){
           foreach(AktAktor,AktorenListe.Split(";")){
             objAktor = dom.GetObject(AktAktor);
             if (AktAktor && objAktor){
-              objDP = objAktor.DPByHssDP(Param);
+              if (HSFlag=="V"){
+                !// VARIABLE. Hier ist der Datenpunkt identisch mit dem Aktor/Variablen-Objekt
+                objDP = objAktor;
+              }else{
+                !// Datenpunkt bestimmen
+                objDP = objAktor.DPByHssDP(Param);
+              }
               if (objDP){
                 if(HSFlag=="H"){
+                  !// HEIZEN
                   objDP.State(RTemp);
                   if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
                   if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet auf Temp.: "+RTemp.ToString(1));}
                 }else{
+                  !// SCHALTEN / VARIABLE
                   objDP.State(1);
                   if(log){logObj.State(AktAktor +" wird dauerhaft eingeschaltet");}
                   if(DEBUG) {WriteLine(AktAktor +" wird dauerhaft eingeschaltet");}
@@ -638,13 +656,21 @@ foreach(SLEintrag,SListe){
           foreach(AktAktor,AktorenListe.Split(";")){
             objAktor = dom.GetObject(AktAktor);
             if (AktAktor && objAktor){
-              objDP = objAktor.DPByHssDP(Param);
+              if (HSFlag=="V"){
+                !// VARIABLE. Hier ist der Datenpunkt identisch mit dem Aktor/Variablen-Objekt
+                objDP = objAktor;
+              }else{
+                !// Datenpunkt bestimmen
+                objDP = objAktor.DPByHssDP(Param);
+              }
               if (objDP){
                 if(HSFlag=="H"){
+                  !// HEIZEN
                   objDP.State(GT);
                   if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
                   if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung Ein/Aus auf Grundtemperatur: "+GT.ToString(1));}
                 }else{
+                  !// SCHALTEN / VARIABLE
                   objDP.State(0);
                   if(log){logObj.State(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
                   if(DEBUG) {WriteLine(AktAktor +" Rückstellung aus dauerhafter Schaltung auf AUS. Parameter:" # Param);}
@@ -679,24 +705,32 @@ foreach(SLEintrag,SListe){
           foreach(AktAktor,AktorenListe.Split(";")){
             objAktor = dom.GetObject(AktAktor);
             if (AktAktor && objAktor){
-              objDP = objAktor.DPByHssDP(Param);
+              if (HSFlag=="V"){
+                !// VARIABLE. Hier ist der Datenpunkt identisch mit dem Aktor/Variablen-Objekt
+                objDP = objAktor;
+              }else{
+                !// Datenpunkt bestimmen
+                objDP = objAktor.DPByHssDP(Param);
+              }
               if (objDP){
-                  if(HSFlag=="H"){
-                    if(Flag_Hand_Temp!=false){
-                      real istTemperatur = objDP.State();
-                      if(istTemperatur==RTemp){
-                        objDP.State(GT);
-                        if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-                        if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
-                      }else{
-                        if(log){logObj.State(RaumLogName # " " # AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
-                      }
-                    }else{
+                if(HSFlag=="H"){
+                  !// HEIZEN
+                  if(Flag_Hand_Temp!=false){
+                    real istTemperatur = objDP.State();
+                    if(istTemperatur==RTemp){
                       objDP.State(GT);
-                      if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
-                      if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                      if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                      if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten (mit Funktion Reglervorrang) - Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
+                    }else{
+                      if(log){logObj.State(RaumLogName # " " # AktAktor+" Reglervorrang bei AUS - Regler händisch verstellt auf Temp.: " # istTemperatur.ToString(1));}
                     }
+                  }else{
+                    objDP.State(GT);
+                    if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                    if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten (ohne Funktion Reglervorrang) auf Temp.: "+GT.ToString(1)+" Parameter: "+Param);}
+                  }
                 }else{
+                  !// SCHALTEN / VARIABLE
                   objDP.State(0);
                   if(log) {logObj.State(RaumLogName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
                   if(DEBUG)  {WriteLine(RaumLogName # " " # AktAktor+" Ausschalten. Parameter: "+Param);}
@@ -733,9 +767,16 @@ foreach(SLEintrag,SListe){
             foreach(AktAktor,AktorenListe.Split(";")){
               objAktor = dom.GetObject(AktAktor);
               if (objAktor){
-                objDP = objAktor.DPByHssDP(Param);
+                if (HSFlag=="V"){
+                  !// VARIABLE. Hier ist der Datenpunkt identisch mit dem Aktor/Variablen-Objekt
+                  objDP = objAktor;
+                }else{
+                  !// Datenpunkt bestimmen
+                  objDP = objAktor.DPByHssDP(Param);
+                }
                 if (objDP){
                   if(HSFlag=="H"){
+                    !// HEIZEN
                     if(Flag_Hand_Temp!=false){
                       real istTemperatur = objDP.State();
                       if(istTemperatur==GT){
@@ -752,6 +793,7 @@ foreach(SLEintrag,SListe){
                       if(DEBUG)  {WriteLine(AktAktor+" Einschalten (ohne Funktion Reglervorrang) auf Temp.: "+RTemp.ToString(1)+" Parameter: "+Param);}
                     }
                   }else{
+                    !// SCHALTEN / VARIABLE
                     objDP.State(1);
                     if(log) {logObj.State(AktAktor+" Einschalten "+Param);}
                     if(DEBUG)  {WriteLine(AktAktor+" Einschalten "+Param);}
@@ -889,9 +931,16 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
       foreach(AktAktor,AktorenListe.Split(";")){
         objAktor = dom.GetObject(AktAktor);
         if (objAktor){
-          objDP = objAktor.DPByHssDP(Param);
+          if (HSFlag=="V"){
+            !// VARIABLE. Hier ist der Datenpunkt identisch mit dem Aktor/Variablen-Objekt
+            objDP = objAktor;
+          }else{
+            !// Datenpunkt bestimmen
+            objDP = objAktor.DPByHssDP(Param);
+          }
           if (objDP){
             if(HSFlag=="H"){
+              !// HEIZEN
               real istTemperatur = objDP.State();
               if(istTemperatur==RTemp){
                 !// Heiztemperatur immer setzen. Es könnte eine Gruppe sein, die teilweise verstellt ist.
@@ -912,6 +961,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
                         "\" - Ist: " # istTemperatur.ToString(1) # " Soll: " # RTemp.ToString(1) # " Parameter: " # Param);}
               }
             }else{
+              !// SCHALTEN / VARIABLE
               !// State() ohne Argument = Zustand lesen. State(0) würde das Relais auf AUS setzen!
               !// Auf CCU3 (HMW-IO-12-Sw7-DR) verifiziert: State(0) schaltet den Kanal aus UND
               !// liefert als Rückgabe true - der frühere Code (State(0)!=0) schaltete also aus
@@ -1023,14 +1073,22 @@ foreach(RVN,RVNListe.Split(";")) {
     foreach(AktAktor,AktorenListe.Split(";")){
       objAktor = dom.GetObject(AktAktor);
       if (objAktor){
-        objDP = objAktor.DPByHssDP(Param);
+        if (HSFlag=="V"){
+          !// VARIABLE. Hier ist der Datenpunkt identisch mit dem Aktor/Variablen-Objekt
+          objDP = objAktor;
+        }else{
+          !// Datenpunkt bestimmen
+          objDP = objAktor.DPByHssDP(Param);
+        }
         if (objDP){
           if(HSFlag=="H"){
+            !// SCHALTEN
             real istTemperatur = objDP.State();
             objDP.State(GT);
             if(log){logObj.State("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
             if(DEBUG) {WriteLine("Kein Schaltlisten Eintrag vorhanden für " # RVN # "- Ist: " # istTemperatur.ToString(1) # " Neu: " # GT.ToString(1) #" Parameter: " # Param);}
           }else{
+            !// SCHALTEN / VARIABLE
             boolean istZustand = objDP.State()!=0;
             if (istZustand)
             {
