@@ -95,32 +95,40 @@ set doc_base_xmri   "https://github.com/xMRi/Homematic-Heizungskalender/blob/mai
 set doc_skripte     "${doc_base_xmri}/Skripte/Dokumentation/Readme.md"
 set doc_skripte_log "${doc_skripte}#hk-init-variablen-logginghsc"
 set doc_skripte_sl  "${doc_skripte}#schaltskript"
+set doc_skripte_cd  "${doc_skripte}#hk-init-skript-1_churchdeskhsc"
+set doc_skripte_ct  "${doc_skripte}#hk-init-skript-1_churchtoolshsc"
+set doc_skripte_gk  "${doc_skripte}#hk-init-skript-1_googlehsc"
+set doc_skripte_ics "${doc_skripte}#hk-init-skript-1_icalhsc"
 set doc_awh         "${doc_base_xmri}/Dokumentation/Anwenderhandbuch.md"
-set doc_awh_global  "${doc_awh}#globale-einstellungen-systemvariablen-fuer-skript-2"
+set doc_awh_global  "${doc_awh}#globale-einstellungen-systemvariablen-f%C3%BCr-skript-2"
 set doc_awh_kurve   "${doc_awh}#die-heizkurve-hk2-kurve"
 set doc_awh_nacht   "${doc_awh}#nachtschaltung"
 set doc_dev         "${doc_base_xmri}/Dokumentation/Entwickler.md"
 set doc_dev_rliste  "${doc_dev}#hk1-r-liste"
 set doc_dev_hkgl    "${doc_dev}#hk2-hkg-liste"
 set doc_dev_sl      "${doc_dev}#hk1-schaltliste"
+set doc_dev_vlz1    "${doc_dev}#hk1-vorlaufzeit"
+set doc_dev_vlz2    "${doc_dev}#hk2-schaltzeiten"
+set doc_dev_raeume_hkk "${doc_dev}#hk-r%C3%A4umeheizkurvenkontrolle"
 
 set doc_links [list \
     HK-Log                        $doc_skripte_log \
     HK-Logging                    $doc_skripte_log \
     HK-LogHeizkurvenkontrolle     $doc_skripte_log \
     HK-LoggingHeizkurvenkontrolle $doc_skripte_log \
-    HK-RäumeHeizkurvenkontrolle   $doc_skripte_log \
-    HK1-CD-OrganisationsId        $doc_skripte \
-    HK1-CD-Token                  $doc_skripte \
-    HK1-CT-Gemeindename           $doc_skripte \
-    HK1-CT-Token                  $doc_skripte \
-    HK1-GK-API-Key                $doc_skripte \
-    HK1-GK-Kalender-ID            $doc_skripte \
-    HK1-ICS-Url                   $doc_skripte \
+    HK-RäumeHeizkurvenkontrolle   $doc_dev_raeume_hkk \
+    HK1-CD-OrganisationsId        $doc_skripte_cd \
+    HK1-CD-Token                  $doc_skripte_cd \
+    HK1-CT-Gemeindename           $doc_skripte_ct \
+    HK1-CT-Token                  $doc_skripte_ct \
+    HK1-GK-API-Key                $doc_skripte_gk \
+    HK1-GK-Kalender-ID            $doc_skripte_gk \
+    HK1-ICS-Url                   $doc_skripte_ics \
     HK1-Log                       $doc_skripte_log \
     HK1-Logging                   $doc_skripte_log \
     HK1-R-Liste                   $doc_dev_rliste \
     HK1-Schaltliste               $doc_dev_sl \
+    HK1-Vorlaufzeit               $doc_dev_vlz1 \
     HK2-Log                       $doc_skripte_log \
     HK2-Logging                   $doc_skripte_log \
     HK2-A.Temp.Grenze             $doc_awh_global \
@@ -132,13 +140,17 @@ set doc_links [list \
     HK2-Kurve                     $doc_awh_kurve  \
     HK2-Kurvenversatz             $doc_awh_global \
     HK2-VorzeitAus                $doc_awh_global \
-    HK2-Vorlaufzeit               $doc_dev \
+    HK2-Schaltzeiten               $doc_dev_vlz2 \
 ]
 
 proc lookup_doc_url {name doc_links_var} {
     upvar $doc_links_var dl
     set idx [lsearch $dl $name]
     if {$idx >= 0 && ($idx % 2) == 0} { return [lindex $dl [expr {$idx+1}]] }
+    if {[string match "HK-R*umeHeizkurvenkontrolle" $name]} {
+        set idx [lsearch $dl "HK-RäumeHeizkurvenkontrolle"]
+        if {$idx >= 0 && ($idx % 2) == 0} { return [lindex $dl [expr {$idx+1}]] }
+    }
     return ""
 }
 
@@ -347,7 +359,7 @@ proc render_table {varlist} {
             set cell [render_rliste $display_val]
         } elseif {[string equal $name "HK2-HKG-Liste"]} {
             set cell [render_hkgliste $display_val]
-        } elseif {[string equal $name "HK2-Vorlaufzeit"]} {
+        } elseif {[string equal $name "HK2-Schaltzeiten"]} {
             set cell [render_vlzliste $display_val]
         } elseif {[string match "HK-R*umeHeizkurvenkontrolle" $name]} {
             set cell [render_hk_raeume_hkk $display_val]

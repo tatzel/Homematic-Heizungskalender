@@ -13,7 +13,7 @@ an den HomeMatic-Skripten oder am Windows-Installations-Programm.
   - [HK1-Schaltliste](#hk1-schaltliste)
   - [HK1-Vorlaufzeit](#hk1-vorlaufzeit)
   - [HK2-Kurve](#hk2-kurve)
-  - [HK2-Vorlaufzeit](#hk2-vorlaufzeit)
+  - [HK2-Schaltzeiten](#hk2-schaltzeiten)
 - [Skript-Syntax (HomeMatic HSC)](#skript-syntax-homematic-hsc)
 - [Build des Installers (Windows, Visual Studio)](#build-der-heizkalenderinstallationexe-windows-visual-studio)
 - [Versionierung](#versionierung)
@@ -265,7 +265,7 @@ Beispielkurven und Berechnungshintergrund:
 [Anwenderhandbuch](anwenderhandbuch.md#die-heizkurve-hk2-kurve),
 [Heizsteuerung-Vorheizzeit.md](heizsteuerung-vorheizzeit.md)
 
-### HK2-Vorlaufzeit
+### HK2-Schaltzeiten
 
 Wird von HK-Skript 2 am Ende jedes Skriptlaufs geschrieben (sofern die Variable auf der CCU vorhanden ist). Enthält die berechneten Schaltzeiten aller Ressourcen des letzten Skriptlaufs. Die Variable ist rein informativ und wird vom Benutzer nicht manuell gesetzt.
 

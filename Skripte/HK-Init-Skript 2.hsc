@@ -1,24 +1,24 @@
 !// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2
 !//================================================================================================
-!// Stand:    18.10.2026
+!// Stand:    19.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
-!// Dieser Code ersetzt die Datei: 
+!// Dieser Code ersetzt die Datei:
 !//   HKP-S2-V-3.1.1 Variablen zu Skript2_V1.3.c
 !// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
-!// TT: 2026-10-18 HK2-Vorlaufzeit ergaenzt (Ausgabe berechneter Schaltzeiten durch Skript 2)
+!// TT: 2026-10-19 HK2-Schaltzeiten ergaenzt (Ausgabe berechneter Schaltzeiten durch Skript 2)
 !// TT: 2026-10-04 Beschreibung von HK2-Aussentemperatur praezisiert (gleitender Durchschnitt)
 
 !//Dieses Skript erstellt die nötigen Systemvariablen des Heizkalender für Skript 2 zum Schalten des Heizkalender
@@ -39,7 +39,7 @@ string nm=  "HK2-HKG-Liste;" #
             "HK2-VorzeitAus;" #
             "HK2-Kurvenversatz;" #
             "HK2-Kurve;" #
-            "HK2-Vorlaufzeit";
+            "HK2-Schaltzeiten";
 
 !// Beschreibungstexte
 string be=  "Liste der HK-Raum-Variablen;" #
@@ -113,7 +113,7 @@ string pr=  "1;" #
             "1;" #
             "1;" #
             "1;" #
-            "1";
+            "0";
 
 !//------------------------------------------------------------------------------------------------
 !// Ab hier Standard Code zum erzeugen von Variablen
