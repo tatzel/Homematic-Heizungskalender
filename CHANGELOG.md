@@ -13,11 +13,17 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Unveröffentlicht]</u>
 
-## [2026-10-18]
+## [2026-10-20]
 
 ### Hinzugefügt
 
+- Schaltmodus "V" im Installationsprogramm hinzugefügt.
+- Raumdialog im Installationsprogramm angepasst
 - Schaltmodus "V" für "Variable setzen" eingeführt, dazu wurden alle Haupt-Skripte  angepasst
+
+## Geändert 
+
+- Vereinheitlichung der String Operationen auf #-Operator in `Skript 2`
 
 ## [2026-10-17]
 

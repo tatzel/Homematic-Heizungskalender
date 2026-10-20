@@ -104,6 +104,8 @@
 #define IDP_TEST_AKTOR_HEIZENSCHALTEN   175
 #define IDP_AKTOREN_FUER_HEIZENSCHALTEN_LEER 176
 #define IDP_PROGRAMME_NICHT_AKTUALISIERT 177
+#define IDP_TEST_AKTOR_SCHALTEN2        178
+#define IDP_TEST_VARIABLE               178
 #define IDC_TEST                        1000
 #define IDC_BT_CONNECT                  1000
 #define IDC_ED_HOST                     1001
@@ -169,6 +171,7 @@
 #define IDC_LINK1                       1038
 #define IDC_LC_DATA                     1039
 #define IDC_LINK2                       1039
+#define IDC_CB_VARIABLE                 1039
 #define IDC_LB_DATA                     1040
 #define IDC_ED_STATUS                   1040
 #define IDC_BT_WINMERGE                 1041

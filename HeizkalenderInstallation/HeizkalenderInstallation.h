@@ -140,7 +140,7 @@ public:
 	// Daten aus der CCU. (Alle Systemvariablen wobei der Prefix egal ist, 
 	// sowie die Programme gefilter auf den Prefix). Diese Listen werden auch angepasst
 	ModeScript1				m_modeScript1Installed;
-	CListSystemVariables	m_lstSysVars;				// Alle Varoablen. Man muss evtl. IsMatchingPrefix nutzen.
+	CListSystemVariables	m_lstSysVars;				// Alle Varaablen. Man muss evtl. IsMatchingPrefix nutzen.
 	CListPrograms			m_lstPrograms;				// Nur Programme mit passendem Prefix.
 	CListDevices			m_lstDevices;				// Liste der Geräte
 

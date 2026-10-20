@@ -228,7 +228,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,110,179,50,14,WS_GROUP
 END
 
-IDD_ROOM DIALOGEX 0, 0, 292, 189
+IDD_ROOM DIALOGEX 0, 0, 293, 205
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Raum: "
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -251,15 +251,17 @@ BEGIN
     LTEXT           "min",IDC_STATIC,166,88,12,8
     LTEXT           "Faktor Heizkurve:",IDC_STATIC,7,104,106,8
     EDITTEXT        IDC_ED_FAKTOR,120,102,40,12,ES_AUTOHSCROLL
-    LTEXT           "Thermostat-Aktor/Kanal:",IDC_STATIC,7,120,106,8
+    LTEXT           "&Thermostat-Aktor/Kanal:",IDC_STATIC,7,120,106,8
     COMBOBOX        IDC_CB_AKTOR1,120,118,164,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Schalter-Aktor/Kanal:",IDC_STATIC,7,136,106,8
+    LTEXT           "&Schalter-Aktor/Kanal:",IDC_STATIC,7,136,106,8
     COMBOBOX        IDC_CB_AKTOR2,120,134,164,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Gerätetyp:",IDC_STATIC,7,152,106,8
-    COMBOBOX        IDC_CB_GERAETETYP,120,150,164,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,55,168,50,14
-    PUSHBUTTON      "Abbrechen",IDCANCEL,121,168,50,14
-    PUSHBUTTON      "Test",IDC_BT_TEST,187,168,50,14
+    LTEXT           "System&variable:",IDC_STATIC,7,152,106,8
+    COMBOBOX        IDC_CB_VARIABLE,120,150,164,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Gerätetyp:",IDC_STATIC,7,168,106,8
+    COMBOBOX        IDC_CB_GERAETETYP,120,166,164,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,55,184,50,14
+    PUSHBUTTON      "Abbrechen",IDCANCEL,121,184,50,14
+    PUSHBUTTON      "Test",IDC_BT_TEST,187,184,50,14
 END
 
 IDD_PAGE_RESOURCES DIALOGEX 0, 0, 421, 244
@@ -313,8 +315,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,8,0,0
- PRODUCTVERSION 3,8,0,0
+ FILEVERSION 4,0,0,0
+ PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -331,12 +333,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "3.8.0.0"
+            VALUE "FileVersion", "4.0.0.0"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
             VALUE "ProductName", "Heizkalender"
-            VALUE "ProductVersion", "3.8.0.0"
+            VALUE "ProductVersion", "4.0.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -407,8 +409,9 @@ BEGIN
     IDD_ROOM, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 287
+        RIGHTMARGIN, 288
         TOPMARGIN, 6
+        BOTTOMMARGIN, 189
     END
 
     IDD_PAGE_RESOURCES, DIALOG
@@ -651,7 +654,7 @@ BEGIN
     IDS_TITLE_SYSVARS       "Name;Inhalt;Info"
     IDS_NEW                 "Neu"
     IDS_UPDATE              "Geändert"
-    IDS_TITLE_ROOMS         "Name;S/H/HS;Temp.;Grund.;Faktor;Einsch.;Aussch.;Heizgr.;Info"
+    IDS_TITLE_ROOMS         "Name;S/V/H/HS;Temp.;Grund.;Faktor;Einsch.;Aussch.;Heizgr.;Info"
     IDS_SIMULATION          "Simulation"
     IDP_SIMULATION_GESTARTET 
                             "Sie haben die Heizkalender-Installation im Simulationsmodus gestartet.\nEs wird keine Verbindung zu einer CCU benötigt. Die Änderungen werden lokal in der Registry gespeichert und können später wieder geladen und bearbeitet werden."
@@ -666,7 +669,7 @@ BEGIN
                             "Eine oder mehrere Raumvariablen stimmen nicht mit der Namenskovention für den Heizkalender überein. Die folgenden Raumvariablen, werden kopiert und neu angelegt:\n\t%1"
     IDS_TITLE_RESOURCES     "Id;Name;Zugeordnete Räume"
     IDS_PAGE_RESOURCES      "Kalenderzuordnungen"
-    IDS_RAUM_MODUS          "Heizen;H\tSchalten;S\tHeizen+Schalten;HS"
+    IDS_RAUM_MODUS          "Heizen;H\tSchalten;S\tHeizen+Schalten;HS\tVariable setzen;V"
     IDS_RAUM_DEVTYP         "IP - Homematic IP;RT- Klassik-Thermostate-Gerätetyp;TC - Klassik-Thermostate-Gerätetyp;IT - Klassik-Thermostate-Gerätetyp;SW - Sonstige"
     IDS_NEW_ROOM            "NeuerRaum"
     IDP_QUERY_DELETE_ROOM   "Soll der selektierte Raum ""%1"" gelöscht werden? Damit werden alle Kalenderzuordnungen für diesen Raum entfernt!\nWollen Sie fortfahren?"
@@ -716,6 +719,7 @@ BEGIN
     IDP_AKTOREN_FUER_HEIZENSCHALTEN_LEER 
                             "Im Modus Heizen+Schalten, muss als erster Kanal ein Temperatursensor angegeben werden und als zweiter bzw. weitere Kanal ein Schaltaktor!"
     IDP_PROGRAMME_NICHT_AKTUALISIERT "Programme werden nicht aktualisiert!"
+    IDP_TEST_VARIABLE       "Test für Variable ""%1""\nAktueller Wert:\t%2"
 END
 
 #endif    // German (Germany) resources
