@@ -155,13 +155,13 @@ if {$filter_is_hk1 || $filter_is_hk2 || $filter_is_hkl || $filter_is_hkk || $fil
 # ---------------------------------------------------------------------------
 # HTML ausgeben
 # ---------------------------------------------------------------------------
-puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\n"
+puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\nCache-Control: no-cache, no-store\n"
 puts "<!DOCTYPE html>"
 puts {<html lang="de">
 <head>
   <meta charset="iso-8859-1">
   <meta name="viewport" content="width=device-width, initial-scale=1">}
-puts "  <title>Heizkalender ${hk_version}: HK-Log</title>"
+puts "  <title>HK-Log | Heizkalender ${hk_version}</title>"
 puts {  <link rel="stylesheet" href="heizkalender.css">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -179,7 +179,7 @@ puts {  <link rel="stylesheet" href="heizkalender.css">
     <a href="hkkurve.cgi">Heizkurve</a>
     <a href="hkconfig.cgi">Einstellungen</a>
     <a href="hklog.cgi">HK-Log</a>
-    <a href="syslog.cgi">Systemlog</a>
+    <a href="syslog.cgi">Syslog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
   </nav>
   <p class="hk-hint">Die Logdateien werden auf einem USB-Stick gespeichert, der an der CCU angeschlossen ist (<code>/media/usb1/HK-Log_JJJJ-MM-TT.log</code>). Es werden die Eintr&auml;ge der letzten 60 Tage angezeigt.</p>}
@@ -213,7 +213,7 @@ foreach lf $log_files {
     }
 }
 puts "        </select></label> &nbsp;"
-puts "        <label>letzte Zeilen: <select name=\"n\">"
+puts "        <label>Letzte Zeilen: <select name=\"n\">"
 foreach opt {50 100 200 500 1000 2000} {
     if {$opt == $lines_to_show} {
         puts "          <option value=\"$opt\" selected>$opt</option>"

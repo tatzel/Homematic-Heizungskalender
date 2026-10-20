@@ -60,4 +60,4 @@ angehängt.
 
 ## Weiter geht es
 
-- Jetzt die Zugangsdaten des Kalenders beschaffen: [Kalender-Zugangsdaten ermitteln](Kalender-einrichten.md)
+- Jetzt die Zugangsdaten des Kalenders beschaffen: [Kalender-Zugangsdaten ermitteln](kalender-einrichten.md)

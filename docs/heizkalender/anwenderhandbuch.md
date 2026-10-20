@@ -13,18 +13,18 @@ Sonderbefehlen steuern.
 
 Durch die gesamte Instalation führen folgende Dokumente:
 
-- [Struktur planen](Planung.md)
-- [Zugangsdaten für Kalender beschaffen](Kalender-einrichten.md)
-- [Einrichtung der CCU](CCU-Einrichten)
-- [Einrichtung des Heizkalenders mir der `HeizkalenderInstallation.exe`-Anleitung](../HeizkalenderInstallation/Dokumentation/Readme.md).
+- [Struktur planen](planung.md)
+- [Zugangsdaten für Kalender beschaffen](kalender-einrichten.md)
+- [Einrichtung der CCU](ccu-einrichten.md)
+- [Einrichtung des Heizkalenders mir der `HeizkalenderInstallation.exe`-Anleitung](../heizkalender-installation/readme.md).
 
 > [!WARNING]
 > **In dieser Beschreibung werden Systemvariablen direkt mir Ihrem Namen benannt. Wenn der `HeizkalenderInstallation.exe` verwendet wird, kann dieses Programm für die Einstellung aller hier beschrieben Parameter verwendet werden!**
 >
-> ** Systemvariablen sollten nicht mit der Hand, oder anderen Tools verändert werden, außer man ist sicher über die Auswirkungen im klaren.**
+> **Systemvariablen sollten nicht mit der Hand, oder anderen Tools verändert werden, außer man ist sicher über die Auswirkungen im klaren.**
 
-#Die vollständige Liste aller Systemvariablen findet sich in der
-[Skript-Referenz](../Skripte/Dokumentation/Readme.md).
+Die vollständige Liste aller Systemvariablen findet sich in der
+[Skript-Referenz](../skripte/readme.md).
 Einen allgemeinen Überblick über das Projekt und weitere Varianten bietet auch die
 Projekt-Homepage <https://heizkalender.de/>.
 
@@ -151,11 +151,11 @@ automatisch angelegt.
 Der Wert enthält u.a. den Gerätetyp des Aktors, die Wohlfühltemperatur,
 die individuelle Vorheizzeit und die Zeit, nach der vor Terminende abgeschaltet
 wird. Das genaue Feldformat ist in der
-[Entwickler-Dokumentation](Entwickler.md#hkg-raum-) beschrieben.
+[Entwickler-Dokumentation](entwickler.md#hkg-raum-) beschrieben.
 
 Beispielwert: `0;H;IP;18;0;30;Heizgruppe-xyz` bedeutet: kein aktives Heizen, Modus Heizen,
 Homematic-IP-Thermostat, Wohlfühltemperatur 18 °C, keine zusätzliche individuelle
-Vorheizzeit, 30 Minuten vor Terminende abschalten. *Heizgruppe-xyz* bezeichnet die Heizgruppe, die angesteuiert werden soll. 
+Vorheizzeit, 30 Minuten vor Terminende abschalten. *Heizgruppe-xyz* bezeichnet die Heizgruppe, die angesteuiert werden soll.
 
 ### Mehrere Räume gemeinsam schalten
 
@@ -175,7 +175,7 @@ eigene Gruppe.
 
 ## Berücksichtigung von Terminänderungen
 
-Im günstigsten Fall sollten alle Termine eingetragen und fix sein, bevor, die Heizphase eines Raumes beginnt. Die Heizphase hat immer eine Vorheiz- oder auch feste Vorlaufzeit. (siehe unten). 
+Im günstigsten Fall sollten alle Termine eingetragen und fix sein, bevor, die Heizphase eines Raumes beginnt. Die Heizphase hat immer eine Vorheiz- oder auch feste Vorlaufzeit. (siehe unten).
 
 Es ist jedoch möglich, dass der Terminkalender sich kurzfristig ändert. Haben sich Termine geändert liest `Skript 1`, die neuen Termine ein (normalerweise alle 30min).
 
@@ -261,7 +261,7 @@ Der ausgelieferte Default ist:
 
 Diese Werte sollten bei der Installation an das eigene Gebäude angepasst werden.
 Eine ausführliche Erklärung der Berechnung mit Beispielrechnungen findet sich in dem Artikel
-[Heizsteuerung-Vorheizzeit](../Skripte/Dokumentation/Heizsteuerung-Vorheizzeit.md).
+[Heizsteuerung-Vorheizzeit](heizsteuerung-vorheizzeit.md).
 
 Als Orientierungshilfe sind drei Beispielkurven bekannt:
 
@@ -273,7 +273,7 @@ Als Orientierungshilfe sind drei Beispielkurven bekannt:
 
 Zur Vewranschauchlichung hier die Heizkurven in einer Grafik visualisiert:
 
-![Heizkurven](Bilder/Heizkurven.png)
+![Heizkurven](bilder/Heizkurven.png)
 
 Der `*Faktor` in der Raum-Systemvariablen skaliert die Kurvenzeit für einzelne Räume
 zusätzlich (z.B. `*3.5` für eine Fußbodenheizung mit festem Offset von 240 min).
@@ -404,7 +404,7 @@ Diese Variable ist die interne Schnittstelle zwischen Skript 1 und Skript 2 und 
 von den Skripten automatisch befüllt und ausgelesen. Sie sollte **niemals manuell
 verändert werden**. Das Format ist dokumentiert, damit Fehlermeldungen im Log
 besser verstanden werden können. Die vollständige Feldbeschreibung findet sich in der
-[Entwickler-Dokumentation](Entwickler.md#hk1-schaltliste).
+[Entwickler-Dokumentation](entwickler.md#hk1-schaltliste).
 
 Beispiele:
 
@@ -517,4 +517,4 @@ laufende Betrieb beobachtet und konfiguriert werden kann (Raumübersicht, HK-Log
 Systemlog, Heizkurvenkontrolle, Systemvariablen, Grundeinstellungen).
 
 Die vollständige Beschreibung aller Seiten findet sich im
-[Addon-Anwenderhandbuch](../Addon/docs/Anwenderhandbuch.md).
+[Addon-Anwenderhandbuch](../addon/anwenderhandbuch.md).

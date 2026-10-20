@@ -1,0 +1,69 @@
+site_name: Homematic Heizungskalender
+site_url: https://xmri.github.io/Homematic-Heizungskalender/
+repo_url: https://github.com/xMRi/Homematic-Heizungskalender
+repo_name: xMRi/Homematic-Heizungskalender
+edit_uri: edit/main/
+
+theme:
+  name: material
+  language: de
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Zu dunklem Modus wechseln
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Zu hellem Modus wechseln
+  features:
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.action.edit
+
+plugins:
+  - search:
+      lang: de
+  - callouts
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Startseite: index.md
+  - Heizkalender:
+    - Anwenderhandbuch: heizkalender/anwenderhandbuch.md
+    - CCU einrichten: heizkalender/ccu-einrichten.md
+    - Kalender einrichten: heizkalender/kalender-einrichten.md
+    - Vorheizzeit: heizkalender/heizsteuerung-vorheizzeit.md
+    - Planung: heizkalender/planung.md
+    - Entwickler: heizkalender/entwickler.md
+  - Skripte: skripte/readme.md
+  - Heizkalender-Installation: heizkalender-installation/readme.md
+  - Tools:
+    - Übersicht: tools/readme.md
+    - Debug und Test: tools/debug-test.md
+  - Addon:
+    - Anwenderhandbuch: addon/anwenderhandbuch.md
+    - Entwickler: addon/entwickler.md
+    - Development Standards: addon/development-standards.md
+
+docs_dir: docs
+exclude_docs: |
+  archiv/**
+  addon/prd.md

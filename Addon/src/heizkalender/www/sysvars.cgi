@@ -313,6 +313,8 @@ proc render_table {varlist} {
             set cell [render_rliste $display_val]
         } elseif {[string equal $name "HK2-HKG-Liste"]} {
             set cell [render_hkgliste $display_val]
+        } elseif {[string match "HK-R*umeHeizkurvenkontrolle" $name]} {
+            set cell [render_hk_raeume_hkk $display_val]
         } elseif {[is_temp_var $name]} {
             set cell [format_temp $display_val]
         } elseif {[is_time_min_var $name]} {
@@ -330,6 +332,34 @@ proc render_table {varlist} {
         set i [expr {$i+3}]
     }
     append html "</table></div>\n"
+    return $html
+}
+
+proc decode_hkk_status {s} {
+    return $s
+}
+
+proc render_hk_raeume_hkk {val} {
+    if {[string equal $val ""]} { return "<em>(leer)</em>" }
+    set entries [split $val "#"]
+    set clean {}
+    foreach e $entries {
+        if {![string equal $e ""]} { lappend clean $e }
+    }
+    if {[llength $clean] == 0} { return "<em>(leer)</em>" }
+    set tooltip "Bit 0=Heizung an, Bit 1=Zieltemperatur erreicht, Bit 2=Heizung aus, Bit 3=kein Sensor (geloggt)"
+    set html "<table class=\"hk-table hk-table-inline\">\n"
+    append html "  <tr><th>Raumvariable</th><th title=\"[htmlquote $tooltip]\">Status &#x24D8;</th><th>Ist-Temperatur (&deg;C)</th></tr>\n"
+    foreach entry $clean {
+        set parts [split $entry ";"]
+        set rvar  [lindex $parts 0]
+        set cnt   [lindex $parts 1]
+        set temp  [lindex $parts 2]
+        catch {set temp [format "%.1f" $temp]}
+        set status_text [decode_hkk_status $cnt]
+        append html "  <tr><td>[htmlquote $rvar]</td><td>[htmlquote $status_text]</td><td>[htmlquote $temp]</td></tr>\n"
+    }
+    append html "</table>\n"
     return $html
 }
 
@@ -444,13 +474,13 @@ catch {
     close $vfh
     set hk_version [string trim $hk_version]
 }
-puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\n"
+puts "Content-Type: text/html; charset=iso-8859-1\nContent-Language: de\nCache-Control: no-cache, no-store\n"
 puts {<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="iso-8859-1">
   <meta name="viewport" content="width=device-width, initial-scale=1">}
-puts "  <title>Heizkalender ${hk_version}: Systemvariablen</title>"
+puts "  <title>Systemvariablen | Heizkalender ${hk_version}</title>"
 puts {  <link rel="stylesheet" href="heizkalender.css">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -468,7 +498,7 @@ puts {  <link rel="stylesheet" href="heizkalender.css">
     <a href="hkkurve.cgi">Heizkurve</a>
     <a href="hkconfig.cgi">Einstellungen</a>
     <a href="hklog.cgi">HK-Log</a>
-    <a href="syslog.cgi">Systemlog</a>
+    <a href="syslog.cgi">Syslog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
   </nav>
 }

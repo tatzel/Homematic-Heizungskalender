@@ -3,7 +3,7 @@
 ## Inhalt
 
 - [Laufzeitumgebung](#laufzeitumgebung)
-- [Tcl-8.2-Einschränkungen](#tcl-82-einschränkungen)
+- [Tcl-8.2-Restriktionen](#tcl-82-restriktionen)
 - [Zeichenkodierung](#zeichenkodierung)
 - [HTML-Ausgabe](#html-ausgabe)
 - [ReGa-API](#rega-api)
@@ -24,7 +24,7 @@
 
 ---
 
-## Tcl-8.2-Einschränkungen
+## Tcl-8.2-Restriktionen
 
 Folgende Sprachfeatures sind in Tcl 8.2 nicht verfügbar und dürfen nicht verwendet werden:
 
