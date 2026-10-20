@@ -3,23 +3,6 @@
 Diese Seite richtet sich an Mitwirkende, die am Code des Heizkalenders arbeiten:
 an den HomeMatic-Skripten oder am Windows-Installations-Programm.
 
-## Inhalt
-
-- [Architektur-Überblick](#architektur-überblick)
-- [Systemvariablen-Formate](#systemvariablen-formate)
-  - [HK1-R-Liste](#hk1-r-liste)
-  - [HK2-HKG-Liste](#hk2-hkg-liste)
-  - [HKG-Raum-*](#hkg-raum-)
-  - [HK1-Schaltliste](#hk1-schaltliste)
-  - [HK1-Vorlaufzeit](#hk1-vorlaufzeit)
-  - [HK2-Kurve](#hk2-kurve)
-  - [HK2-Schaltzeiten](#hk2-schaltzeiten)
-- [Skript-Syntax (HomeMatic HSC)](#skript-syntax-homematic-hsc)
-- [Build des Installers (Windows, Visual Studio)](#build-der-heizkalenderinstallationexe-windows-visual-studio)
-- [Versionierung](#versionierung)
-- [Änderungs-Workflow](#änderungs-workflow)
-- [Heizkalender Addon](#heizkalender-addon)
-
 ## Architektur-Überblick
 
 Der Heizkalender besteht aus drei Teilen:
@@ -33,7 +16,7 @@ Der Heizkalender besteht aus drei Teilen:
 
 ```mermaid
 flowchart TD
-    subgraph PC["Entwickler-PC / Windows"]
+    subgraph PC["Windows-PC"]
         Installer["HeizkalenderInstallation.exe"]
     end
 
@@ -48,13 +31,15 @@ flowchart TD
 
     subgraph CCU["CCU3"]
         SysVar[("Systemvariablen\nHK1-*, HK2-*, HK1-Schaltliste, HKG-Raum-*")]
+        Programme[("Programme\nHK-Skript 1, HK-Skript 2, HK-*")]
         Skript1["HK-Skript 1\n(alle 30 min)"]
         ATSkript["HK-Außentemp.-Skript\n(stündlich)"]
         Skript2["HK-Skript 2\n(alle 5 min)"]
         Aktoren["Thermostate / Aktoren"]
     end
 
-    Installer -->|"installiert Skripte und\nlegt Systemvariablen an\n(einmalig)"| SysVar
+    Installer -->|"richtet ein und aktualisiert\n(bei Installation, Konfiguration\nund Updates)"| SysVar
+    Installer -->|"richtet ein und aktualisiert"| Programme
     KAL -->|"Termine"| Skript1
     Skript1 -->|"schreibt HK1-Schaltliste"| SysVar
     OpenMeteo -->|"Außentemperatur"| ATSkript
