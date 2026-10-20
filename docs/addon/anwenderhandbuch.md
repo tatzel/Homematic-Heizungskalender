@@ -44,29 +44,27 @@ Die Raumübersicht zeigt für jeden konfigurierten Raum den aktuellen Heizstatus
 
 | Spalte | Bedeutung |
 | ------ | --------- |
-| Status | Symbol für den aktuellen Zustand (siehe Legende) |
+| Status | `EIN` wenn der Raum gerade heizt, `AUS` wenn nicht |
 | Raum | Name des Raums (aus der Raum-Systemvariablen `HKG-Raum-*`) |
 | Modus | Heizmodus: Heizen, Schalten oder Heizen+Schalten |
 | Ist-Temp. | Aktuelle Raumtemperatur (wenn ein Sensor zugeordnet ist) |
 | Luftfeuchte | Aktuelle Luftfeuchtigkeit (wenn der Sensor diesen Wert liefert) |
-| Termin ab | Beginn des nächsten oder laufenden Termins aus der Schaltliste |
-| Termin bis | Ende des Termins aus der Schaltliste |
+| Vorlauf | Berechnete Vorheizzeit in Minuten (nur wenn `HK2-Schaltzeiten` vorhanden) |
+| Heizen ab | Berechneter Einschaltzeitpunkt (nur wenn `HK2-Schaltzeiten` vorhanden) |
+| Termin | Beginn und Ende des nächsten oder laufenden Termins aus der Schaltliste; bei mehreren Terminen aufklappbar |
 | Wohlfühltemperatur | Zieltemperatur für den Raum |
 
-**Statussymbole (Legende):**
+Die Spalten **Vorlauf** und **Heizen ab** werden nur angezeigt, wenn die Systemvariable `HK2-Schaltzeiten` auf der CCU vorhanden ist. Ist sie nicht angelegt, entfallen diese beiden Spalten.
 
-- Gefülltes Quadrat (rot): Raum wird gerade geheizt
-- Gedankenstrich (hellgrau): Raum heizt nicht
-
-**Statusermittlung:** Das Statussymbol wird direkt aus Feld 0 der jeweiligen `HKG-Raum-*`-Systemvariablen gelesen (0 = nicht heizend, 1 = heizt). Die Spalten „Termin ab" und „Termin bis" zeigen die Zeiten aus der Schaltliste (`HK1-Schaltliste`).
+**Statusermittlung:** Der Status wird direkt aus Feld 0 der jeweiligen `HKG-Raum-*`-Systemvariablen gelesen (0 = `AUS`, 1 = `EIN`). Die Spalte „Termin" zeigen die Zeiten aus der Schaltliste (`HK1-Schaltliste`).
 
 Ganz oben wird, falls vorhanden, die aktuelle Außentemperatur (gleitender Mittelwert) angezeigt, die für die Vorheizzeitberechnung verwendet wird.
 
+**Mehrere Termine pro Raum und Tag:** Hat ein Raum an einem Tag mehr als einen Termin in der Schaltliste, wird in der Terminspalte zunächst nur der erste Eintrag angezeigt. Durch Klick auf diesen Eintrag klappt die Zelle auf und zeigt alle weiteren Termine des Raums.
+
+**Raum-Gruppen:** Ein Raum kann über `HK2-HKG-Liste` als Teil einer Gruppe konfiguriert sein, d.h. er wird bei der Buchung anderer Ressourcen mitgeheizt. In diesem Fall sammelt das Addon alle Ressourcen-IDs, für die der Raum zuständig ist (eigene Ressource und alle Gruppen, in denen er Mitglied ist), und zeigt sämtliche zugehörigen Termine in einer einzigen Zeile an. Der Raum erscheint also immer nur einmal in der Tabelle, egal wie viele Ressourcen ihn einschließen.
+
 **Hinweis:** Die Seite zeigt ausschließlich Heizdaten. Der ursprüngliche Terminname aus dem Kalender ist in der Schaltliste nicht enthalten.
-
-Hier liegt ein Sonderfall vor: Der Raum *UG-Büro* wurde dem Raum *EG-Eltern-Kind-Raum* zugewiesen, sodass sie eine Raumgruppe bilden. Entsprechend wird der Raum *UG-Büro* mitgeheizt. Der Termin enthält allerdings nur den Raum *EG-Eltern-Kind-Raum*.
-
-![Raumübersicht mit aktiven Terminen für EG-Kinderraum, EG-Foyer, EG-Eltern-Kind-Raum und EG-Saal sowie UG-Büro](images/raumuebersicht-raumgruppe.png "Heizkalender: Raumübersicht mit Raumgruppe")
 
 ---
 
