@@ -84,7 +84,7 @@ Die Heizkurvenkontrolle wertet die aufgezeichneten Heizereignisse aus dem USB-St
 
 | Filter | Bedeutung |
 | ------ | --------- |
-| Zeitraum | Heute (Standard), letzte 7 Tage, letzte 30 Tage oder letzte 90 Tage |
+| Zeitraum | Heute (Standard), Gestern, letzte 7 Tage, letzte 30 Tage oder letzte 90 Tage |
 | Raum | Alle Räume oder ein bestimmter Raum (inkl. Gruppenräume) |
 | Ereignis | Alle Ereignisse (Standard) oder ein bestimmter Typ |
 
@@ -111,6 +111,16 @@ In den Zeilen *Terminbeginn* und *Terminende* erscheint neben der Temperatur ein
 | ------ | ----- | --------- |
 | ▲ | Grün | Ist-Temperatur hat die Zieltemperatur erreicht |
 | ▼ | Rot | Ist-Temperatur lag noch unter der Zieltemperatur |
+
+---
+
+## Grundeinstellungen
+
+**Erreichbar unter:** `/addons/heizkalender/hkconfig.cgi`
+
+Die Seite zeigt die wichtigsten Einstellungen des Heizkalenders in aufbereiteter Form: Logging-Flags, Kurveneinstellungen und eine Übersicht aller Raumkonfigurationen. Die Abschnitte entsprechen 1:1 den Seiten des Windows-Installers und dienen als Nachschlagewerk, wenn man gerade nicht am passenden PC sitzt oder remote auf die CCU zugreift. Die Seite ist rein lesend. Änderungen werden über den Installer vorgenommen.
+
+![Grundeinstellungen mit Logging-Flags, Kurveneinstellungen und Raumkonfigurationen](images/grundeinstellungen.png "Heizkalender: Grundeinstellungen")
 
 ---
 
@@ -146,7 +156,7 @@ Die Anzeige entspricht einem `tail`: die letzten N Zeilen der Datei, älteste ob
 
 Das Syslog zeigt die letzten Einträge aus dem Linux-Systemprotokoll der CCU (`/var/log/messages`).
 
-![Syslog mit den letzten Meldungen](images/systemlog.png "Heizkalender: Syslog")
+![Syslog mit den letzten Meldungen](images/syslog.png "Heizkalender: Syslog")
 
 **Zeitstempel-Format:** `Mmm DD HH:MM:SS` (Linux-Syslog-Format, ohne Jahreszahl).
 
@@ -174,15 +184,3 @@ Die Seite zeigt alle Systemvariablen des Heizkalenders mit ihrem aktuellen Wert 
 | Räume | `HKG-Raum-*` | Individuelle Raumkonfigurationen |
 
 Die Seite ist rein lesend. Werte können nur direkt in der CCU-Weboberfläche geändert werden.
-
----
-
-## Grundeinstellungen
-
-**Erreichbar unter:** `/addons/heizkalender/hkconfig.cgi`
-
-Die Seite zeigt die wichtigsten Einstellungen des Heizkalenders in aufbereiteter Form: Logging-Flags, Kurveneinstellungen und eine Übersicht aller Raumkonfigurationen. Die Abschnitte entsprechen 1:1 den Seiten des Windows-Installers und dienen als Nachschlagewerk, wenn man gerade nicht am passenden PC sitzt oder remote auf die CCU zugreift.
-
-![Grundeinstellungen mit Logging-Flags, Kurveneinstellungen und Raumkonfigurationen](images/grundeinstellungen.png "Heizkalender: Grundeinstellungen")
-
-Die Seite ist rein lesend. Änderungen werden über den Installer vorgenommen.
