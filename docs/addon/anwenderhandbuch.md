@@ -76,7 +76,9 @@ Die Heizkurvenkontrolle wertet die aufgezeichneten Heizereignisse aus dem USB-St
 
 ![Heizkurvenkontrolle mit gefilterten Einträgen für einen Raum über 30 Tage](images/heizkurvenkontrolle.png "Heizkalender: Heizkurvenkontrolle")
 
-**Voraussetzung:** USB-Stick mit HK-Log-Dateien (siehe [HK-Log](#hk-log)).
+> [!NOTE]
+> **Voraussetzung:** USB-Stick mit HK-Log-Dateien (siehe [HK-Log](#hk-log)).
+> Da `HK-SystemProtokoll sichern.hsc` alle 29 Minuten läuft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zurückliegen.
 
 **Filter:**
 
@@ -130,7 +132,9 @@ Das HK-Log zeigt die auf dem USB-Stick archivierten Protokolleinträge des Heizk
 
 ![HK-Log mit gefilterten Einträgen der letzten Tage](images/hk-log.png "Heizkalender: HK-Log")
 
-**Voraussetzung:** USB-Stick an der CCU angeschlossen, Logdateien vorhanden (`HK-Log_JJJJ-MM-TT.log`). Es werden Dateien der letzten 60 Tage angezeigt.
+> [!NOTE]
+> **Voraussetzung:** USB-Stick an der CCU angeschlossen, Logdateien vorhanden (`HK-Log_JJJJ-MM-TT.log`). Es werden Dateien der letzten 60 Tage angezeigt.
+> Da `HK-SystemProtokoll sichern.hsc` alle 29 Minuten läuft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zurückliegen.
 
 **Zeitstempel-Format:** `JJJJ-MM-TT HH:MM:SS` (aus der CCU-Historiendatenbank).
 

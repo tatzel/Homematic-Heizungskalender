@@ -171,7 +171,7 @@ Verwendete Systemvariablen:
 
 - `HKG-Raum-*`: Raumvariablen; der Suffix (z.B. `UG-Büro`) wird als Raumname im Dropdown verwendet und entspricht dem Raumname im Log-Format.
 
-Ereignisdaten stammen nicht aus Systemvariablen, sondern aus den HK-Log-Dateien auf dem USB-Stick (`/media/usb1/HK-Log_*.log`), gefiltert nach `HK-LogHeizkurvenkontrolle`.
+Ereignisdaten stammen nicht aus Systemvariablen, sondern aus den HK-Log-Dateien auf dem USB-Stick (`/media/usb1/HK-Log_*.log`), gefiltert nach `HK-LogHeizkurvenkontrolle`. Die Dateien werden von `HK-SystemProtokoll sichern.hsc` befüllt, das alle 29 Minuten läuft. Die Anzeige im Addon kann daher bis zu 29 Minuten hinter dem aktuellen Geschehen zurückliegen.
 
 **Log-Format (geschrieben von `HK-Heizkurvenkontrolle.hsc`):**
 
@@ -227,7 +227,7 @@ Zeigt Logging-Flags, Kurveneinstellungen und eine Raumübersicht in aufbereitete
 
 Liest direkt aus Logdateien auf dem USB-Stick. Kein ReGa-Aufruf. Die Seite zeigt die letzten N Zeilen der gewählten Datei (tail-Prinzip).
 
-Zeitstempel im Log haben das Format `JJJJ-MM-TT HH:MM:SS` (aus der CCU-Historiendatenbank, geschrieben von `HK-SystemProtokoll sichern.hsc`).
+Zeitstempel im Log haben das Format `JJJJ-MM-TT HH:MM:SS` (aus der CCU-Historiendatenbank, geschrieben von `HK-SystemProtokoll sichern.hsc`). Da dieses Skript alle 29 Minuten läuft, kann die Anzeige im Addon bis zu 29 Minuten hinter dem aktuellen Geschehen zurückliegen.
 
 ### hklogdownload.cgi: HK-Log-Download
 

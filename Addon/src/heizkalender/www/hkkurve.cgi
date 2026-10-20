@@ -8,6 +8,9 @@
 #
 # Ereignisdaten stammen NICHT aus Systemvariablen, sondern aus den HK-Log-Dateien
 # auf dem USB-Stick (/media/usb1/HK-Log_*.log), gefiltert nach "HK-LogHeizkurvenkontrolle".
+# Die Dateien werden von "HK-SystemProtokoll sichern.hsc" befuellt, das alle
+# 29 Minuten laeuft. Die Anzeige im Addon kann daher bis zu 29 Minuten
+# hinter dem aktuellen Geschehen zurueckliegen.
 
 load tclrega.so
 
@@ -417,6 +420,7 @@ if {[llength $log_files] == 0} {
     }
     puts {  </table></div>}
     puts {  <p class="hk-hint"><strong>&Delta; min (Terminbeginn):</strong> Minuten relativ zum Terminbeginn: negativ = p&uuml;nktlich (vor Terminbeginn), positiv = versp&auml;tet (nach Terminbeginn).<br>Beispiel: Terminbeginn -15min bedeutet, der Raum war 15 Minuten vor dem Termin auf Temperatur.<br>Beispiel: Heizende +90min bedeutet, die Heizung schaltete 90 Minuten nach Terminbeginn ab (nicht die Termindauer, da VorzeitAus abgezogen wird).</p>}
+    puts {  <p class="hk-hint">Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
     puts {  <fieldset class="hk-legende-fieldset">}
     puts {    <legend>Legende</legend>}
     puts {    <p class="hk-sl-legende">
