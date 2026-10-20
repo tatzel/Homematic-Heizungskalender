@@ -18,7 +18,10 @@
 #    Skript 1 verwendet ebenfalls dieses positionsbasierte Mapping (nicht Namensvergleich).
 # 3. HK1-Schaltliste: mit der ResID den besten Termin ermitteln
 #    (laufend > naechster zukuenftiger > letzter vergangener).
-# 4. Sensor-Kanal (Feld 6 der Raumvariable, optional): Ist-Temperatur und
+# 4. HK2-Schaltzeiten (optional): falls vorhanden, Vorlaufzeit und Einschaltzeitpunkt
+#    je ResID nachschlagen und in den Spalten "Vorlauf" und "Heizen ab" anzeigen.
+#    Ist die Variable nicht vorhanden, entfallen diese beiden Spalten komplett.
+# 5. Sensor-Kanal (Feld 6 der Raumvariable, optional): Ist-Temperatur und
 #    Luftfeuchtigkeit direkt aus dem HomeMatic-Geraet lesen.
 
 load tclrega.so
