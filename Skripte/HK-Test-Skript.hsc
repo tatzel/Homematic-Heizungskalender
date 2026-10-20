@@ -1,6 +1,6 @@
 !// Skript zum Testen der Einstellungen für den Heizkalender.
 !//================================================================================================
-!// Stand:    03.10.2026
+!// Stand:    19.10.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -221,6 +221,8 @@ foreach(RName,ListeRaumVariablen.Split(";")){
       stext = stext # " Heizen";
   }elseif(stemp=="S"){
       stext = stext # " Schalten";
+  }elseif(stemp=="V"){
+      stext = stext # " Varoable";
   }elseif(stemp=="HS"){
       stext = stext # " Heizen+Schalten";
   }else{

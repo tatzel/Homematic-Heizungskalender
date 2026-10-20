@@ -96,6 +96,7 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ED_FAKTOR, m_edFaktor);
 	DDX_Control(pDX, IDC_CB_AKTOR1, m_cbChannel1);
 	DDX_Control(pDX, IDC_CB_AKTOR2, m_cbChannel2);
+	DDX_Control(pDX, IDC_CB_VARIABLE, m_cbVariable);
 
 	if (pDX->m_bSaveAndValidate)
 	{
@@ -107,6 +108,8 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 			DDX_Text(pDX,IDC_CB_AKTOR1,strAktor1);
 		if (m_cbChannel2.IsWindowEnabled())
 			DDX_Text(pDX,IDC_CB_AKTOR2,strAktor2);
+		if (m_cbVariable.IsWindowEnabled())
+			DDX_Text(pDX,IDC_CB_VARIABLE,strAktor1);
 
 		//// Im Modus Schalten und Heizen müssen beide Werte angegeben werden
 		//if (m_raum.m_strMode==_T("HS") && (strAktor1.IsEmpty() || strAktor2.IsEmpty())) 
@@ -138,7 +141,7 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 		OnCbnSelchangeCbMode();
 
 		// Modus Heizen/Schalten oder beides
-		CString strAktor1, strAktor2;
+		CString strAktor1, strAktor2, strVariable;
 		if (m_cbChannel1.IsWindowEnabled() && m_cbChannel2.IsWindowEnabled())
 		{
 			strAktor1 = StrValueByIndex(m_raum.m_strAktor, 0, _T(';'));
@@ -154,11 +157,16 @@ void CRaumDlg::DoDataExchange(CDataExchange* pDX)
 		{
 			strAktor2 = m_raum.m_strAktor;
 		}
+		else if (m_cbVariable.IsWindowEnabled())
+		{
+			strVariable = m_raum.m_strAktor;
+		}
 		
 		SelectCBEntry(m_cbChannel1, strAktor1);
 		OnCbnSelchangeCbChannel1();
 		SelectCBEntry(m_cbChannel2, strAktor2);
-			
+		SelectCBEntry(m_cbVariable, strVariable);
+
 		// Device Typ setzen
 		SetDevType(m_raum.m_strDevTyp); 
 	}
@@ -271,7 +279,7 @@ void CRaumDlg::OnBnClickedBtTest()
 	CString strParam;
 
 	// Bestimme den gewählten Aktor
-	CString strAktor1, strAktor2;
+	CString strAktor1, strAktor2, strVariable;
 	auto GetData = [](CComboBox& cb, CString& strAktor)
 		{
 			if (cb.IsWindowEnabled())
@@ -285,36 +293,47 @@ void CRaumDlg::OnBnClickedBtTest()
 		};
 	GetData(m_cbChannel1, strAktor1);
 	GetData(m_cbChannel2, strAktor2);
+	GetData(m_cbVariable, strVariable);
 
 	// Get Schalten oder Heizen
 	bool bError = false;
-	auto Test = [&](CString& strChannel, CString strMode, CString &strAllMessages)
+	auto TestHeizen = [&](CString& strChannel, CString strMode, CString &strAllMessages)
 		{
+			if (strMode!=_T("H") && strMode!=_T("HS"))
+				return;
+
 			// Wähle den Gerätetyp
 			CString strDevTyp = _T("IP");
-			int nSel = m_cbDevTyp.GetCurSel();
-			if (nSel>=0)
+			if (strMode==_T("H"))
 			{
-				// Ersten Buchstaben nehmen
-				auto dwMode = m_cbDevTyp.GetItemData(nSel);
-				strDevTyp = CString{ TCHAR(LOWORD(dwMode)) } + TCHAR(HIWORD(dwMode));
-			}
-			CString strParam;
-			if (strMode==_T("S"))
-				strDevTyp = _T("SW");
-			for (auto const& e : aGeraeteTypen)
-			{
-				if (e.pszMode==strDevTyp)
+				int nSel = m_cbDevTyp.GetCurSel();
+				if (nSel>=0)
 				{
-					strParam = e.pszParam;
-					break;
+					// Ersten Buchstaben nehmen
+					auto dwMode = m_cbDevTyp.GetItemData(nSel);
+					strDevTyp = CString{ TCHAR(LOWORD(dwMode)) } + TCHAR(HIWORD(dwMode));
+				}
+
+				for (auto const& e : aGeraeteTypen)
+				{
+					if (e.pszMode==strDevTyp)
+					{
+						strParam = e.pszParam;
+						break;
+					}
 				}
 			}
+			else
+				// Im Heizen/Schalten Modus haben wir keine Zieltemperatur
+				strParam.Empty();
 
 			// Es können mehrere Aktoren durch Semikolon getrennt werden
 			for (auto strCh : SplitString(strChannel, _T(';')))
 			{
-				// Suche den Channel
+				// Das nachfolgende Skript gibt als Ergebnis 2 Zeilen aus.
+				// 1. Zeile: Ergebnis des ersten Datenpunktes (Zieltemperatur)
+				// 2. Zeile: Ergebnis des zweiten Datenpunktes (Isttemperatur)
+				// Im Fehlerfall wird in der jeweiligen Zeile eine Fehlermeldung ausgegeben.
 				CStringA strTestSkript =
 					R"x(
 var ch = dom.GetObject("%1%");
@@ -322,7 +341,7 @@ if (!ch){
   WriteLine("Kanal wurde nicht gefunden");
   WriteLine("");
 } else {
-!// Aktueller Wert der Einstellung 
+  !// Aktueller Wert der Einstellung, wenn vorhanden
   if ("%2%"!=""){
     var dp = ch.DPByHssDP("%2%");
     if (!dp) {
@@ -333,6 +352,8 @@ if (!ch){
   }else{
     WriteLine("");
   }
+
+  !// Aktueller Wert der Ist-Temperatur, wenn vorhanden oder gefragt
   string dpNames = "%3%";
   if (dpNames!=""){
     string dpName;
@@ -350,8 +371,6 @@ if (!ch){
   }
 }
 )x";
-				if (strMode==_T("HS"))
-					strParam = _T("");
 				strTestSkript.Replace("%1%", CStringA{ strCh });
 				strTestSkript.Replace("%2%", CStringA{ strParam });
 				strTestSkript.Replace("%3%", strMode.Find(_T("H"))>=0 ? "ACTUAL_TEMPERATURE\tTEMPERATURE" : "");
@@ -366,19 +385,8 @@ if (!ch){
 							strResult2{ StrValueByIndex(strOutW,1,_T('\n')) };
 					strResult1.Replace(_T("#"), _T("\r\n"));
 					strResult2.Replace(_T("#"), _T("\r\n"));
-					if (strMode==_T("S"))
-					{
-						// Schalter haben nur ein Ergebis AN/AUS
-						if (IsBool(strResult1))
-							strResult1 = StrValueByIndex(
-								CStringRes(IDS_AN_AUS),
-								StringToBool(StrValueByIndex(strOutW, 0, _T('\n'))),
-								_T(';')
-							);
-					}
-					strMsg.FormatMessage(strMode==_T("H") ? IDP_TEST_AKTOR_HEIZEN : 
-										 strMode==_T("S") ? IDP_TEST_AKTOR_SCHALTEN :
-											IDP_TEST_AKTOR_HEIZENSCHALTEN,
+					strMsg.FormatMessage(
+						strMode==_T("H") ? IDP_TEST_AKTOR_HEIZEN : IDP_TEST_AKTOR_HEIZENSCHALTEN,
 						strCh.GetString(),
 						strResult1.GetString(), strResult2.GetString()
 					);
@@ -391,10 +399,126 @@ if (!ch){
 				}
 			}
 		};
-	
+
+
+	auto TestSchalten = [&](CString& strChannel, CString strMode, CString &strAllMessages)
+		{
+			if (strMode!=_T("HS") && strMode!=_T("S"))
+				return;
+
+			// Es können mehrere Aktoren durch Semikolon getrennt werden
+			for (auto strCh : SplitString(strChannel, _T(';')))
+			{
+				// Das nachfolgende Skript gibt als Ergebnis 1 Zeile aus.
+				// Das Ergebnis ist der aktuelle Wert des Datenpunktes STATE. (Ein/Aus)
+				// Im Fehlerfall wird in der Zeile eine Fehlermeldung ausgegeben.
+				CStringA strTestSkript =
+					R"x(
+var ch = dom.GetObject("%1%");
+if (!ch){
+  WriteLine("Kanal wurde nicht gefunden");
+} else {
+!// Aktueller Wert der Einstellung 
+  var dp = ch.DPByHssDP("STATE");
+  if (!dp) {
+    WriteLine("Fehler# - Datenpunkt/Parameter \"STATE\" wurde nicht gefunden");
+  } else {
+    WriteLine(dp.State());
+  }
+}
+)x";
+				strTestSkript.Replace("%1%", CStringA{ strCh });
+
+				CStringA strOut;
+				CScriptEngine engine;
+				if (engine.ExecuteScript(strTestSkript, strOut))
+				{
+					CString strMsg;
+					CString strOutW{ strOut };
+					CString strResult{ StrValueByIndex(strOutW,0,_T('\n')) };
+					strResult.Replace(_T("#"), _T("\r\n"));
+					// Schalter haben nur ein Ergebis AN/AUS
+					if (IsBool(strResult))
+						strResult = StrValueByIndex(
+							CStringRes(IDS_AN_AUS),
+							StringToBool(StrValueByIndex(strOutW, 0, _T('\n'))),
+							_T(';')
+						);
+					strMsg.FormatMessage(
+						IDP_TEST_AKTOR_SCHALTEN,
+						strCh.GetString(),
+						strResult.GetString()
+					);
+					AppendTextWithDelimiter(strAllMessages, strMsg, _T("\n\n"));
+				}
+				else
+				{
+					AppendTextWithDelimiter(strAllMessages, engine.GetLastErrorText(), _T("\n\n"));
+					bError = true;
+				}
+			}
+		};
+
+	auto TestVariable = [&](CString& strVariable, CString strMode, CString &strAllMessages)
+		{
+			if (strMode!=_T("V"))
+				return;
+
+			// Es können mehrere Aktoren durch Semikolon getrennt werden
+			for (auto strV : SplitString(strVariable, _T(';')))
+			{
+				// Das nachfolgende Skript gibt als Ergebnis 1 Zeile aus.
+				// Das Ergebnis ist der aktuelle Wert der Systemvariable.
+				// Im Fehlerfall wird in der Zeile eine Fehlermeldung ausgegeben.
+				CStringA strTestSkript =
+					R"x(
+var v = dom.GetObject("%1%");
+if (!v){
+  WriteLine("Variable wurde nicht gefunden");
+} else {
+  WriteLine(v.State());
+}
+)x";
+				strTestSkript.Replace("%1%", CStringA{ strV });
+
+				CStringA strOut;
+				CScriptEngine engine;
+				if (engine.ExecuteScript(strTestSkript, strOut))
+				{
+					CString strMsg;
+					CString strOutW{ strOut };
+					CString strResult{ StrValueByIndex(strOutW,0,_T('\n')) };
+					strResult.Replace(_T("#"), _T("\r\n"));
+
+					// Schalter haben nur ein Ergebis AN/AUS
+					if (IsBool(strResult))
+						strResult = StrValueByIndex(
+							CStringRes(IDS_AN_AUS),
+							StringToBool(StrValueByIndex(strOutW, 0, _T('\n'))),
+							_T(';')
+							);
+					strMsg.FormatMessage(IDP_TEST_VARIABLE,
+						strV.GetString(),
+						strResult.GetString()
+					);
+					AppendTextWithDelimiter(strAllMessages, strMsg, _T("\n\n"));
+				}
+				else
+				{
+					AppendTextWithDelimiter(strAllMessages, engine.GetLastErrorText(), _T("\n\n"));
+					bError = true;
+				}
+			}
+		};
+
 	CString strAllMessages;
-	Test(strAktor1, strModus, strAllMessages);
-	Test(strAktor2, _T("S"), strAllMessages);
+	if (strModus==_T("H") || strModus==_T("HS"))
+		TestHeizen(strAktor1, strModus, strAllMessages);
+	if (strModus==_T("HS") || strModus==_T("S"))
+		TestSchalten(strAktor2, strModus, strAllMessages);
+	if (strModus==_T("V"))
+		TestVariable(strVariable, _T("V"), strAllMessages);
+
 	if (!strAllMessages.IsEmpty())
 		AfxMessageBox(strAllMessages);
 }
@@ -406,9 +530,15 @@ void CRaumDlg::OnCbnSelchangeCbMode()
 	if (nSel<0)
 		return;
 
+	// Modus ermitteln und Controls enablen/disable
 	CString strModus = 	GetDevMode();			
-	m_cbChannel1.EnableWindow(strModus.Find(_T("H"))>=0);
-	m_cbChannel2.EnableWindow(strModus.Find(_T("S"))>=0);
+	bool bModusHeizen = strModus==_T("H");
+	bool bModusSchalten = strModus==_T("S");
+	bool bModusHeizenSchalten = strModus==_T("HS");
+	bool bModusVariable = strModus==_T("V");
+	m_cbChannel1.EnableWindow(bModusHeizen || bModusHeizenSchalten);
+	m_cbChannel2.EnableWindow(bModusSchalten || bModusHeizenSchalten);
+	m_cbVariable.EnableWindow(bModusVariable);
 
 	auto Clear = [](CComboBox& cb)
 		{
@@ -417,10 +547,8 @@ void CRaumDlg::OnCbnSelchangeCbMode()
 		};
 	Clear(m_cbChannel1);
 	Clear(m_cbChannel2);
+	Clear(m_cbVariable);
 
-	// Controls enablen/disable je nach Modus
-	bool bModusHeizen = strModus==_T("H");
-	bool bModusHeizenSchalten = strModus==_T("HS");
 	m_edTemp.EnableWindow(bModusHeizen || bModusHeizenSchalten);
 	m_edTempG.EnableWindow(bModusHeizen);
 	m_edFaktor.EnableWindow(bModusHeizen || bModusHeizenSchalten);
@@ -429,11 +557,14 @@ void CRaumDlg::OnCbnSelchangeCbMode()
 	m_cbDevTyp.EnableWindow(bModusHeizen);
 
 	// Devices laden listen Löschen und alte Werte erhalten
-	CString strAktor1, strAktor2;
+	CString strAktor1, strAktor2, strVariable;
 	m_cbChannel1.GetWindowText(strAktor1);
 	m_cbChannel1.ResetContent();
 	m_cbChannel2.GetWindowText(strAktor2);
 	m_cbChannel2.ResetContent();
+	m_cbVariable.GetWindowText(strVariable);
+	m_cbVariable.ResetContent();
+
 	auto const &lst = theApp.m_lstDevices;
 	for (auto const& e : lst)
 	{
@@ -460,6 +591,18 @@ void CRaumDlg::OnCbnSelchangeCbMode()
 	SelectCBEntry(m_cbChannel1, strAktor1);
 	OnCbnSelchangeCbChannel1();
 	SelectCBEntry(m_cbChannel2, strAktor2);
+
+	auto const& lstVars = theApp.m_lstSysVars;
+	for (auto const& e : lstVars)
+	{
+		if (!e.m_bDeleted && e.m_dataType==DataType::vtboolean)
+		{
+			// Keine Systemvariablen anzeigen.
+			if (theApp.m_lstSysVarsDefault.Find(theApp.RemovePrefix(e.m_strName))==nullptr)
+				m_cbVariable.AddString(e.m_strName);
+		}
+	}
+	SelectCBEntry(m_cbVariable, strVariable);
 }
 
 void CRaumDlg::OnOK()

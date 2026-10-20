@@ -42,7 +42,7 @@ public:
 	CEditInt m_edVBegin;
 	CEditInt m_edVEnde;
 	CEditDouble m_edFaktor;
-	CComboBox m_cbChannel1, m_cbChannel2;
+	CComboBox m_cbChannel1, m_cbChannel2, m_cbVariable;
 	CComboBox m_cbDevTyp;
 
 	CString m_strNameAlt;

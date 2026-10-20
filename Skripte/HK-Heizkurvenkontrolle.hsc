@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    05.10.2026
+!// Stand:    19.10.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -13,6 +13,7 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript
 !//
 
+!// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-05 Log-Ausgabe: fehlendes Komma zwischen "Ist:" und "Ziel:" in allen
 !//                 fuenf Ereignis-Zeilen ergaenzt.
 !// TT:  2026-09-28 Log-Ausgabe: doppelten Raumnamen "Name (ID)-Name" auf "Name(ID)" reduziert
@@ -143,8 +144,8 @@ foreach(SLEintrag,SListe){
     continue;
   }
 
-  if(HSFlag!="S"){
-  !// Sonderbefehl kontrollieren
+  if((HSFlag=="H") || (HSFlag=="HS")){
+    !// Sonderbefehl kontrollieren
     string cap;
     if (SDFlag<0){
       cap = ("AUS;EIN;NORMAL").StrValueByIndex(";",(1+SDFlag)*(-1));
@@ -229,7 +230,7 @@ foreach(SLEintrag,SListe){
 
     !// Unser Skript macht nur Sinn für Modus Heizen
     HSFlag = RVI.StrValueByIndex(";",1);
-    if (HSFlag=="S"){
+    if ((HSFlag=="S") || (HSFlag=="V")){
       if(DEBUG)  {WriteLine(RaumLogName # " Kein Heizvorgang");}
       continue;
     }

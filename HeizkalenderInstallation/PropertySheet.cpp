@@ -1010,23 +1010,14 @@ void CPageRooms::DoDataExchange(CDataExchange* pDX)
 			int n = m_lcData.InsertItem(m_lcData.GetItemCount(), theApp.RemoveRoomPrefix(e.m_strName));
 			if (n>=0)
 			{
-				auto Format = [](const CString& strText)
-					{
-						return DoubleToString(StringToDouble(strText), 1);
-					};
 				m_lcData.SetItemData(n,reinterpret_cast<DWORD_PTR>(&e));
-				m_lcData.SetItemText(n, COL_SH, StrValueByIndex(e.m_strContent,1,_T(';')));
-				m_lcData.SetItemText(n, COL_TEMP,  Format(StrValueByIndex(StrValueByIndex(e.m_strContent,3,_T(';')),0,_T('/'))));
-				CString strTemp{ StrValueByIndex(StrValueByIndex(e.m_strContent,3,_T(';')),1,_T('/')) };
-				if (strTemp.IsEmpty())
-					strTemp = DoubleToString(theApp.GetGrundTemperatur(),-1);
-				m_lcData.SetItemText(n, COL_TEMP_BASE, Format(strTemp));
-				strTemp = StrValueByIndex(StrValueByIndex(e.m_strContent,4,_T(';')),1,_T('*'));
-				if (strTemp.IsEmpty())
-					strTemp = _T("1");
-				m_lcData.SetItemText(n, COL_FAKTOR, Format(strTemp));
-				m_lcData.SetItemText(n, COL_EIN, StrValueByIndex(StrValueByIndex(e.m_strContent,4,_T(';')),0,_T('*')));
-				m_lcData.SetItemText(n, COL_AUS, StrValueByIndex(e.m_strContent,5,_T(';')));
+				SRaumDaten raum{ _T(""), e.m_strContent};
+				m_lcData.SetItemText(n, COL_SH, raum.m_strMode);
+				m_lcData.SetItemText(n, COL_TEMP, DoubleToString(raum.m_dblTemp, 1));
+				m_lcData.SetItemText(n, COL_TEMP_BASE, DoubleToString(raum.m_dblTempG, 1));
+				m_lcData.SetItemText(n, COL_FAKTOR, DoubleToString(raum.m_dblFaktor, 1));
+				m_lcData.SetItemText(n, COL_EIN, DoubleToString(raum.m_iVBegin, 0));
+				m_lcData.SetItemText(n, COL_AUS, DoubleToString(raum.m_iVEnde, 0));
 				// 6 Einträge überspringen
 				int iPos=0;
 				for (int i = 0; i<6; ++i, ++iPos)
