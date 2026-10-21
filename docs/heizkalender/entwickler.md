@@ -156,7 +156,7 @@ Status;Modus;Heiztyp;Wohlfühltemp[/Grundtemp];Vorheizzeit[*Faktor];VorzeitAus[;
 | Feld | Index | Typ | Werte |
 | :--- | :---: | :--- | :--- |
 | Status | 0 | Integer | `0` = keine Heizphase, `1` = Heizphase aktiv |
-| Modus | 1 | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen + Schalten |
+| Modus | 1 | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen + Schalten, `V` = Variable setzen |
 | Heiztyp | 2 | String | `IP`, `RT`, `TC`, `IT` (Thermostate), `SW` (Schalt-Aktor) |
 | Wohlfühltemp | 3 | Float | Zieltemperatur in °C; optional `/Grundtemp` für raumindividuelle Grundtemperatur |
 | Vorheizzeit | 4 | Integer | Individuelle Vorheizzeit in Minuten; optional `*Faktor` (Float, 0,20–5,0) |
@@ -177,6 +177,8 @@ Beispiele:
 - `0;H;IP;18;0;30` — Heizmodus, HmIP-Thermostat, 18 °C, keine individuelle Vorheizzeit, 30 min vor Terminende aus
 - `0;H;IP;21/16;60*1.5;30` — wie oben, aber 21 °C Wohlfühltemperatur, 16 °C Grundtemperatur, 60 min Vorheizzeit mit Faktor 1,5
 - `0;HS;SW;21;0;30;BidCoS-RF.ABC12345:1;BidCoS-RF.DEF67890:1` — Heizen + Schalten, Thermostat an Feld 6, ein Schaltaktor an Feld 7
+- `0;V;SW;21;0;0;xyz` — Variable *xyz*, auf true setzen
+
 
 ### HK1-Schaltliste
 
@@ -196,7 +198,7 @@ RessourcenID;Startzeit;Endezeit;Steuerung;ModusRessourcenID;Startzeit;...
 | Startzeit | Datum | Terminbeginn im Format yyyy-mm-dd hh:mm:ss |
 | Endezeit | Datum | Terminende im Terminbeginn im Format yyyy-mm-dd hh:mm:ss |
 | Spezielle Steuerbefehle | Integer | Steuerungswert aus dem Termintext: `0` = normal, `-1` = `#EIN#`, `-2` = `#AUS#`, `-3` = `#RESET#`, positive Zahl = Temperatur aus `#<Zahl>#` |
-| Modus | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen+Schalten |
+| Modus | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen+Schalten, `V` = Variable setzen |
 
 Trennzeichen:
 

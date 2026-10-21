@@ -362,9 +362,9 @@ Entsprechend können in diesem Modus nur Geräte und Aktoren mit Schaltdatendate
 
 ###### Modus Heizen
 
-Wurde der Modus **Heizen** gewählt lassen sich nur entsprechende Aktoren/Thermostate oder Heizgruppen auswählen.
+Wurde der Modus **Heizen** gewählt lassen sich nur entsprechende Aktoren/Thermostate oder Heizgruppen im Feld **Thermostat-Aktor/Kanal** auswählen .
 
-Bei den Geräten ist es möglich mehere Aktoren durch Semikolon getrennt anzugeben. Es ist aber dringend empfehlenswert mehrere Thermostate zu einem Raum in einer Heizgruppe zusammen zu fassen. Der Modus, dass hier mehrere Aktoren/Thermostate angegeben werden können wurde nur aus Gründen der Rückwärtskompatibilität erhalten.
+Bei den Geräten ist es möglich mehrere Aktoren durch Semikolon getrennt anzugeben. Es ist aber dringend empfehlenswert mehrere Thermostate zu einem Raum in einer Heizgruppe zusammen zu fassen. Der Modus, dass hier mehrere Aktoren/Thermostate angegeben werden können wurde nur aus Gründen der Rückwärtskompatibilität erhalten.
 
 Heizgruppen erleichtern die Verwaltung und reduzieren den Schaltaufwand.
 
@@ -372,7 +372,7 @@ Heizgruppen erleichtern die Verwaltung und reduzieren den Schaltaufwand.
 
 ###### Modus Schalten
 
-Wurde der Modus **Schalten** gewählt lassen sich nur entsprechende Aktoren auswählen, die über einen Datenpunkt Ein/Aus verfügen.
+Wurde der Modus **Schalten** gewählt lassen sich nur entsprechende Aktoren im Feld **Schalter-Aktor/Kanal** auswählen, die über einen Datenpunkt Ein/Aus verfügen.
 
 ![Zuordnung im Modus Schalten](bilder/HKI-SchaltenAktoren.png)
 
@@ -380,9 +380,21 @@ Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
 
 ###### Modus Heizen+Schalten
 
-Im Modus **Heizen+Schalten** werden im ersten Feld ein Temperatursensor ausgewählt und im zweiten Feld ein Schaltaktor, der wie beim Modus Schalten einen Datenpunkt Ein/Aus verfügt.
+Im Modus **Heizen+Schalten** werden im ersten Feld **Thermostat-Aktor/Kanal** ein Temperatursensor ausgewählt und im zweiten Feld **Schalter-Aktor/Kanal** ein Schaltaktor, der wie beim Modus Schalten einen Datenpunkt *Ein/Aus* verfügt.
 
 ![Zuordnung im Modus Heizen+Schalten](bilder/HKI-HeizenSchaltenAktoren.png)
+
+Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
+
+###### Modus Variable setzen
+
+Im Modus **Variable setzen** wird im dritten Feld **Systemvariable** eine Systemvariable vom Typ Boolean ausgewählt. 
+
+In diesem Modus wird kein Aktor gesteuert. In diesem Modus wird für eine Schaltphase nur eine Variable auf *true* gesetzt. Ist die Schaltphase vorbei, wird der Wert der Systemvariable wieder auf *false* gesetzt.
+
+Es ist möglich in diesem Feld mehrere Variablen anzugeben, durch Semikolon getrennt.
+
+![Zuordnung im Modus Heizen+Schalten](bilder/HKI-Variablen.png)
 
 Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
 
@@ -392,7 +404,7 @@ Der Gerätetyp wird benötigt um den entsprechenden Datenpunkt für die Steuerun
 
 ![Auswahl des Gerätetyps](bilder/HKI-GeräteTyp.png)
 
-Wenn das Gerät ausgewählt wurde, wird wird der entsprechende Gerätetyp überlicherweise automatisch ermittelt und eingestellt.
+Wenn das Gerät ausgewählt wurde, wird wird der entsprechende Gerätetyp üblicherweise automatisch ermittelt und eingestellt.
 
 Der Gerätetyp bestimmt, welcher Datenpunkt des Thermostates angesprochen wird. Die konkrete Kanalnummer legt der Administrator bei der Aktor-Zuordnung selbst fest (als Teil der Aktor-Adresse); die Spalte „Kanal" nennt den dabei üblichen Kanal. Die Kanalnummer ist nur in der CCU relevant; der Name des Datenpunktes ist entscheidend:
 

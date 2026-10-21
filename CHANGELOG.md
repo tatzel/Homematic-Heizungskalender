@@ -15,13 +15,22 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [2026-10-20]
 
+### Geändert
+
+- Anwenderhandbuch angepasst und erweitert
+- HeikalenderInstallation Handbuch angepasst an Modus "V"
+  -  Bilder angepasst
+- Entwicklerhandbuch angepasst an Modus "V" und korrigiert
+
+## [2026-10-20]
+
 ### Hinzugefügt
 
 - Schaltmodus "V" im Installationsprogramm hinzugefügt.
 - Raumdialog im Installationsprogramm angepasst
 - Schaltmodus "V" für "Variable setzen" eingeführt, dazu wurden alle Haupt-Skripte  angepasst
 
-## Geändert 
+### Geändert 
 
 - Vereinheitlichung der String Operationen auf #-Operator in `Skript 2`
 
