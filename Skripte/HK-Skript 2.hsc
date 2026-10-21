@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    20.10.2026
+!// Stand:    21.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,7 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// MRi: 2026-10-21 Zieltemperatur in Log ergänzt.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-05 Luftfeuchte: Wert 0 wird ignoriert (kein Sensor vorhanden, z.B. IP-Thermostat)
 !// TT:  2026-10-05 Luftfeuchte: ACTUAL_HUMIDITY (IP) zuerst pruefen, HUMIDITY (Classic) als Fallback
@@ -517,7 +518,7 @@ foreach(SLEintrag,SListe){
         !//if(log) {logObj.State("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
 
         !// Reale Schaltzeiten berechnen
-        string logText = RaumLogName # " - Heizen - AT " # AT.ToString(1) # "°C / GT " # GT.ToString(1) # "°C / IST " # ISTTemperatur.ToString(1) # "°C" # HUMText # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " ";
+        string logText = RaumLogName # " - Heizen - AT " # AT.ToString(1) # "°C / GT " # GT.ToString(1) # "°C / IST " # ISTTemperatur.ToString(1) # "°C / ZIEL " # RTemp.ToString(1) # "°C" # HUMText # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " ";
         if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
         logText = logText # (offsetRaumAn/60) #"min ";
         if (offsetTempAn==0){ logText=logText#" - "; }
