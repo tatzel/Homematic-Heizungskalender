@@ -354,11 +354,11 @@ kälter es draußen und je kühler der Raum, desto früher wird eingeschaltet.
 
 > [!NOTE]
 > Als Außentemperatur verwendet der Heizkalender **nicht** den aktuellen Momentanwert,
-> sondern einen gleitenden Mittelwert über 36 Stunden. Das Skript
-> `HK-Außentemperatur-Open-Meteo` berechnet diesen Wert aus den Geodaten der CCU und
-> schreibt ihn nach `HK2-Aussentemperatur`. Dadurch wirkt sich die Trägheit des
-> Gebäudes realistischer aus, als es ein kurzfristiger Temperatursprung tun würde.
-> Alternativ kann die Variable auch von einem eigenen Außentemperatursensor gesetzt
+> sondern einen gleitenden Mittelwert über die letzten 18 Stunden und die nächsten 6 Stunden. Das Skript
+> `HK-Außentemperatur-Open-Meteo` bezieht diese Daten vom Deutschen Wetterdienst. Verwendet werden die 
+> Geodaten der CCU. Das Ergebnis dieser Berechnung schreibt das Skript in die Systemvariable `HK2-Aussentemperatur`
+> zur späteren Verwendung. Dadurch wirkt sich die Trägheit des Gebäudes realistischer aus, als es ein kurzfristiger 
+> Temperatursprung tun würde. Alternativ kann die Variable auch von einem eigenen Außentemperatursensor gesetzt
 > werden.
 
 Über den optionalen `*Faktor` hinter der Vorheizzeit lässt sich die aus der
@@ -438,7 +438,7 @@ hoch. Der passende Wert lässt sich näherungsweise durch einen Heizversuch ermi
 2. Die Thermostate auf Frostschutz stellen und den Raum über mehrere Tage auskühlen
    lassen (z.B. von Sonntag nach dem Gottesdienst bis zum folgenden Samstag), dabei
    den Temperaturverlauf aufzeichnen.
-3. Rechtzeitig vor der nächsten Nutzung auf die Wohlfühltemperatur hochheizen (nicht
+3. Rechtzeitig vor der nächsten Nutzung auf die Wohlfühltemperatur aufheizen (nicht
    höher „um schneller aufzuheizen"). In der Aufheizkurve zeigt sich nach einem
    steilen Anstieg (Raumluft) ein Knick zu einer flacheren Kurve: Dort beginnt das
    Aufheizen der Wände. Der Knick liegt typischerweise rund 2 °C unter der
@@ -469,7 +469,7 @@ Das Logging wird grundsätzlich bei der Installation eingeschaltet. Es ist aber 
 | HK-Logging | Allgemeine Heizkalender Logs vom Typ `HK-Log`. Diese umfasen zum Beispiel die Ermittlung der Außentemperatur |
 | HK1-Logging | Logs vom Typ `HK1-Log` umfassen alle Ausgaben der Terminermittlung über `Skript 1` |
 | HK2-Logging | Logs vom Typ `HK2-Log` umfassen alle Ausgaben des Schaltskriptes `Skript 2` |
-| HK-LoggingHeizkurvenkontrolle | Ausgabe der Logs vom Typ `HK-LogHeizkurvenkontrolle`. Diese speziellen Log-Einräge erleichtern die Kontrolle der Vorheizzeiten und Temperaturen zu den Terminzeiten. |
+| HK-LoggingHeizkurvenkontrolle | Ausgabe der Logs vom Typ `HK-LogHeizkurvenkontrolle`. Diese speziellen Log-Einträge erleichtern die Kontrolle der Vorheizzeiten und Temperaturen zu den Terminzeiten. |
 
 Das [`Heizkalender Addon`](#heizkalender-addon)(siehe unten) erleichtert den Zugriff auf alle Protokolle des Heizkalenders und zeigt auch nützliche weitere Informationen aller Einstellungen und vorgenommenen Konfigurationen strukturiert an.
 
@@ -577,8 +577,7 @@ oder IP) angehören. Nebenräume (Flure, WCs), die nur auf konstanter Grundtempe
 bleiben sollen, benötigen keinen steuerbaren Thermostat: am Ventil entspricht der
 Skalenwert 2 (Symbol Schneeflocke) üblicherweise 16 °C.
 
-Eine aktuelle vollständige Geräteübersicht mit Kanalnummern findet sich in der
-[Homematic-IP-Gerätedokumentation](https://homematic-ip.com/sites/default/files/downloads/hmip_device_documentation.pdf).
+Eine aktuelle vollständige Geräteübersicht mit Kanalnummern findet sich in der [Homematic-IP-Gerätedokumentation](https://homematic-ip.com/sites/default/files/downloads/hmip_device_documentation.pdf).
 
 ### Räume mit mehreren Heizkörperthermostaten (Homematic-Heizgruppe)
 
@@ -694,21 +693,16 @@ entscheidet Skript 1, dass dieser Termin nicht in die Schaltliste kommt.
 
 ## Laufende Schaltlistenprüfung
 
-Unabhängig von der Nachtschaltung prüft `HK-Skript 2` bei jedem Lauf (alle 5 Minuten)
-alle Räume aus `HK2-HKG-Liste`. Für jeden Raum mit Schaltzustand „Ein" wird geprüft,
-ob in diesem Lauf ein gültiger Schaltlisteneintrag vorhanden war. Fehlt ein solcher
-Eintrag, wurde der Termin offenbar gelöscht oder der Ausschaltpunkt wurde verpasst.
-Der Raum wird dann sofort zurückgesetzt: die Systemvariable auf Schaltzustand „Aus"
-und der Aktor direkt ausgeschaltet.
+Unabhängig von der Nachtschaltung prüft `HK-Skript 2` bei jedem Lauf (alle 5 Minuten) alle Räume aus der Raumliste `HK2-HKG-Liste`. Für jeden Raum der sich im Schaltzustand **Ein** befindet wird geprüft, ob in diesem Schalt-Lauf ein gültiger Schaltlisteneintrag vorhanden war. Fehlt ein solcher Eintrag, wurde der Termin offenbar gelöscht oder der Ausschaltpunkt wurde verpasst. Der Raum wird dann sofort in den Zustand **Aus** zurückgesetzt und der Aktor direkt ausgeschaltet bzw. auf die Grundtemperatur zurückgesetzt.
 
-Die Schaltlistenprüfung ist das Gegenstück zur Nachtschaltung: sie greift sofort im
-laufenden Betrieb, während die Nachtschaltung als nächtliche Generalabsicherung dient.
+Die Schaltlistenprüfung ist das Gegenstück zur Nachtschaltung: sie greift sofort im laufenden Betrieb, während die 
+Nachtschaltung als nächtliche Generalabsicherung dient.
 
 Die Schaltlistenprüfung berücksichtigt dabei dauerhafte Sonderbefehle **#EIN#, #AUS#** etc.
 
 ## Nachtschaltung
 
-Eine optionale Nachschaltung soll verhindern, dass Heizungen manuell eigeschaltet werden und eingeschaltet bleiben. 
+Eine optionale Nachtschaltung soll verhindern, dass Heizungen manuell eingeschaltet werden und eingeschaltet bleiben. 
 
 Würde eine Heizung manuell eingeschaltet werden und der Nutzer vergisst das Ausschalten, dann hätte dies zur Folge, das die Heizung bis zum nächsten programmierten Schalttermin angeschaltet bleibt.
 
@@ -738,7 +732,7 @@ Das Heizkalender Addon stellt eine Weboberfläche auf der CCU bereit, über die 
 laufende Betrieb beobachtet und konfiguriert werden kann (Raumübersicht, Heizkurvenkontrolle, 
 Einstellungen, HK-Log, Sysog, Systemvariablen).
 
-Das Addon wird wie andere Zusatzsoftware auf der CCU über die *Einstellungen -> Systemsteurung -> ZUsatzsoftware* installiert.
+Das Addon wird wie andere Zusatzsoftware auf der CCU über die *Einstellungen -> Systemsteurung -> Zusatzsoftware* installiert.
 
 Das Addon bietet einen permanenten Zugriff auf alle wichtigen Informationen des Heizkalenders auch ohne das man sich an der CCU anmeldet. Das Addon kann direkt über die Seite *https://\<URL der CCU\>/addons/heizkalender* aufgerufen werden.
 Dies funktioniert auch beim Einsatz Fernzugriffsoftware der CloudMatic über *https://\<CloudMatic Id\>.meine-homematic.de/addons/heizkalender/*

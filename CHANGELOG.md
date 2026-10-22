@@ -13,7 +13,9 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Unveröffentlicht]</u>
 
-## [2026-10-20]
+# <u>[Veröffentlicht]</u>
+
+## [2026-10-22]
 
 ### Geändert
 
@@ -21,6 +23,13 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - HeikalenderInstallation Handbuch angepasst an Modus "V"
   -  Bilder angepasst
 - Entwicklerhandbuch angepasst an Modus "V" und korrigiert
+- Neue Readme in verkürzter und verbesserter Fassung
+- Korrektur der Doku zu Open-Meteo Skript Durchschnitt läuft über 18/6h
+
+
+## Hinzugefügt
+- Neue Readme für historische alte Dateien (Auszug aus alter Readme)
+- Zieltemperatur für Raum in die Logausgabe. Jetzt ist AT, GT, IST und ZIEL sichtbar im Log.
 
 ## [2026-10-20]
 
@@ -75,8 +84,6 @@ werden.
 - Versionsnummer auf 0.6.0 angehoben.
 - Entwickler-Dokumentation: Positionsbasiertes Mapping zwischen `HK1-R-Liste` und `HK2-HKG-Liste` mit Erläuterung und Mermaid-Diagramm dokumentiert.
 - Dokumentation Vorheizzeit: Abschnitt zu festem/raum-individuellem Offset präzisiert (Raumtemperatur-Korrekturfaktor wirkt auch auf diesen Anteil).
-
-# <u>[Veröffentlicht]</u>
 
 ## [2026-10-14] Release
 
