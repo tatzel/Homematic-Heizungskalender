@@ -75,34 +75,33 @@ Der Heizkalender wurde ursprünglich für die zeitgesteuerte Steuerung von Heizu
 Dafür stehen vier Betriebsmodi zur Verfügung:
 
 - **Heizen**  
-  Dies ist der Standardmodus für die Beheizung von Räumen. Anhand der Außentemperatur, der aktuellen Raumtemperatur, der individuellen Vorheizzeiten und der eingestellten Heizkurve berechnet der Heizkalender, wann mit dem Heizen begonnen werden muss, damit die gewünschte Wohlfühltemperatur zu den Nutzungszeiten erreicht wird.
-
-  Außerhalb der Nutzungszeiten wird die Temperatur auf eine individuell einstellbare Grundtemperatur abgesenkt.
-
-  Typische Anwendungsfälle sind die Steuerung von Heizgruppen oder Thermostaten.
-
+    Dies ist der Standardmodus für die Beheizung von Räumen. Anhand der Außentemperatur, der aktuellen Raumtemperatur, der individuellen Vorheizzeiten und der eingestellten Heizkurve berechnet der Heizkalender, wann mit dem Heizen begonnen werden muss, damit die gewünschte Wohlfühltemperatur zu den Nutzungszeiten erreicht wird.
+  
+    Außerhalb der Nutzungszeiten wird die Temperatur auf eine individuell einstellbare Grundtemperatur abgesenkt.  
+    Typische Anwendungsfälle sind die Steuerung von Heizgruppen oder Thermostaten.  
+	
 - **Heizen und Schalten**  
   Dieser Modus dient ebenfalls der zeitgesteuerten Beheizung von Räumen. Wie im Modus *Heizen* berücksichtigt der Heizkalender die Außentemperatur, die aktuelle Raumtemperatur, die individuellen Vorheizzeiten und die eingestellte Heizkurve, um die gewünschte Wohlfühltemperatur zu den Nutzungszeiten zu erreichen.
 
-  Der Unterschied zum Modus *Heizen* liegt in der Art der Heizungssteuerung: Ein Thermostat dient ausschließlich zur Erfassung der aktuellen Raumtemperatur. Das Ein- und Ausschalten der Heizung erfolgt über separate Schaltaktoren.
+    Der Unterschied zum Modus *Heizen* liegt in der Art der Heizungssteuerung: Ein Thermostat dient ausschließlich zur Erfassung der aktuellen Raumtemperatur. Das Ein- und Ausschalten der Heizung erfolgt über separate Schaltaktoren.
 
-  Voraussetzung ist, dass die Heizung selbst über eine eigene Temperaturregelung verfügt. Dieser Modus eignet sich beispielsweise für Lüftungsheizungen.
+    Voraussetzung ist, dass die Heizung selbst über eine eigene Temperaturregelung verfügt. Dieser Modus eignet sich beispielsweise für Lüftungsheizungen.
 
-  Typische Komponenten sind Thermostate zur Temperaturmessung und Schaltaktoren zur Steuerung der Heizung.
+    Typische Komponenten sind Thermostate zur Temperaturmessung und Schaltaktoren zur Steuerung der Heizung.
 
 - **Schalten**  
-  Dieser Modus dient zum zeitgesteuerten Ein- und Ausschalten beliebiger Geräte. Für jedes Gerät lassen sich individuelle Vor- und Nachlaufzeiten festlegen. Dadurch können Geräte bereits vor Beginn einer Nutzung eingeschaltet und nach deren Ende wieder ausgeschaltet werden.
+    Dieser Modus dient zum zeitgesteuerten Ein- und Ausschalten beliebiger Geräte. Für jedes Gerät lassen sich individuelle Vor- und Nachlaufzeiten festlegen. Dadurch können Geräte bereits vor Beginn einer Nutzung eingeschaltet und nach deren Ende wieder ausgeschaltet werden.
 
-  Während der vorgesehenen Nutzungszeit bleibt das Gerät eingeschaltet. Außerhalb der Nutzungszeit wird es ausgeschaltet. Die Schaltzeiten sind unabhängig von der Temperatur.
+    Während der vorgesehenen Nutzungszeit bleibt das Gerät eingeschaltet. Außerhalb der Nutzungszeit wird es ausgeschaltet. Die Schaltzeiten sind unabhängig von der Temperatur
 
-  Typische Anwendungsfälle sind die Steuerung von Außenbeleuchtungen oder Belüftungsanlagen. Angesteuert werden in der Regel Schaltaktoren.
+    Typische Anwendungsfälle sind die Steuerung von Außenbeleuchtungen oder Belüftungsanlagen. Angesteuert werden in der Regel Schaltaktoren.
 
 - **Variable setzen**  
-  Dieser Modus ähnelt dem Modus *Schalten*, steuert jedoch keine Geräte direkt, sondern eine interne Systemvariable. Auch hier können individuelle Vor- und Nachlaufzeiten festgelegt werden.
+    Dieser Modus ähnelt dem Modus *Schalten*, steuert jedoch keine Geräte direkt, sondern eine interne Systemvariable. Auch hier können individuelle Vor- und Nachlaufzeiten festgelegt werden.
 
-  Beim Einschalten wird die Systemvariable auf `true`, beim Ausschalten auf `false` gesetzt. Eigene Skripte können den Wert dieser Variable auswerten und daraufhin weitere komplexe Aktionen ausführen.
+    Beim Einschalten wird die Systemvariable auf `true`, beim Ausschalten auf `false` gesetzt. Eigene Skripte können den Wert dieser Variable auswerten und daraufhin weitere komplexe Aktionen ausführen.
 
-  Dieser Modus eignet sich insbesondere für komplexere Steuerungsaufgaben, die sich nicht unmittelbar mit einem der drei anderen Modi abbilden lassen. Auf diese Weise kann der Heizkalender als zeitgesteuerter Auslöser für individuelle Automatisierungen dienen.
+    Dieser Modus eignet sich insbesondere für komplexere Steuerungsaufgaben, die sich nicht unmittelbar mit einem der drei anderen Modi abbilden lassen. Auf diese Weise kann der Heizkalender als zeitgesteuerter Auslöser für individuelle Automatisierungen dienen.
 
 
 ## Wie der Heizkalender funktioniert
@@ -477,7 +476,8 @@ Das [`Heizkalender Addon`](#heizkalender-addon)(siehe unten) erleichtert den Zug
 
 Das Systemprotokoll ist allerdings vom Volumen begrenzt. Je nach Anzahl der Räume und Aktoren kann es sein, dass nicht mal die Aktivitäten für einen ganzen Tag im Systemprotokoll sichtbar bleiben. Gleichfalls geht das Systemprotokoll verloren, wenn die CCU neu gestartet wird oder abstürzt.
 
-Wird ein USB Stick eingesteckt sorgt das Programm `HK-Systemprotokoll sichern` dafür, dass das Systemprotokoll Wochenweise auf dem USB Stick gespeichert wird. Die Anzahl der Log-Dateien ist durch das Skript auf 30 beschränkt. Ab dem 31 Log wird die älteste Datei gelöscht.<br>Dieses kleine Programm speichert das aktuelle Systemprotokoll alle 29min in eine Log Datei auf dem USB-Stick.
+Wird ein USB Stick eingesteckt sorgt das Programm `HK-Systemprotokoll sichern` dafür, dass das Systemprotokoll Wochenweise auf dem USB Stick gespeichert wird. Die Anzahl der Log-Dateien ist durch das Skript auf 30 beschränkt. Ab dem 31 Log wird die älteste Datei gelöscht.  
+Dieses kleine Programm speichert das aktuelle Systemprotokoll alle 29min in eine Log Datei auf dem USB-Stick.
 
 Ist kein USB Stick installiert, dann führt das Programm `HK-Systemprotokoll sichern` auch keine Operationen aus.
 
@@ -493,19 +493,20 @@ Ist ein Raum bei Nutzungsbeginn noch zu kalt, können die Vorheizzeiten angepass
 
 Ziel ist eine möglichst bedarfsgerechte Heizungssteuerung: Die Räume sollen rechtzeitig warm sein, ohne unnötig lange beheizt zu werden. Das spart Energie und erhöht gleichzeitig den Komfort für die Nutzer.
 
-Die Heizkurvenkontrolle erzeugt Log Einträge für jeden Raum. Die Einträge schlüsseln sich auf nach:
+Die Heizkurvenkontrolle erzeugt Log Einträge für jeden Raum. Die Einträge schlüsseln sich auf nach bestimmten Ereignistypen und werden mit den zusätzlichen Informationen angereichert:
 
-- Heizbeginn 
-- Terminbeginn 
-- Zieltemperatur 
-- Heizende 
-- Terminende 
-
-Die jeweiligen Ereignisse werden mit den zusätzlichen Informationen angereichert:
-- Zeit relativ zum Teminbeginn
+- Ereignisart
+    - Heizbeginn 
+    - Terminbeginn 
+    - Zieltemperatur erreicht
+    - Heizende 
+    - Terminende 
+- Zeit relativ zum Terminbeginn
 - Außentemperatur bei Heizbeginn
 - Aktuelle Raumtemperatur beim jeweiligen Ereignisse
 - bisher erreichte maximale Raumtemperatur beim jeweiligen Ereignisse
+
+Das Ereignis *Zieltemperatur erreicht* kann fehlen, wenn die Zieltemperatur für den Raum bis zum Heizende nie erreicht wird.
 
 *Beispiel:*
 
