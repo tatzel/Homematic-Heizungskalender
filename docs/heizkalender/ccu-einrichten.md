@@ -128,7 +128,7 @@ Aktorengruppe zusammengefasst. Diese Aktorengruppen legen Sie nun in
 OpenCCU an:
 
 1)  Öffnen Sie in der CCU **Einstellungen → Gruppen** und klicken Sie
-    unten auf den Schalter **Neu**.<br>
+    unten auf den Schalter **Neu**.  
     ![Heizgruppe anlegen](bilder/CCU-GruppeAnlegen.png)
 2)  Geben Sie als Gruppennamen die jeweils
     den Namen einer Aktorengruppe gemäß Ihrer Planung ein, lassen Sie
@@ -231,7 +231,8 @@ nächsten Raumes anzulernen.
 
 1)  Öffnen Sie in der CCU **Einstellungen → Gruppen**, wählen sie die
     Zeile der Gruppe aus, deren Aktoren sie gerade angelernt haben und
-    klicken Sie in der letzten Spalte auf „Bearbeiten".<br>![Zuordnung von Aktoren](bilder/CCU-AktorenZuordnen.png)
+    klicken Sie in der letzten Spalte auf „Bearbeiten".  
+    ![Zuordnung von Aktoren](bilder/CCU-AktorenZuordnen.png)
 2)  Suchen Sie in der Tabelle
     „Hinzufügbare Geräte" mit Hilfe Ihrer QR-Code-Liste anhand der
     Seriennummern die zu diesem Raum (also dieser Aktorengruppe)
@@ -270,8 +271,8 @@ Effekte zu vermeiden, nehmen Sie folgende Einstellungen vor:
 1)  Temperaturprofil Samstag 00:00 bis 24:00 Uhr 16.0 °C\
     (oder die von Ihnen für Ihr Gebäude festgelegte Minimaltemperatur).
 
-2)  Temperaturprofile Sonntag bis Freitag: „wie Vortag" (Häkchen setzen)<br>
-![CCU Temperaturprofile](bilder/CCU-AktorenDefault.png)
+2)  Temperaturprofile Sonntag bis Freitag: „wie Vortag" (Häkchen setzen)  
+    ![CCU Temperaturprofile](bilder/CCU-AktorenDefault.png)
 
 3)  Maximale Temperatur: 24°C\
     (oder eine von Ihnen festgelegte Temperatur, die bei manueller
