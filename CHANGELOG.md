@@ -15,7 +15,7 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Veröffentlicht]</u>
 
-## [2026-10-22]
+## [2026-10-22] Release
 
 ### Geändert
 
