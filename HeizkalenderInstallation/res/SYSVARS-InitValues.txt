@@ -25,3 +25,5 @@
 4334	HK2-Log		Variable um ein einfaches Log im System Protokoll zu erzeugen	20	true	true
 4332	HK2-Logging	true	Flag um das Logging für Skript 2 ein- und auszuschalten	2	true	true
 4318	HK2-VorzeitAus	0.000000	Grundoffsetzeit Ausschalten	4	true	true
+4329	HK1-Vorlaufzeit	720.00000	Zeithorizont für Terminabfrage in Minuten (Default 720, max. 1380)	4	true	true
+4311	HK2-Schaltzeiten		Berechnete Schaltzeiten pro Raum (wird von Skript 2 geschrieben)	20	false	true

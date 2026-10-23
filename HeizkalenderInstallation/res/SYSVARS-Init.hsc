@@ -270,6 +270,30 @@ if (oSV) {
 		oSV.Variable ("");
 	WriteLine (svName # neut);}
 !------------
+svName= "%1%HK1-Vorlaufzeit"; oSV=rSV.Get (svName);
+if (oSV) {
+	if ((oSV.ValueType()==4) && (oSV.ValueSubType()==0) && bupdate && (oSV.Type()!=OT_ALARMDP)) {
+		WriteLine (svName # altt);act=act+1;
+		oSV.Variable ("720.000000".ToFloat());}
+} elseif (bcreate) {
+	neu=neu+1;oSV = dom.CreateObject (1089); rSV.Add (oSV.ID()); oSV.Name (svName); oSV.ValueType (4); oSV.ValueSubType (0);
+	oSV.DPInfo("Zeithorizont für Terminabfrage in Minuten (Default 720, max. 1380)"); oSV.ValueUnit("min"); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
+	oSV.DPArchive (true && barchive);
+	oSV.Variable ("720.000000".ToFloat ()); oSV.ValueMin ("0".ToFloat()); oSV.ValueMax ("1380".ToFloat ());
+	WriteLine (svName # neut);}
+!------------
+svName= "%1%HK2-Schaltzeiten"; oSV=rSV.Get (svName);
+if (oSV) {
+	if ((oSV.ValueType()==20) && (oSV.ValueSubType()==11) && bupdate && (oSV.Type()!=OT_ALARMDP)) {
+		WriteLine (svName # altt);act=act+1;
+		oSV.Variable ("");}
+} elseif (bcreate) {
+	neu=neu+1;oSV = dom.CreateObject (1089); rSV.Add (oSV.ID()); oSV.Name (svName); oSV.ValueType (20); oSV.ValueSubType (11);
+	oSV.DPInfo("Berechnete Schaltzeiten pro Raum (wird von Skript 2 geschrieben)"); oSV.ValueUnit(""); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
+	oSV.DPArchive (false && barchive); !// Keine Protokollierung
+		oSV.Variable ("");
+	WriteLine (svName # neut);}
+!------------
 dom.RTUpdate(0);
 WriteLine ("------------------");
 WriteLine (act # " bestehende Systemvariablen aktualisiert");
