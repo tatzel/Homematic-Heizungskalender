@@ -1,7 +1,17 @@
 # Entwickler-Dokumentation
 
 Diese Seite richtet sich an Mitwirkende, die am Code des Heizkalenders arbeiten:
-an den HomeMatic-Skripten oder am Windows-Installations-Programm.
+an den HomeMatic-Skripten oder am Windows-Installationsprogramm.
+
+## Hilfreiche Tools zur Entwicklung
+
+Die nachfolgenden Tools wurden eingesetzt für die Programmierung des Heizkalenders:
+
+- [NotePad++ als Editor](https://notepad-plus-plus.org/) für Skripte
+- [Notepad++ Sprach-Erweiterung - Lexxer Plugin](https://github.com/xMRi/HomematicNPPLexerPlugin) für den Homematic Syntax.
+- [Script Developer CCU - SDV 5.0](https://github.com/HMMike/Script-Developer-CCU) für den Test und das Debuggen von Skripten und der Eigenschaften der CCU über die Inspektor Funktion.  
+    Ich kann die Nutzung dieses Tools jedem Homematic Entwickler nur anraten.
+- [Visual Studio 2026](https://visualstudio.microsoft.com/de/vs/community/) für die Entwicklung und Programmierung der `HeikalenderInstallation.exe`
 
 ## Architektur-Überblick
 

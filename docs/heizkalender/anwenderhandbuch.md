@@ -483,17 +483,29 @@ Dieses kleine Programm speichert das aktuelle Systemprotokoll alle 29min in eine
 
 Ist kein USB Stick installiert, dann führt das Programm `HK-Systemprotokoll sichern` auch keine Operationen aus.
 
-### Heizkurvenkontrolle
+## Warum sollte man die Vorheizzeit kontrollieren und anpassen?
+
+Die Vorheizzeit bestimmt, wie lange vor einem geplanten Termin mit dem Heizen eines Raums begonnen wird. Sie soll so bemessen sein, dass die gewünschte Wohlfühltemperatur möglichst genau zum Nutzungsbeginn erreicht wird. In der Praxis lässt sich das jedoch nicht immer allein durch eine theoretische Berechnung sicherstellen. Jeder Raum und jedes Heizsystem reagiert anders auf die Außentemperatur, die vorhandene Raumtemperatur und die Dauer des Heizbetriebs.
+
+Ist die Vorheizzeit zu lang, wird der Raum bereits beheizt, obwohl er noch nicht genutzt wird. Die gewünschte Temperatur wird möglicherweise deutlich vor Terminbeginn erreicht. Dadurch kann unnötig Energie verbraucht werden. Außerdem kann die Raumtemperatur bis zum Nutzungsbeginn weiter ansteigen, obwohl der Heizbedarf bereits gedeckt ist.
+
+Ist die Vorheizzeit dagegen zu kurz, erreicht der Raum seine Wohlfühltemperatur erst zum Terminbeginn oder sogar erst während der Nutzung. Die Folge sind möglicherweise unzufriedene Nutzer, weil der Raum anfangs noch ungemütlich oder zu kalt ist. Gerade bei Räumen mit Fußbodenheizung, vielen Außenwänden oder großen Fenstern kann das Aufheizen deutlich länger dauern als bei gut gedämmten Räumen mit schnell reagierenden Heizkörpern.
+
+Eine regelmäßige Heizkurvenkontrolle hilft, solche Abweichungen zu erkennen. Sie zeigt, ob die berechneten Vorheizzeiten unter den tatsächlichen Bedingungen des Gebäudes ausreichen oder unnötig lang sind. Auf dieser Grundlage lassen sich die Heizkurve und bei Bedarf die individuellen Einstellungen einzelner Räume gezielt anpassen.
+
+Ziel ist eine möglichst bedarfsgerechte Heizungssteuerung: Die Räume sollen rechtzeitig die gewünschte Wohlfühltemperatur erreichen, ohne unnötig früh beheizt zu werden. Das verbessert den Komfort und hilft, Energie zu sparen.
+
+### Die Heizkurvenkontrolle
 
 Die Heizkurvenkontrolle hilft dabei, die Vorheizzeiten des Heizkalenders zu überprüfen und an die tatsächlichen Gegebenheiten eines Raums anzupassen.
 
-Die Heizkurve legt abhängig von der Außentemperatur die Grundlage für die Berechnung der Vorheizzeit. Der Heizkalender berücksichtigt zusätzlich die aktuelle Raumtemperatur sowie individuelle Einstellungen wie Vorheizzeiten, Offsets und Korrekturfaktoren.
+Die Heizkurve legt abhängig von der Außentemperatur die Grundlage für die Berechnung der Vorheizzeit. Der Heizkalender berücksichtigt zusätzlich die aktuelle Raumtemperatur sowie individuelle Einstellungen wie Vorheizzeiten, Offsets und Korrekturfaktoren. Die berechnete Vorheizzeit ist deshalb nicht zwangsläufig bei jedem Termin gleich: Ein bereits warmer Raum benötigt weniger zusätzliche Heizzeit als ein ausgekühlter Raum.
 
-Mit der Heizkurvenkontrolle lässt sich nachvollziehen, wie sich die eingestellte Heizkurve auf den Heizbeginn auswirkt. So kann überprüft werden, ob ein Raum bei unterschiedlichen Außentemperaturen rechtzeitig seine gewünschte Wohlfühltemperatur erreicht.
+Mit der Heizkurvenkontrolle lässt sich nachvollziehen, wann das Heizen beginnt, wann die Zieltemperatur erreicht wird und wie sich die Raumtemperatur bis zum Terminende entwickelt. So kann überprüft werden, ob ein Raum bei unterschiedlichen Außentemperaturen rechtzeitig seine gewünschte Wohlfühltemperatur erreicht.
 
-Ist ein Raum bei Nutzungsbeginn noch zu kalt, können die Vorheizzeiten angepasst oder raumspezifische Korrekturen vorgenommen werden. Wird dagegen zu früh geheizt, lassen sich die Werte entsprechend reduzieren.
+Ist ein Raum bei Nutzungsbeginn noch zu kalt, können die Vorheizzeiten angepasst oder raumspezifische Korrekturen vorgenommen werden. Wird die Zieltemperatur dagegen deutlich zu früh erreicht, lassen sich die Werte entsprechend reduzieren. Dabei sollten nicht nur einzelne Termine betrachtet werden. Erst die Auswertung mehrerer Heizvorgänge bei unterschiedlichen Außentemperaturen liefert eine brauchbare Grundlage, um die Einstellungen dauerhaft zu verbessern.
 
-Ziel ist eine möglichst bedarfsgerechte Heizungssteuerung: Die Räume sollen rechtzeitig warm sein, ohne unnötig lange beheizt zu werden. Das spart Energie und erhöht gleichzeitig den Komfort für die Nutzer.
+### Das Protokoll der Heizkurvenkontrolle
 
 Die Heizkurvenkontrolle erzeugt Log Einträge für jeden Raum. Die Einträge schlüsseln sich auf nach bestimmten Ereignistypen und werden mit den zusätzlichen Informationen angereichert:
 
@@ -505,46 +517,73 @@ Die Heizkurvenkontrolle erzeugt Log Einträge für jeden Raum. Die Einträge sch
     - Terminende 
 - Zeit relativ zum Terminbeginn
 - Außentemperatur bei Heizbeginn
-- Aktuelle Raumtemperatur beim jeweiligen Ereignisse
-- bisher erreichte maximale Raumtemperatur beim jeweiligen Ereignisse
+- aktuelle Raumtemperatur zum jeweiligen Ereignis
+- bisher erreichte maximale Raumtemperatur zum jeweiligen Ereignis
 
-Das Ereignis *Zieltemperatur erreicht* kann fehlen, wenn die Zieltemperatur für den Raum bis zum Heizende nie erreicht wird.
+Der Zeitwert zeigt, wie weit das Ereignis vor oder nach dem Terminbeginn liegt. Negative Werte kennzeichnen Ereignisse vor dem Terminbeginn, positive Werte Ereignisse danach. Der Wert `+0min` entspricht dem Terminbeginn.
+Der Eintrag **Zieltemperatur** entsteht, wenn die gewünschte Temperatur erreicht wird. Er kann fehlen, wenn die Zieltemperatur während des überwachten Heizvorgangs nicht erreicht wird. Das ist ein wichtiger Hinweis bei der Auswertung: Fehlt dieser Eintrag, darf nicht einfach angenommen werden, dass die Vorheizzeit passend war.
 
-*Beispiel:*
+**Beispiel:**
 
-Hier ein Auszug aus dem Textprotokoll. Alle Zeilen, die nicht zum Heizkurvenprotokoll gehören wurden entfernt.
+Hier ein Auszug aus dem Textprotokoll. Alle Zeilen, die nicht zum Heizkurvenprotokoll gehören, wurden entfernt.
 
 ```txt
-2026-10-20 18:25:30	HK-LogHeizkurvenkontrolle	Ju-HuRaum(5)-JuHu Heizbeginn: -64min, Ist: 19.2, Ziel: 20.0, AT: 8.9
-2026-10-20 19:00:30	HK-LogHeizkurvenkontrolle	Ju-HuRaum(5)-JuHu Zieltemperatur: -29min, Ist: 20.1, Ziel: 20.0, Max.: 20.1
-2026-10-20 19:30:30	HK-LogHeizkurvenkontrolle	Ju-HuRaum(5)-JuHu Terminbeginn: +0min, Ist: 20.7, Ziel: 20.0, Max.: 20.7
-2026-10-20 20:30:30	HK-LogHeizkurvenkontrolle	Ju-HuRaum(5)-JuHu Heizende: +60min, Ist: 20.7, Ziel: 20.0, Max.: 20.7
-2026-10-20 21:00:30	HK-LogHeizkurvenkontrolle	Ju-HuRaum(5)-JuHu Terminende: +90min, Ist: 21.1, Ziel: 20.0, Max.: 21.1
+2026-10-20 18:25:30 HK-LogHeizkurvenkontrolle Ju-HuRaum(5)-JuHu Heizbeginn: -64min, Ist: 19.2, Ziel: 20.0, AT: 8.9
+2026-10-20 19:00:30 HK-LogHeizkurvenkontrolle Ju-HuRaum(5)-JuHu Zieltemperatur: -29min, Ist: 20.1, Ziel: 20.0, Max.: 20.1
+2026-10-20 19:30:30 HK-LogHeizkurvenkontrolle Ju-HuRaum(5)-JuHu Terminbeginn: +0min, Ist: 20.7, Ziel: 20.0, Max.: 20.7
+2026-10-20 20:30:30 HK-LogHeizkurvenkontrolle Ju-HuRaum(5)-JuHu Heizende: +60min, Ist: 20.7, Ziel: 20.0, Max.: 20.7
+2026-10-20 21:00:30 HK-LogHeizkurvenkontrolle Ju-HuRaum(5)-JuHu Terminende: +90min, Ist: 21.1, Ziel: 20.0, Max.: 21.1
 ```
 
-Sich einen entsprechenden Überblick für einzelne Räume zu verschaffen kann hier sehr mühsam sein.
-
-Das [`Heizkalender Addon`](#heizkalender-addon)(siehe unten) erleichtert das Anzeigen der Heizkurvenkontrolle. Im nachfolgenden Bild wurden die gleichen Zeilen vom `Heizkalender Addon` aufbereitet,
+Sich im reinen Textprotokoll einen Überblick über einzelne Räume und mehrere Termine zu verschaffen, kann mühsam sein. Das [Heizkalender Addon](#heizkalender-addon) erleichtert die Auswertung, indem es die zugehörigen Log-Einträge übersichtlich aufbereitet.
 
 ![Heizkurven](bilder/HeizkurvenKontrolle.png)
 
+Die fünf Einträge zeigen beispielhaft den Ablauf eines Heizvorgangs:
+
 - **Zeile 1: Heizbeginn**  
-  Aufgrund der Außentemperatur von 8.9°C und der bereits aktuellen Raumtemperatur von 19.2°C wurde eine Vorheizzeit von 64min errechnet und die Heizphase für diesen Raum gestartet. Die Zieltemperatur ist 20°C.
+  Bei einer Außentemperatur von 8,9 °C und einer aktuellen Raumtemperatur von 19,2 °C beginnt das Heizen 64 Minuten vor dem Termin. Die Zieltemperatur beträgt 20 °C.
+
 - **Zeile 2: Zieltemperatur**  
-  Die Zieltemperatur von 20°C wurde in dem Raum 29 Minuten vor dem Terminbeginn erreicht. Die Vorheizzeit ist ausreichend und nicht übermäßig zu lang.
+  Die Zieltemperatur wird 29 Minuten vor Terminbeginn erreicht. Die Vorheizzeit war damit ausreichend. Ob sie auch optimal war, lässt sich besser anhand mehrerer Termine beurteilen.
+
 - **Zeile 3: Terminbeginn**  
-  Bei Terminbeginn ist die Raumtemperatur 20.7°C. Es ist ein leichtes Überschwingen in der Heizphase zu bemerken.
+  Zum Terminbeginn beträgt die Raumtemperatur 20,7 °C. Die Temperatur liegt somit 0,7 °C über dem Zielwert. Das zeigt, dass die Raumtemperatur nach Erreichen der Zieltemperatur noch weiter angestiegen ist.
+
 - **Zeile 4: Heizende**  
-  Nach 60min und 30min vor Terminende wird das beheizen des Raumes beendet. Die maximal erreichte Temperatur blieb weiterhin bei 20.7°C.
+  Das Heizen endet 60 Minuten nach Terminbeginn, also 30 Minuten vor dem geplanten Terminende. Die bisher erreichte maximale Raumtemperatur beträgt weiterhin 20,7 °C.
+
 - **Zeile 5: Terminende**  
-  Nach 90min ist der Termin beendet. Die Raumtemperatur beträgt immer noch über 20°C.
+  Zum Terminende beträgt die Raumtemperatur noch 21,1 °C und liegt damit weiterhin über der gewünschten Wohlfühltemperatur von 20 °C. Das kann auf die Wärmespeicherung des Raums oder des Heizsystems zurückzuführen sein.
+
+### Wie verschafft man sich schnell einen Überblick, ob die Vorheizzeiten passen?
+
+Auch hier bietet das Heizkalender Addon eine hilfreiche Übersicht. Für eine erste Beurteilung eignet sich insbesondere das Ereignis **Zieltemperatur**. Entscheidend ist dabei der Zeitwert relativ zum Terminbeginn.
+
+Idealerweise wird die Ziel- beziehungsweise Wohlfühltemperatur kurz vor dem Terminbeginn erreicht. In der Praxis ist eine gewisse Abweichung normal. Wie groß sie sein darf, hängt unter anderem vom Raum, vom Heizsystem und von der gewünschten Komfortreserve ab.
+
+- Wird die Zieltemperatur deutlich vor dem Terminbeginn erreicht (großer negativer Zeitwert), könnte die Vorheizzeit zu lang sein.
+- Wird die Zieltemperatur kurz vor oder ungefähr zum Terminbeginn erreicht (kleiner negativer oder positiver Zeitwert), ist die Vorheizzeit in der Regel gut abgestimmt.
+- Wird die Zieltemperatur erst deutlich nach dem Terminbeginn erreicht (großer positiver Zeitwert), ist die Vorheizzeit wahrscheinlich zu kurz.
+
+**Achtung:** Bei einer ersten Kontrolle sollte zunächst geprüft werden, ob die Zieltemperatur überhaupt in allen Räumen erreicht wird. Wird sie während des überwachten Heizvorgangs nicht erreicht, fehlt der entsprechende Eintrag in der Auswertung. Solche Räume müssen gesondert betrachtet werden, bevor die Vorheizzeiten anhand der übrigen Einträge beurteilt werden.
+
+In der nachfolgenden Abbildung ist zu sehen, dass die Zieltemperatur in den meisten Räumen ungefähr rechtzeitig erreicht wird, häufig 10 bis 30 Minuten vor Terminbeginn. Eine deutliche Ausnahme ist der KiGo-Raum: Dort wird die Wohlfühltemperatur erst 75 Minuten nach Terminbeginn erreicht – also eine Stunde und 15 Minuten zu spät.
+
+![Heizkurven](bilder/HeizkurvenKontrolle2.png)
+
+Der KiGo-Raum liegt unter dem Dach und hat viele Außenwände sowie große Fenster. Für diesen Raum wurden bereits eine zusätzliche Vorheizzeit und ein Korrekturfaktor eingestellt. Die Auswertung zeigt jedoch, dass die bisherigen Korrekturen offenbar noch nicht ausreichen.
+
+In einem solchen Fall sollte zunächst geprüft werden, ob die Einstellungen und die gemessenen Raumtemperaturen plausibel sind. Anschließend kann die Vorheizzeit schrittweise erhöht oder der raumspezifische Korrekturfaktor angepasst werden. Die folgenden Heizvorgänge zeigen dann, ob die Änderung den gewünschten Effekt hat.
+
+Die Heizkurvenkontrolle ist damit kein einmaliger Vorgang, sondern ein Werkzeug zur schrittweisen Optimierung. Besonders nach Änderungen am Heizsystem, an der Gebäudenutzung oder an den Raumeinstellungen lohnt es sich, die Ergebnisse erneut zu überprüfen.
 
 ## Globale Einstellungen (Systemvariablen für Skript 2)
 
 Diese Systemvariablen gelten global für alle Räume und werden bei der Installation
 angelegt. 
 
-Alle diese Werte lassen sich im Programm `HeizkalenderInstallation.exe` einfach anpassen.
+**Alle diese Werte lassen sich im Programm `HeizkalenderInstallation.exe` einfach anpassen.**
 
 Die folgenden Werte haben sich in der Praxis bewährt.
 
