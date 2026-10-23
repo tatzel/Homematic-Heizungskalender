@@ -8,6 +8,9 @@
 #
 # Ereignisdaten stammen NICHT aus Systemvariablen, sondern aus den HK-Log-Dateien
 # auf dem USB-Stick (/media/usb1/HK-Log_*.log), gefiltert nach "HK-LogHeizkurvenkontrolle".
+# Die Dateien werden von "HK-SystemProtokoll sichern.hsc" befuellt, das alle
+# 29 Minuten laeuft. Die Anzeige im Addon kann daher bis zu 29 Minuten
+# hinter dem aktuellen Geschehen zurueckliegen.
 
 load tclrega.so
 
@@ -93,17 +96,23 @@ foreach param [split $query_string "&"] {
     if {[string equal $key "raum"]} { set filter_raum $val }
     if {[string equal $key "ereignis"]} { set filter_ereignis $val }
     if {[string equal $key "tage"]} {
-        if {[string equal $val "1"] || [string equal $val "7"] || [string equal $val "30"] || [string equal $val "90"]} {
+        if {[string equal $val "0"] || [string equal $val "1"] || [string equal $val "7"] || [string equal $val "30"] || [string equal $val "90"]} {
             set filter_tage $val
         }
     }
 }
 
 # ---------------------------------------------------------------------------
-# Datums-Untergrenze
+# Datums-Untergrenze (und ggf. Obergrenze)
 # ---------------------------------------------------------------------------
 # Bei tage=1 ("Heute"): ab Mitternacht des heutigen Tages, nicht "jetzt minus 24h"
-if {[string equal $filter_tage "1"]} {
+# Bei tage=0 ("Gestern"): genau der gestrige Tag (datum_ab = gestern, datum_bis = heute)
+set datum_bis ""
+if {[string equal $filter_tage "0"]} {
+    set gestern [expr {[clock seconds] - 86400}]
+    set datum_ab  [clock format $gestern -format "%Y-%m-%d"]
+    set datum_bis [clock format [clock seconds] -format "%Y-%m-%d"]
+} elseif {[string equal $filter_tage "1"]} {
     set datum_ab [clock format [clock seconds] -format "%Y-%m-%d"]
 } else {
     set tage_secs [expr {int($filter_tage) * 86400}]
@@ -119,7 +128,8 @@ if {[string equal $filter_tage "1"]} {
 set usb_dir "/media/usb1"
 set log_files {}
 if {[file isdirectory $usb_dir]} {
-    set datei_filter_ab [clock format [expr {[clock seconds] - ($filter_tage + 7) * 86400}] -format "%Y-%m-%d"]
+    set tage_fuer_filter [expr {[string equal $filter_tage "0"] ? 1 : int($filter_tage)}]
+    set datei_filter_ab [clock format [expr {[clock seconds] - ($tage_fuer_filter + 7) * 86400}] -format "%Y-%m-%d"]
     foreach f [lsort -decreasing [glob -nocomplain "$usb_dir/HK-Log_*.log"]] {
         set fname [file tail $f]
         set fdate [string range $fname 7 16]
@@ -187,6 +197,7 @@ if {$submitted && [llength $log_files] > 0} {
         # Datum-Feinfilter
         set datum [string range $ts 0 9]
         if {![string equal $datum_ab ""] && $datum < $datum_ab} { continue }
+        if {![string equal $datum_bis ""] && $datum >= $datum_bis} { continue }
 
         set raumname   ""
         set ereignis   ""
@@ -305,7 +316,7 @@ puts "    <form method=\"get\" action=\"hkkurve.cgi\">"
 puts {      <fieldset>}
 puts {        <legend>Filter</legend>}
 puts "        <label>Zeitraum: <select name=\"tage\">"
-foreach {tval tlabel} {1 "Heute" 7 "Letzte 7 Tage" 30 "Letzte 30 Tage" 90 "Letzte 90 Tage"} {
+foreach {tval tlabel} {1 "Heute" 0 "Gestern" 7 "Letzte 7 Tage" 30 "Letzte 30 Tage" 90 "Letzte 90 Tage"} {
     set sel [expr {[string equal $tval $filter_tage] ? " selected" : ""}]
     puts "          <option value=\"$tval\"${sel}>$tlabel</option>"
 }
@@ -409,6 +420,7 @@ if {[llength $log_files] == 0} {
     }
     puts {  </table></div>}
     puts {  <p class="hk-hint"><strong>&Delta; min (Terminbeginn):</strong> Minuten relativ zum Terminbeginn: negativ = p&uuml;nktlich (vor Terminbeginn), positiv = versp&auml;tet (nach Terminbeginn).<br>Beispiel: Terminbeginn -15min bedeutet, der Raum war 15 Minuten vor dem Termin auf Temperatur.<br>Beispiel: Heizende +90min bedeutet, die Heizung schaltete 90 Minuten nach Terminbeginn ab (nicht die Termindauer, da VorzeitAus abgezogen wird).</p>}
+    puts {  <p class="hk-hint">Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
     puts {  <fieldset class="hk-legende-fieldset">}
     puts {    <legend>Legende</legend>}
     puts {    <p class="hk-sl-legende">

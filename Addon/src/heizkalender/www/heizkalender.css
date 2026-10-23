@@ -69,7 +69,6 @@
   border: 1px solid #ccc;
   padding: 4px 8px;
   text-align: left;
-  vertical-align: top;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -194,14 +193,11 @@ legend {
 }
 
 .hk-schaltliste-table { width: auto; }
-.hk-schaltliste-table col.col-sl-status  { width: 30px; }
-.hk-schaltliste-table col.col-sl-raum   { width: 18%; }
-.hk-schaltliste-table col.col-sl-modus  { width: 14%; }
-.hk-schaltliste-table col.col-sl-isttemp { width: 9%; }
-.hk-schaltliste-table col.col-sl-humi   { width: 9%; }
-.hk-schaltliste-table col.col-sl-ein    { width: 14%; }
-.hk-schaltliste-table col.col-sl-aus    { width: 14%; }
-.hk-schaltliste-table col.col-sl-temp   { width: 14%; }
+
+.hk-schaltliste-table th,
+.hk-schaltliste-table td { white-space: nowrap; }
+.hk-schaltliste-table td.col-sl-termin,
+.hk-schaltliste-table th.col-sl-termin { white-space: normal; }
 
 .hk-sl-aktiv td {
   font-weight: bold;
@@ -220,17 +216,12 @@ legend {
   padding: 0.3em 0.8em 0.3em;
 }
 
-.hk-sl-status-cell {
-  text-align: center;
-  font-size: 1.1em;
-}
-
 .hk-sl-status-aktiv {
-  color: #cc4400;
+  color: red;
 }
 
-.hk-sl-status-keintermin {
-  color: #ccc;
+.hk-sl-status-inaktiv {
+  color: gray;
 }
 
 /* Heizkurvenkontrolle-Seite */
@@ -267,7 +258,7 @@ legend {
 /* Einstellungen-Seite (hkconfig.cgi) */
 .hk-config-table-auto { border-collapse: collapse; width: auto; }
 .hk-config-table-auto th,
-.hk-config-table-auto td { padding: 0.35em 0.7em; border: 1px solid #ddd; vertical-align: top; }
+.hk-config-table-auto td { padding: 0.35em 0.7em; border: 1px solid #ddd; }
 .hk-config-table-auto th { background: #f4f4f4; text-align: left; font-weight: normal; white-space: nowrap; }
 .hk-config-table-auto td.hk-val { word-break: break-all; max-width: 30em; }
 .hk-config-table-auto td.hk-code { font-family: monospace; word-break: break-all; max-width: 30em; }

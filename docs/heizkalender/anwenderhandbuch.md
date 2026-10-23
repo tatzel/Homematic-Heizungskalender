@@ -75,34 +75,33 @@ Der Heizkalender wurde ursprünglich für die zeitgesteuerte Steuerung von Heizu
 Dafür stehen vier Betriebsmodi zur Verfügung:
 
 - **Heizen**  
-  Dies ist der Standardmodus für die Beheizung von Räumen. Anhand der Außentemperatur, der aktuellen Raumtemperatur, der individuellen Vorheizzeiten und der eingestellten Heizkurve berechnet der Heizkalender, wann mit dem Heizen begonnen werden muss, damit die gewünschte Wohlfühltemperatur zu den Nutzungszeiten erreicht wird.
-
-  Außerhalb der Nutzungszeiten wird die Temperatur auf eine individuell einstellbare Grundtemperatur abgesenkt.
-
-  Typische Anwendungsfälle sind die Steuerung von Heizgruppen oder Thermostaten.
-
+    Dies ist der Standardmodus für die Beheizung von Räumen. Anhand der Außentemperatur, der aktuellen Raumtemperatur, der individuellen Vorheizzeiten und der eingestellten Heizkurve berechnet der Heizkalender, wann mit dem Heizen begonnen werden muss, damit die gewünschte Wohlfühltemperatur zu den Nutzungszeiten erreicht wird.
+  
+    Außerhalb der Nutzungszeiten wird die Temperatur auf eine individuell einstellbare Grundtemperatur abgesenkt.  
+    Typische Anwendungsfälle sind die Steuerung von Heizgruppen oder Thermostaten.  
+	
 - **Heizen und Schalten**  
   Dieser Modus dient ebenfalls der zeitgesteuerten Beheizung von Räumen. Wie im Modus *Heizen* berücksichtigt der Heizkalender die Außentemperatur, die aktuelle Raumtemperatur, die individuellen Vorheizzeiten und die eingestellte Heizkurve, um die gewünschte Wohlfühltemperatur zu den Nutzungszeiten zu erreichen.
 
-  Der Unterschied zum Modus *Heizen* liegt in der Art der Heizungssteuerung: Ein Thermostat dient ausschließlich zur Erfassung der aktuellen Raumtemperatur. Das Ein- und Ausschalten der Heizung erfolgt über separate Schaltaktoren.
+    Der Unterschied zum Modus *Heizen* liegt in der Art der Heizungssteuerung: Ein Thermostat dient ausschließlich zur Erfassung der aktuellen Raumtemperatur. Das Ein- und Ausschalten der Heizung erfolgt über separate Schaltaktoren.
 
-  Voraussetzung ist, dass die Heizung selbst über eine eigene Temperaturregelung verfügt. Dieser Modus eignet sich beispielsweise für Lüftungsheizungen.
+    Voraussetzung ist, dass die Heizung selbst über eine eigene Temperaturregelung verfügt. Dieser Modus eignet sich beispielsweise für Lüftungsheizungen.
 
-  Typische Komponenten sind Thermostate zur Temperaturmessung und Schaltaktoren zur Steuerung der Heizung.
+    Typische Komponenten sind Thermostate zur Temperaturmessung und Schaltaktoren zur Steuerung der Heizung.
 
 - **Schalten**  
-  Dieser Modus dient zum zeitgesteuerten Ein- und Ausschalten beliebiger Geräte. Für jedes Gerät lassen sich individuelle Vor- und Nachlaufzeiten festlegen. Dadurch können Geräte bereits vor Beginn einer Nutzung eingeschaltet und nach deren Ende wieder ausgeschaltet werden.
+    Dieser Modus dient zum zeitgesteuerten Ein- und Ausschalten beliebiger Geräte. Für jedes Gerät lassen sich individuelle Vor- und Nachlaufzeiten festlegen. Dadurch können Geräte bereits vor Beginn einer Nutzung eingeschaltet und nach deren Ende wieder ausgeschaltet werden.
 
-  Während der vorgesehenen Nutzungszeit bleibt das Gerät eingeschaltet. Außerhalb der Nutzungszeit wird es ausgeschaltet. Die Schaltzeiten sind unabhängig von der Temperatur.
+    Während der vorgesehenen Nutzungszeit bleibt das Gerät eingeschaltet. Außerhalb der Nutzungszeit wird es ausgeschaltet. Die Schaltzeiten sind unabhängig von der Temperatur
 
-  Typische Anwendungsfälle sind die Steuerung von Außenbeleuchtungen oder Belüftungsanlagen. Angesteuert werden in der Regel Schaltaktoren.
+    Typische Anwendungsfälle sind die Steuerung von Außenbeleuchtungen oder Belüftungsanlagen. Angesteuert werden in der Regel Schaltaktoren.
 
 - **Variable setzen**  
-  Dieser Modus ähnelt dem Modus *Schalten*, steuert jedoch keine Geräte direkt, sondern eine interne Systemvariable. Auch hier können individuelle Vor- und Nachlaufzeiten festgelegt werden.
+    Dieser Modus ähnelt dem Modus *Schalten*, steuert jedoch keine Geräte direkt, sondern eine interne Systemvariable. Auch hier können individuelle Vor- und Nachlaufzeiten festgelegt werden.
 
-  Beim Einschalten wird die Systemvariable auf `true`, beim Ausschalten auf `false` gesetzt. Eigene Skripte können den Wert dieser Variable auswerten und daraufhin weitere komplexe Aktionen ausführen.
+    Beim Einschalten wird die Systemvariable auf `true`, beim Ausschalten auf `false` gesetzt. Eigene Skripte können den Wert dieser Variable auswerten und daraufhin weitere komplexe Aktionen ausführen.
 
-  Dieser Modus eignet sich insbesondere für komplexere Steuerungsaufgaben, die sich nicht unmittelbar mit einem der drei anderen Modi abbilden lassen. Auf diese Weise kann der Heizkalender als zeitgesteuerter Auslöser für individuelle Automatisierungen dienen.
+    Dieser Modus eignet sich insbesondere für komplexere Steuerungsaufgaben, die sich nicht unmittelbar mit einem der drei anderen Modi abbilden lassen. Auf diese Weise kann der Heizkalender als zeitgesteuerter Auslöser für individuelle Automatisierungen dienen.
 
 
 ## Wie der Heizkalender funktioniert
@@ -121,26 +120,28 @@ Der Ablauf im Überblick:
 
 ```mermaid
 flowchart TD
-    Installation["HeizkalenderInstallation.exe<br/>(einmalig)"] -->|"führt Init-Skripte aus"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HKG-Raum-*")]
-
     OpenMeteo["HK-Außentemperatur-Open-Meteo<br/>(stündlich)"] -->|"schreibt Außentemperatur"| ATVar[("HK2-Aussentemperatur")]
 
-    KAL["Kalender<br/>(ChurchTools / Google /<br/>ChurchDesk / iCal)"] -->|"Termine"| Skript1["HK-Skript 1<br/>(alle 30 Minuten)"]
+    CT["ChurchTools-Kalender"] -->|"Termine"| Skript1["HK-Skript 1_ChurchTools<br/>(alle 30 Minuten)"]
     Skript1 -->|"schreibt Termine"| Schaltliste[("HK1-Schaltliste")]
 
     Schaltliste --> Skript2["HK-Skript 2<br/>(alle 5 Minuten)"]
     ATVar --> Skript2
-    SysVar --> Skript2
     Raumtemp["Raumtemperatur<br/>(Thermostat-Sensor)"] --> Skript2
+    SysVar --> Skript2
     Skript2 -->|"berechnet Vorlaufzeit,<br/>heizt bzw. schaltet"| Thermostate["Thermostate / Aktoren"]
+
+    Installationsprogramm["HeizkalenderInstallation.exe<br/>(bei Installation, Konfiguration<br/>und Updates)"]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| Programme[("Programme<br/>HK-Skript 1, HK-Skript 2, HK*")]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HKG-Raum-*")]
 ```
 
 Ablauf im Detail:
 
-1. **Einmalig:** Die `HeizkalenderInstallation.exe` erzeugt über die Init-Skripte die Systemvariablen.
+1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (HK-Skript 1, HK-Skript 2 und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
 2. **Stündlich:** `HK-Außentemperatur-Open-Meteo` aktualisiert die Außentemperatur in `HK2-Aussentemperatur`.
-3. **Alle 30 Minuten:** Skript 1 liest den Kalender und schreibt die anstehenden Termine in `HK1-Schaltliste`.
-4. **Alle 5 Minuten:** Skript 2 berechnet aus der Schaltliste, der Außentemperatur und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
+3. **Alle 30 Minuten:** `HK-Skript 1_ChurchTools` liest die ChurchTools-Termine und schreibt sie in `HK1-Schaltliste`.
+4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur, den Systemvariablen und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
 
 ## Voraussetzungen
 
@@ -477,7 +478,8 @@ Das [`Heizkalender Addon`](#heizkalender-addon)(siehe unten) erleichtert den Zug
 
 Das Systemprotokoll ist allerdings vom Volumen begrenzt. Je nach Anzahl der Räume und Aktoren kann es sein, dass nicht mal die Aktivitäten für einen ganzen Tag im Systemprotokoll sichtbar bleiben. Gleichfalls geht das Systemprotokoll verloren, wenn die CCU neu gestartet wird oder abstürzt.
 
-Wird ein USB Stick eingesteckt sorgt das Programm `HK-Systemprotokoll sichern` dafür, dass das Systemprotokoll Wochenweise auf dem USB Stick gespeichert wird. Die Anzahl der Log-Dateien ist durch das Skript auf 30 beschränkt. Ab dem 31 Log wird die älteste Datei gelöscht.<br>Dieses kleine Programm speichert das aktuelle Systemprotokoll alle 29min in eine Log Datei auf dem USB-Stick.
+Wird ein USB Stick eingesteckt sorgt das Programm `HK-Systemprotokoll sichern` dafür, dass das Systemprotokoll Wochenweise auf dem USB Stick gespeichert wird. Die Anzahl der Log-Dateien ist durch das Skript auf 30 beschränkt. Ab dem 31 Log wird die älteste Datei gelöscht.  
+Dieses kleine Programm speichert das aktuelle Systemprotokoll alle 29min in eine Log Datei auf dem USB-Stick.
 
 Ist kein USB Stick installiert, dann führt das Programm `HK-Systemprotokoll sichern` auch keine Operationen aus.
 
@@ -493,19 +495,20 @@ Ist ein Raum bei Nutzungsbeginn noch zu kalt, können die Vorheizzeiten angepass
 
 Ziel ist eine möglichst bedarfsgerechte Heizungssteuerung: Die Räume sollen rechtzeitig warm sein, ohne unnötig lange beheizt zu werden. Das spart Energie und erhöht gleichzeitig den Komfort für die Nutzer.
 
-Die Heizkurvenkontrolle erzeugt Log Einträge für jeden Raum. Die Einträge schlüsseln sich auf nach:
+Die Heizkurvenkontrolle erzeugt Log Einträge für jeden Raum. Die Einträge schlüsseln sich auf nach bestimmten Ereignistypen und werden mit den zusätzlichen Informationen angereichert:
 
-- Heizbeginn 
-- Terminbeginn 
-- Zieltemperatur 
-- Heizende 
-- Terminende 
-
-Die jeweiligen Ereignisse werden mit den zusätzlichen Informationen angereichert:
-- Zeit relativ zum Teminbeginn
+- Ereignisart
+    - Heizbeginn 
+    - Terminbeginn 
+    - Zieltemperatur erreicht
+    - Heizende 
+    - Terminende 
+- Zeit relativ zum Terminbeginn
 - Außentemperatur bei Heizbeginn
 - Aktuelle Raumtemperatur beim jeweiligen Ereignisse
 - bisher erreichte maximale Raumtemperatur beim jeweiligen Ereignisse
+
+Das Ereignis *Zieltemperatur erreicht* kann fehlen, wenn die Zieltemperatur für den Raum bis zum Heizende nie erreicht wird.
 
 *Beispiel:*
 
@@ -553,6 +556,12 @@ Die folgenden Werte haben sich in der Praxis bewährt.
 | `HK2-Hand-Temp` | Manuelle Temperatur hat beim Terminende Vorrang | **Falsch (0) / False**|Ist der Schalter *Falsch (0) / False* wird eine manuell eingestellte Temperatur nicht beibehalten und die Grundtemperatur eingestellt. Ist der Schalter *Wahr (1) / True*, wird eine manuell abweichende Temperatur von Thermostaten beibehalten. |
 | `HK2-VorzeitAus` | Globale Minuten, um die vor Terminende abgeschaltet wird | **0**|Besser je Raum einstellen; nicht gleichzeitig mit der raumbezogenen VorzeitAus nutzen (beide Werte addieren sich). Das vorzeitige Heizende kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
 | `HK2-Kurvenversatz` | Gibt einen globalen Einschalt-Offset an | **0**|Minuten vor Terminbeginn und ist das Gegenstück zu `HK2-VorzeitAus`.  Das vorgezogene Heizbeginn kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
+
+## Einstellungen für Skript 1 (Termineinlesen)
+
+| Variable | Bedeutung |
+| :--- | :--- |
+| `HK1-Vorlaufzeit` | Optional. Zeithorizont für die Terminabfrage in Minuten: wie weit in die Zukunft schaut Skript 1 beim Lesen des Kalenders. Default: 720 min (12 Stunden). Wird die Variable nicht angelegt, bleibt der Defaultwert aktiv. Sinnvolle Werte: 60 bis 1380 (23 Stunden). |
 
 ## Unterstützte Homematic-Geräte
 

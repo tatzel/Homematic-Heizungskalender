@@ -16,7 +16,7 @@ Der Heizkalender besteht aus drei Teilen:
 
 ```mermaid
 flowchart TD
-    subgraph PC["Entwickler-PC / Windows"]
+    subgraph PC["Windows-PC"]
         Installer["HeizkalenderInstallation.exe"]
     end
 
@@ -31,13 +31,15 @@ flowchart TD
 
     subgraph CCU["CCU3"]
         SysVar[("Systemvariablen\nHK1-*, HK2-*, HK1-Schaltliste, HKG-Raum-*")]
+        Programme[("Programme\nHK-Skript 1, HK-Skript 2, HK-*")]
         Skript1["HK-Skript 1\n(alle 30 min)"]
         ATSkript["HK-Außentemp.-Skript\n(stündlich)"]
         Skript2["HK-Skript 2\n(alle 5 min)"]
         Aktoren["Thermostate / Aktoren"]
     end
 
-    Installer -->|"installiert Skripte und\nlegt Systemvariablen an\n(einmalig)"| SysVar
+    Installer -->|"richtet ein und aktualisiert\n(bei Installation, Konfiguration\nund Updates)"| SysVar
+    Installer -->|"richtet ein und aktualisiert"| Programme
     KAL -->|"Termine"| Skript1
     Skript1 -->|"schreibt HK1-Schaltliste"| SysVar
     OpenMeteo -->|"Außentemperatur"| ATSkript
@@ -212,6 +214,25 @@ Beispiele:
 - Ein Eintrag: `4;2026-10-14 18:30:00;2026-10-14 20:30:00;0;H` (Ressource 4, 14.10.2026 18:30 Uhr bis 20:30 Uhr, Heizmodus)
 - Zwei Einträge hintereinander: `4;2026-10-14 18:30:00;2026-10-14 20:30:00;0;H;2;2026-10-14 18:30:00;2026-10-14 20:30:00;0;S;` (Ressource 4 Heizen, Ressource 2 Schalten, gleicher Startzeitpunkt)
 
+### HK1-Vorlaufzeit
+
+Optionale Systemvariable (Typ Integer, Einheit: min). Legt fest, wie weit Skript 1
+beim Einlesen des Kalenders in die Zukunft schaut (Zeithorizont für die
+Terminabfrage). Wird die Variable nicht angelegt, verwendet Skript 1 den
+hardcodierten Default von 720 min (12 Stunden).
+
+| Feld | Wert |
+| :--- | :--- |
+| Typ | Integer |
+| Einheit | min |
+| Default (ohne Variable) | 720 |
+| Wertebereich | 0 bis 1380 (23 Stunden) |
+
+Alle fünf Skript-1-Varianten lesen die Variable beim Start; ist sie nicht vorhanden,
+bleibt der Default aktiv. Setzt der Administrator die Variable auf einen kleineren
+Wert (z.B. 120 min), schaut Skript 1 nur 2 Stunden voraus und trägt Termine nicht
+mehr frühzeitig in die Schaltliste ein.
+
 ### HK2-Kurve
 
 Acht semikolongetrennte Ganzzahlen (Vorheizzeiten in Minuten) für die festen
@@ -228,6 +249,31 @@ Zwischen den Stützpunkten interpoliert HK-Skript 2 linear. Der erste Wert
 Beispielkurven und Berechnungshintergrund:
 [Anwenderhandbuch](anwenderhandbuch.md#die-heizkurve-hk2-kurve),
 [Heizsteuerung-Vorheizzeit.md](heizsteuerung-vorheizzeit.md)
+
+### HK2-Schaltzeiten
+
+Wird von HK-Skript 2 am Ende jedes Skriptlaufs geschrieben (sofern die Variable auf der CCU vorhanden ist). Enthält die berechneten Schaltzeiten aller Ressourcen des letzten Skriptlaufs. Die Variable ist rein informativ und wird vom Benutzer nicht manuell gesetzt.
+
+Einträge sind durch `~` getrennt, Felder innerhalb eines Eintrags durch `;`:
+
+```txt
+RessourcenID;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...
+```
+
+| Feld | Typ | Bedeutung |
+| ---- | --- | --------- |
+| RessourcenID | Integer | ID aus `HK1-R-Liste` |
+| VorlaufMin | Integer | Berechnete Vorheizzeit in Minuten (0 bei Schaltmodus) |
+| HeizenAb | Zeitstempel | Berechneter Einschaltzeitpunkt (`YYYY-MM-DD HH:MM:SS`) |
+| TerminAb | Zeitstempel | Terminbeginn (ohne Vorlaufverschiebung) |
+| TerminBis | Zeitstempel | Terminende |
+| NachlaufMin | Integer | Nachlaufzeit in Minuten (derzeit immer 0) |
+
+Beispiel (zwei Ressourcen):
+
+```txt
+5;320;2026-10-18 04:10:00;2026-10-18 09:30:00;2026-10-18 12:00:00;0~10;95;2026-10-18 07:55:00;2026-10-18 09:30:00;2026-10-18 12:00:00;0~
+```
 
 ### HK-RäumeHeizkurvenkontrolle
 

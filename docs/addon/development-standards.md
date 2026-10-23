@@ -1,18 +1,5 @@
 # Heizkalender Addon: Development Standards
 
-## Inhalt
-
-- [Laufzeitumgebung](#laufzeitumgebung)
-- [Tcl-8.2-Restriktionen](#tcl-82-restriktionen)
-- [Zeichenkodierung](#zeichenkodierung)
-- [HTML-Ausgabe](#html-ausgabe)
-- [ReGa-API](#rega-api)
-- [CSS-Konventionen](#css-konventionen)
-- [Deployment](#deployment)
-- [Entschiedene Design-Fragen](#entschiedene-design-fragen)
-
----
-
 ## Laufzeitumgebung
 
 - CCU3-Originalfirmware: Tcl 8.2.3, Linux
