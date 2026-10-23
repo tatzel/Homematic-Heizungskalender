@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    21.10.2026
+!// Stand:    24.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -1139,12 +1139,10 @@ foreach(RVN,RVNListe.Split(";")) {
 !// -----------------------------------------------------------------
 
 !// HK2-Schaltzeiten schreiben (optional, nur wenn Variable auf CCU vorhanden)
-!// Leeren wenn Schaltliste leer (keine Termine), sonst neue Werte schreiben wenn vorhanden
 object objVLZ = dom.GetObject(vrp#"HK2-Schaltzeiten");
 if(objVLZ) {
-  if(SListe=="") {
-    objVLZ.State("");
-  } elseif(HK2VLZListe!="") {
+  !// Nur schreiben nur wenn es sich ändert (das reduziert Einträge im Systemprotokoll bei Protokollierung der Variable)
+  if(objVLZ.State()!=HK2VLZListe) {
     objVLZ.State(HK2VLZListe);
   }
 }
