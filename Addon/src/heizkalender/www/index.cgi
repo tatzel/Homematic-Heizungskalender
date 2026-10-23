@@ -60,6 +60,7 @@ proc format_hsflag {flag} {
     if {[string equal $flag "H"]}  { return "Heizen" }
     if {[string equal $flag "S"]}  { return "Schalten" }
     if {[string equal $flag "HS"]} { return "Heizen+Schalten" }
+    if {[string equal $flag "V"]}  { return "Variable" }
     return $flag
 }
 

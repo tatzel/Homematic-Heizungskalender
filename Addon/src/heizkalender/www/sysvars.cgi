@@ -163,6 +163,7 @@ set modus_map {
     H  "Heizen (H)"
     S  "Schalten (S)"
     HS "Heizen+Schalten (HS)"
+    V  "Variable (V)"
 }
 
 # Heiztyp-Kürzel -> Langtext
