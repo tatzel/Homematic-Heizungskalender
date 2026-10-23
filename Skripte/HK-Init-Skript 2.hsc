@@ -1,23 +1,24 @@
 !// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2
 !//================================================================================================
-!// Stand:    04.10.2026
+!// Stand:    19.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
 !//
-!// Dieser Code ersetzt die Datei: 
+!// Dieser Code ersetzt die Datei:
 !//   HKP-S2-V-3.1.1 Variablen zu Skript2_V1.3.c
 !// Der ursprüngliche Code wurde geschrieben von:
 !//   Lukas Helduser (Youtube: https://www.youtube.com/LukasvandeHaag)
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
+!// TT: 2026-10-19 HK2-Schaltzeiten ergaenzt (Ausgabe berechneter Schaltzeiten durch Skript 2)
 !// TT: 2026-10-04 Beschreibung von HK2-Aussentemperatur praezisiert (gleitender Durchschnitt)
 
 !//Dieses Skript erstellt die nötigen Systemvariablen des Heizkalender für Skript 2 zum Schalten des Heizkalender
@@ -37,7 +38,8 @@ string nm=  "HK2-HKG-Liste;" #
             "HK2-Hand-Grundtemp;" #
             "HK2-VorzeitAus;" #
             "HK2-Kurvenversatz;" #
-            "HK2-Kurve";
+            "HK2-Kurve;" #
+            "HK2-Schaltzeiten";
 
 !// Beschreibungstexte
 string be=  "Liste der HK-Raum-Variablen;" #
@@ -48,7 +50,8 @@ string be=  "Liste der HK-Raum-Variablen;" #
             "Rückstellung auf Grundtemperatur;" #
             "Grundoffsetzeit Ausschalten;" #
             "Grundoffsetzeit Einschalten;" #
-            "Hzg.-Vorlaufzeit: Eingeben in Minuten zu Außentemperaturen kleiner als -10, -5, 0, 8, 10, 12, 15, 17,5";
+            "Hzg.-Vorlaufzeit: Eingeben in Minuten zu Außentemperaturen kleiner als -10, -5, 0, 8, 10, 12, 15, 17,5;" #
+            "Berechnete Schaltzeiten pro Ressource (wird von Skript 2 geschrieben)";
 
 !// Typen
 string tp=  "string;" #
@@ -59,7 +62,8 @@ string tp=  "string;" #
             "boolean;" #
             "integer;" #
             "integer;" #
-            "string;";
+            "string;" #
+            "string";
 
 !// Vorgabe Werte
 string vl=  ";" #
@@ -70,7 +74,8 @@ string vl=  ";" #
             "1;" #
             "0;" #
             "0;" #
-            "162,130,100,59,50,41,30,20;";    !// Komma wird ersetzt durch Semikolon
+            "162,130,100,59,50,41,30,20;" #    !// Komma wird ersetzt durch Semikolon
+            "";
 
 !// Einheit (z.B. °C)
 string vu=  ";" #
@@ -81,7 +86,8 @@ string vu=  ";" #
             ";" #
             "min;" #
             "min;" #
-            "min";
+            "min;" #
+            "";
 
 !// Zusätzliche Info Texte für
 !//   - Boolean   - Werte für eine Variable durch + getrennt
@@ -94,6 +100,7 @@ string wr=  ";" #
             "Keine Rückstellung auf Grundtemperatur um 01:00 Uhr+Rückstellung auf Grundtemperatur um 01:00 Uhr;" #
             "0+120;" #
             "-100+100;" #
+            ";" #
             "";
 
 !// Protokollierungs Flags
@@ -105,7 +112,8 @@ string pr=  "1;" #
             "1;" #
             "1;" #
             "1;" #
-            "1";
+            "1;" #
+            "0";
 
 !//------------------------------------------------------------------------------------------------
 !// Ab hier Standard Code zum erzeugen von Variablen

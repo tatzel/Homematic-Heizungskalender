@@ -33,10 +33,13 @@ Addon/
         heizkalender.css           Eigenes Stylesheet
         hk-logo-300.png            Logo (Navigation)
         hk-logo-50.png             Logo (CCU-Zusatzsoftware-Seite)
-  docs/
-    Entwickler.md                  Diese Datei
-    Anwenderhandbuch.md            Anwender-Dokumentation
-    DEVELOPMENT_STANDARDS.md       Entwicklungsstandards
+        favicon.ico                Favicon
+        favicon-16x16.png          Favicon 16x16
+        favicon-32x32.png          Favicon 32x32
+        apple-touch-icon.png       Apple Touch Icon
+        android-chrome-192x192.png Android-Icon 192x192
+        android-chrome-512x512.png Android-Icon 512x512
+        site.webmanifest           Web-App-Manifest
   build/                           Ausgabeverzeichnis (per .gitignore ausgeschlossen)
 ```
 
@@ -67,7 +70,13 @@ heizkalender-addon-<Version>.tar.gz
 │       ├── heizkalender.css
 │       ├── hk-logo-300.png
 │       ├── hk-logo-50.png
-│       └── (Favicons und App-Icons)
+│       ├── favicon.ico
+│       ├── favicon-16x16.png
+│       ├── favicon-32x32.png
+│       ├── apple-touch-icon.png
+│       ├── android-chrome-192x192.png
+│       ├── android-chrome-512x512.png
+│       └── site.webmanifest
 └── rc.d/
     └── heizkalender
 ```
@@ -133,25 +142,36 @@ set addons($id) "... CONFIG_DESCRIPTION {de {$tooltip} en {$tooltip}} ..."
 
 ## CGI-Seiten
 
-Alle CGI-Scripte sind in Tcl geschrieben und laufen unter `/bin/tclsh` (Tcl 8.2.3 auf CCU3-Originalfirmware).
+Alle CGI-Scripte sind in Tcl geschrieben und laufen unter `/bin/tclsh` (Tcl 8.2.3 auf CCU3-Originalfirmware 3.89.11).
 
 ### index.cgi: Raumübersicht
 
-Liest über die ReGa-API:
+Verwendete Systemvariablen:
 
-- `HK1-Schaltliste`: Aktuelle Schaltzeitpunkte
-- `HK1-R-Liste`: Ressourcen-ID-zu-Name-Mapping
-- `HK2-Aussentemperatur`: Außentemperatur (gleitender Mittelwert)
-- Alle `HKG-Raum-*`-Variablen: Raumkonfigurationen; Feld 0 enthält den aktuellen Heizstatus (0 = nicht heizend, 1 = heizt)
-- Ist-Temperaturen und Luftfeuchtigkeit direkt von den zugeordneten Thermostat-Kanälen
+- `HK1-Schaltliste`: Alle Heiztermine (`ResID;Ein;Aus;Kapazitaet;HSFlag;...`)
+- `HK1-R-Liste`: Ressourcen-Namenszuordnung (`ID=Name;...`), positionsbasiert
+- `HK2-HKG-Liste`: Zuordnung Ressource zu HKG-Raum-Variablen, positionsbasiert
+- `HK2-Aussentemperatur`: Gleitender Außentemperatur-Durchschnitt für Vorheizzeitberechnung
+- `HK2-Schaltzeiten`: Berechnete Vorlauf- und Schaltzeiten je Ressource (optional; steuert ob Spalten „Vorlauf" und „Heizen ab" angezeigt werden)
+- `HKG-Raum-*`: Raumvariablen (Status, Modus, Wohlfühltemperatur, opt. Sensorkanal)
+
+Ablauf:
+
+1. `HKG-Raum-*` auslesen: Status, Modus, Wohlfühltemperatur, optionaler Sensorkanal.
+2. `HK2-HKG-Liste` + `HK1-R-Liste`: positionsbasiertes Mapping Variablenname zu ResID (identisch zum Vorgehen in Skript 1).
+3. `HK1-Schaltliste`: mit der ResID den besten Termin ermitteln (laufend > nächster zukünftiger > letzter vergangener).
+4. `HK2-Schaltzeiten` (optional): falls vorhanden, Vorlaufzeit und Einschaltzeitpunkt je ResID nachschlagen und in den Spalten „Vorlauf" und „Heizen ab" anzeigen. Ist die Variable nicht vorhanden, entfallen diese beiden Spalten komplett.
+5. Sensorkanal (Feld 6 der Raumvariable, optional): Ist-Temperatur und Luftfeuchtigkeit direkt aus dem HomeMatic-Gerät lesen.
 
 Schaltlisten-Zeitstempel (`JJJJ-MM-TT HH:MM:SS`) werden mit einer eigenen `parse_ts`-Prozedur in Unix-Timestamps umgewandelt, da `clock scan` in Tcl 8.2 kein ISO-Datumsformat versteht (nur US-Format `MM/DD/JJJJ HH:MM:SS`).
 
 ### hkkurve.cgi: Heizkurvenkontrolle
 
-Liest Logdateien vom USB-Stick (`/media/usb1/HK-Log_*.log`) per `grep`. Die Ereignisse werden nach Zeitstempel aufsteigend sortiert (`lsort -index 1`).
+Verwendete Systemvariablen:
 
-Die Seite lädt erst Daten, wenn der Nutzer auf **Anzeigen** geklickt hat (Parameter `submitted=1`), um unnötige Dateizugriffe beim ersten Aufruf zu vermeiden.
+- `HKG-Raum-*`: Raumvariablen; der Suffix (z.B. `UG-Büro`) wird als Raumname im Dropdown verwendet und entspricht dem Raumname im Log-Format.
+
+Ereignisdaten stammen nicht aus Systemvariablen, sondern aus den HK-Log-Dateien auf dem USB-Stick (`/media/usb1/HK-Log_*.log`), gefiltert nach `HK-LogHeizkurvenkontrolle`. Die Dateien werden von `HK-SystemProtokoll sichern.hsc` befüllt, das alle 29 Minuten läuft. Die Anzeige im Addon kann daher bis zu 29 Minuten hinter dem aktuellen Geschehen zurückliegen.
 
 **Log-Format (geschrieben von `HK-Heizkurvenkontrolle.hsc`):**
 
@@ -199,11 +219,15 @@ Daraus ergibt sich das Log-Format:
 
 Der Dropdown in `hkkurve.cgi` verwendet `HK1-R-Liste` als Quelle. Eine Substring-Suche auf den gewählten Namen findet damit sowohl den Normalfall (`UG-Büro(22)`) als auch alle Gruppeneinträge, in denen dieser Raum vorkommt (`EG-Eltern-Kind-Raum(11)-UG-Büro`).
 
-### hksyslog.cgi: HK-Log
+### hkconfig.cgi: Grundeinstellungen
+
+Zeigt Logging-Flags, Kurveneinstellungen und eine Raumübersicht in aufbereiteter Form. Rein lesend.
+
+### hklog.cgi: HK-Log
 
 Liest direkt aus Logdateien auf dem USB-Stick. Kein ReGa-Aufruf. Die Seite zeigt die letzten N Zeilen der gewählten Datei (tail-Prinzip).
 
-Zeitstempel im Log haben das Format `JJJJ-MM-TT HH:MM:SS` (aus der CCU-Historiendatenbank, geschrieben von `HK-SystemProtokoll sichern.hsc`).
+Zeitstempel im Log haben das Format `JJJJ-MM-TT HH:MM:SS` (aus der CCU-Historiendatenbank, geschrieben von `HK-SystemProtokoll sichern.hsc`). Da dieses Skript alle 29 Minuten läuft, kann die Anzeige im Addon bis zu 29 Minuten hinter dem aktuellen Geschehen zurückliegen.
 
 ### hklogdownload.cgi: HK-Log-Download
 
@@ -228,13 +252,16 @@ Besondere Darstellung für `HK-RäumeHeizkurvenkontrolle`: Der Wert hat das Form
 | 2 | 4 | Heizung ausgeschaltet |
 | 3 | 8 | Hinweis „kein Temperatursensor" bereits geloggt |
 
-### hkconfig.cgi: Grundeinstellungen
-
-Zeigt Logging-Flags, Kurveneinstellungen und eine Raumübersicht in aufbereiteter Form. Rein lesend.
-
 ### update_check.cgi: Update-Check
 
-Ruft die GitHub Releases API ab und vergleicht die aktuelle `VERSION`-Datei mit dem neuesten Release-Tag. Gibt das Ergebnis als JSON zurück, das die CCU-Weboberfläche auswertet.
+Prüft auf neue Releases. Unterstützte Query-Parameter (`cmd`):
+
+| Kommando | Verhalten |
+| -------- | --------- |
+| `check_version` | Liest die `VERSION`-Datei direkt aus dem GitHub-Repository und gibt die neueste Versionsnummer als Plaintext zurück (oder `n/a` bei Fehler) |
+| `download` | Leitet per HTTP-Redirect auf die GitHub-Releases-Seite weiter; der Nutzer lädt das Paket dort selbst herunter |
+
+Die `VERSION`-Datei wird direkt von GitHub gelesen:
 
 ---
 

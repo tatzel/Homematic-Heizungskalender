@@ -1,6 +1,11 @@
 #!/bin/tclsh
 # Heizkalender-Addon: HK-Log-Anzeige
 # Zielplattform: CCU3, Tcl 8.2.3
+#
+# Datenquelle: HK-Log-Dateien auf dem USB-Stick (/media/usb1/HK-Log_*.log).
+# Die Dateien werden von "HK-SystemProtokoll sichern.hsc" befuellt, das alle
+# 29 Minuten laeuft. Die Anzeige im Addon kann daher bis zu 29 Minuten
+# hinter dem aktuellen Geschehen zurueckliegen.
 
 proc htmlquote {s} {
     set s [string map {& &amp; < &lt; > &gt; \" &quot;} $s]
@@ -182,7 +187,7 @@ puts {  <link rel="stylesheet" href="heizkalender.css">
     <a href="syslog.cgi">Syslog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
   </nav>
-  <p class="hk-hint">Die Logdateien werden auf einem USB-Stick gespeichert, der an der CCU angeschlossen ist (<code>/media/usb1/HK-Log_JJJJ-MM-TT.log</code>). Es werden die Eintr&auml;ge der letzten 60 Tage angezeigt.</p>}
+  <p class="hk-hint">Die Logdateien werden auf einem USB-Stick gespeichert, der an der CCU angeschlossen ist (<code>/media/usb1/HK-Log_JJJJ-MM-TT.log</code>). Es werden die Eintr&auml;ge der letzten 60 Tage angezeigt.<br>Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
 
 # Filterleiste
 puts {  <div class="hk-log-controls">}

@@ -25,6 +25,7 @@ proc format_modus {m} {
     if {[string equal $m "H"]}  { return "Heizen" }
     if {[string equal $m "S"]}  { return "Schalten" }
     if {[string equal $m "HS"]} { return "Heizen+Schalten" }
+    if {[string equal $m "V"]}  { return "Variable" }
     return [htmlquote $m]
 }
 

@@ -28,14 +28,12 @@ Anleitungen und ein Blog finden sich auf der Projekt-Homepage: [heizkalender.de]
 
 ## Zusammenspiel der Komponenten (Beispiel ChurchTools)
 
-Die `HeizkalenderInstallation.exe` legt mit den Init-Skripten einmalig die Systemvariablen an. Danach
-laufen die Skripte unabhängig voneinander in ihren eigenen Intervallen und
-kommunizieren ausschließlich über Systemvariablen.
+Die `HeizkalenderInstallation.exe` richtet die Programme (Skripte) und Systemvariablen auf der CCU ein
+und hält sie bei Konfigurationsänderungen oder Updates aktuell. Die Skripte laufen danach unabhängig
+voneinander in ihren eigenen Intervallen und kommunizieren ausschließlich über Systemvariablen.
 
 ```mermaid
 flowchart TD
-    Installationsprogramm["HeizkalenderInstallation.exe<br/>(einmalig)"] -->|"führt Init-Skripte aus"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HKG-Raum-*")]
-
     OpenMeteo["HK-Außentemperatur-Open-Meteo<br/>(stündlich)"] -->|"schreibt Außentemperatur"| ATVar[("HK2-Aussentemperatur")]
 
     CT["ChurchTools-Kalender"] -->|"Termine"| Skript1["HK-Skript 1_ChurchTools<br/>(alle 30 Minuten)"]
@@ -43,17 +41,21 @@ flowchart TD
 
     Schaltliste --> Skript2["HK-Skript 2<br/>(alle 5 Minuten)"]
     ATVar --> Skript2
-    SysVar --> Skript2
     Raumtemp["Raumtemperatur<br/>(Thermostat-Sensor)"] --> Skript2
+    SysVar --> Skript2
     Skript2 -->|"berechnet Vorlaufzeit,<br/>heizt bzw. schaltet"| Thermostate["Thermostate / Aktoren"]
+
+    Installationsprogramm["HeizkalenderInstallation.exe<br/>(bei Installation, Konfiguration<br/>und Updates)"]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| Programme[("Programme<br/>HK-Skript 1, HK-Skript 2, HK*")]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HKG-Raum-*")]
 ```
 
 Ablauf im Detail:
 
-1. **Einmalig:** Die `HeizkalenderInstallation.exe` schreibt über die Init-Skripte die Systemvariablen.
+1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (HK-Skript 1, HK-Skript 2 und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
 2. **Stündlich:** `HK-Außentemperatur-Open-Meteo` aktualisiert die Außentemperatur in `HK2-Aussentemperatur`.
 3. **Alle 30 Minuten:** `HK-Skript 1_ChurchTools` liest die ChurchTools-Termine und schreibt sie in `HK1-Schaltliste`.
-4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
+4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur, den Systemvariablen und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
 
 ## Einstieg
 

@@ -7,6 +7,8 @@
 #   HK1-R-Liste          - Ressourcen-Namenszuordnung (ID=Name;...), positionsbasiert
 #   HK2-HKG-Liste        - Zuordnung Ressource -> HKG-Raum-Variablen, positionsbasiert
 #   HK2-Aussentemperatur - Gleitender Aussentemperatur-Durchschnitt fuer Vorheizzeit
+#   HK2-Schaltzeiten     - Berechnete Vorlauf- und Schaltzeiten je Ressource (optional,
+#                          geschrieben von Skript 2; Spalten "Vorlauf" und "Heizen ab")
 #   HKG-Raum-*           - Raumvariablen (Status;Modus;Heiztyp;Wohlfuehltemp[/Grundtemp];
 #                          Vorheizzeit[*Faktor];VorzeitAus[;Sensorkanal])
 #
@@ -16,7 +18,10 @@
 #    Skript 1 verwendet ebenfalls dieses positionsbasierte Mapping (nicht Namensvergleich).
 # 3. HK1-Schaltliste: mit der ResID den besten Termin ermitteln
 #    (laufend > naechster zukuenftiger > letzter vergangener).
-# 4. Sensor-Kanal (Feld 6 der Raumvariable, optional): Ist-Temperatur und
+# 4. HK2-Schaltzeiten (optional): falls vorhanden, Vorlaufzeit und Einschaltzeitpunkt
+#    je ResID nachschlagen und in den Spalten "Vorlauf" und "Heizen ab" anzeigen.
+#    Ist die Variable nicht vorhanden, entfallen diese beiden Spalten komplett.
+# 5. Sensor-Kanal (Feld 6 der Raumvariable, optional): Ist-Temperatur und
 #    Luftfeuchtigkeit direkt aus dem HomeMatic-Geraet lesen.
 
 load tclrega.so
@@ -55,6 +60,7 @@ proc format_hsflag {flag} {
     if {[string equal $flag "H"]}  { return "Heizen" }
     if {[string equal $flag "S"]}  { return "Schalten" }
     if {[string equal $flag "HS"]} { return "Heizen+Schalten" }
+    if {[string equal $flag "V"]}  { return "Variable" }
     return $flag
 }
 
@@ -99,14 +105,17 @@ set rega_script {
     var sv2 = dom.GetObject("HK1-R-Liste");
     var sv3 = dom.GetObject("HK2-Aussentemperatur");
     var sv4 = dom.GetObject("HK2-HKG-Liste");
+    var sv5 = dom.GetObject("HK2-Schaltzeiten");
     string sl = "";
     string rl = "";
     string at = "";
     string hkgl = "";
+    string vlz = "";
     if (sv1) { sl = sv1.Value(); }
     if (sv2) { rl = sv2.Value(); }
     if (sv3) { at = sv3.Value(); }
     if (sv4) { hkgl = sv4.Value(); }
+    if (sv5) { vlz = sv5.Value(); }
     result = sl # "\n===SL===\n" # rl # "\n===RL===\n" # at # "\n===AT===\n" # hkgl # "\n===HKG===\n";
     string id;
     foreach(id, dom.GetObject(ID_SYSTEM_VARIABLES).EnumUsedIDs()) {
@@ -128,26 +137,16 @@ set rega_script {
             if (sensor != "") {
                 var ch = dom.GetObject(sensor);
                 if (ch) {
-                    string dpid2;
-                    foreach(dpid2, ch.DPs().EnumUsedIDs()) {
-                        var dp = dom.GetObject(dpid2);
-                        if (dp) {
-                            string dpname = dp.Name();
-                            if (dpname.EndsWith(".TEMPERATURE")) {
-                                result = result # name # "\tT\t" # dp.Value() # "\n";
-                            }
-                            if (dpname.EndsWith(".ACTUAL_TEMPERATURE")) {
-                                result = result # name # "\tT\t" # dp.Value() # "\n";
-                            }
-                            if (dpname.EndsWith(".HUMIDITY")) {
-                                result = result # name # "\tH\t" # dp.Value() # "\n";
-                            }
-                        }
-                    }
+                    var dpTemp = ch.DPByHssDP("ACTUAL_TEMPERATURE");
+                    if (!dpTemp) { dpTemp = ch.DPByHssDP("TEMPERATURE"); }
+                    if (dpTemp) { result = result # name # "\tT\t" # dpTemp.State() # "\n"; }
+                    var dpHum = ch.DPByHssDP("HUMIDITY");
+                    if (dpHum) { result = result # name # "\tH\t" # dpHum.State() # "\n"; }
                 }
             }
         }
     }
+    if (sv5) { result = result # "===VLZ===\n" # vlz; }
     WriteLine(result);
 }
 
@@ -159,12 +158,15 @@ set rl_sep    "\n===RL===\n"
 set at_sep    "\n===AT===\n"
 set hkg_sep   "\n===HKG===\n"
 set temp_sep  "\n===TEMPS===\n"
+set vlz_sep   "\n===VLZ===\n"
 set schaltliste_raw ""
 set rliste_raw ""
 set aussentemp_raw ""
 set hkgliste_raw ""
 set raumvars_raw ""
 set temps_raw ""
+set vlz_raw ""
+set vlz_present 0
 
 set p1 [string first $sl_sep $raw]
 if {$p1 >= 0} {
@@ -185,7 +187,15 @@ if {$p1 >= 0} {
                 set p5 [string first $temp_sep $rest4]
                 if {$p5 >= 0} {
                     set raumvars_raw [string range $rest4 0 [expr {$p5 - 1}]]
-                    set temps_raw    [string range $rest4 [expr {$p5 + [string length $temp_sep]}] end]
+                    set rest5 [string range $rest4 [expr {$p5 + [string length $temp_sep]}] end]
+                    set p6 [string first $vlz_sep $rest5]
+                    if {$p6 >= 0} {
+                        set temps_raw [string range $rest5 0 [expr {$p6 - 1}]]
+                        set vlz_raw   [string range $rest5 [expr {$p6 + [string length $vlz_sep]}] end]
+                        set vlz_present 1
+                    } else {
+                        set temps_raw $rest5
+                    }
                 } else {
                     set raumvars_raw $rest4
                 }
@@ -193,7 +203,15 @@ if {$p1 >= 0} {
                 set p5 [string first $temp_sep $rest3]
                 if {$p5 >= 0} {
                     set raumvars_raw [string range $rest3 0 [expr {$p5 - 1}]]
-                    set temps_raw    [string range $rest3 [expr {$p5 + [string length $temp_sep]}] end]
+                    set rest5 [string range $rest3 [expr {$p5 + [string length $temp_sep]}] end]
+                    set p6 [string first $vlz_sep $rest5]
+                    if {$p6 >= 0} {
+                        set temps_raw [string range $rest5 0 [expr {$p6 - 1}]]
+                        set vlz_raw   [string range $rest5 [expr {$p6 + [string length $vlz_sep]}] end]
+                        set vlz_present 1
+                    } else {
+                        set temps_raw $rest5
+                    }
                 } else {
                     set raumvars_raw $rest3
                 }
@@ -337,6 +355,32 @@ proc lookup_isttemp {rname ist_temps_var} {
 }
 
 # ---------------------------------------------------------------------------
+# HK2-Schaltzeiten parsen: ResID -> {VorlaufMin HeizenAb}
+# Format: RessourcenID;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...
+# ---------------------------------------------------------------------------
+set has_vlz $vlz_present
+set vlz_by_rid {}
+set vlz_raw [string trim $vlz_raw]
+foreach entry [split $vlz_raw "~"] {
+    set entry [string trim $entry]
+    if {[string equal $entry ""]} { continue }
+    set fields [split $entry ";"]
+    set rid    [string trim [lindex $fields 0]]
+    set vmin   [string trim [lindex $fields 1]]
+    set heiab  [string trim [lindex $fields 2]]
+    if {![string equal $rid ""]} {
+        lappend vlz_by_rid $rid [list $vmin $heiab]
+    }
+}
+
+proc lookup_vlz {rid vlz_by_rid_var} {
+    upvar $vlz_by_rid_var vb
+    set idx [lsearch $vb $rid]
+    if {$idx >= 0 && ($idx % 2) == 0} { return [lindex $vb [expr {$idx + 1}]] }
+    return {}
+}
+
+# ---------------------------------------------------------------------------
 # HKG-Raum-Variablen parsen
 # ---------------------------------------------------------------------------
 set raeume {}
@@ -412,7 +456,21 @@ if {[llength $raeume] == 0} {
     puts {  <p class="hk-empty">Keine Raum-Systemvariablen (HKG-Raum-*) gefunden.</p>}
 } else {
     puts {  <div class="hk-table-scroll"><table class="hk-table hk-schaltliste-table">}
-    puts {    <colgroup>
+    if {$has_vlz} {
+        puts {    <colgroup>
+      <col class="col-sl-status">
+      <col class="col-sl-raum">
+      <col class="col-sl-modus">
+      <col class="col-sl-isttemp">
+      <col class="col-sl-humi">
+      <col class="col-sl-vorlauf">
+      <col class="col-sl-heizenab">
+      <col class="col-sl-termin">
+      <col class="col-sl-temp">
+    </colgroup>}
+        puts {    <tr><th>Status</th><th>Raum</th><th>Modus</th><th>Ist-Temp.</th><th>Luftfeuchte</th><th>Vorlauf</th><th>Heizen ab</th><th class="col-sl-termin">Termin</th><th>Wohlf&uuml;hltemperatur</th></tr>}
+    } else {
+        puts {    <colgroup>
       <col class="col-sl-status">
       <col class="col-sl-raum">
       <col class="col-sl-modus">
@@ -421,7 +479,8 @@ if {[llength $raeume] == 0} {
       <col class="col-sl-termin">
       <col class="col-sl-temp">
     </colgroup>}
-    puts {    <tr><th>Status</th><th>Raum</th><th>Modus</th><th>Ist-Temp.</th><th>Luftfeuchte</th><th>Termin</th><th>Wohlf&uuml;hltemperatur</th></tr>}
+        puts {    <tr><th>Status</th><th>Raum</th><th>Modus</th><th>Ist-Temp.</th><th>Luftfeuchte</th><th class="col-sl-termin">Termin</th><th>Wohlf&uuml;hltemperatur</th></tr>}
+    }
 
     foreach r $raeume {
         set varname [lindex $r 0]
@@ -440,9 +499,9 @@ if {[llength $raeume] == 0} {
         set rowclass ""
         if {[string equal $status "1"]} {
             set rowclass " class=\"hk-sl-aktiv\""
-            set status_cell {<span class="hk-sl-status-aktiv" title="wird gerade geheizt">&#9632;</span>}
+            set status_cell {<span class="hk-sl-status-aktiv">&#9632;</span> Ein}
         } else {
-            set status_cell {<span class="hk-sl-status-keintermin" title="nicht heizend">&#8212;</span>}
+            set status_cell {<span class="hk-sl-status-inaktiv">&#9675;</span> Aus}
         }
         set ein_str ""
         set aus_str ""
@@ -492,12 +551,34 @@ if {[llength $raeume] == 0} {
         }
 
         set modus_str [format_hsflag $modus]
-        puts "    <tr${rowclass}><td class=\"hk-sl-status-cell\">$status_cell</td><td>[htmlquote $rname]</td><td>[htmlquote $modus_str]</td><td>$isttemp_str</td><td>[htmlquote $humi_str]</td><td>$termin_cell</td><td>$wtemp_str</td></tr>"
+        if {$has_vlz} {
+            set vlz_info {}
+            foreach rid $rids {
+                set vlz_info [lookup_vlz $rid vlz_by_rid]
+                if {[llength $vlz_info] >= 2} { break }
+            }
+            set vorlauf_str ""
+            set heiab_str ""
+            if {[llength $vlz_info] >= 2} {
+                set vmin  [lindex $vlz_info 0]
+                set heiab [lindex $vlz_info 1]
+                if {![string equal $vmin ""] && ![string equal $vmin "0"]} {
+                    set vorlauf_str "[htmlquote $vmin]&nbsp;min"
+                }
+                if {![string equal $heiab ""]} {
+                    set heiab_t 0
+                    catch {set heiab_t [parse_ts $heiab]}
+                    if {$heiab_t > 0} {
+                        set heiab_str [htmlquote [format_ts $heiab_t]]
+                    }
+                }
+            }
+            puts "    <tr${rowclass}><td>$status_cell</td><td>[htmlquote $rname]</td><td>[htmlquote $modus_str]</td><td>$isttemp_str</td><td>[htmlquote $humi_str]</td><td>$vorlauf_str</td><td>$heiab_str</td><td class=\"col-sl-termin\">$termin_cell</td><td>$wtemp_str</td></tr>"
+        } else {
+            puts "    <tr${rowclass}><td>$status_cell</td><td>[htmlquote $rname]</td><td>[htmlquote $modus_str]</td><td>$isttemp_str</td><td>[htmlquote $humi_str]</td><td class=\"col-sl-termin\">$termin_cell</td><td>$wtemp_str</td></tr>"
+        }
     }
     puts {  </table></div>}
-    puts {  <fieldset class="hk-legende-fieldset">}
-    puts {    <p class="hk-sl-legende"><span class="hk-sl-status-aktiv">&#9632;</span> wird gerade geheizt &nbsp;&nbsp; <span class="hk-sl-status-keintermin">&#8212;</span> nicht heizend</p>}
-    puts {  </fieldset>}
 }
 
 puts {</div>
