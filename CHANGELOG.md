@@ -13,6 +13,14 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Unveröffentlicht]</u>
 
+## [2026-10-24]
+
+### Geändert
+
+- Addon `sysvars.cgi`: Doku-Links auf GitHub Pages umgestellt, Linkziele für HK2-Globalvariablen und HK2-Kurve korrigiert, Tooltip-Link im Räume-Fieldset ergänzt
+- Addon `heizkalender.css`: `white-space: nowrap` für Variablennamen und Räume-Tabellen
+- Addon `hkconfig.cgi`: Klasse `hk-table-rooms` an Räume-Tabelle ergänzt
+
 # <u>[Veröffentlicht]</u>
 
 ## [2026-10-22] Release
