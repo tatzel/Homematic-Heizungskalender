@@ -13,7 +13,9 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 # <u>[Unveröffentlicht]</u>
 
-## [2026-10-23]
+# <u>[Veröffentlicht]</u>
+
+## [2026-10-23] Release
 
 ## Hinzugefügt
 
@@ -35,8 +37,6 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - Neue Readme für historische alte Dateien (Auszug aus alter Readme)
 - Korrektur der Doku zu Open-Meteo Skript Durchschnitt läuft über 18/6h
 - Update HK-Skript 2.hsc. Nun wird aich die Isttemperatur mit in das Systemprotokoll geschrieben.
-
-# <u>[Veröffentlicht]</u>
 
 ## [2026-10-22] Release
 

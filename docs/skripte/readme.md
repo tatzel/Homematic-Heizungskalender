@@ -82,8 +82,7 @@ Dieses Skript legt alle Systemvariablen an, die für den Zugriff auf einen belie
 | :--------------- | :--------- |
 | HK1-ICS-Url | URL des iCal Kalenders |
 
-> [!WARNING]
-> Das `RRULE` Schlüsselwort (Terminwiederholungen) wird nicht unterstützt.
+**Nicht unterstützt werden: BYMONTH, BYMONTHDAY, BYYEARDAY, BYWEEKNO, BYSETPOS, BYHOUR, BYMINUTE, BYSECOND!**
 
 ### HK-Init-Skript 2.hsc
 
@@ -178,6 +177,15 @@ Skript für den Zugriff auf einen iCal-Kalender über eine URL. Bei diesem Verfa
 Benötigte Variablen: `HK1-ICS-Url`
 Sowie die Variablen: `HK1-R-Liste`, `HK2-HKG-Liste`, `HK1-Schaltliste`, `HK1-Log`, `HK1-Logging`
 Optional: `HK1-Vorlaufzeit`
+
+Das iCal Skript unterstützt auch das `RRULE` Schlüsselwort für Terminwiederholunge. Jedoch sind dann sind nur folgende Terminwiederholungsarten erlaubt:
+
+- DAILY, WEEKLY; MONTHLY, YEARLY (Frequenz, täglich, wöchentlich, monatlich, jährlich)
+- UNTIL (bis Datum)
+- COUNT (Anzahl Termine)
+- BYDAY (Wiederholung Wöchentlich je Wochentag)
+- BYDAY (Wiederholung Monatlich erster, zweiter oder letzter Montag…)
+- INTERVAL (jede n‘te Wiederholung)
 
 ## Schaltskript
 

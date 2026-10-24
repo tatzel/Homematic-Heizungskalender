@@ -28,7 +28,7 @@ Ressourcen Ihrer ChurchTools-Domain.
 ## ChurchDesk
 
 Sie benötigen Ihre **OrganisationsId** sowie einen **Pull-API-Key**, den Sie vom
-ChurchDesk-Support erhalten (beschrieben in der ChurchDesk-Dokumentation). Beides
+ChurchDesk-Support erhalten (beschrieben in der [ChurchDesk-Dokumentation](https://docs.churchdesk.com/reference/#/Churchscreen)). Beides
 notieren bzw. den Key in einer Textdatei speichern.
 
 ## Google-Kalender und ICS/iCal
@@ -37,6 +37,15 @@ Die Ermittlung der Zugangsdaten (API-Key bzw. Kalender-URL) ist noch nicht
 dokumentiert. Grundsätzlich gilt: Bei Google wird ein API-Key und die Kalender-ID
 benötigt, bei ICS/iCal die öffentliche URL des Kalenders. In beiden Fällen muss der
 Raumname mit vorangestelltem `#` eindeutig im Termintitel stehen.
+
+Das iCal Skript unterstützt auch das `RRULE` Schlüsselwort für Terminwiederholungen. Jedoch sind dann sind nur folgende Terminwiederholungsarten erlaubt:
+
+- DAILY, WEEKLY; MONTHLY, YEARLY (Frequenz, täglich, wöchentlich, monatlich, jährlich)
+- UNTIL (bis Datum)
+- COUNT (Anzahl Termine)
+- BYDAY (Wiederholung Wöchentlich je Wochentag)
+- BYDAY (Wiederholung Monatlich erster, zweiter oder letzter Montag…)
+- INTERVAL (jede n‘te Wiederholung)
 
 ## Weiter geht es
 
