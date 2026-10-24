@@ -78,6 +78,14 @@
   font-weight: bold;
 }
 
+.hk-table td:first-child {
+  white-space: nowrap;
+}
+
+.hk-table-rooms td {
+  white-space: nowrap;
+}
+
 .hk-table tr:nth-child(even) td {
   background-color: #f5f5f5;
 }

@@ -187,7 +187,7 @@ puts {  <link rel="stylesheet" href="heizkalender.css">
     <a href="syslog.cgi">Syslog</a>
     <a href="sysvars.cgi">Systemvariablen</a>
   </nav>
-  <p class="hk-hint">Die Logdateien werden auf einem USB-Stick gespeichert, der an der CCU angeschlossen ist (<code>/media/usb1/HK-Log_JJJJ-MM-TT.log</code>). Es werden die Eintr&auml;ge der letzten 60 Tage angezeigt.<br>Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
+  <p class="hk-hint">Die Logdateien werden auf einem USB-Stick gespeichert, der an der CCU angeschlossen ist (<code>/media/usb1/HK-Log_JJJJ-MM-TT.log</code>). Es werden die Eintr&auml;ge der letzten 60 Tage angezeigt. Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
 
 # Filterleiste
 puts {  <div class="hk-log-controls">}

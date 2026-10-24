@@ -90,26 +90,28 @@ foreach line [split $raw "\n"] {
 # ---------------------------------------------------------------------------
 # Dokumentationslinks: Variablenname -> URL
 # ---------------------------------------------------------------------------
-set doc_base_xmri   "https://github.com/xMRi/Homematic-Heizungskalender/blob/main"
+set doc_base "https://xmri.github.io/Homematic-Heizungskalender"
 
-set doc_skripte     "${doc_base_xmri}/Skripte/Dokumentation/Readme.md"
+set doc_skripte     "${doc_base}/skripte/readme/"
 set doc_skripte_log "${doc_skripte}#hk-init-variablen-logginghsc"
 set doc_skripte_sl  "${doc_skripte}#schaltskript"
 set doc_skripte_cd  "${doc_skripte}#hk-init-skript-1_churchdeskhsc"
 set doc_skripte_ct  "${doc_skripte}#hk-init-skript-1_churchtoolshsc"
 set doc_skripte_gk  "${doc_skripte}#hk-init-skript-1_googlehsc"
 set doc_skripte_ics "${doc_skripte}#hk-init-skript-1_icalhsc"
-set doc_awh         "${doc_base_xmri}/Dokumentation/Anwenderhandbuch.md"
+set doc_skripte_s2  "${doc_skripte}#hk-init-skript-2hsc"
+set doc_awh         "${doc_base}/heizkalender/anwenderhandbuch/"
 set doc_awh_global  "${doc_awh}#globale-einstellungen-systemvariablen-f%C3%BCr-skript-2"
 set doc_awh_kurve   "${doc_awh}#die-heizkurve-hk2-kurve"
 set doc_awh_nacht   "${doc_awh}#nachtschaltung"
-set doc_dev         "${doc_base_xmri}/Dokumentation/Entwickler.md"
+set doc_dev         "${doc_base}/heizkalender/entwickler/"
 set doc_dev_rliste  "${doc_dev}#hk1-r-liste"
 set doc_dev_hkgl    "${doc_dev}#hk2-hkg-liste"
 set doc_dev_sl      "${doc_dev}#hk1-schaltliste"
 set doc_dev_vlz1    "${doc_dev}#hk1-vorlaufzeit"
 set doc_dev_vlz2    "${doc_dev}#hk2-schaltzeiten"
-set doc_dev_raeume_hkk "${doc_dev}#hk-r%C3%A4umeheizkurvenkontrolle"
+set doc_dev_kurve   "${doc_dev}#hk2-kurve"
+set doc_dev_raeume_hkk "${doc_dev}#hk-raumeheizkurvenkontrolle"
 
 set doc_links [list \
     HK-Log                        $doc_skripte_log \
@@ -131,15 +133,15 @@ set doc_links [list \
     HK1-Vorlaufzeit               $doc_dev_vlz1 \
     HK2-Log                       $doc_skripte_log \
     HK2-Logging                   $doc_skripte_log \
-    HK2-A.Temp.Grenze             $doc_awh_global \
-    HK2-Aussentemperatur          $doc_awh_global \
-    HK2-Grundtemperatur           $doc_awh_global \
-    HK2-Hand-Grundtemp            $doc_awh_global \
-    HK2-Hand-Temp                 $doc_awh_global \
+    HK2-A.Temp.Grenze             $doc_skripte_s2 \
+    HK2-Aussentemperatur          $doc_skripte_s2 \
+    HK2-Grundtemperatur           $doc_skripte_s2 \
+    HK2-Hand-Grundtemp            $doc_skripte_s2 \
+    HK2-Hand-Temp                 $doc_skripte_s2 \
     HK2-HKG-Liste                 $doc_dev_hkgl \
-    HK2-Kurve                     $doc_awh_kurve  \
-    HK2-Kurvenversatz             $doc_awh_global \
-    HK2-VorzeitAus                $doc_awh_global \
+    HK2-Kurve                     $doc_dev_kurve  \
+    HK2-Kurvenversatz             $doc_skripte_s2 \
+    HK2-VorzeitAus                $doc_skripte_s2 \
     HK2-Schaltzeiten               $doc_dev_vlz2 \
 ]
 
@@ -564,7 +566,7 @@ puts {<fieldset><legend>Schalten (HK2-*)</legend>}
 puts [render_table $vars_hk2]
 puts {</fieldset>}
 
-puts {<fieldset><legend>R&auml;ume (HKG-Raum-*)</legend>}
+puts "<fieldset><legend>R&auml;ume (HKG-Raum-*) <a href=\"${doc_dev}#hkg-raum-\" target=\"_blank\" class=\"hk-doc-link\" title=\"Dokumentation\">&#x24D8;</a></legend>"
 puts [render_room_table $vars_hkg]
 puts {</fieldset>}
 

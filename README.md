@@ -29,6 +29,8 @@ berichten auch Sie über Ihre Erfahrung mit dem Heizkalender.
 
 ## Dokumentation
 
+Auch als responsive Website mit Suchfunktion: [https://xmri.github.io/Homematic-Heizungskalender/](https://xmri.github.io/Homematic-Heizungskalender/)
+
 ### Für Anwender
 
 - [Anwenderhandbuch](/docs/heizkalender/anwenderhandbuch.md): Sonderbefehle, Raumvariablen, Vorheizzeit im laufenden Betrieb.

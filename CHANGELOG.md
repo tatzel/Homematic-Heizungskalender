@@ -11,9 +11,17 @@ zusammen und müssen gemeinsam eingespielt werden.
 Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` /
 `!// TT:`); diese bleiben erhalten und sind die feinste Änderungsebene.
 
-# <u>[Unveröffentlicht]</u>
+## [Unveröffentlicht]
 
-# <u>[Veröffentlicht]</u>
+## [2026-10-24]
+
+### Geändert
+
+- Addon `sysvars.cgi`: Doku-Links auf GitHub Pages umgestellt, Linkziele für HK2-Globalvariablen und HK2-Kurve korrigiert, Tooltip-Link im Räume-Fieldset ergänzt
+- Addon `heizkalender.css`: `white-space: nowrap` für Variablennamen und Räume-Tabellen
+- Addon `hkconfig.cgi`: Klasse `hk-table-rooms` an Räume-Tabelle ergänzt
+
+## [Veröffentlicht]
 
 ## [2026-10-23] Release
 
@@ -44,13 +52,13 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 - Anwenderhandbuch angepasst und erweitert
 - HeikalenderInstallation Handbuch angepasst an Modus "V"
-  -  Bilder angepasst
+  - Bilder angepasst
 - Entwicklerhandbuch angepasst an Modus "V" und korrigiert
 - Neue Readme in verkürzter und verbesserter Fassung
 - Korrektur der Doku zu Open-Meteo Skript Durchschnitt läuft über 18/6h
 
-
 ## Hinzugefügt
+
 - Neue Readme für historische alte Dateien (Auszug aus alter Readme)
 - Zieltemperatur für Raum in die Logausgabe. Jetzt ist AT, GT, IST und ZIEL sichtbar im Log.
 
@@ -62,11 +70,11 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - Raumdialog im Installationsprogramm angepasst
 - Schaltmodus "V" für "Variable setzen" eingeführt, dazu wurden alle Haupt-Skripte  angepasst
 
-### Geändert 
+### Geändert
 
 - Vereinheitlichung der String Operationen auf #-Operator in `Skript 2`
 
-## {2026-10-19]
+## [2026-10-19]
 
 ### Hinzugefügt
 
@@ -81,6 +89,7 @@ werden.
 ## [2026-10-17]
 
 ### Hinzugefügt
+
 - Übernahme der Doku für das Einrichten der CCU
 - Einfügen neuer Links im Readme zu den neuen Docs.
 - Ergänzung der Version 04 der alten Doku
@@ -115,7 +124,8 @@ werden.
 
 ## [2026-10-13] Release
 
-## Hinzugefügt
+### Hinzugefügt
+
 Fehlende Beschreibung ergänzt
 
 - Gerätetyp
@@ -123,7 +133,8 @@ Fehlende Beschreibung ergänzt
 - Modus
 - Test
 
-## Geändert
+### Geändert
+
 - Index aktualisiert
 - Buildprozess weiter automatisiert
 
@@ -142,8 +153,6 @@ Fehlende Beschreibung ergänzt
 - Addon `hkkurve.cgi`: Überarbeitung der Auswertungslogik und Darstellung.
 - Dokumentation: Bilder von `Dokumentation/Bilder/` nach `Addon/docs/images/` verschoben; alle Bild-Links im Anwenderhandbuch angepasst.
 - Versionsnummer auf 0.5.0 angehoben.
-
-# <u>[Veröffentlicht]</u>
 
 ## [2026-10-12] Release
 
@@ -281,6 +290,9 @@ Fehlende Beschreibung ergänzt
 - `Dokumentation/Kalender-einrichten.md` (neu): Ermittlung der Kalender-Zugangsdaten
   (ChurchTools, ChurchDesk; Google/iCal als Platzhalter), aus Olafs Handbuch v0.4.
   Beide neuen Dokumente in `Readme.md` und `Anwenderhandbuch.md` referenziert.
+
+## [2026-10-04] Release
+
 ### Hinzugefügt
 
 - `Tools/Tool-Test Thermostatgruppe schalten.hsc` (neu): schreibt eine Solltemperatur
@@ -481,3 +493,4 @@ und den Git-Tags (`git tag -l`, von `v2025-01-16` bis `v2026-08-10`):
   und die Heizkurvenkontrolle im Systemprotokoll.
 - Automatisches Anlegen zusätzlicher Räume und Übernahme der Ressourcen-
   Klartextnamen in die `HK1-R-Liste`.
+
