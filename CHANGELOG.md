@@ -25,25 +25,22 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [2026-10-23] Release
 
-## Hinzugefügt
+### Hinzugefügt
 
 - Neue Systemvariablen HK1-Vorlaufzeit und HK2-Schaltzeiten im Installationsprogramm
-- Skripte vom Typ 1: HK1-Vorlaufzeit (alle Skript-1-Varianten)  
-    Steuert, wie weit in die Zukunft die Skripte bei der Terminabfrage schauen. Default 720 (= 12 Stunden) 
+- Skripte vom Typ 1: HK1-Vorlaufzeit (alle Skript-1-Varianten)
+    Steuert, wie weit in die Zukunft die Skripte bei der Terminabfrage schauen. Default 720 (= 12 Stunden)
     Verhalten ohne die Variable ist identisch zum bisherigen Stand. Wird die Variable nicht angelegt, bleibt der Default aktiv
-- HK2-Schaltzeiten (HK-Skript 2)  
-    Wird am Ende jedes Skript-2-Laufs beschrieben, sofern die Variable auf der CCU vorhanden ist. 
+- HK2-Schaltzeiten (HK-Skript 2)
+    Wird am Ende jedes Skript-2-Laufs beschrieben, sofern die Variable auf der CCU vorhanden ist.
     Enthält die berechneten Vorlauf- und Schaltzeiten aller Ressourcen des letzten Laufs. Wird die Variable nicht angelegt, schreibt das Skript nichts (kein Fehler). Dienst dazu die Schaltzeiten im Addon anzuzeigen.
 - Erweiterung des Addons, so das in der Raumliste die berechneten Vorheizzeiten angezeigt werden.
 - Doku angepasst
 
-## Geändert 
+### Geändert
 
 - Addon Version 0.7.0
 - Addon versteht nun auch den Modus "V"
-- Neue Readme in verkürzter und verbesserter Fassung
-- Neue Readme für historische alte Dateien (Auszug aus alter Readme)
-- Korrektur der Doku zu Open-Meteo Skript Durchschnitt läuft über 18/6h
 - Update HK-Skript 2.hsc. Nun wird aich die Isttemperatur mit in das Systemprotokoll geschrieben.
 
 ## [2026-10-22] Release
@@ -57,7 +54,7 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - Neue Readme in verkürzter und verbesserter Fassung
 - Korrektur der Doku zu Open-Meteo Skript Durchschnitt läuft über 18/6h
 
-## Hinzugefügt
+### Hinzugefügt
 
 - Neue Readme für historische alte Dateien (Auszug aus alter Readme)
 - Zieltemperatur für Raum in die Logausgabe. Jetzt ist AT, GT, IST und ZIEL sichtbar im Log.
@@ -493,4 +490,3 @@ und den Git-Tags (`git tag -l`, von `v2025-01-16` bis `v2026-08-10`):
   und die Heizkurvenkontrolle im Systemprotokoll.
 - Automatisches Anlegen zusätzlicher Räume und Übernahme der Ressourcen-
   Klartextnamen in die `HK1-R-Liste`.
-
