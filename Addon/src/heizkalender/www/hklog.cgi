@@ -230,7 +230,7 @@ puts "        </select></label> &nbsp;"
 puts "        <button type=\"submit\">Anzeigen</button>"
 if {$has_file_param} {
     puts "        &nbsp;&nbsp;"
-    puts "        <a href=\"hklogdownload.cgi?file=[htmlquote $file_param]\" class=\"hk-download-link\">&#8595; Download $file_param</a>"
+    puts "        <a href=\"hklogdownload.cgi?file=[htmlquote $file_param]\" class=\"hk-download-link\">&#8595; Download [htmlquote $file_param]</a>"
 }
 puts {      </fieldset>}
 puts "    </form>"
