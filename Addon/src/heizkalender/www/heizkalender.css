@@ -45,6 +45,13 @@
   color: #0a2f45;
 }
 
+.hk-nav a.active {
+  background-color: #1a5276;
+  color: #ffffff;
+  border-color: #ffffff;
+  cursor: default;
+}
+
 .hk-doc-link {
   text-decoration: none;
   color: #0066cc;

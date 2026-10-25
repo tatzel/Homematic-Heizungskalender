@@ -433,7 +433,7 @@ puts {  <link rel="stylesheet" href="heizkalender.css">
     <h1>Heizkalender: Raum&uuml;bersicht</h1>
   </div>
   <nav class="hk-nav">
-    <a href="index.cgi">Raum&uuml;bersicht</a>
+    <a href="index.cgi" class="active">Raum&uuml;bersicht</a>
     <a href="hkkurve.cgi">Heizkurve</a>
     <a href="hkconfig.cgi">Einstellungen</a>
     <a href="hklog.cgi">HK-Log</a>
