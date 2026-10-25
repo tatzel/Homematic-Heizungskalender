@@ -82,7 +82,7 @@ Dieses Skript legt alle Systemvariablen an, die für den Zugriff auf einen belie
 | :--------------- | :--------- |
 | HK1-ICS-Url | URL des iCal Kalenders |
 
-**Nicht unterstützt werden: BYMONTH, BYMONTHDAY, BYYEARDAY, BYWEEKNO, BYSETPOS, BYHOUR, BYMINUTE, BYSECOND!**
+__Nicht unterstützt werden: BYMONTH, BYMONTHDAY, BYYEARDAY, BYWEEKNO, BYSETPOS, BYHOUR, BYMINUTE, BYSECOND!__
 
 ### HK-Init-Skript 2.hsc
 
@@ -263,7 +263,7 @@ Einträge tragen den Namen `HK-LogHeizkurvenkontrolle`.
 
 Um über einen längeren Zeitraum die Systemprotokolle und damit auch die Heizkurven zu kontrollieren, ist es mit diesem Skript möglich das flüchtige Systemprotokoll auf einen USB Stick zu speichern.
 
-Das Speichern des Protokolls erfolgt wochenweise. Üblicherweise werden maximal 10 Protokolle gespeichert bevor das älteste Protokoll gelöscht wird.
+Das Speichern des Protokolls erfolgt wochenweise. Üblicherweise werden maximal 30 Protokolle gespeichert bevor das älteste Protokoll gelöscht wird.
 Dieses Skript sollte jeweils alle 23-87min laufen.
 
 Beachten Sie, dass ein Neustart oder Stromausfall zum Verlust der Einträge im Systemprotokoll führen kann, die in diesem Zeitraum noch nicht wieder gespeichert wurden.

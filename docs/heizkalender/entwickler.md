@@ -9,9 +9,9 @@ Die nachfolgenden Tools wurden eingesetzt für die Programmierung des Heizkalend
 
 - [NotePad++ als Editor](https://notepad-plus-plus.org/) für Skripte
 - [Notepad++ Sprach-Erweiterung - Lexxer Plugin](https://github.com/xMRi/HomematicNPPLexerPlugin) für den Homematic Syntax.
-- [Script Developer CCU - SDV 5.0](https://github.com/HMMike/Script-Developer-CCU) für den Test und das Debuggen von Skripten und der Eigenschaften der CCU über die Inspektor Funktion.  
+- [Script Developer CCU - SDV 5.0](https://github.com/HMMike/Script-Developer-CCU) für den Test und das Debuggen von Skripten und der Eigenschaften der CCU über die Inspektor Funktion.
     Ich kann die Nutzung dieses Tools jedem Homematic Entwickler nur anraten.
-- [Visual Studio 2026](https://visualstudio.microsoft.com/de/vs/community/) für die Entwicklung und Programmierung der `HeikalenderInstallation.exe`
+- [Visual Studio 2026](https://visualstudio.microsoft.com/de/vs/community/) für die Entwicklung und Programmierung der `HeizkalenderInstallation.exe`
 
 ## Architektur-Überblick
 
@@ -191,7 +191,6 @@ Beispiele:
 - `0;HS;SW;21;0;30;BidCoS-RF.ABC12345:1;BidCoS-RF.DEF67890:1` — Heizen + Schalten, Thermostat an Feld 6, ein Schaltaktor an Feld 7
 - `0;V;SW;21;0;0;xyz` — Variable *xyz*, auf true setzen
 
-
 ### HK1-Schaltliste
 
 Übergabepuffer von Skript 1 an Skript 2. Wird automatisch befüllt und
@@ -280,6 +279,8 @@ RaumVarName;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...
 | NachlaufMin | Integer | Nachlaufzeit in Minuten (derzeit immer 0) |
 
 Bei Multi-Raum-Zuordnungen (mehrere Räume je Ressource) enthält die Variable einen eigenen Eintrag pro Raum mit der jeweils individuell berechneten Vorheizzeit.
+
+> **Hinweis (Stand 25.10.2026):** Das erste Feld wurde von der RessourcenID auf den Raumvariablennamen (`HKG-Raum-*`) umgestellt. Wer zwischen dem 23.10. und 25.10.2026 installiert hat, muss Skript 2 und das Addon gemeinsam aktualisieren, da das Addon den neuen Schlüssel erwartet.
 
 Beispiel (drei Räume, davon zwei an derselben Ressource):
 

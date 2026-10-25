@@ -39,11 +39,11 @@ die CCU-WebUI unter "Einstellungen → Skripte → Skript testen" ausführen.
 **HeizkalenderInstallation (Windows, C++/MFC):** Wird mit Visual Studio gebaut.
 Projektdatei: `HeizkalenderInstallation/HeizkalenderInstallation.vcxproj`.
 Näheres beschreibt die
-[Entwickler-Dokumentation](Dokumentation/Entwickler.md#build-der-heizkalenderinstallationexe-windows-visual-studio).
+[Entwickler-Dokumentation](docs/heizkalender/entwickler.md#build-der-heizkalenderinstallationexe-windows-visual-studio).
 
 **Heizkalender Addon (Tcl, CGI):** Gebaut mit `Addon/build.sh` (Linux/macOS).
 Näheres beschreibt die
-[Addon-Entwicklerdokumentation](Addon/docs/Entwickler.md).
+[Addon-Entwicklerdokumentation](docs/addon/Entwickler.md).
 
 ---
 
@@ -73,13 +73,13 @@ Jede inhaltliche Änderung an einer `.hsc`-Datei oder Installer-Quelle erfordert
    ganz oben in den Changelog-Block des Headers einfügen (neueste Einträge
    oben). Kurz beschreiben, was und warum geändert wurde.
 3. **Dokumentation prüfen:** Neue oder umbenannte Systemvariablen müssen in der
-   [Skript-Referenz](Skripte/Dokumentation/Readme.md) erscheinen.
+   [Skript-Referenz](docs/skripte/readme.md) erscheinen.
 4. **CHANGELOG.md fortschreiben:** Eintrag unter dem passenden Datums-Stand
    ergänzen (Keep-a-Changelog-Format, Kategorien Hinzugefügt/Geändert/
    Behoben/Entfernt). Die Doku muss vorher stimmen.
 
 Ausführliche Hinweise stehen in der
-[Entwickler-Dokumentation](Dokumentation/Entwickler.md#änderungs-workflow).
+[Entwickler-Dokumentation](docs/heizkalender/entwickler.md#änderungs-workflow).
 
 ---
 
@@ -116,5 +116,4 @@ Das Einführen neuer Systemvariablen ist aufwändig, da der Installer sie über
 eigene, fest einkompilierte Meta-Skripte anlegt (nicht aus den `.hsc`-Dateien
 liest). Vor der Einführung einer neuen Variablen bitte im Issue oder PR
 beschreiben, warum ein Hardcode-Wert nicht ausreicht. Näheres:
-[Entwickler-Dokumentation](Dokumentation/Entwickler.md#änderungs-workflow).
-w).
+[Entwickler-Dokumentation](docs/heizkalender/entwickler.md#änderungs-workflow).
