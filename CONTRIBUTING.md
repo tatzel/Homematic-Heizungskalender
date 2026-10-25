@@ -12,6 +12,8 @@ den [GitHub Community Standards](https://docs.github.com/de/communities).
 - [Änderungs-Checkliste](#änderungs-checkliste)
 - [Pull Request erstellen](#pull-request-erstellen)
 - [Skript-Syntax (HomeMatic HSC)](#skript-syntax-homematic-hsc)
+- [Addon bauen](#addon-bauen)
+- [Testen](#testen)
 - [Neue Systemvariablen](#neue-systemvariablen)
 
 ---
@@ -43,7 +45,7 @@ Näheres beschreibt die
 
 **Heizkalender Addon (Tcl, CGI):** Gebaut mit `Addon/build.sh` (Linux/macOS).
 Näheres beschreibt die
-[Addon-Entwicklerdokumentation](docs/addon/Entwickler.md).
+[Addon-Entwicklerdokumentation](docs/addon/entwickler.md).
 
 ---
 
@@ -107,6 +109,43 @@ Neueinsteigern häufig auffallen:
   Ä, Ö, Ü, ß). Erlaubte Zeichen: A-Z, a-z, 0-9, Unterstrich.
 
 Mehr Details: [Entwickler-Dokumentation](docs/heizkalender/entwickler.md#skript-syntax-homematic-hsc).
+
+---
+
+## Addon bauen
+
+Das Addon-Paket (`heizkalender-addon-<version>.tar.gz`) wird mit dem
+Build-Skript erzeugt:
+
+```bash
+./Addon/build.sh
+```
+
+Der Aufruf erfolgt vom Projektverzeichnis aus. Die Ausgabe liegt unter
+`Addon/build/`. Die Version wird aus `Addon/src/VERSION` gelesen.
+
+Näheres zur Addon-Architektur, den CGI-Seiten und dem Paketformat beschreibt die
+[Addon-Entwicklerdokumentation](docs/addon/entwickler.md).
+
+---
+
+## Testen
+
+**HomeMatic-Skripte:** Auf der CCU unter "Einstellungen > Skripte > Skript
+testen" ausführen. Für isolierte Tests stehen im Ordner `Tests/` Testfälle
+bereit:
+
+- `Test-Duplikatcheck-Bug.hsc`: Regressionstest für False-Positives im
+  Duplikat-Check bei einstelligen Ressource-IDs
+- `Test-Nachtschaltung.hsc`: Isolierter Test des Nachtschaltungs-Blocks aus
+  HK-Skript 2 (mit `SIMULATION=1`, keine echten Aktor-Writes)
+- `churchtools.http`: REST-API-Testfälle für ChurchTools (httpYac-Format,
+  benötigt VS Code Extension [httpYac](https://httpyac.github.io/))
+
+**Diagnose-Skripte:** Der Ordner `Tools/Debug+Test/` enthält weitere Hilfsskripte
+für Diagnose und Debugging auf der CCU (Raumvariablen auslesen, Gerätereferenzen
+prüfen, Log-Ausgaben etc.). Beschreibung:
+[Debug+Test-Dokumentation](docs/tools/debug-test.md).
 
 ---
 

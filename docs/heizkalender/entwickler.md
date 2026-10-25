@@ -324,7 +324,7 @@ Beispiel: `#HKG-Raum-EG-Saal;1;18.1#HKG-Raum-UG-Buero;3;20.3#`
   [Anwenderhandbuch](anwenderhandbuch.md#sonderbefehle-in-terminen)).
 
 Die Dateiendung `.hsc` ist eine bewusste Wahl (siehe
-[Skripte/Readme.md](../skripte/readme.md)); historisch wurde `.c` verwendet.
+[Skript-Referenz](../skripte/readme.md)); historisch wurde `.c` verwendet.
 
 ## Build der `HeizkalenderInstallation.exe` (Windows, Visual Studio)
 
