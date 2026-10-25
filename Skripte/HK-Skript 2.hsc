@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    24.10.2026
+!// Stand:    25.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,8 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-10-25 HK2-Schaltzeiten: Schlüssel von ResID auf Raumvariablenname (RVN) umgestellt.
+!//                 Behebt falsche Vorlaufzeit-Anzeige bei Multi-Raum-Zuordnungen.
 !// MRi: 2026-10-21 Zieltemperatur in Log ergänzt.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-19 HK2-Schaltzeiten: berechnete Vorlauf-, Nachlauf und Schaltzeiten pro Ressource;
@@ -255,7 +257,7 @@ foreach(SLEintrag,SListe){
     if(DEBUG)  {WriteLine("---Schaltlisteneintrag für Ressource " # AktSRName # "(" # AktSR # ") " # strTemp # EIN.ToTime().Format("%X").Substr(0,5) # " / " #
                                             AUS.ToTime().Format("%X").Substr(0,5) # "  Parameter " # cap);}
   }else{
-    !// SCHALTEN / VARIABLE kennt kein Offset    
+    !// SCHALTEN / VARIABLE kennt kein Offset
     string strTemp = "Schalten: ";
     if (HSFlag=="V"){
       strTemp = "Variable setzen: ";
@@ -373,7 +375,7 @@ foreach(SLEintrag,SListe){
       !// Die  Einschaltverschiebung, kann mit einem Faktor versehen sein.
       offsetRaumAn = 0-(RVI.StrValueByIndex(";",4).StrValueByIndex("*",0).ToInteger()*60);
       offsetRaumAus = 0-(RVI.StrValueByIndex(";",5).ToInteger()*60);
-      
+
       !// Wir berücksichtigen die Offset Zeiten nur, bei normalen Heizvorgängen.
       if((HSFlag=="H") || (HSFlag=="HS")){
         offsetRaumAn = offsetRaumAn-(GrundOffsetRaumEin*60);
@@ -530,7 +532,7 @@ foreach(SLEintrag,SListe){
         integer EIN_orig = EIN;
         EIN = EIN + offsetRaumAn + offsetTempAn;
         integer vorlaufMin = (EIN_orig - EIN) / 60;
-        HK2VLZListe = HK2VLZListe # AktSR # ";" # vorlaufMin # ";" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # EIN_orig.ToTime().Format("%Y-%m-%d %X") # ";" # AUS.ToTime().Format("%Y-%m-%d %X") # ";" # ((offsetRaumAus/60)*-1) # "~";
+        HK2VLZListe = HK2VLZListe # RVN # ";" # vorlaufMin # ";" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # EIN_orig.ToTime().Format("%Y-%m-%d %X") # ";" # AUS.ToTime().Format("%Y-%m-%d %X") # ";" # ((offsetRaumAus/60)*-1) # "~";
         logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
         if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
         AUS = AUS + offsetRaumAus;
@@ -539,18 +541,18 @@ foreach(SLEintrag,SListe){
         if(DEBUG)  {WriteLine(logText);}
       }
     }else{
-      !// SCHALTEN / VARIABLE kennt kein Offset    
+      !// SCHALTEN / VARIABLE kennt kein Offset
       string strTemp = " - Schalten - ";
       if (HSFlag=="V"){
         strTemp = " - Variable setzen - ";
       }
-    
+
       !// Reale Schaltzeiten berechnen
       string logText = RaumLogName # strTemp #EIN.ToTime().Format("%X").Substr(0,5) # " ";
       if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
       logText = logText # (offsetRaumAn/60) #"min = ";
       EIN = EIN + offsetRaumAn;
-      HK2VLZListe = HK2VLZListe # AktSR # ";0;" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # AUS.ToTime().Format("%Y-%m-%d %X") # ";" # ((offsetRaumAus/60)*-1) # "~";
+      HK2VLZListe = HK2VLZListe # RVN # ";0;" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # EIN.ToTime().Format("%Y-%m-%d %X") # ";" # AUS.ToTime().Format("%Y-%m-%d %X") # ";" # ((offsetRaumAus/60)*-1) # "~";
       logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
       if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
       AUS = AUS + offsetRaumAus;

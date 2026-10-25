@@ -355,27 +355,28 @@ proc lookup_isttemp {rname ist_temps_var} {
 }
 
 # ---------------------------------------------------------------------------
-# HK2-Schaltzeiten parsen: ResID -> {VorlaufMin HeizenAb}
-# Format: RessourcenID;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...
+# HK2-Schaltzeiten parsen: RaumVarName -> {VorlaufMin HeizenAb}
+# Format: RaumVarName;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...
 # ---------------------------------------------------------------------------
-set has_vlz $vlz_present
-set vlz_by_rid {}
 set vlz_raw [string trim $vlz_raw]
+if {[string equal $vlz_raw "???"] || [string equal $vlz_raw ""]} { set vlz_raw "" }
+set has_vlz [expr {$vlz_present && ![string equal $vlz_raw ""]}]
+set vlz_by_room {}
 foreach entry [split $vlz_raw "~"] {
     set entry [string trim $entry]
     if {[string equal $entry ""]} { continue }
     set fields [split $entry ";"]
-    set rid    [string trim [lindex $fields 0]]
+    set rvar   [string trim [lindex $fields 0]]
     set vmin   [string trim [lindex $fields 1]]
     set heiab  [string trim [lindex $fields 2]]
-    if {![string equal $rid ""]} {
-        lappend vlz_by_rid $rid [list $vmin $heiab]
+    if {![string equal $rvar ""]} {
+        lappend vlz_by_room $rvar [list $vmin $heiab]
     }
 }
 
-proc lookup_vlz {rid vlz_by_rid_var} {
-    upvar $vlz_by_rid_var vb
-    set idx [lsearch $vb $rid]
+proc lookup_vlz {varname vlz_by_room_var} {
+    upvar $vlz_by_room_var vb
+    set idx [lsearch $vb $varname]
     if {$idx >= 0 && ($idx % 2) == 0} { return [lindex $vb [expr {$idx + 1}]] }
     return {}
 }
@@ -552,11 +553,7 @@ if {[llength $raeume] == 0} {
 
         set modus_str [format_hsflag $modus]
         if {$has_vlz} {
-            set vlz_info {}
-            foreach rid $rids {
-                set vlz_info [lookup_vlz $rid vlz_by_rid]
-                if {[llength $vlz_info] >= 2} { break }
-            }
+            set vlz_info [lookup_vlz $varname vlz_by_room]
             set vorlauf_str ""
             set heiab_str ""
             if {[llength $vlz_info] >= 2} {

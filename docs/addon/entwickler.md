@@ -152,7 +152,7 @@ Verwendete Systemvariablen:
 - `HK1-R-Liste`: Ressourcen-Namenszuordnung (`ID=Name;...`), positionsbasiert
 - `HK2-HKG-Liste`: Zuordnung Ressource zu HKG-Raum-Variablen, positionsbasiert
 - `HK2-Aussentemperatur`: Gleitender Außentemperatur-Durchschnitt für Vorheizzeitberechnung
-- `HK2-Schaltzeiten`: Berechnete Vorlauf- und Schaltzeiten je Ressource (optional; steuert ob Spalten „Vorlauf" und „Heizen ab" angezeigt werden)
+- `HK2-Schaltzeiten`: Berechnete Vorlauf- und Schaltzeiten je Raum (optional; steuert ob Spalten „Vorlauf" und „Heizen ab" angezeigt werden)
 - `HKG-Raum-*`: Raumvariablen (Status, Modus, Wohlfühltemperatur, opt. Sensorkanal)
 
 Ablauf:
@@ -160,7 +160,7 @@ Ablauf:
 1. `HKG-Raum-*` auslesen: Status, Modus, Wohlfühltemperatur, optionaler Sensorkanal.
 2. `HK2-HKG-Liste` + `HK1-R-Liste`: positionsbasiertes Mapping Variablenname zu ResID (identisch zum Vorgehen in Skript 1).
 3. `HK1-Schaltliste`: mit der ResID den besten Termin ermitteln (laufend > nächster zukünftiger > letzter vergangener).
-4. `HK2-Schaltzeiten` (optional): falls vorhanden, Vorlaufzeit und Einschaltzeitpunkt je ResID nachschlagen und in den Spalten „Vorlauf" und „Heizen ab" anzeigen. Ist die Variable nicht vorhanden, entfallen diese beiden Spalten komplett.
+4. `HK2-Schaltzeiten` (optional): falls vorhanden, Vorlaufzeit und Einschaltzeitpunkt je Raumvariablenname nachschlagen und in den Spalten „Vorlauf" und „Heizen ab" anzeigen. Ist die Variable nicht vorhanden, entfallen diese beiden Spalten komplett.
 5. Sensorkanal (Feld 6 der Raumvariable, optional): Ist-Temperatur und Luftfeuchtigkeit direkt aus dem HomeMatic-Gerät lesen.
 
 Schaltlisten-Zeitstempel (`JJJJ-MM-TT HH:MM:SS`) werden mit einer eigenen `parse_ts`-Prozedur in Unix-Timestamps umgewandelt, da `clock scan` in Tcl 8.2 kein ISO-Datumsformat versteht (nur US-Format `MM/DD/JJJJ HH:MM:SS`).

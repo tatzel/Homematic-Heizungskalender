@@ -13,6 +13,19 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-25]
+
+### Geändert
+
+- **Breaking Change:** `HK2-Schaltzeiten` verwendet jetzt den Raumvariablennamen (z.B. `HKG-Raum-GrSaal`) statt der RessourcenID als Schlüssel. Behebt falsche Vorlaufzeit-Anzeige bei Multi-Raum-Zuordnungen.
+- `HK-Skript 2`: `AktSR` durch `RVN` in HK2VLZListe ersetzt
+- Addon `index.cgi`: Parsing und Lookup auf Raumvariablenname umgestellt
+- Addon `sysvars.cgi`: Spaltenüberschrift "ID" auf "Raum" geändert
+
+### Behoben
+
+- Addon `sysvars.cgi`, `index.cgi`: CCU-Initialwert `???` in HK2-Schaltzeiten wird als leer behandelt
+
 ## [2026-10-24]
 
 ### Geändert
