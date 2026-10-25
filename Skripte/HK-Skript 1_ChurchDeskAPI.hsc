@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (API)
 !//================================================================================================
-!// Stand:    23.10.2026
+!// Stand:    25.10.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -17,6 +17,8 @@
 !// "öffentlich" werden aktuell von der API zurückgegegeben.
 !// ***********************************************************************************************
 
+!// TT:  2026-10-25 Bugfix: Fehlendes quit; bei HTTP-Fehler. Ohne quit; lief das Skript mit
+!//                 leerem stdout weiter und ueberschrieb die Schaltliste mit leerem String.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-18 HK1-Vorlaufzeit: zeitVorlauf aus optionaler Systemvariable lesen (Default 12h)
 !// TT:  2026-10-01 Vorlauf von 8h auf 12h vereinheitlicht (alle Skript-1-Varianten jetzt
@@ -133,7 +135,7 @@ if(DEBUG){
 !// Neue Schaltliste
 string SLT="";
 
-!// Ergebn is prüfen
+!// Ergebnis prüfen
 if (stdout=="[]"){
   !// Keine Termine
   if(DEBUG){
@@ -144,6 +146,7 @@ if (stdout=="[]"){
   if(DEBUG){
     WriteLine("Fehler beim Lesen der Event-Daten von ChurchDesk!");
   }
+  quit;
 }else{
   !// Termine durchlesen
   string termine = stdout.Replace("\"updatedAt\":\"","\t");

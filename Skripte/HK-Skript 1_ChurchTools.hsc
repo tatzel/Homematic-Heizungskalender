@@ -165,7 +165,7 @@ if(DEBUG){
 !// Neue Schaltliste
 string SLT="";
 
-!// Ergebn is prüfen
+!// Ergebnis prüfen
 if (stdout.Contains("\"meta\":{\"count\":0}")){
   !// Keine Termine
   if(DEBUG){
