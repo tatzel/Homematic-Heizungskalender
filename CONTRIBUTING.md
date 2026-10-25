@@ -106,7 +106,7 @@ Neueinsteigern häufig auffallen:
 - **Variablennamen dürfen keine deutschen Sonderzeichen enthalten** (ä, ö, ü,
   Ä, Ö, Ü, ß). Erlaubte Zeichen: A-Z, a-z, 0-9, Unterstrich.
 
-Mehr Details: [Entwickler-Dokumentation](Dokumentation/Entwickler.md#skript-syntax-homematic-hsc).
+Mehr Details: [Entwickler-Dokumentation](docs/heizkalender/entwickler.md#skript-syntax-homematic-hsc).
 
 ---
 
@@ -117,3 +117,4 @@ eigene, fest einkompilierte Meta-Skripte anlegt (nicht aus den `.hsc`-Dateien
 liest). Vor der Einführung einer neuen Variablen bitte im Issue oder PR
 beschreiben, warum ein Hardcode-Wert nicht ausreicht. Näheres:
 [Entwickler-Dokumentation](Dokumentation/Entwickler.md#änderungs-workflow).
+w).
