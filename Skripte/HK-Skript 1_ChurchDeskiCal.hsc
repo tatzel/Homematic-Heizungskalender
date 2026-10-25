@@ -21,6 +21,8 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-25 Bugfix: DTEND-Parsing ohne iPos-Pruefung. Bei fehlendem DTEND war
+!//                 iPos=-1 und Substr las Datenmüll als Enddatum. Jetzt continue; bei iPos<0.
 !// TT:  2026-10-25 Bugfix: Variable Shadowing bei strTemp. Die innere Deklaration
 !//                 "string strTemp" im DESCRIPTION-Block ueberdeckte die aeussere Variable,
 !//                 sodass Sonderbefehle (#EIN#, #AUS#, #GT# etc.) nie ausgewertet wurden.
@@ -242,6 +244,10 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       }
 
       iPos = termin.Find("\nDTEND:");
+      if (iPos<0){
+        !// Kein Enddatum gefunden
+        continue;
+      }
       endDatum=termin.Substr(iPos+7,13).Replace("T"," ");
       endDatum=endDatum.Substr(0,4)#"-"#endDatum.Substr(4,2)#"-"#endDatum.Substr(6,2)#" "#endDatum.Substr(9,2)#":"#endDatum.Substr(11,2);
       endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
