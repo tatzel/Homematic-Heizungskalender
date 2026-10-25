@@ -16,7 +16,7 @@ foreach param [split $query_string "&"] {
     if {[string equal $key "file"]} {
         set basename [file tail $val]
         set pat "HK-Log_*.log"
-        if {[string match $pat $basename]} {
+        if {[string match $pat $basename] && ![regexp {[\r\n]} $basename]} {
             set file_param $basename
         }
     }
