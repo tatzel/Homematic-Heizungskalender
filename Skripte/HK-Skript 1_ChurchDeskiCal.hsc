@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    23.10.2026
+!// Stand:    25.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,8 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-25 Bugfix: Fehlendes continue; bei HTTP-Fehler. Ohne continue; lief das Skript
+!//                 mit leerem stdout in die Terminverarbeitung und erzeugte falsche Schaltzeiten.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-18 HK1-Vorlaufzeit: zeitVorlauf aus optionaler Systemvariable lesen (Default 12h)
 !// TT:  2026-10-01 Vorlauf von 8h auf 12h vereinheitlicht (alle Skript-1-Varianten jetzt
@@ -205,6 +207,7 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       WriteLine("Fehler beim Lesen der Event-Daten von ChurchDesk! " # RId);
       WriteLine("Out:\n" # stdout # "Err:\n" # stderr);
     }
+    continue;
   }else{
     !// Zeitzone abschneiden
     integer iPos = stdout.Find("\nBEGIN:VEVENT\n");
