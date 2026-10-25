@@ -21,6 +21,9 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-25 Bugfix: Variable Shadowing bei strTemp. Die innere Deklaration
+!//                 "string strTemp" im DESCRIPTION-Block ueberdeckte die aeussere Variable,
+!//                 sodass Sonderbefehle (#EIN#, #AUS#, #GT# etc.) nie ausgewertet wurden.
 !// TT:  2026-10-25 Bugfix: Fehlendes continue; bei HTTP-Fehler. Ohne continue; lief das Skript
 !//                 mit leerem stdout in die Terminverarbeitung und erzeugte falsche Schaltzeiten.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
@@ -270,7 +273,7 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       string strTemp = "";
       iPos = termin.Find("\nDESCRIPTION:");
       if (iPos>=0){
-        string strTemp = termin.Substr(iPos+13);
+        strTemp = termin.Substr(iPos+13);
         iPos = strTemp.Find("\n");
         strTemp = strTemp.Substr(0,iPos);
         if (DEBUG){
