@@ -22,6 +22,9 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-25 Bugfix: Variable Shadowing bei strTemp. Die innere Deklaration
+!//                 "string strTemp" im DESCRIPTION-Block ueberdeckte die aeussere Variable,
+!//                 sodass Sonderbefehle (#EIN#, #AUS#, #GT# etc.) nie ausgewertet wurden.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-18 HK1-Vorlaufzeit: zeitVorlauf aus optionaler Systemvariable lesen (Default 12h)
 !// TT:  2026-10-01 Vorlauf von 8h auf 12h vereinheitlicht (alle Skript-1-Varianten jetzt
@@ -515,7 +518,7 @@ foreach(RIdEintrag,RIdListe.Split(";")) {
     string strTemp = "";
     iPos = termin.Find("\nDESCRIPTION:");
     if (iPos>=0) {
-      string strTemp = termin.Substr(iPos+13);
+      strTemp = termin.Substr(iPos+13);
       iPos = strTemp.Find("\n");
       strTemp = strTemp.Substr(0,iPos);
       if (DEBUG){
