@@ -82,7 +82,7 @@ Für ein Update oder das Ändern der aktuellen Parameter starten Sie die `Heizka
 
 Im Folgenden werden die einzelnen Seiten der `HeizkalenderInstallation.exe` beschrieben.
 
-Greundsätzlich kann die *Eigenschaftseite Vwerbindung zur CCU* nicht verlassen werden, solange keine Verbindung erfolgreich hergestellt wurde.
+Grundsätzlich kann die *Eigenschaftseite Verbindung zur CCU* nicht verlassen werden, solange keine Verbindung erfolgreich hergestellt wurde.
 
 Die Eigenschaftseiten *Programme, Einstellungen, Kalenderzuordnungen, Räume* und *Systemvariablen* werden im nachfolgenden beschrieben.
 
@@ -205,44 +205,44 @@ Die Einstellungen auf dieser Seite beeinflussen das Grundverhalten des Heizkalen
 
 Um die Funktionsweise des Heizkalenders transparent zu machen, wird das Systemprotokoll benutzt. Die Protokollierung kann dabei sehr granular aktiviert werden.
 
-- **Allgemeine Protokollierung der Heizkalenderfunktionen**  
-    Diese Funktion umfasst die Protokollierung allgemeiner Skripte, wie zum Beispiel die Außentemperaturermittlung. Über diese Option kann die Protokollierung ein- und ausgeschaltet werden.  
+- **Allgemeine Protokollierung der Heizkalenderfunktionen**
+    Diese Funktion umfasst die Protokollierung allgemeiner Skripte, wie zum Beispiel die Außentemperaturermittlung. Über diese Option kann die Protokollierung ein- und ausgeschaltet werden.
     Dieser Wert wird in der Variable `HK-Logging` gespeichert.
 
-- **Protokollierung für Skript 1**  
-    Das `HK-Skript 1` dient dazu, die Termine aus den verschiedenen Terminquellen (ChurchDesk, ChurchTools, Google, iCal) einzulesen. Über diese Option kann die Protokollierung ein- und ausgeschaltet werden.  
+- **Protokollierung für Skript 1**
+    Das `HK-Skript 1` dient dazu, die Termine aus den verschiedenen Terminquellen (ChurchDesk, ChurchTools, Google, iCal) einzulesen. Über diese Option kann die Protokollierung ein- und ausgeschaltet werden.
     Dieser Wert wird in der Variable `HK1-Logging` gespeichert.
 
-- **Protokollierung für Skript 2**  
+- **Protokollierung für Skript 2**
     Das `HK-Skript 2` führt anhand der gelesenen Termine die eigentlichen Schaltvorgänge für die Heizungssteuerung durch. Über diese Option kann die Protokollierung ein- und ausgeschaltet werden.
     Dieser Wert wird in der Variable `HK2-Logging` gespeichert.
 
-- **Protokollierung für die Heizkurvenkontrolle**  
-    Das spezielle Skript `HK-Heizkurvenkontrolle` analysiert die aktuellen Heiztemperaturen. Mit den Einträgen dieses Protokolls lässt sich die Heizkurve optimieren oder grundsätzlich prüfen, ob die eingestellte Heizkurve funktioniert.  
+- **Protokollierung für die Heizkurvenkontrolle**
+    Das spezielle Skript `HK-Heizkurvenkontrolle` analysiert die aktuellen Heiztemperaturen. Mit den Einträgen dieses Protokolls lässt sich die Heizkurve optimieren oder grundsätzlich prüfen, ob die eingestellte Heizkurve funktioniert.
     Dieser Wert wird in der Variable `HK-LoggingHeizkurvenkontrolle` gespeichert.
 
 Beachten Sie, dass das Systemprotokoll nicht unendlich lang ist. Um das Heizverhalten über einen längeren Zeitraum beobachten zu können, sollten Sie einen USB-Stick einstecken und das Skript `HK-Systemprotokoll sichern` aktivieren. Dieses Skript speichert ältere Einträge des Systemprotokolls zyklisch auf dem USB-Stick. Ist kein USB-Stick eingesteckt, hat das Programm keine Wirkung.
 
 #### Rückstellungsverhalten
 
-- **Alle Räume Nachts um 01:00 Uhr auf Grundtemperatur zurückgestellt werden**  
-    Ist diese Funktion aktiviert, kontrolliert `HK-Skript 2` nachts um 01:00 Uhr (genauer: täglich zwischen 00:57 und 01:03 Uhr), ob ein Heizkörper noch auf Heizen steht, also nicht auf die Grundtemperatur gestellt wurde. Das betrifft alle Räume ohne aktiven Termin. Ist dies der Fall, wird der Heizkörper bzw. die Heizgruppe auf die Raumgrundtemperatur zurückgesetzt.  
-    Dieser Wert wird in der Variable `HK2-Hand-Grundtemp` gespeichert.  
-    Details zur Nachtschaltung finden sich im [Anwenderhandbuch](../heizkalender/anwenderhandbuch.md).  
+- **Alle Räume Nachts um 01:00 Uhr auf Grundtemperatur zurückgestellt werden**
+    Ist diese Funktion aktiviert, kontrolliert `HK-Skript 2` nachts um 01:00 Uhr (genauer: täglich zwischen 00:57 und 01:03 Uhr), ob ein Heizkörper noch auf Heizen steht, also nicht auf die Grundtemperatur gestellt wurde. Das betrifft alle Räume ohne aktiven Termin. Ist dies der Fall, wird der Heizkörper bzw. die Heizgruppe auf die Raumgrundtemperatur zurückgesetzt.
+    Dieser Wert wird in der Variable `HK2-Hand-Grundtemp` gespeichert.
+    Details zur Nachtschaltung finden sich im [Anwenderhandbuch](../heizkalender/anwenderhandbuch.md).
     **Diese Option sollte immer eingeschaltet werden.**
-- **Am Ende eines Termines eine manuell eingestellte/abweichende Temperatur für den Raum beibehalten**<  
-    Ist diese Option ausgeschaltet, wird nach Ablauf des Heizintervalls immer auf die Grundtemperatur des Raumes zurückgestellt. Ist die Option eingeschaltet und wird während eines Heizintervalls die Temperatur eines Raumes manuell am Thermostat geändert, bleibt diese Temperatur nach Ablauf der Heizphase erhalten, d. h. die Heizung wird nicht abgestellt. Spätestens bei eingeschalteter **Rückstellung auf Grundtemperatur** (s. o.) wird jedoch die Grundtemperatur wieder eingestellt.  
-    Dieser Wert wird in der Variable `HK2-Hand-Temp` gespeichert.  
+- **Am Ende eines Termines eine manuell eingestellte/abweichende Temperatur für den Raum beibehalten**<
+    Ist diese Option ausgeschaltet, wird nach Ablauf des Heizintervalls immer auf die Grundtemperatur des Raumes zurückgestellt. Ist die Option eingeschaltet und wird während eines Heizintervalls die Temperatur eines Raumes manuell am Thermostat geändert, bleibt diese Temperatur nach Ablauf der Heizphase erhalten, d. h. die Heizung wird nicht abgestellt. Spätestens bei eingeschalteter **Rückstellung auf Grundtemperatur** (s. o.) wird jedoch die Grundtemperatur wieder eingestellt.
+    Dieser Wert wird in der Variable `HK2-Hand-Temp` gespeichert.
   **Diese Option sollte immer ausgeschaltet werden.**
 
 #### Temperatureinstellungen
 
-- **Grundtemperatur für alle Räume, wenn kein Heizvorgang läuft**  
-    Die Grundtemperatur ist die Temperatur, die eingestellt wird, wenn für einen Raum keine Heizphase eingestellt wurde. Sie kann bei Bedarf in den Einstellungen eines Raumes individuell festgelegt werden.  
+- **Grundtemperatur für alle Räume, wenn kein Heizvorgang läuft**
+    Die Grundtemperatur ist die Temperatur, die eingestellt wird, wenn für einen Raum keine Heizphase eingestellt wurde. Sie kann bei Bedarf in den Einstellungen eines Raumes individuell festgelegt werden.
     Dieser Wert wird in der Variable `HK2-Grundtemperatur` gespeichert.
 
-- **Außentemperaturgrenze, ab der kein Heizvorgang mehr ausgeführt werden soll**  
-    Hier wird die Temperatur eingestellt, ab der grundsätzlich nicht mehr geheizt wird. Liegt die durchschnittliche Außentemperatur über diesem Wert, wird kein Heizvorgang mehr gestartet.  
+- **Außentemperaturgrenze, ab der kein Heizvorgang mehr ausgeführt werden soll**
+    Hier wird die Temperatur eingestellt, ab der grundsätzlich nicht mehr geheizt wird. Liegt die durchschnittliche Außentemperatur über diesem Wert, wird kein Heizvorgang mehr gestartet.
     Dieser Wert wird in der Variable `HK2-A.Temp.Grenze` gespeichert.
 
 ##### Heizkurve / Vorheizzeiten bei entsprechenden Außentemperaturen
@@ -309,32 +309,32 @@ In diesem Dialog legen Sie die individuellen Eigenschaften eines Raumes sowie di
 
 ![Raum-Eigenschaften](bilder/HKI-Raum.png)
 
-- **Name**  
+- **Name**
   Das Feld Name bestimmt, welche Variable `HKG-Raum-<Name>` zum Speichern der Informationen verwendet wird. Der Name wird außerdem intern in der `HeizkalenderInstallation.exe` bei der *Kalenderzuordnung* verwendet.
 
-- **Modus**  
+- **Modus**
     Es gibt drei verschiedene Modi zum Ansteuern der Thermostate oder Aktoren eines Raumes. Weitere Informationen finden Sie im Abschnitt *Modus*. Üblicherweise wird *Heizen* zur Steuerung von Thermostaten und *Schalten* zur Steuerung von Aktoren (zum Beispiel einer Außenbeleuchtung oder Lüftungsanlage) benutzt. Der Modus *Heizen+Schalten* ist ein spezieller Modus, mit dem eine Heizungsanlage mit eigener Temperatursteuerung geregelt werden kann.
 
-- **Wohlfühltemperatur**  
-    Diese Temperatur ist die Zieltemperatur, die bei einem Termin für diesen Raum erreicht werden soll. Da jeder Raum seine eigene Zieltemperatur hat, kann zum Beispiel ein Gruppenraum auf 20 °C und ein WC auf 18 °C vorbelegt werden.  
+- **Wohlfühltemperatur**
+    Diese Temperatur ist die Zieltemperatur, die bei einem Termin für diesen Raum erreicht werden soll. Da jeder Raum seine eigene Zieltemperatur hat, kann zum Beispiel ein Gruppenraum auf 20 °C und ein WC auf 18 °C vorbelegt werden.
     Im Modus *Schalten* wird dieser Wert nicht verwendet.
 
-- **Abweichende Grundtemperatur**  
+- **Abweichende Grundtemperatur**
     Dies ist die Temperatur, die für diesen Raum außerhalb der Heizzeiten eingestellt sein soll. Der Wert ist mit dem Wert aus den Einstellungen vorbelegt und lässt sich für jeden Raum individuell ändern. So kann zum Beispiel ein Raum weniger stark abgesenkt werden, als es in einer Installation normalerweise üblich ist.
 
-- **Vorzeitiger Heiz-/Schaltbeginn**  
-    Mit diesem Wert kann der Heiz-/Schaltbeginn grundsätzlich vorverlegt werden, zusätzlich zu der Zeit, die sich aus Außentemperatur, Heizkurve und Temperaturdifferenz zur Zieltemperatur ergibt.  
-    Im Modus *Schalten* wird keine Vorheizzeit berechnet. Der Wert kann aber trotzdem genutzt werden, um zum Beispiel eine Außenbeleuchtung 30 min früher einzuschalten.  
+- **Vorzeitiger Heiz-/Schaltbeginn**
+    Mit diesem Wert kann der Heiz-/Schaltbeginn grundsätzlich vorverlegt werden, zusätzlich zu der Zeit, die sich aus Außentemperatur, Heizkurve und Temperaturdifferenz zur Zieltemperatur ergibt.
+    Im Modus *Schalten* wird keine Vorheizzeit berechnet. Der Wert kann aber trotzdem genutzt werden, um zum Beispiel eine Außenbeleuchtung 30 min früher einzuschalten.
     Ein positiver Wert verschiebt den Einschaltpunkt nach vorne, ein negativer Wert verschiebt ihn zeitlich nach hinten.
 
-- **Vorzeitiges Heiz-/Schaltende**  
-    Mit diesem Wert kann das Heiz-/Schaltende grundsätzlich vorverlegt werden.  
-    Es kann sinnvoll sein, das Heizen eines Raumes bereits 30 min vor dem Ende des Termins zu beenden oder die Außenbeleuchtung 30 min über das Ende eines Termins hinaus eingeschaltet zu lassen.  
+- **Vorzeitiges Heiz-/Schaltende**
+    Mit diesem Wert kann das Heiz-/Schaltende grundsätzlich vorverlegt werden.
+    Es kann sinnvoll sein, das Heizen eines Raumes bereits 30 min vor dem Ende des Termins zu beenden oder die Außenbeleuchtung 30 min über das Ende eines Termins hinaus eingeschaltet zu lassen.
     Ein positiver Wert verschiebt den Ausschaltpunkt nach vorne, ein negativer Wert verschiebt ihn zeitlich nach hinten.
 
-- **Faktor Heizkurve**  
-    Im Modus *Heizen* wird aus der eingestellten Heizkurve, der Außentemperatur und der aktuellen Raumtemperatur eine Vorheizzeit berechnet. Für Räume mit vielen Außenwänden oder einem trägen Heizsystem (Fußbodenheizung) kann es nützlich sein, die Vorheizzeit mit einem Faktor zu vergrößern. Für eine Fußbodenheizung kann der Faktor 3,5 eine gute Voreinstellung sein. Bei innen liegenden Räumen lässt sich die Vorheizzeit zum Beispiel mit dem Faktor 0,5 halbieren.  
-    Im Modus *Schalten* wird dieser Wert nicht verwendet.  
+- **Faktor Heizkurve**
+    Im Modus *Heizen* wird aus der eingestellten Heizkurve, der Außentemperatur und der aktuellen Raumtemperatur eine Vorheizzeit berechnet. Für Räume mit vielen Außenwänden oder einem trägen Heizsystem (Fußbodenheizung) kann es nützlich sein, die Vorheizzeit mit einem Faktor zu vergrößern. Für eine Fußbodenheizung kann der Faktor 3,5 eine gute Voreinstellung sein. Bei innen liegenden Räumen lässt sich die Vorheizzeit zum Beispiel mit dem Faktor 0,5 halbieren.
+    Im Modus *Schalten* wird dieser Wert nicht verwendet.
     Erlaubt sind Werte zwischen 0,2 und 5. Das entspricht minimal 20 % und maximal dem Fünffachen der errechneten Vorheizzeit.
 
 ##### Modus
@@ -345,14 +345,14 @@ Der Modus legt fest, wie die Thermostate oder Aktoren des Raumes angesteuert wer
 
 Es stehen die folgenden Modis zur Verfügung:
 
-- H = Heizen  
+- H = Heizen
     Dies ist der Standardmodus für den Heizkalender. Dieser wird benutzt um Thermostate oder Heizgruppen anzusteuern. In diesem Modus werden auch Vorheizzeiten berücksichtigt, die Anhand der Außentemperatur, der aktuellen Raumtemperatur und der Zieltemperatur berechnet werden.
     Entsprechend können in diesem Modus nur Geräte und Aktoren mit Datenpunkten zugeordnet werden, die dem Typ "Heizung" zugeordnet sind.
-- HS = Heizen+Schalten  
-    Dieser Modus ist ein spezieller Modus, der über den ersten Aktor/Temperatursensor eine Temperaturermittlung ausführen kann. Alle weiteren Aktoren müssen Schaltaktoren sein. In diesem Modus werden auch Vorheizzeiten berücksichtigt, die Anhand der Außentemperatur, der aktuellen Raumtemperatur und der Zieltemperatur berechnet werden.  
+- HS = Heizen+Schalten
+    Dieser Modus ist ein spezieller Modus, der über den ersten Aktor/Temperatursensor eine Temperaturermittlung ausführen kann. Alle weiteren Aktoren müssen Schaltaktoren sein. In diesem Modus werden auch Vorheizzeiten berücksichtigt, die Anhand der Außentemperatur, der aktuellen Raumtemperatur und der Zieltemperatur berechnet werden.
     Dieser Modus kann dazu verwendet werden, eine Heizung anzuschalten, deren Steuerung über ein eigenes Thermostat erfolgt. Dies kann eine z.B. Luftheizung sein. Der erste Aktor kann, aber muss nicht definiert sein. Ist er nicht definiert wird entweder die Außentemperatur oder die Grundtemperatur verwendet.
-- S = Schalten  
-    In diesem Modus können alle Schaltaktoren gesteuert werden. Vorheizzeiten werden hier nicht angewendet.  
+- S = Schalten
+    In diesem Modus können alle Schaltaktoren gesteuert werden. Vorheizzeiten werden hier nicht angewendet.
     Entsprechend können in diesem Modus nur Geräte und Aktoren mit Schaltdatendatenpunkten zugeordnet werden. Damit lässt sich zum Beispiel eine Außenbeleuchtung steuern.
 
 ##### Geräteauswahl (Thermostate/Sensoren/Schaltaktoren)
@@ -385,7 +385,7 @@ Der Gerätetyp steht in diesem Fall immer auf *SW = Sonstiges*.
 
 ###### Modus Variable setzen
 
-Im Modus **Variable setzen** wird im dritten Feld **Systemvariable** eine Systemvariable vom Typ Boolean ausgewählt. 
+Im Modus **Variable setzen** wird im dritten Feld **Systemvariable** eine Systemvariable vom Typ Boolean ausgewählt.
 
 In diesem Modus wird kein Aktor gesteuert. In diesem Modus wird für eine Schaltphase nur eine Variable auf *true* gesetzt. Ist die Schaltphase vorbei, wird der Wert der Systemvariable wieder auf *false* gesetzt.
 
@@ -447,27 +447,27 @@ Dieser Dialog zeigt den aktuellen Status einer Systemvariablen: die interne ID, 
 
 Die Einstellungen werden gespeichert, indem Sie im Hauptdialog auf den Schalter **OK** klicken.
 
-- Sind Programme vorhanden, die aktualisiert oder installiert werden müssen wird automatisch auf die Änderungen hingewiesen, wenn die *Eigenschaftsseite Programme/Skripte* bisher nicht kontrolliert wurde.  
-    ![Geänderte Programme](bilder/HKI-ProgrammeGeändert.png)  
+- Sind Programme vorhanden, die aktualisiert oder installiert werden müssen wird automatisch auf die Änderungen hingewiesen, wenn die *Eigenschaftsseite Programme/Skripte* bisher nicht kontrolliert wurde.
+    ![Geänderte Programme](bilder/HKI-ProgrammeGeändert.png)
     Nach Betätigen des **OK**-Schalters wird die Eigenschaftseite zur Kontrolle aufgerufen.
 
-- Wurden neue Räume eingelesen und die *Eigenschaftsseite Kalenderzuordnung* bisher nicht kontrolliert, wird auf die Änderungen hingewiesen um eine Kontrolle zu ermöglichen.  
-    ![Geänderte Raumliste](bilder/HKI-RaumListeGeändert.png)  
+- Wurden neue Räume eingelesen und die *Eigenschaftsseite Kalenderzuordnung* bisher nicht kontrolliert, wird auf die Änderungen hingewiesen um eine Kontrolle zu ermöglichen.
+    ![Geänderte Raumliste](bilder/HKI-RaumListeGeändert.png)
     Nach Betätigen des **OK**-Schalters wird die Eigenschaftseite zur Kontrolle aufgerufen.
 
-- Wurden Systemvariablen geändert oder angepasst und die *Eigenschaftsseite Systemvariablen* bisher nicht kontrolliert, wird auf die Änderungen hingewiesen um eine Kontrolle zu ermöglichen.  
-    ![Geänderte Systemvariablen](bilder/HKI-SystemvariablenGeändert.png)  
+- Wurden Systemvariablen geändert oder angepasst und die *Eigenschaftsseite Systemvariablen* bisher nicht kontrolliert, wird auf die Änderungen hingewiesen um eine Kontrolle zu ermöglichen.
+    ![Geänderte Systemvariablen](bilder/HKI-SystemvariablenGeändert.png)
     Nach Betätigen des **OK**-Schalters wird die Eigenschaftseite zur Kontrolle aufgerufen.
 
-**Wurden alle Einstellungen kontrolliert erfolgt vor dem Update der CCU die folgende Frage:**  
+**Wurden alle Einstellungen kontrolliert erfolgt vor dem Update der CCU die folgende Frage:**
 ![Änderungen speichern](bilder/HKI-ÄnderungenSpeichern2.png)
 
-Wird diese Frage mit **Ja** beantwortet, erfolgt ein Update der CCU.Beachten Sie, dass viele der Änderungen, insbesondere bei Änderungen der Kalenderquelle oder dem Aktualisieren der Raumliste, nicht rückgängig gemacht werden können.  
+Wird diese Frage mit **Ja** beantwortet, erfolgt ein Update der CCU.Beachten Sie, dass viele der Änderungen, insbesondere bei Änderungen der Kalenderquelle oder dem Aktualisieren der Raumliste, nicht rückgängig gemacht werden können.
 Halten Sie aus diesem Grund immer ein aktuelle Backup bereit.
 
 Wird die Frage mit **Nein** beantwortet kehrt man in das Installationsprogramm zurück und kann weitere Korrekturen oder Änderungen vornehmen.
 
-**Wenn die Daten erfolgreich gespeichert werden wird dies durch die folgende Meldung bestätigt.**  
+**Wenn die Daten erfolgreich gespeichert werden wird dies durch die folgende Meldung bestätigt.**
 ![Änderungen gespeichert](bilder/HKI_Gespeichert.png)
 
 **Wird nun der **OK**-Schalter betätigt wird die `HeizkalenderInstallation.exe` automatisch beendet.**
@@ -488,21 +488,21 @@ Wird die Frage mit **Nein** beantwortet, kann man weiterhin Änderungen vornehme
 
 Die folgenden Log-Dateien werden bei Programmstart direkt erzeugt. Sie dienen keinem internen technische Zweck und können bei der Fehlerursache und beim evtl. Korrekturen oder Fehlerbehebungen helfen.
 
-Die Ausgabe der Log-Dateien erfolgt automatisch im zugehörigen Ordner für temporäre Dateien von Windows (Environment Variable %TMP%).  
+Die Ausgabe der Log-Dateien erfolgt automatisch im zugehörigen Ordner für temporäre Dateien von Windows (Environment Variable %TMP%).
 Üblicherweise heiß dieser Ordner `C:\Users\<Benutzername>\AppData\Local\Temp`. Der Ordner kann einfach geöffnet werden in dem man in der Adressenleiste des Explorers *%TMP%* eingibt un die Eigabetaste drückt.
 
 ### Folgenden Logdateien werden beim Start des Installatinsprogramms erzeugt
 
-- `HeizkalenderInstallation_Devices.log`  
+- `HeizkalenderInstallation_Devices.log`
     Diese Datei enthält eine Liste der auf der CCU installierten Geräte. Für jedes Gerät wird eine Ausgabezeile erzeugt.
-- `HeizkalenderInstallation_Programs.log`  
+- `HeizkalenderInstallation_Programs.log`
     Alle installierten Programme werden heruntergeladen und in dieser Protokolldatei gespeichert. Für jedes Gerät wird eine Ausgabezeile erzeugt. Zeielnschaltungen innerhalb des Programmes werden durch ein %0A ersetzt. Auch bestimmte Sonderzeichen werden auf diese Weise substituiert.
-- `HeizkalenderInstallation_SysVars.log`  
+- `HeizkalenderInstallation_SysVars.log`
     Bei Programmstart werden alle Systemvariablen, deren Inhalt und Typ in dieser Datei ausgegeben.
 
 ### Folgenden Logdateien werden beim Beenden des Installatinsprogramms erzeugt, wenn die CCU aktualisiert wird
 
-- `HeizkalenderInstallation_update.log`  
+- `HeizkalenderInstallation_update.log`
     Alle Änderungen, die der Installer per Skript an der CCU vornimmt werden in diesem Update-Protokoll verzeichnet. Sollte es zu Problemen bei einem Update kommen, kann man über diese Datei nachvollziehen welche Änderungen das Installationsprogramm über das Skript-Interface durchgeführt hat.
 
 ## Zugriff von außerhalb mit dem `HeizkalenderInstallation.exe`
@@ -512,5 +512,5 @@ Der Zugriff auf die CCU mit dem Installationsprogramm kann nicht über die Cloud
 Mit einer modernen FRITZ!Box ab FRITZ!OS Version 7.50 kann dieser Zugriff einfach über WireGuard erfolgen.
 
 Auf er Webseite von ELV findet sich dazu folgende [Anleitung](
-https://ch.elv.com/elvwissen/elvprojekte/sicherheit/fernzugriff-auf-die-CCU-webui-und-hcu-web-per-wireguard-fritzbox/) zur Installation von WireGuard und dem Zugriff auf eine CCU.  
+https://ch.elv.com/elvwissen/elvprojekte/sicherheit/fernzugriff-auf-die-CCU-webui-und-hcu-web-per-wireguard-fritzbox/) zur Installation von WireGuard und dem Zugriff auf eine CCU.
 Auch ein passendes [Erklärvideo](https://www.youtube.com/watch?v=j7wpmiuKrxY) steht auf YouTube zur Verfügung.

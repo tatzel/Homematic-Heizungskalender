@@ -26,6 +26,7 @@ Auswertung.
 | Skript | Zweck |
 | :--- | :--- |
 | `Tool-Heizgruppen eTRV Modus setzen` | Sonderfall: setzt `CONTROL_MODE` direkt auf allen `HmIP-eTRV`-Einzelthermostaten, nicht auf der Gruppenadresse. Nur nötig wenn ein Thermostat nach einem Firmware-Update den Gruppenmodus nicht übernommen hat. |
+| `Tool-HMIPServer Neustart` | Startet den HMIPServer (Java-Prozess) neu. Nötig nach dem Anlegen, Umbenennen oder Löschen von Diagrammen, da sonst ein interner Fehler (RRD already closed) dazu führt, dass Diagramme keine Daten mehr anzeigen. Kann auch als zeitgesteuertes CCU-Programm (z.B. nächtlich) eingesetzt werden. |
 
 ## CloudMatic-Diagramme
 
