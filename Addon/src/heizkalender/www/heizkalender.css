@@ -46,9 +46,7 @@
 }
 
 .hk-nav a.active {
-  background-color: #1a5276;
-  color: #ffffff;
-  border-color: #ffffff;
+  border: 2px solid #1a5276;
   cursor: default;
 }
 
