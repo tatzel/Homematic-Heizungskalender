@@ -101,8 +101,6 @@ bool CWGetEngine::Get(CString strURL, CStringW& strOut, bool bUtf8)
     }
 }
 
-extern CString GetHTTPStatusText(DWORD dwStatus);
-
 CString CWGetEngine::GetLastErrorText()
 {
     if (m_dwLastError==0)
