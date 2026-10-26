@@ -369,10 +369,8 @@ CString DoubleToString(double dValue, int iPrec)
 	// und evtl. den Dezimal Punkt
 	if (iPrec==-1 && str.Find(_T('.'))>=0)
 	{
-		while (str.Right(1)==_T("0"))
-			str = str.GetBufferSetLength(str.GetLength()-1);
-		if (str.Right(1)==_T("."))
-			str = str.GetBufferSetLength(str.GetLength()-1);
+		str.TrimRight(_T('0'));
+		str.TrimRight(_T('.'));
 	}
 	return str;
 }

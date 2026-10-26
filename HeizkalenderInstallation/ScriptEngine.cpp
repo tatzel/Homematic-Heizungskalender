@@ -38,7 +38,7 @@ CScriptEngine::CScriptEngine()
 bool CScriptEngine::ExecuteScript(PCSTR pcScript, CStringA& strOut)
 {
 	m_strLastError.Empty();
-	m_dwStatus = 0;
+	m_dwLastError = m_dwStatus = 0;
 
     try
     {
@@ -171,7 +171,7 @@ CString CScriptEngine::GetLastErrorText()
 #define DECL_ELEMENT(x, y)	{x, _T(#x) y}
 
 static struct {
-    DWORD   dwSTatus;
+    DWORD   dwStatus;
     PCTSTR  pText;
 } const aHTTPStatus[] =
 {
@@ -223,7 +223,7 @@ CString GetHTTPStatusText(DWORD dwStatus)
 {
     for (auto const &e : aHTTPStatus)
     {
-        if (e.dwSTatus==dwStatus)
+        if (e.dwStatus==dwStatus)
             return CString(e.pText);
 	}
     return CString();
