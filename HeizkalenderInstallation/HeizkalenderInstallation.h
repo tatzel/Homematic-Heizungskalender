@@ -133,7 +133,7 @@ public:
 	{
 		return m_modeScript1==ModeScript1::ChurchToolsAPI ? _T("HK-Skript 1_ChurchTools") :
 			   m_modeScript1==ModeScript1::ChurchDeskAPI ? _T("HK-Skript 1_ChurchDeskAPI") :
-			   m_modeScript1==ModeScript1::ChurchToolsAPI ? _T("HK-Skript 1_ChurchDeskiCal") :
+			   m_modeScript1==ModeScript1::ChurchDeskiCal ? _T("HK-Skript 1_ChurchDeskiCal") :
 			   _T("");
 	}
 

@@ -13,10 +13,22 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-26]
+
+### Geändert
+
+- `HeikalenderInstallation.exe` Version 4.1.0
+- Bug: Für den Modus `ChurchDeskiCal` wurde der falsche Skriptname ermittelt.
+- Timeouts für externe HTTP Abfragen fehlten.
+- In der Simulation wurde bei sehr großen Datenmengen verhindert, dass die Daten nicht korrekt wieder eingelesen werden können.
+- Diverse Kleinigkeiten
+
+
 ## [2026-10-25]
 
 ### Geändert
 
+- Addon Version 0.7.2
 - **Breaking Change:** `HK2-Schaltzeiten` verwendet jetzt den Raumvariablennamen (z.B. `HKG-Raum-GrSaal`) statt der RessourcenID als Schlüssel. Behebt falsche Vorlaufzeit-Anzeige bei Multi-Raum-Zuordnungen.
 - `HK-Skript 2`: `AktSR` durch `RVN` in HK2VLZListe ersetzt
 - Addon `index.cgi`: Parsing und Lookup auf Raumvariablenname umgestellt
