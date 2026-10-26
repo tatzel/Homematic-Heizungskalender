@@ -267,22 +267,24 @@ Wird von HK-Skript 2 am Ende jedes Skriptlaufs geschrieben (sofern die Variable 
 Einträge sind durch `~` getrennt, Felder innerhalb eines Eintrags durch `;`:
 
 ```txt
-RessourcenID;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...
+RaumVarName;VorlaufMin;HeizenAb;TerminAb;TerminBis;NachlaufMin~...
 ```
 
 | Feld | Typ | Bedeutung |
 | ---- | --- | --------- |
-| RessourcenID | Integer | ID aus `HK1-R-Liste` |
+| RaumVarName | String | Name der HKG-Raum-Systemvariable (z.B. `HKG-Raum-GrSaal`) |
 | VorlaufMin | Integer | Berechnete Vorheizzeit in Minuten (0 bei Schaltmodus) |
 | HeizenAb | Zeitstempel | Berechneter Einschaltzeitpunkt (`YYYY-MM-DD HH:MM:SS`) |
 | TerminAb | Zeitstempel | Terminbeginn (ohne Vorlaufverschiebung) |
 | TerminBis | Zeitstempel | Terminende |
 | NachlaufMin | Integer | Nachlaufzeit in Minuten (derzeit immer 0) |
 
-Beispiel (zwei Ressourcen):
+Bei Multi-Raum-Zuordnungen (mehrere Räume je Ressource) enthält die Variable einen eigenen Eintrag pro Raum mit der jeweils individuell berechneten Vorheizzeit.
+
+Beispiel (drei Räume, davon zwei an derselben Ressource):
 
 ```txt
-5;320;2026-10-18 04:10:00;2026-10-18 09:30:00;2026-10-18 12:00:00;0~10;95;2026-10-18 07:55:00;2026-10-18 09:30:00;2026-10-18 12:00:00;0~
+HKG-Raum-GrSaal;320;2026-10-18 04:10:00;2026-10-18 09:30:00;2026-10-18 12:00:00;0~HKG-Raum-Foyer;95;2026-10-18 07:55:00;2026-10-18 09:30:00;2026-10-18 12:00:00;0~HKG-Raum-WC;45;2026-10-18 08:45:00;2026-10-18 09:30:00;2026-10-18 12:00:00;0~
 ```
 
 ### HK-RäumeHeizkurvenkontrolle

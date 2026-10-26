@@ -291,7 +291,8 @@ proc render_hkgliste {val} {
 }
 
 proc render_vlzliste {val} {
-    if {[string equal $val ""]} {
+    set val [string trim $val]
+    if {[string equal $val ""] || [string equal $val "???"]} {
         return "<em>(leer)</em>"
     }
     set entries [split $val "~"]
@@ -301,17 +302,17 @@ proc render_vlzliste {val} {
     }
     if {[llength $clean] == 0} { return "<em>(leer)</em>" }
     set html "<table class=\"hk-table hk-table-inline\">\n"
-    append html "  <tr><th>ID</th><th>Vorlauf (min)</th><th>Heizen ab</th><th>Termin ab</th><th>Termin bis</th><th>Nachlauf (min)</th></tr>\n"
+    append html "  <tr><th>Raum</th><th>Vorlauf (min)</th><th>Heizen ab</th><th>Termin ab</th><th>Termin bis</th><th>Nachlauf (min)</th></tr>\n"
     foreach entry $clean {
         set fields [split $entry ";"]
-        set rid    [lindex $fields 0]
+        set rvar   [lindex $fields 0]
         set vmin   [lindex $fields 1]
         set heiab  [lindex $fields 2]
         set tab    [lindex $fields 3]
         set tbis   [lindex $fields 4]
         set nlmin  [lindex $fields 5]
         append html "  <tr>"
-        append html "<td>[htmlquote $rid]</td>"
+        append html "<td>[htmlquote $rvar]</td>"
         append html "<td>[htmlquote $vmin]</td>"
         append html "<td>[htmlquote $heiab]</td>"
         append html "<td>[htmlquote $tab]</td>"

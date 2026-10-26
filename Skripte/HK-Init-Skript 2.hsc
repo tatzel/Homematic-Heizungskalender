@@ -1,6 +1,6 @@
 !// Script zum Erzeugen der Systemvariablen des Heizkalenders für Skript 2
 !//================================================================================================
-!// Stand:    19.10.2026
+!// Stand:    25.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -18,6 +18,7 @@
 !// Ich (MRi) habe diesen Code dann erweitert, korrigiert und verbessert um sie an die Nutzung in
 !// meiner Gemeinde anzupassen.
 !//
+!// TT: 2026-10-25 HK2-Schaltzeiten: Schlüssel von ResID auf Raumvariablenname (RVN) umgestellt.
 !// TT: 2026-10-19 HK2-Schaltzeiten ergaenzt (Ausgabe berechneter Schaltzeiten durch Skript 2)
 !// TT: 2026-10-04 Beschreibung von HK2-Aussentemperatur praezisiert (gleitender Durchschnitt)
 
@@ -51,7 +52,7 @@ string be=  "Liste der HK-Raum-Variablen;" #
             "Grundoffsetzeit Ausschalten;" #
             "Grundoffsetzeit Einschalten;" #
             "Hzg.-Vorlaufzeit: Eingeben in Minuten zu Außentemperaturen kleiner als -10, -5, 0, 8, 10, 12, 15, 17,5;" #
-            "Berechnete Schaltzeiten pro Ressource (wird von Skript 2 geschrieben)";
+            "Berechnete Schaltzeiten pro Raum (wird von Skript 2 geschrieben)";
 
 !// Typen
 string tp=  "string;" #
