@@ -222,7 +222,7 @@ foreach(RName,ListeRaumVariablen.Split(";")){
   }elseif(stemp=="S"){
       stext = stext # " Schalten";
   }elseif(stemp=="V"){
-      stext = stext # " Varoable";
+      stext = stext # " Variable";
   }elseif(stemp=="HS"){
       stext = stext # " Heizen+Schalten";
   }else{

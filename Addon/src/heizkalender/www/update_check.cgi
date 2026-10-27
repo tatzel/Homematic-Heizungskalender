@@ -24,7 +24,7 @@ if {[string equal $cmd "download"]} {
 } else {
     puts -nonewline "Content-Type: text/plain; charset=utf-8\r\n\r\n"
     catch {
-        set newversion [exec /usr/bin/wget -qO- --no-check-certificate $checkURL]
+        set newversion [exec /usr/bin/wget -qO- $checkURL]
     }
     if {[info exists newversion]} {
         puts $newversion

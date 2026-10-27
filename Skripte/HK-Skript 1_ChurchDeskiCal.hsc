@@ -1,6 +1,6 @@
 !// Skript 1 um die Termine aus ChurchDesk auszulesen (iCal)
 !//================================================================================================
-!// Stand:    23.10.2026
+!// Stand:    25.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,13 @@
 !// Skript sollte alle 30min laufen
 !//
 
+!// TT:  2026-10-25 Bugfix: DTEND-Parsing ohne iPos-Pruefung. Bei fehlendem DTEND war
+!//                 iPos=-1 und Substr las Datenmüll als Enddatum. Jetzt continue; bei iPos<0.
+!// TT:  2026-10-25 Bugfix: Variable Shadowing bei strTemp. Die innere Deklaration
+!//                 "string strTemp" im DESCRIPTION-Block ueberdeckte die aeussere Variable,
+!//                 sodass Sonderbefehle (#EIN#, #AUS#, #GT# etc.) nie ausgewertet wurden.
+!// TT:  2026-10-25 Bugfix: Fehlendes continue; bei HTTP-Fehler. Ohne continue; lief das Skript
+!//                 mit leerem stdout in die Terminverarbeitung und erzeugte falsche Schaltzeiten.
 !// MRi: 2026-10-19 Neuen Modus "V" für das setzen einer Variable eingebaut
 !// TT:  2026-10-18 HK1-Vorlaufzeit: zeitVorlauf aus optionaler Systemvariable lesen (Default 12h)
 !// TT:  2026-10-01 Vorlauf von 8h auf 12h vereinheitlicht (alle Skript-1-Varianten jetzt
@@ -205,6 +212,7 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       WriteLine("Fehler beim Lesen der Event-Daten von ChurchDesk! " # RId);
       WriteLine("Out:\n" # stdout # "Err:\n" # stderr);
     }
+    continue;
   }else{
     !// Zeitzone abschneiden
     integer iPos = stdout.Find("\nBEGIN:VEVENT\n");
@@ -236,6 +244,10 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       }
 
       iPos = termin.Find("\nDTEND:");
+      if (iPos<0){
+        !// Kein Enddatum gefunden
+        continue;
+      }
       endDatum=termin.Substr(iPos+7,13).Replace("T"," ");
       endDatum=endDatum.Substr(0,4)#"-"#endDatum.Substr(4,2)#"-"#endDatum.Substr(6,2)#" "#endDatum.Substr(9,2)#":"#endDatum.Substr(11,2);
       endDatum=(endDatum.ToTime().ToInteger()+versatzGMT).ToString();
@@ -267,7 +279,7 @@ foreach(RIdEintrag,RIdListe.Split(";")){
       string strTemp = "";
       iPos = termin.Find("\nDESCRIPTION:");
       if (iPos>=0){
-        string strTemp = termin.Substr(iPos+13);
+        strTemp = termin.Substr(iPos+13);
         iPos = strTemp.Find("\n");
         strTemp = strTemp.Substr(0,iPos);
         if (DEBUG){

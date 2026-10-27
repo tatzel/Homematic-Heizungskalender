@@ -10,7 +10,7 @@ werden muss, damit der Raum pünktlich die gewünschte Temperatur erreicht.
 ```txt
 Kalender-Skript 1  -->  Schaltliste (HK1-Schaltliste)  -->  Hauptskript 2
                                                                     |
-Außentemperatur-Skript  -->  HK2-A.Temp  ------------------------>  |
+Außentemperatur-Skript  -->  HK2-Aussentemperatur  -------------->  |
                                                                     v
                                                            Einschaltzeitpunkt
                                                            berechnen + schalten
@@ -30,7 +30,7 @@ Erst wenn alle drei Bedingungen erfüllt sind, wird die Heizung eingeschaltet.
 | :--- | :--- | :--- |
 | `HK2-Grundtemperatur` | Absenktemperatur wenn nicht geheizt wird | 10,0 °C |
 | `HK2-A.Temp.Grenze` | Heizen wird gestoppt wenn Außentemperatur ≥ Grenze | 19,0 °C |
-| `HK2-A.Temp` | Aktuelle Außentemperatur (von Außentemperatur-Skript) | 8,0 °C |
+| `HK2-Aussentemperatur` | Aktuelle Außentemperatur (von Außentemperatur-Skript) | 8,0 °C |
 | `HK2-Kurve` | Vorheizzeit-Kurve: 8 Werte für 8 Außentemperatur-Stützpunkte | siehe unten |
 | `HK2-VorzeitAus` | Globaler Grund-Offset zum vorzeitigen Ausschalten (Minuten); gilt nur für echte Heizvorgänge, nicht für reine Schaltrelais | 0 min |
 
