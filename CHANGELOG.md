@@ -12,7 +12,7 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 `!// TT:`); diese bleiben erhalten und sind die feinste Änderungsebene.
 
 ## [Unveröffentlicht]
-
+ 
 ## [2026-10-27]
 
 ### Hinzugefügt
