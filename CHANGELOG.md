@@ -11,9 +11,11 @@ zusammen und müssen gemeinsam eingespielt werden.
 Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` /
 `!// TT:`); diese bleiben erhalten und sind die feinste Änderungsebene.
 
-## [Unveröffentlicht]
+# [Unveröffentlicht]
 
-## [2026-10-27]
+# [Veröffentlicht]
+
+## [2026-10-27] Release
 
 ### Hinzugefügt
 - `HeikalenderInstallation.exe` Version 4.2.0
@@ -67,8 +69,6 @@ Tool-Doku, Tippfehler
 - Addon `sysvars.cgi`: Doku-Links auf GitHub Pages umgestellt, Linkziele für HK2-Globalvariablen und HK2-Kurve korrigiert, Tooltip-Link im Räume-Fieldset ergänzt
 - Addon `heizkalender.css`: `white-space: nowrap` für Variablennamen und Räume-Tabellen
 - Addon `hkconfig.cgi`: Klasse `hk-table-rooms` an Räume-Tabelle ergänzt
-
-## [Veröffentlicht]
 
 ## [2026-10-23] Release
 
