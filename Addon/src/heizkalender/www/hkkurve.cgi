@@ -476,17 +476,18 @@ if {[llength $log_files] == 0} {
         puts "    </tr>"
     }
     puts {  </table></div>}
-    puts {  <p class="hk-hint"><strong>&Delta; min (Terminbeginn):</strong> Minuten relativ zum Terminbeginn: negativ = p&uuml;nktlich (vor Terminbeginn), positiv = versp&auml;tet (nach Terminbeginn).<br>Beispiel: Terminbeginn -15min bedeutet, der Raum war 15 Minuten vor dem Termin auf Temperatur.<br>Beispiel: Heizende +90min bedeutet, die Heizung schaltete 90 Minuten nach Terminbeginn ab (nicht die Termindauer, da VorzeitAus abgezogen wird).</p>}
-    puts {  <p class="hk-hint">Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
-    puts {  <fieldset class="hk-legende-fieldset">}
-    puts {    <legend>Legende</legend>}
-    puts "    <p class=\"hk-sl-legende\">"
-    puts "      <span class=\"hk-kurve-ziel-gruen hk-kurve-badge\">Zieltemp. perfekt ([fmt_delta $ziel_gruen_von]&hellip;[fmt_delta $ziel_gruen_bis] min)</span>"
-    puts "      <span class=\"hk-kurve-ziel-gelb hk-kurve-badge\">Zieltemp. akzeptabel ([fmt_delta $ziel_rot_unten]&hellip;[fmt_delta $ziel_gruen_von] oder [fmt_delta $ziel_gruen_bis]&hellip;[fmt_delta $ziel_rot_oben] min)</span>"
-    puts "      <span class=\"hk-kurve-ziel-rot hk-kurve-badge\">Zieltemp. kritisch (&lt; [fmt_delta $ziel_rot_unten] oder &gt; [fmt_delta $ziel_rot_oben] min)</span>"
-    puts "    </p>"
-    puts {  </fieldset>}
 }
+
+puts {  <p class="hk-hint"><strong>&Delta; min (Terminbeginn):</strong> Minuten relativ zum Terminbeginn: negativ = p&uuml;nktlich (vor Terminbeginn), positiv = versp&auml;tet (nach Terminbeginn).<br>Beispiel: Terminbeginn -15min bedeutet, der Raum war 15 Minuten vor dem Termin auf Temperatur.<br>Beispiel: Heizende +90min bedeutet, die Heizung schaltete 90 Minuten nach Terminbeginn ab (nicht die Termindauer, da VorzeitAus abgezogen wird).</p>}
+puts {  <p class="hk-hint">Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
+puts {  <fieldset class="hk-legende-fieldset">}
+puts {    <legend>Legende</legend>}
+puts "    <p class=\"hk-sl-legende\">"
+puts "      <span class=\"hk-kurve-ziel-gruen hk-kurve-badge\">Zieltemp. perfekt ([fmt_delta $ziel_gruen_von]&hellip;[fmt_delta $ziel_gruen_bis] min)</span>"
+puts "      <span class=\"hk-kurve-ziel-gelb hk-kurve-badge\">Zieltemp. akzeptabel ([fmt_delta $ziel_rot_unten]&hellip;[fmt_delta $ziel_gruen_von] oder [fmt_delta $ziel_gruen_bis]&hellip;[fmt_delta $ziel_rot_oben] min)</span>"
+puts "      <span class=\"hk-kurve-ziel-rot hk-kurve-badge\">Zieltemp. kritisch (&lt; [fmt_delta $ziel_rot_unten] oder &gt; [fmt_delta $ziel_rot_oben] min)</span>"
+puts "    </p>"
+puts {  </fieldset>}
 }
 
 puts {</div>
