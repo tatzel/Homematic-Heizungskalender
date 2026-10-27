@@ -44,6 +44,11 @@ proc extract_stdout {rega_raw} {
     return ""
 }
 
+proc fmt_delta {val} {
+    if {$val >= 0} { return "+$val" }
+    return $val
+}
+
 proc ereignis_class {ereignis delta rot_u gruen_v gruen_b rot_o} {
     # Nur Zieltemperatur-Ereignisse werden eingefaerbt (Issue #67).
     # Alle anderen Ereignisse nutzen den alternierenden Zeilenhintergrund.
@@ -476,9 +481,9 @@ if {[llength $log_files] == 0} {
     puts {  <fieldset class="hk-legende-fieldset">}
     puts {    <legend>Legende</legend>}
     puts "    <p class=\"hk-sl-legende\">"
-    puts "      <span class=\"hk-kurve-ziel-gruen hk-kurve-badge\">Zieltemp. perfekt (${ziel_gruen_von}&hellip;+${ziel_gruen_bis} min)</span>"
-    puts "      <span class=\"hk-kurve-ziel-gelb hk-kurve-badge\">Zieltemp. akzeptabel (${ziel_rot_unten}&hellip;${ziel_gruen_von} / +${ziel_gruen_bis}&hellip;+${ziel_rot_oben} min)</span>"
-    puts "      <span class=\"hk-kurve-ziel-rot hk-kurve-badge\">Zieltemp. kritisch (&lt;${ziel_rot_unten} / &gt;+${ziel_rot_oben} min)</span>"
+    puts "      <span class=\"hk-kurve-ziel-gruen hk-kurve-badge\">Zieltemp. perfekt ([fmt_delta $ziel_gruen_von]&hellip;[fmt_delta $ziel_gruen_bis] min)</span>"
+    puts "      <span class=\"hk-kurve-ziel-gelb hk-kurve-badge\">Zieltemp. akzeptabel ([fmt_delta $ziel_rot_unten]&hellip;[fmt_delta $ziel_gruen_von] / [fmt_delta $ziel_gruen_bis]&hellip;[fmt_delta $ziel_rot_oben] min)</span>"
+    puts "      <span class=\"hk-kurve-ziel-rot hk-kurve-badge\">Zieltemp. kritisch (&lt;[fmt_delta $ziel_rot_unten] / &gt;[fmt_delta $ziel_rot_oben] min)</span>"
     puts "    </p>"
     puts {  </fieldset>}
 }
