@@ -170,6 +170,7 @@ Schaltlisten-Zeitstempel (`JJJJ-MM-TT HH:MM:SS`) werden mit einer eigenen `parse
 Verwendete Systemvariablen:
 
 - `HKG-Raum-*`: Raumvariablen; der Suffix (z.B. `UG-Büro`) wird als Raumname im Dropdown verwendet und entspricht dem Raumname im Log-Format.
+- `HK2-HKK-Zieltemperatur` (optional): Schwellwerte für die farbliche Bewertung der Zieltemperatur-Ereignisse. Format: `Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach` (vier Ganzzahlen, Semikolon-getrennt). Default: `-45;-20;5;15`. Existiert die Variable nicht, gelten die Defaults.
 
 Ereignisdaten stammen nicht aus Systemvariablen, sondern aus den HK-Log-Dateien auf dem USB-Stick (`/media/usb1/HK-Log_*.log`), gefiltert nach `HK-LogHeizkurvenkontrolle`. Die Dateien werden von `HK-SystemProtokoll sichern.hsc` befüllt, das alle 29 Minuten läuft. Die Anzeige im Addon kann daher bis zu 29 Minuten hinter dem aktuellen Geschehen zurückliegen.
 

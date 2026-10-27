@@ -90,18 +90,31 @@ Die Heizkurvenkontrolle wertet die aufgezeichneten Heizereignisse aus dem USB-St
 
 Nach Auswahl der Filter auf **Anzeigen** klicken. Die Seite lädt erst dann Daten.
 
-**Ereignistypen und ihre Bedeutung (Zeilenfarben):**
+**Ereignistypen:**
 
-| Farbe | Ereignis | Bedeutung |
-| ----- | -------- | --------- |
-| Blau | Heizbeginn | Heizung startete vor dem Terminbeginn |
-| Grün (hell) | Terminbeginn | Ist-Temperatur zum Zeitpunkt des Terminbeginns |
-| Grün | Zieltemperatur | Zieltemperatur wurde während des Termins erreicht |
-| Gelb | Terminende | Ist-Temperatur zum Zeitpunkt des Terminendes |
-| Grau | Heizende | Heizung hat abgeschaltet |
-| Rot | Fehler | Fehler oder kein Sensor vorhanden |
+Die Tabelle zeigt die Ereignisse Heizbeginn, Terminbeginn, Zieltemperatur, Terminende, Heizende und Fehler. Die Zeilen haben einen alternierenden Hintergrund (grau/weiß).
 
 Die Spalte **Δ min** gibt an, wie viele Minuten vor (negativ) oder nach (positiv) dem Terminbeginn das Ereignis eingetreten ist.
+
+**Einfärbung der Zieltemperatur-Ereignisse:**
+
+Zeilen vom Typ *Zieltemperatur* werden anhand der Vorlaufzeit (Δ min) farblich bewertet:
+
+| Farbe | Bewertung | Δ min (Standard) | Bedeutung |
+| ----- | --------- | ----------------- | --------- |
+| Grün | Perfekt | −20…+5 min | Zieltemperatur rechtzeitig erreicht |
+| Gelb | Akzeptabel | −45…−20 oder +5…+15 min | Etwas zu früh oder zu spät |
+| Rot | Kritisch | < −45 oder > +15 min | Deutlich zu früh (Energieverschwendung) oder zu spät |
+
+Die Schwellwerte lassen sich über die optionale Systemvariable `HK2-HKK-Zieltemperatur` anpassen. Format: vier Semikolon-getrennte Werte `Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach`, z.B. `-90;-60;-30;-15`. Ohne die Variable gelten die oben gezeigten Standardwerte.
+
+**Beispiel mit angepassten Schwellwerten** (`-90;-60;-30;-15`):
+
+| Farbe | Bewertung | Δ min | Bedeutung |
+| ----- | --------- | ----- | --------- |
+| Grün | Perfekt | −60…−30 min | Zieltemperatur 60 bis 30 min vor Termin erreicht |
+| Gelb | Akzeptabel | −90…−60 oder −30…−15 min | Bis 30 min zu früh oder bis 15 min vor Termin |
+| Rot | Kritisch | < −90 oder > −15 min | Alles andere |
 
 **Indikatoren in der Spalte „Ist-Temp.":**
 
