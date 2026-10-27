@@ -51,7 +51,6 @@
 #define IDP_NEED_MODE                   133
 #define IDP_FILE_INVALID                134
 #define IDP_DATA_MODIFIED               135
-#define IDD_DIALOG1                     135
 #define IDD_ROOM                        135
 #define IDP_QUERY_DATA_MODIFIED         135
 #define IDP_RAUM_LISTEN_NICHT_LEER      136
@@ -66,7 +65,6 @@
 #define IDS_TITLE_ROOMS                 141
 #define IDS_SIMULATION                  142
 #define IDP_SIMULATION_GESTARTET        143
-#define IDB_PNG1                        143
 #define IDB_LOGO                        143
 #define IDP_QUERY_SIMULATION_LADEN      144
 #define IDP_QUERY_UPDATE_CCU            145
@@ -186,6 +184,7 @@
 #define IDC_ST_GOOGLE2                  1050
 #define IDC_ED_GOOGLE_APIKEY            1051
 #define IDC_ED_GOOGLE_KALID             1052
+#define IDC_CH_CLOUDMATIC               1053
 
 // Next default values for new objects
 // 
@@ -193,7 +192,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1053
+#define _APS_NEXT_CONTROL_VALUE         1054
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
