@@ -29,6 +29,10 @@ Bei der Nutzung von ChurchTools/ChurchDesk werden bei Bedarf auch alle Raumvaria
 
 ## Vorbereiten der CCU
 
+Um auf dei CCU Zugreifen zu können müssen auch die Sicherheitseinstellungen diesen Zugriff erlauben.
+
+### Netzwerkeinstellungen 
+
 Damit die `HeizkalenderInstallation.exe` ausgeführt werden kann, muss der Zugriff auf die Homematic-Script-API freigeschaltet werden. Dies geschieht in der Homematic-WebUI unter *Einstellungen → Firewall konfigurieren → Remote Homematic-Script API*. Dort wird entweder *Vollzugriff* eingestellt:
 
 ![CCU-Zugriff: Vollzugriff](bilder/CCU-Zugriff-1.png)
@@ -42,7 +46,15 @@ Freigegebene IP-Adresse für den Zugriff:
 ![CCU-Zugriff: Freigegebene IP-Adresse](bilder/CCU-Zugriff-3.png)
 
 **Alternativ kann der Zugriff auch über den CloudMatic Fernzugriff erfolgen.**  
-**In diesem Fall folgen Sie der [CloudMatic Dokumentation](https://docs.easy-smarthome.de/CloudMatic/Connect/Fernzugriff/?utm_source=chatgpt.com) für das Einrichten und vorbereiten Ihrer CCU für die Nutzung der CloudMatic mit dem Fernzugriff.**
+**In diesem Fall folgen Sie der [CloudMatic Dokumentation](https://docs.easy-smarthome.de/CloudMatic/Connect/Fernzugriff/?utm_source=chatgpt.com) für das Einrichten und Vorbereiten Ihrer CCU für die Nutzung der CloudMatic mit dem Fernzugriff.**
+
+### Sicherheitseinstellungen
+
+In den Sicherheitseinstellungen kann eine Authentifizierung für den  XML-RPC und die Skript-Schnittstelle eingeschaltet werden.
+
+**Beachten Sie bitte, dass diese Authentifizierung für den Zugriff mit der CloudMatic ausgeschaltet sein muss (Siehe Doku der CloudMatic)!**
+
+![CCU-Sicherheitseinstellungen: Authentifizierung inaktiv](bilder/CCU-Sicherheitseinstellungen.png)
 
 ## Kurzanleitung
 
