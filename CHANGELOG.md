@@ -13,10 +13,36 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-27]
+
+### Hinzugefügt
+- `HeikalenderInstallation.exe` Version 4.2.0
+- Zugang auch über CloudMatic und HTTPS erlauben
+- Release vorbereiten
+- Erweiterung der Doku für CloudMatic Fernzugriff
+- Ergänzen weiterer Hinweise zur Einrichtung der CloudMatic
+- Anmerkung: Dieser Schalter wechselt nur den Port auf 44381 und erstellt eine sichere https Verbindung.
+- Die Verbindung kann auch auf eine CloudMatic ohne https ausgeführt werden. Dann ist die Kommunikation aber unverschlüsselt über Port 8181.
+
+### Geändert
+- Anwendungsbilder korrigiert
+
+## [2026-10-26]
+
+### Geändert
+
+- `HeikalenderInstallation.exe` Version 4.1.0
+- Bug: Für den Modus `ChurchDeskiCal` wurde der falsche Skriptname ermittelt.
+- Timeouts für externe HTTP Abfragen fehlten.
+- In der Simulation wurde bei sehr großen Datenmengen verhindert, dass die Daten nicht korrekt wieder eingelesen werden können.
+- Diverse Kleinigkeiten
+
+
 ## [2026-10-25]
 
 ### Geändert
 
+- Addon Version 0.7.2
 - **Breaking Change:** `HK2-Schaltzeiten` verwendet jetzt den Raumvariablennamen (z.B. `HKG-Raum-GrSaal`) statt der RessourcenID als Schlüssel. Behebt falsche Vorlaufzeit-Anzeige bei Multi-Raum-Zuordnungen.
 - `HK-Skript 2`: `AktSR` durch `RVN` in HK2VLZListe ersetzt
 - Addon `index.cgi`: Parsing und Lookup auf Raumvariablenname umgestellt

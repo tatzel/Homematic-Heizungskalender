@@ -343,8 +343,13 @@ bool CHeizkalenderInstallationApp::ConnectToSimulation()
 		for (DWORD i = 0; true; ++i)
 		{
 			CString strName, strData;
-			DWORD dwNameLen = _MAX_PATH, dwValueType = 0, dwDataLen = 2028;
-			auto lResult = RegEnumValue(regKeyVars, i, CStrBuf(strName, dwNameLen), &dwNameLen, nullptr, &dwValueType, reinterpret_cast<BYTE*>(static_cast<PTSTR>(CStrBuf(strData, dwDataLen))), &dwDataLen);
+			DWORD dwValueType = 0, dwDataLen = 2048;
+			LONG lResult = 0;
+			do {
+				DWORD dwNameLen = _MAX_PATH;
+				lResult = RegEnumValue(regKeyVars, i, CStrBuf(strName, dwNameLen), &dwNameLen, nullptr, &dwValueType, reinterpret_cast<BYTE*>(static_cast<PTSTR>(CStrBuf(strData, dwDataLen/sizeof(TCHAR)))), &dwDataLen);
+			} while (lResult==ERROR_MORE_DATA);
+
 			if (lResult!=ERROR_SUCCESS)
 				break;
 
@@ -363,8 +368,13 @@ bool CHeizkalenderInstallationApp::ConnectToSimulation()
 		for (DWORD i = 0; true; ++i)
 		{
 			CString strName, strData;
-			DWORD dwNameLen = _MAX_PATH, dwValueType = 0, dwDataLen = 10*1024;
-			auto lResult = RegEnumValue(regKeyProgs, i, CStrBuf(strName, dwNameLen), &dwNameLen, nullptr, &dwValueType, reinterpret_cast<BYTE*>(static_cast<PTSTR>(CStrBuf(strData, dwDataLen))), &dwDataLen);
+			DWORD dwValueType = 0, dwDataLen = 10*1024;
+			LONG lResult = 0;
+			do {
+				DWORD dwNameLen = _MAX_PATH;
+				lResult = RegEnumValue(regKeyProgs, i, CStrBuf(strName, dwNameLen), &dwNameLen, nullptr, &dwValueType, reinterpret_cast<BYTE*>(static_cast<PTSTR>(CStrBuf(strData, dwDataLen/sizeof(TCHAR)))), &dwDataLen);
+			} while (lResult==ERROR_MORE_DATA);
+
 			if (lResult!=ERROR_SUCCESS)
 				break;
 
@@ -867,7 +877,6 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
 		AfxMessageBox(engine.GetLastErrorText(),MB_OK|MB_ICONERROR);
 		return false;
 	}
-	return false;
 }
 
 bool CHeizkalenderInstallationApp::LoadDevicesFromCCU()
@@ -1007,7 +1016,6 @@ void CHeizkalenderInstallationApp::LoadRoomMapFromSysVars(CMapRaumListe &mapRaeu
 	CString strListe1 { pVarRaumListe1->m_strContent };
 	CString strListe2 { pVarRaumListe2->m_strContent };
 
-	mapRaeume.clear();
 	mapRaeume.clear();
 	int i=0;
 	for (auto strId : SplitString(strListe1,_T(';')))

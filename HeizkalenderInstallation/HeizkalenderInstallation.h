@@ -118,7 +118,9 @@ public:
 	bool m_bNoProgramUpdate;
 	bool m_bConnected;
 	CString m_strCCU_host;
-	int		m_iCCU_port;			// 8181;
+	bool	m_bCloudMatic{};			// CloudMatic nutzen, sonst lokale CCU
+	int		m_iCCU_port{};				// 8181;
+	int		m_iCCU_portCloudMatic{};	// 44381;
 	const CString m_strCCU_url = _T("/rega.exe");
 	CString m_strCCU_username;
 	CString m_strCCU_password;
@@ -133,7 +135,7 @@ public:
 	{
 		return m_modeScript1==ModeScript1::ChurchToolsAPI ? _T("HK-Skript 1_ChurchTools") :
 			   m_modeScript1==ModeScript1::ChurchDeskAPI ? _T("HK-Skript 1_ChurchDeskAPI") :
-			   m_modeScript1==ModeScript1::ChurchToolsAPI ? _T("HK-Skript 1_ChurchDeskiCal") :
+			   m_modeScript1==ModeScript1::ChurchDeskiCal ? _T("HK-Skript 1_ChurchDeskiCal") :
 			   _T("");
 	}
 

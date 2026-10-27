@@ -101,36 +101,38 @@ CAPTION "Verbinden"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "IP-Adresse der CCU3:",IDC_STATIC,7,10,135,8
-    EDITTEXT        IDC_ED_HOST,161,8,173,12,ES_AUTOHSCROLL
-    LTEXT           "Benutzername:",IDC_STATIC,7,28,135,8
-    EDITTEXT        IDC_ED_USERNAME,161,26,173,12,ES_AUTOHSCROLL
-    LTEXT           "Kennwort:",IDC_STATIC,7,46,135,8
-    EDITTEXT        IDC_ED_PASSWORD,161,44,173,12,ES_PASSWORD | ES_AUTOHSCROLL
-    LTEXT           "Prefix für Variablen und Skripte",IDC_STATIC,7,62,135,8
-    EDITTEXT        IDC_ED_PREFIX,161,60,173,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "&Verbinden mit der CCU",IDC_BT_CONNECT,161,78,92,14
-    LTEXT           "Einlesen der Termine über:",IDC_STATIC,7,100,135,8
-    COMBOBOX        IDC_CB_MODE,161,98,173,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "&Ressourcen/Räume einlesen",IDC_BT_READRES,161,172,103,14
-    LTEXT           "Name der Gemeinde in Churchtools:",IDC_ST_CHURCHTOOL1,7,118,135,8
-    EDITTEXT        IDC_ED_CHURCHNAME,161,116,173,12,ES_AUTOHSCROLL
-    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHTOOL2,7,138,135,8
-    EDITTEXT        IDC_ED_LOGINTOKEN,161,136,173,12,ES_AUTOHSCROLL
-    LTEXT           "ChurchDesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,118,135,8
-    EDITTEXT        IDC_ED_ORGAID,161,116,173,12,ES_AUTOHSCROLL
-    LTEXT           "Login Token für ChurchDesk:",IDC_ST_CHURCHDESK2,7,138,135,8
-    EDITTEXT        IDC_ED_APITOKEN,161,136,173,12,ES_AUTOHSCROLL
-    LTEXT           "Google API-Key:",IDC_ST_GOOGLE1,7,118,135,8
-    EDITTEXT        IDC_ED_GOOGLE_APIKEY,161,116,173,12,ES_AUTOHSCROLL
-    LTEXT           "Google Kalender-Id:",IDC_ST_GOOGLE2,7,138,135,8
-    EDITTEXT        IDC_ED_GOOGLE_KALID,161,136,173,12,ES_AUTOHSCROLL
-    LTEXT           "URL für iCal-Kalender:",IDC_ST_ICALURL,7,118,135,8
-    EDITTEXT        IDC_ED_ICALURL,161,116,173,12,ES_AUTOHSCROLL
-    LTEXT           "Raumliste:",IDC_ST_RAUMLISTE,7,156,135,8
-    EDITTEXT        IDC_ED_RAUMLISTE,161,154,173,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ED_HOST,167,8,173,12,ES_AUTOHSCROLL
+    CONTROL         "Verbindung über &CloudMatic mit https herstellen:",IDC_CH_CLOUDMATIC,
+                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,26,170,10
+    LTEXT           "Benutzername:",IDC_STATIC,7,46,135,8
+    EDITTEXT        IDC_ED_USERNAME,167,44,173,12,ES_AUTOHSCROLL
+    LTEXT           "Kennwort:",IDC_STATIC,7,64,135,8
+    EDITTEXT        IDC_ED_PASSWORD,167,62,173,12,ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "Prefix für Variablen und Skripte",IDC_STATIC,7,80,135,8
+    EDITTEXT        IDC_ED_PREFIX,167,78,173,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Verbinden mit der CCU",IDC_BT_CONNECT,167,96,92,14
+    LTEXT           "Einlesen der Termine über:",IDC_STATIC,7,118,135,8
+    COMBOBOX        IDC_CB_MODE,167,116,173,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Ressourcen/Räume einlesen",IDC_BT_READRES,167,190,103,14
+    LTEXT           "Name der Gemeinde in Churchtools:",IDC_ST_CHURCHTOOL1,7,136,135,8
+    EDITTEXT        IDC_ED_CHURCHNAME,167,134,173,12,ES_AUTOHSCROLL
+    LTEXT           "Login Token für Churchtools:",IDC_ST_CHURCHTOOL2,7,156,135,8
+    EDITTEXT        IDC_ED_LOGINTOKEN,167,154,173,12,ES_AUTOHSCROLL
+    LTEXT           "ChurchDesk Organisations-ID:",IDC_ST_CHURCHDESK1,7,136,135,8
+    EDITTEXT        IDC_ED_ORGAID,167,134,173,12,ES_AUTOHSCROLL
+    LTEXT           "Login Token für ChurchDesk:",IDC_ST_CHURCHDESK2,7,156,135,8
+    EDITTEXT        IDC_ED_APITOKEN,167,154,173,12,ES_AUTOHSCROLL
+    LTEXT           "Google API-Key:",IDC_ST_GOOGLE1,7,136,135,8
+    EDITTEXT        IDC_ED_GOOGLE_APIKEY,167,134,173,12,ES_AUTOHSCROLL
+    LTEXT           "Google Kalender-Id:",IDC_ST_GOOGLE2,7,156,135,8
+    EDITTEXT        IDC_ED_GOOGLE_KALID,167,154,173,12,ES_AUTOHSCROLL
+    LTEXT           "URL für iCal-Kalender:",IDC_ST_ICALURL,7,136,135,8
+    EDITTEXT        IDC_ED_ICALURL,167,134,173,12,ES_AUTOHSCROLL
+    LTEXT           "Raumliste:",IDC_ST_RAUMLISTE,7,174,135,8
+    EDITTEXT        IDC_ED_RAUMLISTE,167,172,173,12,ES_AUTOHSCROLL
     LTEXT           "Version %1 - Softwarestand vom: %2",IDC_ST_VERSION,7,224,214,8,SS_NOPREFIX
     PUSHBUTTON      "Info über...",IDC_ABOUT,356,218,55,14
-    PUSHBUTTON      "",IDC_BT_LOGO,343,7,22,20
+    PUSHBUTTON      "",IDC_BT_LOGO,344,7,22,20
 END
 
 IDD_PAGE_SETTINGS DIALOGEX 0, 0, 421, 240
@@ -315,8 +317,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,0,0
- PRODUCTVERSION 4,0,0,0
+ FILEVERSION 4,2,0,0
+ PRODUCTVERSION 4,2,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -333,12 +335,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "xMRi-Software"
             VALUE "FileDescription", "Heizkalender Installations- und Updateprogramm"
-            VALUE "FileVersion", "4.0.0.0"
+            VALUE "FileVersion", "4.2.0.0"
             VALUE "InternalName", "HeizkalenderInstallation.exe"
             VALUE "LegalCopyright", "Copyright 2026 by xMRi-Software (Martin Richter) "
             VALUE "OriginalFilename", "HeizkalenderInstallation.exe"
             VALUE "ProductName", "Heizkalender"
-            VALUE "ProductVersion", "4.0.0.0"
+            VALUE "ProductVersion", "4.2.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -367,9 +369,8 @@ BEGIN
     IDD_PAGE_CONNECT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        VERTGUIDE, 168
+        VERTGUIDE, 167
         TOPMARGIN, 7
-        BOTTOMMARGIN, 192
     END
 
     IDD_PAGE_SETTINGS, DIALOG
@@ -448,6 +449,7 @@ END
 IDD_PAGE_CONNECT AFX_DIALOG_LAYOUT
 BEGIN
     0,
+    0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,

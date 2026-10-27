@@ -152,3 +152,9 @@ void AppendTextWithDelimiter(CString &str, CString const &toAdd, CString const &
 
 //-----------------------------------------------------------------------------
 
+void AFXAPI DDX_Check(CDataExchange* pDX, int nIDC, bool& value);
+
+//-----------------------------------------------------------------------------
+
+CString GetHTTPStatusText(DWORD dwStatus);
+

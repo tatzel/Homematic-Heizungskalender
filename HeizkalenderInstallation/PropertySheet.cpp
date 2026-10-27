@@ -159,7 +159,9 @@ CPageConnect::CPageConnect()
 		theApp.m_strCCU_username = theApp.GetProfileString(_T("Connection"), _T("UserName"));
 		theApp.m_strCCU_password = theApp.GetProfileString(_T("Connection"), _T("Password"));
 		theApp.m_iCCU_port = theApp.GetProfileInt(_T("Connection"), _T("Port"), 8181);
+		theApp.m_iCCU_portCloudMatic = theApp.GetProfileInt(_T("Connection"), _T("PortCloudMatic"), 44381);
 		theApp.m_strPrefix = theApp.GetProfileString(_T("Connection"), _T("Prefix"));
+		theApp.m_bCloudMatic = theApp.GetProfileInt(_T("Connection"), _T("CloudMatic"), 0) != 0;
 	}
 	else
 	{
@@ -197,6 +199,7 @@ void CPageConnect::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_ED_USERNAME, theApp.m_strCCU_username);
 	DDX_Text(pDX, IDC_ED_PASSWORD, theApp.m_strCCU_password);
 	DDX_Text(pDX, IDC_ED_PREFIX, theApp.m_strPrefix);
+	DDX_Check(pDX, IDC_CH_CLOUDMATIC, theApp.m_bCloudMatic);
 
 	// Text felder
 	{
@@ -370,6 +373,7 @@ BOOL CPageConnect::OnInitDialog()
 		UINT const aCtrls[] = { IDC_ED_HOST, IDC_ED_USERNAME, IDC_ED_PASSWORD };
 		for (auto uiCtrl : aCtrls)
 			STATIC_DOWNCAST(CEdit,GetDlgItem(uiCtrl))->SetReadOnly(TRUE);
+		STATIC_DOWNCAST(CButton, GetDlgItem(IDC_CH_CLOUDMATIC))->EnableWindow(FALSE);
 		AfxMessageBox(IDP_SIMULATION_GESTARTET);
 	}
 	return TRUE;  
@@ -553,6 +557,7 @@ void CPageConnect::OnBnClickedBtConnect()
 		theApp.WriteProfileString(_T("Connection"), _T("UserName"), theApp.m_strCCU_username);
 		theApp.WriteProfileString(_T("Connection"), _T("Password"), theApp.m_strCCU_password);
 		theApp.WriteProfileString(_T("Connection"), _T("Prefix"), theApp.m_strPrefix);
+		theApp.WriteProfileInt(_T("Connection"), _T("CloudMatic"), theApp.m_bCloudMatic);
 	}
 
 	// Modus in combobox setzen.

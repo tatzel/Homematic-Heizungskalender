@@ -32,5 +32,5 @@ public:
 	}
 private:
 	CString m_strLastError;
-	DWORD m_dwLastError{};
+	DWORD m_dwStatus{}, m_dwLastError{};
 };
