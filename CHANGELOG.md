@@ -23,6 +23,14 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - Ergänzen weiterer Hinweise zur Einrichtung der CloudMatic
 - Anmerkung: Dieser Schalter wechselt nur den Port auf 44381 und erstellt eine sichere https Verbindung.
 - Die Verbindung kann auch auf eine CloudMatic ohne https ausgeführt werden. Dann ist die Kommunikation aber unverschlüsselt über Port 8181.
+- Addon: TLS-Prüfung, Newline-Validierung, XSS-Fix
+- Doku: CONTRIBUTING.md um Addon-Build und Testskripte ergänzt
+- Doku: Variablenname, Log-Limit, Breaking-Change-Hinweis, fehlende
+Tool-Doku, Tippfehler
+- Doku: Tote Links in CONTRIBUTING.md auf neue docs/-Pfade korrigiert
+- Bugfix: DTEND-Parsing ohne iPos-Prüfung in ChurchDeskiCal
+- Bugfix: Variable Shadowing bei strTemp in iCal und ChurchDeskiCal
+- Bugfix: Fehlerbehandlung bei HTTP-Fehlern in Skript-1-Varianten
 
 ### Geändert
 - Anwendungsbilder korrigiert
