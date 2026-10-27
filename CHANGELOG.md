@@ -13,6 +13,20 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-27]
+
+### Hinzugefügt
+- `HeikalenderInstallation.exe` Version 4.2.0
+- Zugang auch über CloudMatic und HTTPS erlauben
+- Release vorbereiten
+- Erweiterung der Doku für CloudMatic Fernzugriff
+- Ergänzen weiterer Hinweise zur Einrichtung der CloudMatic
+- Anmerkung: Dieser Schalter wechselt nur den Port auf 44381 und erstellt eine sichere https Verbindung.
+- Die Verbindung kann auch auf eine CloudMatic ohne https ausgeführt werden. Dann ist die Kommunikation aber unverschlüsselt über Port 8181.
+
+### Geändert
+- Anwendungsbilder korrigiert
+
 ## [2026-10-26]
 
 ### Geändert
