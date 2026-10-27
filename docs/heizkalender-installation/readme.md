@@ -12,7 +12,8 @@ Bei der Nutzung von ChurchTools/ChurchDesk werden bei Bedarf auch alle Raumvaria
 
 - Betriebssystem: Windows
 - Die CCU muss in den Sicherheitseinstellungen den Zugriff auf die Remote Homematic-Script API erlauben. Dabei muss entweder ein eingeschränkter Zugriff auf die benötigten Funktionen oder ein Vollzugriff gewährt werden, damit die `HeizkalenderInstallation.exe` die notwendigen Skripte und Variablen erstellen kann.
-- Ein Administrator-Benutzer und das zugehörige Kennwort müssen bekannt sein.
+- Ein Administrator-Benutzer und das zugehörige Kennwort müssen bekannt sein.  
+    Alternativ kann der Zugriff auch über den  CloudMatic Fernzugriff erfolgen oder eine VPN-Lösung wie WireGuard.
 - Alle Skripte, die installiert werden sollen, müssen im Programmverzeichnis der `HeizkalenderInstallation.exe` liegen. Die Namen sind vorgegeben und dürfen nicht verändert werden. Es können weitere Tool-Skripte hinzugefügt werden. Diese werden ebenfalls installiert und später aktualisiert, solange die entsprechenden Dateien im Verzeichnis der `HeizkalenderInstallation.exe` liegen.
 - Um auf Ressourcen und externe Kalender zugreifen zu können, muss der Rechner mit dem Internet verbunden sein.
 - Eine lauffähige Kopie der `HeizkalenderInstallation.exe` liegt im Skripte-Verzeichnis.
@@ -39,6 +40,9 @@ Oder es wird *Eingeschränkter Zugriff* erteilt und die IP-Adresse des Rechners,
 Freigegebene IP-Adresse für den Zugriff:
 
 ![CCU-Zugriff: Freigegebene IP-Adresse](bilder/CCU-Zugriff-3.png)
+
+**Alternativ kann der Zugriff auch über den CloudMatic Fernzugriff erfolgen.**  
+**In diesem Fall folgen Sie der [CloudMatic Dokumentation](https://docs.easy-smarthome.de/CloudMatic/Connect/Fernzugriff/?utm_source=chatgpt.com) für das Einrichten und vorbereiten Ihrer CCU für die Nutzung der CloudMatic mit dem Fernzugriff.**
 
 ## Kurzanleitung
 
@@ -82,7 +86,7 @@ Für ein Update oder das Ändern der aktuellen Parameter starten Sie die `Heizka
 
 Im Folgenden werden die einzelnen Seiten der `HeizkalenderInstallation.exe` beschrieben.
 
-Greundsätzlich kann die *Eigenschaftseite Vwerbindung zur CCU* nicht verlassen werden, solange keine Verbindung erfolgreich hergestellt wurde.
+Grundsätzlich kann die *Eigenschaftseite Vwerbindung zur CCU* nicht verlassen werden, solange keine Verbindung erfolgreich hergestellt wurde.
 
 Die Eigenschaftseiten *Programme, Einstellungen, Kalenderzuordnungen, Räume* und *Systemvariablen* werden im nachfolgenden beschrieben.
 
@@ -100,9 +104,10 @@ Der Startbildschirm enthält wichtige Informationen über die `HeizkalenderInsta
 
 Im ersten Schritt muss eine Verbindung zur CCU aufgebaut werden, bevor weitere Einstellungen vorgenommen werden können.
 
-1. Geben Sie die Ziel-IP der CCU an.
-2. Geben Sie einen Benutzernamen an, der administrativen Zugriff auf die CCU hat.
-3. Geben Sie das passende Kennwort an.
+1. Geben Sie die Ziel-IP der CCU an, oder den Namen Ihrer CloudMatic Verbindung.
+2. Wählen Sie aus ob die Verbindung lokal oder über HTTPS und eine CloudMatic Verbindung hergestellt werden soll.
+3. Geben Sie einen CCU Benutzernamen und Kennwort an, der administrativen Zugriff auf die CCU hat, sofern der Zugriff auf eine lokale CCU (lokale IP) erfolgt.  
+    Erfolgt der Zugriff über die CloudMatic geben SIe hier bitte den Benutzernamen und das Kennwort für Ihren CloudMatic Fernzugriff an. Die Adresse hat dann folgendes Format: *\<cloudmaticid>.meinecloudmatic.de*.
 4. Geben Sie optional einen Prefix für Variablen und Skripte an (siehe Hinweis unten).
 5. Klicken Sie auf den Schalter **Verbinden mit der CCU**.
 
@@ -111,7 +116,11 @@ Im ersten Schritt muss eine Verbindung zur CCU aufgebaut werden, bevor weitere E
 >
 > Damit lassen sich mehrere Installationen parallel testen oder eine Installation von bereits bestehenden Systemvariablen oder Programmen abgrenzen. Wird die bestehende Installation einer CCU ausgelesen, wird erwartet, dass alle bisher genutzten Variablen und Programme diesen Prefix verwenden.
 
-<!-- HTML Kommentar zum Trennen der beiden Blockquotes -->
+Erfolgt der Zugriff über das CloudMatic Netz, wird intern der Port 44381 verwendet. Dieser Port wird über HTTPS Verschlüsselt mit dem CloudMatic Netzwerk an den Skript-Port 8181 der CCU weitergeleitet.
+
+Es ist auch möglich den Haken bei **Verbindung über &CloudMatic mit HTTPS herstellen** nicht zu setzen und dennoch über die CloudMatic Adresse über Port 8181 auf die \<cloudmaticid>.meinecloudmatic.de zuzugreifen. Die Kommunikation über das Internet erfolgt dann aber unverschlüsselt.
+
+Im lokalen Netzwerk erfolgt auch die Kommunikation über die Skript-Schnittstelle Port 8181 unverschlüsselt.
 
 > [!CAUTION]
 > Wird der Prefix falsch verwendet, können Skripte und Variablen mehrfach installiert werden. Das kann zu Fehlfunktionen und zu einer Überlastung der CCU führen. Sollen mehrere Installationen parallel getestet werden, achten Sie darauf, dass immer nur ein Satz Programme aktiviert ist.
@@ -171,9 +180,25 @@ Bei einer bestehenden, eingerichteten CCU erhalten Sie eine Anzeige über den Ve
 
 ![Verbunden mit der CCU](bilder/HKI-Verbunden.png)
 
+#### Einlesen bzw. Aktualisieren der Raumliste
+
+> [!WARNING]
+> Die Raumliste sollte nur dann neu eingelesen werden, wenn sich die Räume oder die Anzahl der zu verwaltenden Ressourcen ändern. Andernfalls können Einstellungen verloren gehen.
+
+![Warnung Raumliste neu einlesen](bilder/HKI-RaumlisteEinlesen1.png)
+
+![Warnung Raumliste neu einlesen](bilder/HKI-RaumlisteEinlesen2.png)
+
+
+
 #### Wechsel zu einer anderen Ressourcen-Variante
 
-<!-- TODO: Dokumentation oder Screenshot einfügen -->
+Es ist möglich in einer bestehenden Installation die Terminquelle zu wechseln. 
+
+> [!WARNING]
+> Bitte nehmen Sie hier nur dann einen Wechsel der Terminquelle vor, wenn dies auch wirklich gewünscht wird.  Andernfalls können Einstellungen verloren gehen.
+
+Nach dem Wechsel der Terminquelle empfiehlt es sich die Raum- und Ressourcenliste neu einzulesen.
 
 ### Eigenschaftsseite *Programme / Skripte*
 
@@ -507,10 +532,24 @@ Die Ausgabe der Log-Dateien erfolgt automatisch im zugehörigen Ordner für temp
 
 ## Zugriff von außerhalb mit dem `HeizkalenderInstallation.exe`
 
-Der Zugriff auf die CCU mit dem Installationsprogramm kann nicht über die CloudMatic erfolgen. Man benötigt in jedem Fall einen direkten Netzwerkzugriff auf die CCU über Port 8181.
+Für den Fernzugriff auf die Homematic-Zentrale können unterschiedliche VPN-basierte Lösungen eingesetzt werden, beispielsweise WireGuard für den direkten Netzwerkzugriff oder CloudMatic Connect für den herstellerspezifischen Fernzugriff auf die CCU.
+
+### CloudMatic 
+
+Der externe Zugriff auf die CCU mit dem Installationsprogramm kann über die CloudMatic erfolgen. Hierbei wird entweder eine verschlüsselte HTTPS-Verbindung erzeugt über Port 44381, oder es wird unverschlüsselt über Port 8181 übertragen.  
+
+Eine Dokumentation wie der CloudMatic Fernzugang eingerichtet werden kann findet sich auf der Website von [CloudMatic/easy smarthome](https://docs.easy-smarthome.de/CloudMatic/Connect/Fernzugriff/?utm_source=chatgpt.com).  
+
+Die CloudMatic ist ein kostenpflichtiger Dienst. Für den Fernzugriff über ist mindestens das Paket *CloudMatic Connect* erforderlich. In vielen Installationen nutzen wir *CloudMatic Complete*, weil hier über den Fernzugriff hinaus auch noch eigene Diagramme, Eigene Ansichten und Darstellungen der eigenen CCU möglich sind.
+
+### WireGuard
 
 Mit einer modernen FRITZ!Box ab FRITZ!OS Version 7.50 kann dieser Zugriff einfach über WireGuard erfolgen.
 
 Auf er Webseite von ELV findet sich dazu folgende [Anleitung](
 https://ch.elv.com/elvwissen/elvprojekte/sicherheit/fernzugriff-auf-die-CCU-webui-und-hcu-web-per-wireguard-fritzbox/) zur Installation von WireGuard und dem Zugriff auf eine CCU.  
 Auch ein passendes [Erklärvideo](https://www.youtube.com/watch?v=j7wpmiuKrxY) steht auf YouTube zur Verfügung.
+
+### Andere VPN Dienste
+
+Sofern ein Zugriff auf Port 8181 möglich ist, sollten auch andere VPN-Lösungen einen Zugriff mit der `HeizkalenderInstallation.exe` erlauben.
