@@ -103,10 +103,18 @@ Zeilen vom Typ *Zieltemperatur* werden anhand der Vorlaufzeit (Δ min) farblich 
 | Farbe | Bewertung | Δ min (Standard) | Bedeutung |
 | ----- | --------- | ----------------- | --------- |
 | Grün | Perfekt | −20…+5 min | Zieltemperatur rechtzeitig erreicht |
-| Gelb | Akzeptabel | −45…−20 / +5…+15 min | Etwas zu früh oder zu spät |
-| Rot | Kritisch | < −45 / > +15 min | Deutlich zu früh (Energieverschwendung) oder zu spät |
+| Gelb | Akzeptabel | −45…−20 oder +5…+15 min | Etwas zu früh oder zu spät |
+| Rot | Kritisch | < −45 oder > +15 min | Deutlich zu früh (Energieverschwendung) oder zu spät |
 
-Die Schwellwerte lassen sich über die optionale Systemvariable `HK2-HKK-Zieltemperatur` anpassen. Format: vier Semikolon-getrennte Werte `Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach`, z.B. `-135;-60;-30;-15`. Ohne die Variable gelten die oben gezeigten Standardwerte.
+Die Schwellwerte lassen sich über die optionale Systemvariable `HK2-HKK-Zieltemperatur` anpassen. Format: vier Semikolon-getrennte Werte `Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach`, z.B. `-90;-60;-30;-15`. Ohne die Variable gelten die oben gezeigten Standardwerte.
+
+**Beispiel mit angepassten Schwellwerten** (`-90;-60;-30;-15`):
+
+| Farbe | Bewertung | Δ min | Bedeutung |
+| ----- | --------- | ----- | --------- |
+| Grün | Perfekt | −60…−30 min | Zieltemperatur 60 bis 30 min vor Termin erreicht |
+| Gelb | Akzeptabel | −90…−60 oder −30…−15 min | Bis 30 min zu früh oder bis 15 min vor Termin |
+| Rot | Kritisch | < −90 oder > −15 min | Alles andere |
 
 **Indikatoren in der Spalte „Ist-Temp.":**
 

@@ -175,7 +175,7 @@ set hkk_src "HK-LogHeizkurvenkontrolle"
 # ---------------------------------------------------------------------------
 # Raumliste + optionale Zieltemperatur-Schwellen via ReGa
 # Der Raumname im Log entspricht dem Suffix der HKG-Raum-*-Variable (z.B. "UG-Büro").
-# HK2-HKK-Zieltemperatur (optional): "RotUnten;GruenVon;GruenBis;RotOben"
+# HK2-HKK-Zieltemperatur (optional): "Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach"
 #   Default: -45;-20;5;15
 # ---------------------------------------------------------------------------
 set hkg_raw [extract_stdout [rega_script {
@@ -482,8 +482,8 @@ if {[llength $log_files] == 0} {
     puts {    <legend>Legende</legend>}
     puts "    <p class=\"hk-sl-legende\">"
     puts "      <span class=\"hk-kurve-ziel-gruen hk-kurve-badge\">Zieltemp. perfekt ([fmt_delta $ziel_gruen_von]&hellip;[fmt_delta $ziel_gruen_bis] min)</span>"
-    puts "      <span class=\"hk-kurve-ziel-gelb hk-kurve-badge\">Zieltemp. akzeptabel ([fmt_delta $ziel_rot_unten]&hellip;[fmt_delta $ziel_gruen_von] / [fmt_delta $ziel_gruen_bis]&hellip;[fmt_delta $ziel_rot_oben] min)</span>"
-    puts "      <span class=\"hk-kurve-ziel-rot hk-kurve-badge\">Zieltemp. kritisch (&lt;[fmt_delta $ziel_rot_unten] / &gt;[fmt_delta $ziel_rot_oben] min)</span>"
+    puts "      <span class=\"hk-kurve-ziel-gelb hk-kurve-badge\">Zieltemp. akzeptabel ([fmt_delta $ziel_rot_unten]&hellip;[fmt_delta $ziel_gruen_von] oder [fmt_delta $ziel_gruen_bis]&hellip;[fmt_delta $ziel_rot_oben] min)</span>"
+    puts "      <span class=\"hk-kurve-ziel-rot hk-kurve-badge\">Zieltemp. kritisch (&lt; [fmt_delta $ziel_rot_unten] oder &gt; [fmt_delta $ziel_rot_oben] min)</span>"
     puts "    </p>"
     puts {  </fieldset>}
 }
