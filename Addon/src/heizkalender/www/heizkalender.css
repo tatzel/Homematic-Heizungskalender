@@ -47,6 +47,7 @@
 
 .hk-nav a.active {
   border: 2px solid #1a5276;
+  padding: 5px 15px;
   cursor: default;
 }
 
@@ -154,12 +155,6 @@ legend {
   text-decoration: underline;
 }
 
-.hk-info {
-  cursor: help;
-  font-style: normal;
-  opacity: 0.6;
-}
-
 .hk-hint {
   border-left: 4px solid #3498db;
   background: #eaf4fb;
@@ -242,12 +237,9 @@ legend {
 .hk-kurve-table th,
 .hk-kurve-table td { white-space: nowrap; }
 
-.hk-kurve-heizbeginn td { background-color: #d6eaf8 !important; }
-.hk-kurve-terminbeginn td { background-color: #d5f5e3 !important; }
-.hk-kurve-ziel td       { background-color: #e8f8e8 !important; }
-.hk-kurve-terminende td { background-color: #fef9e7 !important; }
-.hk-kurve-heizende td   { background-color: #f0f0f0 !important; }
-.hk-kurve-fehler td     { background-color: #fadbd8 !important; }
+.hk-kurve-ziel-gruen td { background-color: #e8f8e8 !important; }
+.hk-kurve-ziel-gelb td  { background-color: #fff3cd !important; }
+.hk-kurve-ziel-rot td   { background-color: #f8d7da !important; }
 
 .hk-kurve-badge {
   display: inline-block;
@@ -258,12 +250,9 @@ legend {
   border: 1px solid #ccc;
 }
 
-.hk-kurve-heizbeginn.hk-kurve-badge  { background-color: #d6eaf8; }
-.hk-kurve-terminbeginn.hk-kurve-badge { background-color: #d5f5e3; }
-.hk-kurve-ziel.hk-kurve-badge        { background-color: #e8f8e8; }
-.hk-kurve-terminende.hk-kurve-badge  { background-color: #fef9e7; }
-.hk-kurve-heizende.hk-kurve-badge    { background-color: #f0f0f0; }
-.hk-kurve-fehler.hk-kurve-badge      { background-color: #fadbd8; }
+.hk-kurve-ziel-gruen.hk-kurve-badge  { background-color: #e8f8e8; }
+.hk-kurve-ziel-gelb.hk-kurve-badge   { background-color: #fff3cd; }
+.hk-kurve-ziel-rot.hk-kurve-badge    { background-color: #f8d7da; }
 
 .hk-ind-ok  { color: #1a7a1a; margin-left: 4px; }
 .hk-ind-err { color: #c0392b; margin-left: 4px; }

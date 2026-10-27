@@ -143,6 +143,7 @@ set doc_links [list \
     HK2-Kurvenversatz             $doc_skripte_s2 \
     HK2-VorzeitAus                $doc_skripte_s2 \
     HK2-Schaltzeiten               $doc_dev_vlz2 \
+    HK2-HKK-Zieltemperatur         $doc_awh_kurve \
 ]
 
 proc lookup_doc_url {name doc_links_var} {

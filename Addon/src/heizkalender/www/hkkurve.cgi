@@ -44,13 +44,20 @@ proc extract_stdout {rega_raw} {
     return ""
 }
 
-proc ereignis_class {ereignis delta} {
-    if {[string equal $ereignis "Fehler"]}         { return "hk-kurve-fehler" }
-    if {[string equal $ereignis "Heizbeginn"]} { return "hk-kurve-heizbeginn" }
-    if {[string equal $ereignis "Terminbeginn"]}   { return "hk-kurve-terminbeginn" }
-    if {[string equal $ereignis "Zieltemperatur"]} { return "hk-kurve-ziel" }
-    if {[string equal $ereignis "Terminende"]}     { return "hk-kurve-terminende" }
-    if {[string equal $ereignis "Heizende"]}       { return "hk-kurve-heizende" }
+proc ereignis_class {ereignis delta rot_u gruen_v gruen_b rot_o} {
+    # Nur Zieltemperatur-Ereignisse werden eingefaerbt (Issue #67).
+    # Alle anderen Ereignisse nutzen den alternierenden Zeilenhintergrund.
+    # Schwellwerte aus HK2-ZielSchwellen oder Defaults.
+    if {[string equal $ereignis "Zieltemperatur"]} {
+        set dval 0
+        catch {
+            set dstr [string map {min ""} $delta]
+            set dval [expr {int($dstr)}]
+        }
+        if {$dval >= $gruen_v && $dval <= $gruen_b}  { return "hk-kurve-ziel-gruen" }
+        if {($dval >= $rot_u && $dval < $gruen_v) || ($dval > $gruen_b && $dval <= $rot_o)} { return "hk-kurve-ziel-gelb" }
+        return "hk-kurve-ziel-rot"
+    }
     return ""
 }
 
@@ -74,6 +81,25 @@ proc to_ascii {s} {
     # string first mit url_decode-Ergebnissen funktioniert.
     regsub -all {[^\x00-\x7f]} $s {} r
     return $r
+}
+
+proc log_raumname {logname} {
+    # Extrahiert den Raumnamen aus dem Log-Format:
+    #   "Resource(ID)"         -> Resource  (Raum = Ressource, Name wegoptimiert)
+    #   "Resource(ID)-Raum"    -> Raum      (Multiraum, Raum != Ressource)
+    # Damit filtert das Dropdown exakt auf den Raum, auch wenn der
+    # Ressourcenname identisch zu einem Raumnamen ist (Issue #66).
+    set cp [string first ")" $logname]
+    if {$cp < 0} { return $logname }
+    set rest [string range $logname [expr {$cp+1}] end]
+    if {[string length $rest] > 1 && [string equal [string index $rest 0] "-"]} {
+        return [string range $rest 1 end]
+    }
+    set op [string first "(" $logname]
+    if {$op > 0} {
+        return [string range $logname 0 [expr {$op-1}]]
+    }
+    return $logname
 }
 
 # ---------------------------------------------------------------------------
@@ -142,8 +168,10 @@ if {[file isdirectory $usb_dir]} {
 set hkk_src "HK-LogHeizkurvenkontrolle"
 
 # ---------------------------------------------------------------------------
-# Raumliste aus HKG-Raum-* Systemvariablen via ReGa
+# Raumliste + optionale Zieltemperatur-Schwellen via ReGa
 # Der Raumname im Log entspricht dem Suffix der HKG-Raum-*-Variable (z.B. "UG-Büro").
+# HK2-HKK-Zieltemperatur (optional): "RotUnten;GruenVon;GruenBis;RotOben"
+#   Default: -45;-20;5;15
 # ---------------------------------------------------------------------------
 set hkg_raw [extract_stdout [rega_script {
     string result = "";
@@ -157,13 +185,37 @@ set hkg_raw [extract_stdout [rega_script {
         }
     }
     WriteLine(result);
+    var zs = dom.GetObject("HK2-HKK-Zieltemperatur");
+    if (zs) {
+        WriteLine("ZS:" # zs.Value());
+    }
 }]]
 
 # alle_raeume: Suffix von HKG-Raum-* (= Raumname im Log), nach Name sortiert
+# Zieltemperatur-Schwellen: Defaults nach Martins Vorgabe
+set ziel_rot_unten -45
+set ziel_gruen_von -20
+set ziel_gruen_bis 5
+set ziel_rot_oben  15
+
 set alle_raeume {}
 foreach line [split $hkg_raw "\n"] {
     set line [string trim $line]
     if {[string equal $line ""]} { continue }
+    # Optionale Schwellwerte aus HK2-ZielSchwellen parsen
+    if {[string match "ZS:*" $line]} {
+        catch {
+            set zsval [string range $line 3 end]
+            set parts [split $zsval ";"]
+            if {[llength $parts] == 4} {
+                set ziel_rot_unten [expr {int([lindex $parts 0])}]
+                set ziel_gruen_von [expr {int([lindex $parts 1])}]
+                set ziel_gruen_bis [expr {int([lindex $parts 2])}]
+                set ziel_rot_oben  [expr {int([lindex $parts 3])}]
+            }
+        }
+        continue
+    }
     set rname [string range $line 9 end]
     if {[string equal $rname ""]} { continue }
     lappend alle_raeume [list $rname $rname]
@@ -263,7 +315,7 @@ if {$submitted && [llength $log_files] > 0} {
         if {[string equal $raumname ""]} { continue }
 
         if {![string equal $filter_raum "alle"]} {
-            if {[string first $filter_raum [to_ascii $raumname]] < 0} { continue }
+            if {![string equal $filter_raum [to_ascii [log_raumname $raumname]]]} { continue }
         }
         if {![string equal $filter_ereignis "alle"] && ![string equal $ereignis $filter_ereignis]} { continue }
 
@@ -381,7 +433,7 @@ if {[llength $log_files] == 0} {
         set at_max     [lindex $ev 6]
         set at_max_typ [lindex $ev 7]
 
-        set eclass [ereignis_class $ereignis $delta]
+        set eclass [ereignis_class $ereignis $delta $ziel_rot_unten $ziel_gruen_von $ziel_gruen_bis $ziel_rot_oben]
         set rowcls [expr {![string equal $eclass ""] ? " class=\"$eclass\"" : ""}]
 
         set ist_str  [expr {![string equal $ist  ""] ? "$ist ${deg}C" : ""}]
@@ -423,14 +475,11 @@ if {[llength $log_files] == 0} {
     puts {  <p class="hk-hint">Da <em>HK-SystemProtokoll sichern.hsc</em> alle 29 Minuten l&auml;uft, kann die Anzeige bis zu 29 Minuten hinter dem aktuellen Geschehen zur&uuml;ckliegen.</p>}
     puts {  <fieldset class="hk-legende-fieldset">}
     puts {    <legend>Legende</legend>}
-    puts {    <p class="hk-sl-legende">
-      <span class="hk-kurve-heizbeginn hk-kurve-badge">Heizbeginn</span>
-      <span class="hk-kurve-terminbeginn hk-kurve-badge">Terminbeginn</span>
-      <span class="hk-kurve-ziel hk-kurve-badge">Zieltemperatur</span>
-      <span class="hk-kurve-terminende hk-kurve-badge">Terminende</span>
-      <span class="hk-kurve-heizende hk-kurve-badge">Heizende</span>
-      <span class="hk-kurve-fehler hk-kurve-badge">Fehler</span>
-    </p>}
+    puts "    <p class=\"hk-sl-legende\">"
+    puts "      <span class=\"hk-kurve-ziel-gruen hk-kurve-badge\">Zieltemp. perfekt (${ziel_gruen_von}&hellip;+${ziel_gruen_bis} min)</span>"
+    puts "      <span class=\"hk-kurve-ziel-gelb hk-kurve-badge\">Zieltemp. akzeptabel (${ziel_rot_unten}&hellip;${ziel_gruen_von} / +${ziel_gruen_bis}&hellip;+${ziel_rot_oben} min)</span>"
+    puts "      <span class=\"hk-kurve-ziel-rot hk-kurve-badge\">Zieltemp. kritisch (&lt;${ziel_rot_unten} / &gt;+${ziel_rot_oben} min)</span>"
+    puts "    </p>"
     puts {  </fieldset>}
 }
 }

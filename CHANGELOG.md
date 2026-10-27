@@ -11,13 +11,30 @@ zusammen und müssen gemeinsam eingespielt werden.
 Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` /
 `!// TT:`); diese bleiben erhalten und sind die feinste Änderungsebene.
 
-# [Unveröffentlicht]
+## [Unveröffentlicht]
 
-# [Veröffentlicht]
+### Hinzugefügt
+
+- Addon: Zieltemperatur-Ereignisse in der Heizkurvenkontrolle werden nach Vorlaufzeit eingefärbt: grün (perfekt), gelb (akzeptabel), rot (kritisch) (#67)
+- Addon: Optionale Systemvariable `HK2-HKK-Zieltemperatur` zur Anpassung der Farbschwellen (Format: `Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach`, Default: `-45;-20;5;15`)
+- Tool-Skript `Tools/HK2-HKK-Zieltemperatur-anlegen.hsc` zum Anlegen der Variable auf der CCU
+
+### Geändert
+
+- Addon: Heizkurvenkontrolle verwendet statt individueller Ereignisfarben einen alternierenden Zeilenhintergrund. Nur Zieltemperatur-Ereignisse werden farblich hervorgehoben (#67)
+- Addon: Navigation springt nicht mehr bei aktivem Menüpunkt (Border-Kompensation über Padding)
+- Addon: Ungenutzte CSS-Klasse `.hk-info` entfernt
+
+### Behoben
+
+- Addon: Raumfilter in der Heizkurvenkontrolle filtert jetzt exakt statt per Substring-Match. Behebt falsches Filterverhalten wenn Ressourcenname und Raumname identisch sind (#66)
+
+## [Veröffentlicht]
 
 ## [2026-10-27] Release
 
 ### Hinzugefügt
+
 - `HeikalenderInstallation.exe` Version 4.2.0
 - Zugang auch über CloudMatic und HTTPS erlauben
 - Release vorbereiten
@@ -35,6 +52,7 @@ Tool-Doku, Tippfehler
 - Bugfix: Fehlerbehandlung bei HTTP-Fehlern in Skript-1-Varianten
 
 ### Geändert
+
 - Anwendungsbilder korrigiert
 
 ## [2026-10-26]
@@ -46,7 +64,6 @@ Tool-Doku, Tippfehler
 - Timeouts für externe HTTP Abfragen fehlten.
 - In der Simulation wurde bei sehr großen Datenmengen verhindert, dass die Daten nicht korrekt wieder eingelesen werden können.
 - Diverse Kleinigkeiten
-
 
 ## [2026-10-25]
 
