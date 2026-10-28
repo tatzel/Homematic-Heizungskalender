@@ -133,15 +133,18 @@ set rega_script {
         string name = sv.Name();
         if (name.StartsWith("HKG-Raum-")) {
             string val = sv.Value();
-            string sensor = val.StrValueByIndex(";", 6);
-            if (sensor != "") {
-                var ch = dom.GetObject(sensor);
-                if (ch) {
-                    var dpTemp = ch.DPByHssDP("ACTUAL_TEMPERATURE");
-                    if (!dpTemp) { dpTemp = ch.DPByHssDP("TEMPERATURE"); }
-                    if (dpTemp) { result = result # name # "\tT\t" # dpTemp.State() # "\n"; }
-                    var dpHum = ch.DPByHssDP("HUMIDITY");
-                    if (dpHum) { result = result # name # "\tH\t" # dpHum.State() # "\n"; }
+            string hsFlag = val.StrValueByIndex(";", 1);
+            if ((hsFlag == "H") || (hsFlag == "HS")) {
+                string sensor = val.StrValueByIndex(";", 6);
+                if (sensor != "") {
+                    var ch = dom.GetObject(sensor);
+                    if (ch) {
+                        var dpTemp = ch.DPByHssDP("ACTUAL_TEMPERATURE");
+                        if (!dpTemp) { dpTemp = ch.DPByHssDP("TEMPERATURE"); }
+                        if (dpTemp) { result = result # name # "\tT\t" # dpTemp.State() # "\n"; }
+                        var dpHum = ch.DPByHssDP("HUMIDITY");
+                        if (dpHum) { result = result # name # "\tH\t" # dpHum.State() # "\n"; }
+                    }
                 }
             }
         }
