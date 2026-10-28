@@ -191,6 +191,77 @@ Beispiele:
 - `0;HS;SW;21;0;30;BidCoS-RF.ABC12345:1;BidCoS-RF.DEF67890:1` — Heizen + Schalten, Thermostat an Feld 6, ein Schaltaktor an Feld 7
 - `0;V;SW;21;0;0;xyz` — Variable *xyz*, auf true setzen
 
+#### Betriebsmodi im Detail
+
+Der Modus (Feld 1) steuert grundlegend, wie der Heizkalender den Raum behandelt.
+Jeder Modus hat unterschiedliche Auswirkungen auf Vorheizzeit-Berechnung,
+Aktor-Ansteuerung und Sensorik.
+
+##### `H` — Heizen
+
+Steuert einen Thermostat (z.B. HmIP-eTRV) über dessen Solltemperatur.
+
+| Eigenschaft | Verhalten |
+| :--- | :--- |
+| Aktor-Typ | Thermostat (Feld 7); Ansteuerung über `DPByHssDP` mit Thermostat-Parameter (`SET_POINT_TEMPERATURE`, `SET_TEMPERATURE` etc. je nach Heiztyp) |
+| Sensor (Feld 6) | Optional; CCU-Gerätekanal für IST-Temperatur und Luftfeuchte |
+| Vorheizzeit | Vollständig wirksam: Offset + Faktor × HK2-Kurve(AT), skaliert mit faktor2 (IST-Temperatur-Korrektur) |
+| AT-Schwelle | Heizvorgang wird unterdrückt wenn Außentemperatur ≥ `HK2-A.Temp.Grenze` |
+| Einschalten | Setzt Solltemperatur (Wohlfühltemp) am Thermostat |
+| Ausschalten | Setzt Grundtemperatur am Thermostat |
+| Heizkurvenkontrolle | Aktiv — protokolliert Heizbeginn, Zieltemperatur, Terminbeginn/-ende |
+
+##### `HS` — Heizen + Schalten
+
+Kombiniert einen Thermostat als Temperatursensor (Feld 6) mit einem oder
+mehreren Schaltaktoren (Feld 7+). Typisch für Fußbodenheizungen mit
+separatem Stellantrieb.
+
+| Eigenschaft | Verhalten |
+| :--- | :--- |
+| Aktor-Typ | Thermostat an Feld 6 (nur als Sensor), Schaltaktor(en) ab Feld 7; Ansteuerung über `DPByHssDP("STATE")` |
+| Sensor (Feld 6) | CCU-Gerätekanal des Thermostats — wird für IST-Temperatur gelesen |
+| Vorheizzeit | Wie `H`: Offset + Faktor × HK2-Kurve(AT), skaliert mit faktor2 |
+| AT-Schwelle | Wie `H`: Heizvorgang wird unterdrückt wenn AT ≥ Grenze |
+| Einschalten | Setzt Solltemperatur am Thermostat (Feld 6) **und** schaltet Aktoren ein (Feld 7+) |
+| Ausschalten | Setzt Grundtemperatur am Thermostat **und** schaltet Aktoren aus |
+| Heizkurvenkontrolle | Aktiv |
+
+##### `S` — Schalten
+
+Schaltet einen Aktor (z.B. Relais, Steckdose) ein/aus ohne
+Temperatursteuerung.
+
+| Eigenschaft | Verhalten |
+| :--- | :--- |
+| Aktor-Typ | Schaltaktor (Feld 7); Ansteuerung über `DPByHssDP("STATE")` |
+| Sensor (Feld 6) | Nicht verwendet (leer lassen) |
+| Vorheizzeit | Nur der feste Offset (Feld 4) wird verwendet; kein Faktor, kein faktor2, keine HK2-Kurve |
+| AT-Schwelle | **Keine** — Schaltvorgang wird immer ausgeführt, unabhängig von der Außentemperatur |
+| Einschalten | `State(1)` auf dem Schaltaktor |
+| Ausschalten | `State(0)` auf dem Schaltaktor |
+| Heizkurvenkontrolle | Übersprungen |
+
+##### `V` — Variable setzen
+
+Setzt eine CCU-Systemvariable auf `true`/`false` statt einen physischen
+Aktor zu schalten. Nützlich für Automatisierungen, die auf
+Systemvariablen reagieren (z.B. Lüftung, Beschattung, Benachrichtigungen).
+
+| Eigenschaft | Verhalten |
+| :--- | :--- |
+| Aktor-Typ | CCU-Systemvariable (Feld 7); **kein** `DPByHssDP` — das Variablen-Objekt wird direkt über `State()` gesetzt |
+| Sensor (Feld 6) | Nicht verwendet; darf einen Variablennamen enthalten, wird aber von der Sensorik **nicht** über `DPByHssDP` gelesen |
+| Vorheizzeit | Nur der feste Offset (Feld 4); kein Faktor, kein faktor2, keine HK2-Kurve |
+| AT-Schwelle | **Keine** — Variable wird immer gesetzt, unabhängig von der Außentemperatur |
+| Einschalten | `State(1)` auf der Systemvariable |
+| Ausschalten | `State(0)` auf der Systemvariable |
+| Heizkurvenkontrolle | Übersprungen |
+
+> **Achtung:** Im Modus `V` darf `DPByHssDP` auf den Objekten in Feld 6/7
+> nicht aufgerufen werden — Systemvariablen haben keine HSS-Datenpunkte.
+> Code, der auf Felder der Raumvariable zugreift, muss den Modus prüfen.
+
 ### HK1-Schaltliste
 
 Übergabepuffer von Skript 1 an Skript 2. Wird automatisch befüllt und

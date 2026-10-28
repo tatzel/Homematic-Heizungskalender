@@ -18,6 +18,7 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - Addon: Zieltemperatur-Ereignisse in der Heizkurvenkontrolle werden nach Vorlaufzeit eingefärbt: grün (perfekt), gelb (akzeptabel), rot (kritisch) (#67)
 - Addon: Optionale Systemvariable `HK2-HKK-Zieltemperatur` zur Anpassung der Farbschwellen (Format: `Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach`, Default: `-45;-20;5;15`)
 - Tool-Skript `Tools/HK2-HKK-Zieltemperatur-anlegen.hsc` zum Anlegen der Variable auf der CCU
+- Doku: Zentrale Modus-Beschreibungen (H/HS/S/V) und Checkliste „Neuen Modus einführen" in der Entwickler-Dokumentation
 
 ### Geändert
 
@@ -28,6 +29,9 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 ### Behoben
 
 - Addon: Raumfilter in der Heizkurvenkontrolle filtert jetzt exakt statt per Substring-Match. Behebt falsches Filterverhalten wenn Ressourcenname und Raumname identisch sind (#66)
+- Addon: `index.cgi` — Sensor-Temperaturabfrage nur für Heizmodi H/HS (Whitelist). Im Modus V erzeugte `DPByHssDP` auf Systemvariablen einen ScriptRuntimeError (#69)
+- Addon: `hkkurve.cgi` — Hinweise und Legende werden jetzt auch ohne Log-Daten angezeigt
+- `HK-Skript 2`: AT-Guard verwendet Whitelist (`isHeizModus`) statt Blacklist (`HSFlag=="S"`). Modus V wurde bei Außentemperatur über Schwellwert nie geschaltet (#69)
 
 ## [Veröffentlicht]
 
