@@ -1,6 +1,6 @@
 !// Skript 2 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    25.10.2026
+!// Stand:    29.10.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,8 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-10-29 AT-Guard: Klammern um !isHeizModus ergänzt — HM-Script hat keine Operatorrangfolge
+!// TT:  2026-10-29 AT-Guard: Whitelist (H/HS) statt Blacklist (S) — Modus V wurde bei AT>=ATG nie geschaltet (#69)
 !// TT:  2026-10-25 HK2-Schaltzeiten: Schlüssel von ResID auf Raumvariablenname (RVN) umgestellt.
 !//                 Behebt falsche Vorlaufzeit-Anzeige bei Multi-Raum-Zuordnungen.
 !// MRi: 2026-10-21 Zieltemperatur in Log ergänzt.
@@ -780,8 +782,11 @@ foreach(SLEintrag,SListe){
     !//Einschalten (Status ==> 1)
     !//Liegt der Einschaltzeitpunkt in der Vergangenheit UND Ausschaltzeitpunkt in der Zukunft Heizung einschalten WENN diese noch nicht eingeschaltet ist.
     if(SDFlag>=0){
-      !// Sollte die Außentemperatur über unserem Schwellenwert liegen, Heizen wir nicht
-      if((HSFlag=="S") || (AT<ATG)){
+      !// Sollte die Außentemperatur über unserem Schwellenwert liegen, Heizen wir nicht.
+      !// Nur die Heizmodi (H/HS) sind temperaturabhängig — Schalten (S) und Variable (V)
+      !// werden immer ausgeführt, unabhängig von der Außentemperatur.
+      boolean isHeizModus = ((HSFlag=="H") || (HSFlag=="HS"));
+      if((!isHeizModus) || (AT<ATG)){
         !// Und wir schalten nur ein wenn die Einschaltzeit mehr als 5min beträgt
         if(((EIN+300)<AUS) && (EIN<=NOW) && (AUS>NOW)){
           !// Da wir die Heizung einschalten, setzen wir den Raum in die Heizliste
