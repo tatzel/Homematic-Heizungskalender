@@ -294,6 +294,18 @@ if (oSV) {
 		oSV.Variable ("");
 	WriteLine (svName # neut);}
 !------------
+svName= "%1%HK2-HKK-Zieltemperatur"; oSV=rSV.Get (svName);
+if (oSV) {
+	if ((oSV.ValueType()==20) && (oSV.ValueSubType()==11) && bupdate && (oSV.Type()!=OT_ALARMDP)) {
+		WriteLine (svName # altt);act=act+1;
+		oSV.Variable ("");}
+} elseif (bcreate) {
+	neu=neu+1;oSV = dom.CreateObject (1089); rSV.Add (oSV.ID()); oSV.Name (svName); oSV.ValueType (20); oSV.ValueSubType (11);
+	oSV.DPInfo("Heizkurvenkontrolle Zieltemperatur: Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach"); oSV.ValueUnit(""); oSV.Internal(false); oSV.Visible(true); oSV.Unerasable(false);
+	oSV.DPArchive (true && barchive);
+		oSV.Variable ("-90;-60;-30;-15");
+	WriteLine (svName # neut);}
+!------------
 dom.RTUpdate(0);
 WriteLine ("------------------");
 WriteLine (act # " bestehende Systemvariablen aktualisiert");

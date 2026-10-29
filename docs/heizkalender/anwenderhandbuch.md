@@ -138,7 +138,7 @@ flowchart TD
 
 Ablauf im Detail:
 
-1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (HK-Skript 1, HK-Skript 2 und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
+1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (`HK-Skript 1`, `HK-Skript 2` und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
 2. **Stündlich:** `HK-Außentemperatur-Open-Meteo` aktualisiert die Außentemperatur in `HK2-Aussentemperatur`.
 3. **Alle 30 Minuten:** `HK-Skript 1_ChurchTools` liest die ChurchTools-Termine und schreibt sie in `HK1-Schaltliste`.
 4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur, den Systemvariablen und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
@@ -310,11 +310,11 @@ Der Jugendraum wird bei Nutzung alleine geschaltet.
 
 Im günstigsten Fall sollten alle Termine eingetragen und fix sein, bevor, die Heizphase eines Raumes beginnt. Die Heizphase hat immer eine Vorheiz- oder auch feste Vorlaufzeit. (siehe unten).
 
-Es ist jedoch möglich, dass der Terminkalender sich kurzfristig ändert. Haben sich Termine geändert liest `Skript 1`, die neuen Termine ein (normalerweise alle 30min).
+Es ist jedoch möglich, dass der Terminkalender sich kurzfristig ändert. Haben sich Termine geändert liest `HK-Skript 1`, die neuen Termine ein (normalerweise alle 30min).
 
-Wird ein neuer Termin gefunden, dessen Heizphase schon begonnen haben sollte, wird sofort die Heizung im nächsten Schaltzyklus von `Skript 2` eingeschaltet. Aufgrund der Verzögerung ist es dann natürlich möglich, dass die Vorheizzeit nicht erreicht wird.
+Wird ein neuer Termin gefunden, dessen Heizphase schon begonnen haben sollte, wird sofort die Heizung im nächsten Schaltzyklus von `HK-Skript 2` eingeschaltet. Aufgrund der Verzögerung ist es dann natürlich möglich, dass die Vorheizzeit nicht erreicht wird.
 
-Wird im umgekehrten Fall ein Termin gelöscht dessen Heizphase bereits begonnen hat, wird die Heizung im im nächsten Schaltzyklus von `Skript 2` ausgeschaltet.
+Wird im umgekehrten Fall ein Termin gelöscht dessen Heizphase bereits begonnen hat, wird die Heizung im im nächsten Schaltzyklus von `HK-Skript 2` ausgeschaltet.
 
 ## Vorheizzeit
 
@@ -328,14 +328,14 @@ Anteilen zusammen:
 
 Ist ein Raum zu Beginn bereits wärmer als die Grundtemperatur (z.B. durch einen
 vorhergehenden Termin, Nachbarräume oder Sonneneinstrahlung), verkürzt
-HK-Skript 2 die Vorheizzeit automatisch. Hat der Raum die Zieltemperatur schon
+`HK-Skript 2` die Vorheizzeit automatisch. Hat der Raum die Zieltemperatur schon
 erreicht, entfällt die Vorheizzeit ganz. Die Neuberechnung erfolgt alle 5 Minuten.
 
 **Grundsätzlich sollte die in der `HK2-Kurve` angegebene Vorheizzeit so berechnet sein, dass der Raum von der jeweiligen Grundtemperatur auf die Wohlfühltemperatur gebracht werden kann.**
 
 ### Wann heizt ein Raum? (Entscheidungsablauf)
 
-HK-Skript 2 prüft alle 5 Minuten für jeden Raum drei Bedingungen. Nur wenn alle
+`HK-Skript 2` prüft alle 5 Minuten für jeden Raum drei Bedingungen. Nur wenn alle
 drei erfüllt sind, wird geheizt. Das erklärt die häufige Frage „Warum heizt mein
 Raum (nicht)?".
 
@@ -386,7 +386,7 @@ setzt der Heizkalender immer auf die konfigurierte Grundtemperatur zurück oder 
 
 Die Heizkurve bestimmt die Vorheizzeit in Abhängigkeit von der Außentemperatur. Je kälter es draußen ist, desto länger muss in der Regel vorgeheizt werden.
 
-Die Heizkurve definiert für acht Außentemperatur-Stützpunkte die jeweilige Vorheizzeit in Minuten. Zwischen diesen Stützpunkten interpoliert HK-Skript 2 linear. Die Heizkurve gilt für alle Heizvorgänge.
+Die Heizkurve definiert für acht Außentemperatur-Stützpunkte die jeweilige Vorheizzeit in Minuten. Zwischen diesen Stützpunkten interpoliert `HK-Skript 2` linear. Die Heizkurve gilt für alle Heizvorgänge.
 
 ### Wie wird die Heizkurve eingestellt?
 
@@ -468,8 +468,8 @@ Das Logging wird grundsätzlich bei der Installation eingeschaltet. Es ist aber 
 | Variable | Bedeutung |
 | :--------------- | :--------- |
 | HK-Logging | Allgemeine Heizkalender Logs vom Typ `HK-Log`. Diese umfasen zum Beispiel die Ermittlung der Außentemperatur |
-| HK1-Logging | Logs vom Typ `HK1-Log` umfassen alle Ausgaben der Terminermittlung über `Skript 1` |
-| HK2-Logging | Logs vom Typ `HK2-Log` umfassen alle Ausgaben des Schaltskriptes `Skript 2` |
+| HK1-Logging | Logs vom Typ `HK1-Log` umfassen alle Ausgaben der Terminermittlung über `HK-Skript 1` |
+| HK2-Logging | Logs vom Typ `HK2-Log` umfassen alle Ausgaben des Schaltskriptes `HK-Skript 2` |
 | HK-LoggingHeizkurvenkontrolle | Ausgabe der Logs vom Typ `HK-LogHeizkurvenkontrolle`. Diese speziellen Log-Einträge erleichtern die Kontrolle der Vorheizzeiten und Temperaturen zu den Terminzeiten. |
 
 Das [`Heizkalender Addon`](#heizkalender-addon)(siehe unten) erleichtert den Zugriff auf alle Protokolle des Heizkalenders und zeigt auch nützliche weitere Informationen aller Einstellungen und vorgenommenen Konfigurationen strukturiert an.
@@ -556,6 +556,10 @@ Die fünf Einträge zeigen beispielhaft den Ablauf eines Heizvorgangs:
 - **Zeile 5: Terminende**  
   Zum Terminende beträgt die Raumtemperatur noch 21,1 °C und liegt damit weiterhin über der gewünschten Wohlfühltemperatur von 20 °C. Das kann auf die Wärmespeicherung des Raums oder des Heizsystems zurückzuführen sein.
 
+> [!WARNING]
+> **Ein Neustart der CCU kann dazu führen, dass Einträge der Heizkurvenkontrolle verändert werden und nicht verlässlich sind. Nach dem Neustart melden Thermostate eine Isttemperatur von 0°C bis ein erster neuer Funkkontakt hergestellt wird. Dies kann die Protokollierung und Berechnung von Schaltzeiten stören. Die Berechnung und Einträge der Heizkurvenprotokolle sollten sich nach einer Stunde sich wieder normalisiert.**
+
+
 ### Wie verschafft man sich schnell einen Überblick, ob die Vorheizzeiten passen?
 
 Auch hier bietet das Heizkalender Addon eine hilfreiche Übersicht. Für eine erste Beurteilung eignet sich insbesondere das Ereignis **Zieltemperatur**. Entscheidend ist dabei der Zeitwert relativ zum Terminbeginn.
@@ -578,7 +582,7 @@ In einem solchen Fall sollte zunächst geprüft werden, ob die Einstellungen und
 
 Die Heizkurvenkontrolle ist damit kein einmaliger Vorgang, sondern ein Werkzeug zur schrittweisen Optimierung. Besonders nach Änderungen am Heizsystem, an der Gebäudenutzung oder an den Raumeinstellungen lohnt es sich, die Ergebnisse erneut zu überprüfen.
 
-## Globale Einstellungen (Systemvariablen für Skript 2)
+## Globale Einstellungen (Systemvariablen für `HK-Skript 2`)
 
 Diese Systemvariablen gelten global für alle Räume und werden bei der Installation
 angelegt. 
@@ -596,11 +600,11 @@ Die folgenden Werte haben sich in der Praxis bewährt.
 | `HK2-VorzeitAus` | Globale Minuten, um die vor Terminende abgeschaltet wird | **0**|Besser je Raum einstellen; nicht gleichzeitig mit der raumbezogenen VorzeitAus nutzen (beide Werte addieren sich). Das vorzeitige Heizende kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
 | `HK2-Kurvenversatz` | Gibt einen globalen Einschalt-Offset an | **0**|Minuten vor Terminbeginn und ist das Gegenstück zu `HK2-VorzeitAus`.  Das vorgezogene Heizbeginn kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
 
-## Einstellungen für Skript 1 (Termineinlesen)
+## Einstellungen für `HK-Skript 1` (Termineinlesen)
 
 | Variable | Bedeutung |
 | :--- | :--- |
-| `HK1-Vorlaufzeit` | Optional. Zeithorizont für die Terminabfrage in Minuten: wie weit in die Zukunft schaut Skript 1 beim Lesen des Kalenders. Default: 720 min (12 Stunden). Wird die Variable nicht angelegt, bleibt der Defaultwert aktiv. Sinnvolle Werte: 60 bis 1380 (23 Stunden). |
+| `HK1-Vorlaufzeit` | Optional. Zeithorizont für die Terminabfrage in Minuten: wie weit in die Zukunft schaut `HK-Skript 1` beim Lesen des Kalenders. Default: 720 min (12 Stunden). Wird die Variable nicht angelegt, bleibt der Defaultwert aktiv. Sinnvolle Werte: 60 bis 1380 (23 Stunden). |
 
 ## Unterstützte Homematic-Geräte
 
@@ -689,25 +693,25 @@ sonst aus." Diesen Aktor **nicht** über den Heizkalender (Modus Heizen+Schalten
 steuern: der Heizkalender kennt dann keine Thermostate mehr und die Vorheizlogik
 entfällt.
 
-## Zusammenspiel von `Skript 1` und `Skript 2`
+## Zusammenspiel von `HK-Skript 1` und `HK-Skript 2`
 
 Die Verbindung von Kalender und Schaltvorgang erfolgt über eine Systemvariable `HK1-Schaltliste`.
 
-Diese Variable ist die interne Schnittstelle zwischen `Skript 1` und `Skript 2` und wird
+Diese Variable ist die interne Schnittstelle zwischen `HK-Skript 1` und `HK-Skript 2` und wird
 von den Skripten automatisch befüllt und ausgelesen. Sie sollte **niemals manuell
 verändert werden**. Das Format ist dokumentiert, damit Fehlermeldungen im Log
 besser verstanden werden können. Die vollständige Feldbeschreibung findet sich in der
 [Entwickler-Dokumentation](entwickler.md#hk1-schaltliste).
 
-`Skript 1` liest die entsprechende Kalenderressource aus. Anstehende Termine werden ab 12h vor Terminbeginn in die `HK1-Schaltliste` eingetragen. Termine die mehr als 1 Stunde abgelaufen sind, werden aus der Liste entfernt.
-`Skript 2` liest die Schaltliste zyklisch aus und Schaltet bei Bedarf Heizung und Aktoren.
+`HK-Skript 1` liest die entsprechende Kalenderressource aus. Anstehende Termine werden ab 12h vor Terminbeginn in die `HK1-Schaltliste` eingetragen. Termine die mehr als 1 Stunde abgelaufen sind, werden aus der Liste entfernt.
+`HK-Skript 2` liest die Schaltliste zyklisch aus und Schaltet bei Bedarf Heizung und Aktoren.
 
 Beispiele:
 
 - `4;2026-10-14 18:30:00;2026-10-14 20:30:00;-1;S`: Ressource 4, 14.10.2026 18:30 Uhr bis 20:30 Uhr, dauerhaft
   einschalten (`-1` = `#EIN#`), Schalt-Modus.
 - `18;2026-10-14 18:30:00;2026-10-14 20:30:00;0;S`: Ressource 18, gleicher Zeitraum, normal einschalten, Schalt-Modus.
-- `16;2026-10-14 18:30:00;2026-10-14 20:30:00;0;H`: Ressource 16, gleicher Zeitraum, heizen (Skript 2 berechnet Vorlaufzeit und Zieltemperatur aus der Raum-Systemvariablen).
+- `16;2026-10-14 18:30:00;2026-10-14 20:30:00;0;H`: Ressource 16, gleicher Zeitraum, heizen (`HK-Skript 2` berechnet Vorlaufzeit und Zieltemperatur aus der Raum-Systemvariablen).
 
 ## Sonderbefehle in Terminen
 
@@ -729,7 +733,7 @@ Diese Sonderbefehle können eine Heizung dauerhaft ein oder dauerhaft ausschalte
 
 **Anwendungsbeispiel `#NS#`/`#NH#`:** Reinigt eine Firma die Räume, soll die
 Ressource als belegt gelten, aber nicht geheizt werden. Mit `#NS#` oder `#NH#`
-entscheidet Skript 1, dass dieser Termin nicht in die Schaltliste kommt.
+entscheidet `HK-Skript 1`, dass dieser Termin nicht in die Schaltliste kommt.
 
 **Wo stehen die Sonderbefehle?**
 
@@ -754,7 +758,7 @@ Eine optionale Nachtschaltung soll verhindern, dass Heizungen manuell eingeschal
 
 Würde eine Heizung manuell eingeschaltet werden und der Nutzer vergisst das Ausschalten, dann hätte dies zur Folge, das die Heizung bis zum nächsten programmierten Schalttermin angeschaltet bleibt.
 
-Ist die Systemvariable `HK2-Hand-Grundtemp` auf `true` gesetzt, führt HK-Skript 2
+Ist die Systemvariable `HK2-Hand-Grundtemp` auf `true` gesetzt, führt `HK-Skript 2`
 täglich um 01:00 Uhr eine Nachtschaltung durch. Dabei werden alle
 Räume aus `HK2-HKG-Liste` geprüft und bei Bedarf zurückgesetzt:
 
@@ -787,3 +791,10 @@ Dies funktioniert auch beim Einsatz Fernzugriffsoftware der CloudMatic über *ht
 
 Die vollständige Beschreibung der Funktionen und Seiten findet sich im
 [Addon-Anwenderhandbuch](../addon/anwenderhandbuch.md).
+
+## Allgemeinde Informationen zum Betrieb
+
+Nach einem Neustart der CCU melden Thermostate, die noch nicht wieder Funkkontakt mit der Basis-CCU hatten eine Isttemperatur von 0°C. Dies kann direkt nach dem Neustart zu eigentümlichen errechneten Vorlaufzeiten führen oder auch zu falschen Informationen im Addon in der Raumübersicht.  
+Durch diese *falschen* Temperatur Informationen kann es dazu kommen, dass Heizvorgänge vorzeitig eingeschaltet werden. Der Heizkalender wird diese Vorgänge jedoch sofort abbrechen, wenn die realen Temperaturen übermittelt werden und der nächste Durchlauf für `HK-Skript 2` startet
+
+Erst nach bis zu 1h Laufzeit wird sich die CCU nach einem Neustart wieder eingependelt haben.

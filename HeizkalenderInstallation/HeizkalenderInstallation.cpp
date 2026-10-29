@@ -777,7 +777,7 @@ foreach(vid, dom.GetObject(ID_SYSTEM_VARIABLES).EnumIDs()){
 			strPath += _T("_SysVars.log");
 
 			CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
-			file.WriteString(CString{ strOut });
+			file.Write(strOut.GetBuffer(), strOut.GetLength());
 		}
 		catch (CException* e)
 		{
@@ -863,7 +863,7 @@ foreach(sProgramId, dom.GetObject(ID_PROGRAMS).EnumUsedIDs()) {
 			strPath += _T("_Programs.log");
 
 			CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
-			file.WriteString(CString{ strOut });
+			file.Write(strOut.GetBuffer(), strOut.GetLength());
 		}
 		catch (CException* e)
 		{
@@ -925,7 +925,7 @@ foreach (datapoint, dom.GetObject(ID_DATAPOINTS).EnumUsedNames())
 			strPath += _T("_Devices.log");
 
 			CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
-			file.WriteString(CString{ strOut });
+			file.Write(strOut.GetBuffer(), strOut.GetLength());
 		}
 		catch (CException* e)
 		{
@@ -1915,7 +1915,7 @@ dom.RTUpdate(0);
 		strPath += _T("_update.log");
 
 		CStdioFile file(strPath,CFile::modeCreate | CFile::modeWrite | CFile::typeText);
-		file.WriteString(CString{ strScriptForUpdate });
+		file.Write(strScriptForUpdate.GetBuffer(), strScriptForUpdate.GetLength());
 	}
 	catch (CException* e)
 	{

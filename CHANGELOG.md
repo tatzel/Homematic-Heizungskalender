@@ -13,15 +13,21 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+## [2026-10-29]
+
 ### Hinzugefügt
 
 - Addon: Zieltemperatur-Ereignisse in der Heizkurvenkontrolle werden nach Vorlaufzeit eingefärbt: grün (perfekt), gelb (akzeptabel), rot (kritisch) (#67)
 - Addon: Optionale Systemvariable `HK2-HKK-Zieltemperatur` zur Anpassung der Farbschwellen (Format: `Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach`, Default: `-45;-20;5;15`)
 - Tool-Skript `Tools/HK2-HKK-Zieltemperatur-anlegen.hsc` zum Anlegen der Variable auf der CCU
 - Doku: Zentrale Modus-Beschreibungen (H/HS/S/V) und Checkliste „Neuen Modus einführen" in der Entwickler-Dokumentation
+- `HeikalenderInstallation.exe`: legt nun auch die neuen Variable `HK2-HKK-Zieltemperatur`
 
 ### Geändert
 
+- `HK2-HKK-Zieltemperatur`: Version 4.3.0
+- `HeikalenderInstallation.exe`: Logdateien wurden evtl. nicht vollständig geschrieben.
+- Addon: Version 0.7.6
 - Addon: Heizkurvenkontrolle verwendet statt individueller Ereignisfarben einen alternierenden Zeilenhintergrund. Nur Zieltemperatur-Ereignisse werden farblich hervorgehoben (#67)
 - Addon: Navigation springt nicht mehr bei aktivem Menüpunkt (Border-Kompensation über Padding)
 - Addon: Ungenutzte CSS-Klasse `.hk-info` entfernt

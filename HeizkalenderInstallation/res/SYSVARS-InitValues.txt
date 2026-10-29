@@ -27,3 +27,4 @@
 4318	HK2-VorzeitAus	0.000000	Grundoffsetzeit Ausschalten	4	true	true
 4329	HK1-Vorlaufzeit	720.00000	Zeithorizont für Terminabfrage in Minuten (Default 720, max. 1380)	4	true	true
 4311	HK2-Schaltzeiten		Berechnete Schaltzeiten pro Raum (wird von Skript 2 geschrieben)	20	false	true
+7322	HK2-HKK-Zieltemperatur	-90;-60;-30;-15	Heizkurvenkontrolle Zieltemperatur: Kritisch-vor;Perfekt-von;Perfekt-bis;Kritisch-nach	20	true	true
