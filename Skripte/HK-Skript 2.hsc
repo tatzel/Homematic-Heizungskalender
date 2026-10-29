@@ -21,6 +21,7 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-10-29 AT-Guard: Klammern um !isHeizModus ergänzt — HM-Script hat keine Operatorrangfolge
 !// TT:  2026-10-29 AT-Guard: Whitelist (H/HS) statt Blacklist (S) — Modus V wurde bei AT>=ATG nie geschaltet (#69)
 !// TT:  2026-10-25 HK2-Schaltzeiten: Schlüssel von ResID auf Raumvariablenname (RVN) umgestellt.
 !//                 Behebt falsche Vorlaufzeit-Anzeige bei Multi-Raum-Zuordnungen.
@@ -785,7 +786,7 @@ foreach(SLEintrag,SListe){
       !// Nur die Heizmodi (H/HS) sind temperaturabhängig — Schalten (S) und Variable (V)
       !// werden immer ausgeführt, unabhängig von der Außentemperatur.
       boolean isHeizModus = ((HSFlag=="H") || (HSFlag=="HS"));
-      if(!isHeizModus || (AT<ATG)){
+      if((!isHeizModus) || (AT<ATG)){
         !// Und wir schalten nur ein wenn die Einschaltzeit mehr als 5min beträgt
         if(((EIN+300)<AUS) && (EIN<=NOW) && (AUS>NOW)){
           !// Da wir die Heizung einschalten, setzen wir den Raum in die Heizliste

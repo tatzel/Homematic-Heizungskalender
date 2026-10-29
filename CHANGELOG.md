@@ -31,6 +31,7 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 - Addon: Raumfilter in der Heizkurvenkontrolle filtert jetzt exakt statt per Substring-Match. Behebt falsches Filterverhalten wenn Ressourcenname und Raumname identisch sind (#66)
 - Addon: `index.cgi` — Sensor-Temperaturabfrage nur für Heizmodi H/HS (Whitelist). Im Modus V erzeugte `DPByHssDP` auf Systemvariablen einen ScriptRuntimeError (#69)
 - Addon: `hkkurve.cgi` — Hinweise und Legende werden jetzt auch ohne Log-Daten angezeigt
+- `HK-Skript 2`: AT-Guard: Klammern um `!isHeizModus` ergänzt — HM-Script wertet Ausdrücke ohne Operatorrangfolge von rechts nach links aus
 - `HK-Skript 2`: AT-Guard verwendet Whitelist (`isHeizModus`) statt Blacklist (`HSFlag=="S"`). Modus V wurde bei Außentemperatur über Schwellwert nie geschaltet (#69)
 
 ## [Veröffentlicht]
