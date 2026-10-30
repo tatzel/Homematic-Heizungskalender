@@ -432,8 +432,8 @@ puts {  <link rel="stylesheet" href="heizkalender.css">
 <body>
 <div id="content">
   <div class="hk-header">
-    <img src="hk-logo-300.png" height="64" alt="Heizkalender-Logo" class="hk-header-logo">
-    <h1>Heizkalender: Raum&uuml;bersicht</h1>
+    <img src="hk-logo-200.png" height="50" alt="Heizkalender-Logo" class="hk-header-logo">
+    <h1>Heizkalender</h1>
   </div>
   <nav class="hk-nav">
     <a href="index.cgi" class="active">Raum&uuml;bersicht</a>

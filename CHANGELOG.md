@@ -13,6 +13,12 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+### Geändert
+
+- Addon: Logo von hk-logo-300.png auf hk-logo-200.png gewechselt und Darstellungsgröße auf 50px reduziert, alte Datei entfernt
+- Addon: H1 Überschriften entfernt, da doppelt zu Menüeinträgen
+- Addon: sysvars.cgi: Execute-Bit entfernt (644 statt 755)
+
 ## [2026-10-29]
 
 ### Hinzugefügt
