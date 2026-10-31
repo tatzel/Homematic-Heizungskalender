@@ -579,6 +579,14 @@ if {[llength $raeume] == 0} {
         }
     }
     puts {  </table></div>}
+    if {$has_vlz} {
+        puts {  <div class="hk-hint">}
+        puts {    <strong>Hinweis:</strong> Die Spalten &bdquo;Vorlauf&ldquo; und &bdquo;Heizen ab&ldquo;}
+        puts {    werden alle 5&nbsp;Minuten neu berechnet. W&auml;hrend der Heizphase sinkt die}
+        puts {    angezeigte Vorlaufzeit, da die steigende Raumtemperatur in die Berechnung}
+        puts {    einflie&szlig;t. Der tats&auml;chliche Heizbeginn lag fr&uuml;her als hier angezeigt.}
+        puts {  </div>}
+    }
 }
 
 puts {</div>
