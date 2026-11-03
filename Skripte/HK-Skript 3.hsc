@@ -1,6 +1,6 @@
 !// Skript 3 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    02.11.2026
+!// Stand:    03.11.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,7 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-11-03 Bugfix: Param-Initialisierung in Hauptschleife ergaenzt (fehlte beim Aufteilen aus Skript 2)
 !// MRi: 2026-11-03 Aufteilung Skript2 Termine vorbereiten, Skript 3 Schalten
 !// MRi: 2026-11-02 Alte Changelogs entfernt
 !// TT:  2026-10-29 AT-Guard: Klammern um !isHeizModus ergänzt — HM-Script hat keine Operatorrangfolge
@@ -148,7 +149,7 @@ foreach(SLEintrag,SListe.Split("#")){
   if(DEBUG){WriteLine("AktSR=" # AktSR);}
 
   !// Listenelement auslesen
-  !// Parameter für aktuellen Schaltvorgang. 
+  !// Parameter für aktuellen Schaltvorgang.
   string  RVN     = SLEintrag.StrValueByIndex(";",0);
   integer SDFlag  = SLEintrag.StrValueByIndex(";",4).ToInteger();
   real    RTemp   = SLEintrag.StrValueByIndex(";",5).ToFloat();
@@ -158,17 +159,17 @@ foreach(SLEintrag,SListe.Split("#")){
   !// Erzeuge einen Namen ohne prefixe
   string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
 
-  !// Anzeigename fürs Log. 
-  string RaumLogName = RVNName;  
+  !// Anzeigename fürs Log.
+  string RaumLogName = RVNName;
   if(DEBUG){WriteLine("RVN=" # RVN);}
   string RVI=dom.GetObject(RVN).State();
   if(DEBUG){WriteLine("RVI=" # RVI);}
 
   if(log){logObj.State(RaumLogName # " Raumvariable: " # RVN # "=" # RVI);}
-  
+
   !//Aktoren und Raumtemp setzen, und bestimmen ob Heizen oder Schalten oder beides
   string HSFlag = RVI.StrValueByIndex(";",1);
-  
+
   !// DUP: AktorenListe-Block (Referenz-Implementierung). Identisch bei Z.806, Z.932
   !//      und in HK-Test-Skript.hsc. Aenderungen an allen Stellen nachziehen.
   !// AktorenListe aufbauen. Das ist alles ab der siebte Eintrag der Raumliste. Das dient dazu
@@ -196,18 +197,28 @@ foreach(SLEintrag,SListe.Split("#")){
   !// Typ des Aktors bestimmen
   AGF=RVI.StrValueByIndex(";",2);
 
+  !// Schaltparameter bestimmen
+  AGFParam = "AGFParam"#AGF.ToUpper();
+  Param = AGFParamIP;
+  if (system.IsVar(AGFParam)){
+    Param = system.GetVar(AGFParam);
+  }
+  if (HSFlag!="H"){
+    Param="STATE";
+  }
+
   !// Protokolleintrag mit Zeit erzeugen
-  string strTemp = " Schalten - ";    
+  string strTemp = " Schalten - ";
   if (HSFlag=="H"){
-    strTemp = " Heizen -"; 
+    strTemp = " Heizen -";
   }elseif (HSFlag=="HS"){
-    strTemp = " Heizen / Schalten-"; 
+    strTemp = " Heizen / Schalten-";
   } elseif (HSFlag=="V"){
     strTemp = " Variable setzen - ";
-  } 
+  }
   if(log) {logObj.State(RaumLogName # strTemp # " " # EIN.ToTime().Format("%X").Substr(0,5) # "-" # AUS.ToTime().Format("%X").Substr(0,5));}
   if(DEBUG)  {WriteLine(RaumLogName # strTemp # " " # EIN.ToTime().Format("%X").Substr(0,5) # "-" # AUS.ToTime().Format("%X").Substr(0,5));}
-  
+
   !// Dauerschaltstatus anzeigen, wenn es den gibt.
   !// 0=Aus, 1=Ein, 2=Dauer AUS, 3=Dauer EIN
   integer aktuellerSchaltZustand = RVI.StrValueByIndex(";",0).ToInteger();
@@ -792,4 +803,3 @@ foreach(RVN,RVNListe.Split(";")) {
 
 if(log){logObj.State("Ende Schaltskriptlauf=========================");}
 WriteLine("Ende Schaltskriptlauf");
-
