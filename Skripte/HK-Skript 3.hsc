@@ -21,7 +21,8 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
-!// TT:  2026-11-03 Bugfix: Param-Initialisierung in Hauptschleife ergaenzt (fehlte beim Aufteilen aus Skript 2)
+!// TT:  2026-11-03 GepruefteGereate: Eintrag RVN nur einmal am Ende der Verarbeitung (Z.673);
+!//                 überflüssiges zweites Eintragen direkt nach Duplikat-Check entfernt.
 !// MRi: 2026-11-03 Aufteilung Skript2 Termine vorbereiten, Skript 3 Schalten
 !// MRi: 2026-11-02 Alte Changelogs entfernt
 !// TT:  2026-10-29 AT-Guard: Klammern um !isHeizModus ergänzt — HM-Script hat keine Operatorrangfolge
@@ -40,7 +41,7 @@
 string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=1;
+boolean DEBUG=0;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
@@ -78,7 +79,6 @@ string AGFParamSW="STATE";
 integer NOW=system.Date().ToTime().ToInteger();
 string SListe=dom.GetObject(vrp # "HK2-Schaltliste").State();
 string VarNamen=dom.GetObject(vrp # "HK2-HKG-Liste").State();
-string RIDI=dom.GetObject(vrp # "HK1-R-Liste").State();
 real ATG=dom.GetObject(vrp # "HK2-A.Temp.Grenze").State().ToFloat();
 boolean Flag_Hand_Temp=dom.GetObject(vrp # "HK2-Hand-Temp").State();
 boolean Flag_Hand_Grundtemp=dom.GetObject(vrp # "HK2-Hand-Grundtemp").State();
@@ -118,10 +118,6 @@ if (!logObj){
   log = false;
 }
 
-!// Baue eine simple Namensliste aus den HK2-HKG-Liste. Wir entfernen Prefix und im multiraum Fall auch die anderen Räume
-!// Aus HKG-Raum-GrSaal, wird GrSaal. Aus HKG-Foyer wird Foyer
-string RIDINamen=VarNamen.Replace("HKG-Raum-","").Replace("HKG-","");
-
 if(log){logObj.State("Beginn Schaltskriptlauf=========================");}
 WriteLine("Beginn Schaltskriptlauf");
 if(SListe!=""){
@@ -145,8 +141,6 @@ string SLEintrag;
 if(DEBUG){WriteLine("SListe=" # SListe);}
 foreach(SLEintrag,SListe.Split("#")){
   if(DEBUG){WriteLine("SLEintrag=" # SLEintrag);}
-  string AktSR=SLEintrag.StrValueByIndex(";",0);
-  if(DEBUG){WriteLine("AktSR=" # AktSR);}
 
   !// Listenelement auslesen
   !// Parameter für aktuellen Schaltvorgang.
@@ -167,8 +161,25 @@ foreach(SLEintrag,SListe.Split("#")){
 
   if(log){logObj.State(RaumLogName # " Raumvariable: " # RVN # "=" # RVI);}
 
-  !//Aktoren und Raumtemp setzen, und bestimmen ob Heizen oder Schalten oder beides
+  !// Raum Parameter bestimmen
+  !// Aktoren, Heizen oder Schalten oder beides
+  !// Grundtemperatur individuell bestimmen
   string HSFlag = RVI.StrValueByIndex(";",1);
+  GT = RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();
+  if(GT==0){
+    GT=GTStandard;
+  }
+
+  !// Schaltparameter bestimmen
+  AGF = RVI.StrValueByIndex(";",2);
+  AGFParam = "AGFParam"#AGF.ToUpper();
+  Param = AGFParamIP;
+  if (system.IsVar(AGFParam)){
+    Param = system.GetVar(AGFParam);
+  }
+  if (HSFlag!="H"){
+    Param="STATE";
+  }
 
   !// DUP: AktorenListe-Block (Referenz-Implementierung). Identisch bei Z.806, Z.932
   !//      und in HK-Test-Skript.hsc. Aenderungen an allen Stellen nachziehen.
@@ -192,19 +203,6 @@ foreach(SLEintrag,SListe.Split("#")){
       iEntry=iEntry+1;
     }
     iPos = iPos+1;
-  }
-
-  !// Typ des Aktors bestimmen
-  AGF=RVI.StrValueByIndex(";",2);
-
-  !// Schaltparameter bestimmen
-  AGFParam = "AGFParam"#AGF.ToUpper();
-  Param = AGFParamIP;
-  if (system.IsVar(AGFParam)){
-    Param = system.GetVar(AGFParam);
-  }
-  if (HSFlag!="H"){
-    Param="STATE";
   }
 
   !// Protokolleintrag mit Zeit erzeugen
@@ -288,7 +286,6 @@ foreach(SLEintrag,SListe.Split("#")){
           }
         }
         dom.GetObject(RVN).State("2;" # RVI.Substr(2,RVI.Length()-2));
-        !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen " # AktSR # " " # dom.GetObject(RVN).State().StrValueByIndex(";",0));}
         continue;
       }
     }else{
@@ -335,7 +332,6 @@ foreach(SLEintrag,SListe.Split("#")){
           }
         }
         dom.GetObject(RVN).State("3;" # RVI.Substr(2,RVI.Length()-2));
-        !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen " # AktSR # " " # dom.GetObject(RVN).State().StrValueByIndex(";",0));}
         continue;
       }
     }else{
@@ -382,7 +378,6 @@ foreach(SLEintrag,SListe.Split("#")){
           }
         }
         dom.GetObject(RVN).State("0;" # RVI.Substr(2,RVI.Length()-2));
-        !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen " # AktSR # " " # dom.GetObject(RVN).State().StrValueByIndex(";",0));}
         continue;
       }
     }else{
@@ -443,7 +438,6 @@ foreach(SLEintrag,SListe.Split("#")){
           }
         }
         dom.GetObject(RVN).State("0;" # RVI.Substr(2,RVI.Length()-2));
-        !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen " # AktSR # " " # dom.GetObject(RVN).State().StrValueByIndex(";",0));}
         continue;
       }
     }
@@ -510,7 +504,6 @@ foreach(SLEintrag,SListe.Split("#")){
             }
           }
           dom.GetObject(RVN).State("1;" # RVI.Substr(2,RVI.Length()-2));
-          !// if(log){logObj.State(RaumLogName # " Schaltstatus setzen " # AktSR # " " # dom.GetObject(RVN).State().StrValueByIndex(";",0));}
           continue;
         }
       }
@@ -546,7 +539,6 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
     if (GepruefteGereate.Contains(";" # RVN # ";")){
       continue;
     }
-	GepruefteGereate = GepruefteGereate # ";";
 
     !// Loggen
     RaumLogName = RVN.Replace(vrp#"HKG-Raum-","");

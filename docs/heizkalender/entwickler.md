@@ -162,7 +162,7 @@ eine semikolongetrennte Liste mit sechs Pflichtfeldern und einem optionalen
 siebten Feld:
 
 ```txt
-Status;Modus;Heiztyp;Wohlfühltemp[/Grundtemp];Vorheizzeit[*Faktor];VorzeitAus[;Thermostat[;Schaltaktor1[;Schaltaktor2...]]]
+Status;Modus;Heiztyp;Wohlfühltemp[/Grundtemp];Vorheizzeit[*Faktor[*k*T_G]];VorzeitAus[;Thermostat[;Schaltaktor1[;Schaltaktor2...]]]
 ```
 
 | Feld | Index | Typ | Werte |
@@ -171,7 +171,7 @@ Status;Modus;Heiztyp;Wohlfühltemp[/Grundtemp];Vorheizzeit[*Faktor];VorzeitAus[;
 | Modus | 1 | String | `H` = Heizen, `S` = Schalten, `HS` = Heizen + Schalten, `V` = Variable setzen |
 | Heiztyp | 2 | String | `IP`, `RT`, `TC`, `IT` (Thermostate), `SW` (Schalt-Aktor) |
 | Wohlfühltemp | 3 | Float | Zieltemperatur in °C; optional `/Grundtemp` für raumindividuelle Grundtemperatur |
-| Vorheizzeit | 4 | Integer | Individuelle Vorheizzeit in Minuten; optional `*Faktor` (Float, 0,20–5,0) |
+| Vorheizzeit | 4 | Integer | Individuelle Vorheizzeit in Minuten; optional `*Faktor` (Float, 0,20–5,0); optional `*k*T_G` für das Sättigungsmodell (siehe unten) |
 | VorzeitAus | 5 | Integer | Minuten vor Terminende, nach denen abgeschaltet wird |
 | Thermostat | 6 | String | Nur bei Modus `HS`: CCU-Kanaladresse des Thermostats, der als Temperatursensor dient |
 | Schaltaktor(en) | 7+ | String | Nur bei Modus `HS`: CCU-Kanaladdresse(n) der Schaltaktoren; mehrere Aktoren werden durch weitere `;`-Felder angehängt |
@@ -182,12 +182,45 @@ Trennzeichen innerhalb eines Wertes:
 | :--- | :--- |
 | `;` | Trennt die Felder voneinander; bei Modus `HS` auch die Schaltaktoren (Felder 7+) |
 | `/` | Trennt Wohlfühltemperatur und Grundtemperatur (im Feld Wohlfühltemp) |
-| `*` | Trennt Vorheizzeit und Faktor (im Feld Vorheizzeit) |
+| `*` | Trennt die Unterfelder von Feld 4: `Vorheizzeit*Faktor` oder `Vorheizzeit*Faktor*k*T_G` |
+
+#### Feld 4: Vorheizzeit-Parameter
+
+Feld 4 unterstützt zwei Formate, abhängig vom aktiven Vorlaufzeitmodell (`HK2-Vorlaufzeitmodell`):
+
+**Heizkurven-Modell (Modell 0, Standard):**
+
+```
+<Offset>[*<Faktor>]
+```
+
+| Parameter | Bedeutung |
+| :-------- | :-------- |
+| Offset | Feste individuelle Vorheizzeit in Minuten (wird auf die aus `HK2-Kurve` berechnete Zeit addiert) |
+| Faktor | Skalierungsfaktor für die Heizkurve (Float, 0,20–5,0; Standard: 1,0) |
+
+**Sättigungsmodell (Modell 1):**
+
+```
+<Puffer>*<Faktor>*<k>*<T_G>
+```
+
+| Parameter | Bedeutung |
+| :-------- | :-------- |
+| Puffer | Zusatzpuffer in Minuten, der zur physikalisch berechneten Heizzeit addiert wird. `0` = kein Puffer. Typischer Einsatz: 30–60 min, damit Wände und Mobiliar ebenfalls auf Temperatur kommen. **Achtung beim Wechsel von Modell 0 auf Modell 1:** Der bisherige Offset-Wert war die feste Vorheizzeit für Modell 0 und ist für Modell 1 meist zu groß. Auf `0` setzen, wenn kein zusätzlicher Puffer gewünscht ist. |
+| Faktor | Skalierungsfaktor: wird beim Sättigungsmodell ignoriert, muss aber angegeben werden, damit k und $T_G$ an den richtigen Indexpositionen stehen. Bei einem Fallback auf Modell 0 (kein `hatSaettigungsParameter` oder `VZModell = 0`) wirkt der Wert wieder als normaler Skalierungsfaktor für die Heizkurve. |
+| k | Aufheizrate in 1/h: gibt an, wie schnell der Raum aufheizt |
+| $T_G$ | Grenztemperatur in °C: Temperatur, der sich der Raum asymptotisch annähert |
+
+Zusätzlich zum raumspezifischen Puffer (Unterfeld 0) wirkt auch `HK2-Kurvenversatz` als globaler Zusatzpuffer für alle Räume.
+
+Hat ein Raum nur zwei `*`-Unterfelder (kein k und kein $T_G$), fällt `HK-Skript 2` für diesen Raum automatisch auf das Heizkurven-Modell zurück, auch wenn `HK2-Vorlaufzeitmodell = 1` gesetzt ist.
 
 Beispiele:
 
 - `0;H;IP;18;0;30` — Heizmodus, HmIP-Thermostat, 18 °C, keine individuelle Vorheizzeit, 30 min vor Terminende aus
 - `0;H;IP;21/16;60*1.5;30` — wie oben, aber 21 °C Wohlfühltemperatur, 16 °C Grundtemperatur, 60 min Vorheizzeit mit Faktor 1,5
+- `0;H;IP;21/16;0*1.0*0.042*31.5;30` — Sättigungsmodell: k=0,042 1/h, $T_G$=31,5 °C
 - `0;HS;SW;21;0;30;BidCoS-RF.ABC12345:1;BidCoS-RF.DEF67890:1` — Heizen + Schalten, Thermostat an Feld 6, ein Schaltaktor an Feld 7
 - `0;V;SW;21;0;0;xyz` — Variable *xyz*, auf true setzen
 
@@ -330,6 +363,21 @@ Beispielkurven und Berechnungshintergrund:
 [Anwenderhandbuch](anwenderhandbuch.md#die-heizkurve-hk2-kurve),
 [Heizsteuerung-Vorheizzeit.md](heizsteuerung-vorheizzeit.md)
 
+### HK2-Vorlaufzeitmodell
+
+Optionale Systemvariable (Typ Integer). Wählt das Berechnungsverfahren für die Vorheizzeit.
+
+| Wert | Bedeutung |
+| :--- | :--- |
+| `0` | Heizkurven-Modell (Standard): Vorheizzeit wird aus `HK2-Kurve` interpoliert |
+| `1` | Sättigungsmodell: Vorheizzeit wird nach dem physikalischen Aufheizmodell $T(t) = T_G - (T_G - T_A) \times e^{-k \cdot t}$ berechnet, mit raumindividuellen Parametern k und $T_G$ aus Feld 4 der Raumvariablen |
+
+Ist die Variable auf der CCU nicht vorhanden, verwendet `HK-Skript 2` automatisch Modell 0.
+
+Hat ein Raum keine Sättigungsparameter (Feld 4 enthält weniger als 4 `*`-Unterfelder), fällt `HK-Skript 2` für diesen Raum auf das Heizkurven-Modell zurück, unabhängig von `HK2-Vorlaufzeitmodell`.
+
+Da HSC keine native Logarithmusfunktion kennt, wird ln(ratio) über eine Padé-Approximation berechnet: $\ln(x) \approx -2u \cdot (1 + u^2/3 + u^4/5)$ mit $u = (1-x)/(1+x)$. Der Gültigkeitsbereich ist `0.05 < ratio < 0.95`; außerhalb dieser Grenzen wird ratio auf den nächsten Randwert geklemmt.
+
 ### HK2-Schaltzeiten
 
 Wird von HK-Skript 2 am Ende jedes Skriptlaufs geschrieben (sofern die Variable auf der CCU vorhanden ist). Enthält die berechneten Schaltzeiten aller Ressourcen des letzten Skriptlaufs. Die Variable ist rein informativ und wird vom Benutzer nicht manuell gesetzt.
@@ -383,6 +431,47 @@ Speichert den laufenden Zustand der Heizkurvenkontrolle für alle überwachten R
 | 3 | 8 | Hinweis „kein Temperatursensor" bereits geloggt (wird nur einmal pro Heizphase eingetragen) |
 
 Beispiel: `#HKG-Raum-EG-Saal;1;18.1#HKG-Raum-UG-Buero;3;20.3#`
+
+### HK-Kalibrierung
+
+Zwischenspeicher für das Sättigungsmodell-Kalibrierungs-Logging. Wird von `HK-Heizkurvenkontrolle.hsc` beim ersten Lauf automatisch angelegt, sofern sie noch nicht auf der CCU vorhanden ist. Die Variable ist flüchtig (kein USB-Backup).
+
+**Auto-Creation:** Das Skript prüft beim Start per `dom.GetObject(vrp+"HK-Kalibrierung")`. Ist das Objekt nicht vorhanden, legt es das Skript als String-Systemvariable an (`OT_VARDP`, `ivtString`, `istChar8859`, sichtbar, nicht intern) und initialisiert sie mit leerem String. Damit ist kein manuelles Anlegen über den Installer nötig.
+
+Beim **Heizbeginn-Event** schreibt das Skript für jeden Raum mit Sättigungsparametern (4 `*`-Unterfelder in Feld 4) einen Eintrag mit Starttemperatur, Einschaltzeitpunkt und Außentemperatur. Beim **Zieltemperatur-Event** liest es den Eintrag, berechnet die tatsächliche Heizzeit und daraus `k_gemessen` nach dem Newtonschen Abkühlungsgesetz, schreibt einen `Kalib:`-Logeintrag und löscht den Eintrag aus der Variable. Bei CCU-Neustart oder Stromausfall zwischen den beiden Events geht der Heizbeginn-Eintrag verloren; das Skript schreibt dann keinen `Kalib:`-Eintrag für diesen Zyklus.
+
+```txt
+#<Raumvariable>;<T_A>;<EIN_Unix>;<AT>#...
+```
+
+| Feld | Typ | Bedeutung |
+| ---- | --- | --------- |
+| Raumvariable | String | Name der `HKG-Raum-*`-Systemvariable |
+| T_A | Float | Starttemperatur beim Heizbeginn (°C) |
+| EIN_Unix | Integer | Einschaltzeitpunkt als Unix-Timestamp |
+| AT | Float | Außentemperatur beim Heizbeginn (°C) |
+
+Der `Kalib:`-Logeintrag im Systemprotokoll hat das Format und erscheint unter dem Namen `HK-LogHeizkurvenkontrolle`:
+
+```txt
+<RaumLogName> Kalib: tHeiz=<min>min T_A=<°C> T_G=<°C> AT=<°C> k_gemessen=<1/h>
+```
+
+### k_gemessen auswerten
+
+Die `Kalib:`-Einträge ermöglichen es, den konfigurierten k-Wert in Feld 4 der Raumvariablen anhand echter Heizdaten zu überprüfen und anzupassen. Vorgehen:
+
+**1. Einträge sammeln:** Im Addon unter HK-Log nach `Kalib:` filtern oder die Logdatei vom USB-Stick herunterladen und nach `Kalib:` durchsuchen. Mindestens 3–5 Zyklen pro Raum sammeln.
+
+**2. Ausreißer aussortieren:** Folgende Zyklen nicht verwenden:
+- Sonneneinstrahlung während des Aufheizens (k_gemessen deutlich höher als üblich)
+- Verstellter Thermostat (k_gemessen deutlich niedriger als üblich)
+- Sehr kurze Heizzeiten unter 30 Minuten (wenig aussagekräftig)
+- Nur ein einzelner Zyklus mit stark abweichendem `T_A` oder `AT`
+
+**3. k anpassen:** Den Mittelwert der verbleibenden `k_gemessen`-Werte berechnen. Weicht er um mehr als 20 % vom konfigurierten k ab, lohnt eine Anpassung. Beispiel: konfiguriert `0.042`, gemessen im Mittel `0.038` über 5 Zyklen, dann Feld 4 von `0*1.0*0.042*31.5` auf `0*1.0*0.038*31.5` ändern.
+
+**4. T_G anpassen:** `T_G` beeinflusst vor allem die Vorhersagegenauigkeit bei großem Temperaturhub (Kaltstart). Liegt `k_gemessen` bei Kaltstarts systematisch über dem Mittel der Warmstarts, ist `T_G` möglicherweise zu niedrig angesetzt und sollte leicht erhöht werden.
 
 ## Skript-Syntax (HomeMatic HSC)
 

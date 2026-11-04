@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    02.11.2026
+!// Stand:    03.11.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -13,6 +13,11 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript
 !//
 
+!// TT:  2026-11-03 Kalibrierungs-Logging fuer Saettigungsmodell: bei Heizbeginn T_A/EIN/AT in
+!//                 HK-Kalibrierung zwischenspeichern; bei Zieltemperatur t_heiz und k_gemessen loggen.
+!//                 HK-Kalibrierung wird automatisch angelegt falls nicht vorhanden.
+!//                 Plausibilitaetsfilter fuer Kalib-Logging ergaenzt: t_heiz 15..1440 min,
+!//                 ratio 0.05..0.95; Zyklen ausserhalb werden nicht geloggt.
 !// MRi: 2026-11-03 Aufteilung Skript2 Termine vorbereiten, Skript 3 Schalten
 !// TT:  2026-11-02 AT bei allen 5 Events mitloggen (fuer Regressionstest Saettigungsmodell).
 !//                 Zieltemperatur-Event am Terminende nachholen, falls IST >= ZIEL aber
@@ -63,6 +68,21 @@ string AktAktor;
 object objAktor;
 object objDP;
 string AGF;
+!// Hilfsvariablen fuer Kalibrierungs-Logging (einmalige Deklaration wegen fehlendem Block-Scoping in HSC)
+integer iKalib;
+integer iKalib2;
+string  kRest;
+string  kEntry;
+real    kTA;
+integer kEIN;
+real    kAT;
+real    TG_kalib;
+real    tHeizH;
+real    diffEnd;
+real    diffStart;
+real    k_gemessen;
+real    ratio;
+real    lnRatio;
 
 !// Logging bestimmen
 var logObj=dom.GetObject(vrp+"HK-LogHeizkurvenkontrolle");
@@ -101,6 +121,23 @@ if (!objVar){
 }
 string RaumListe = objVar.State();
 string bearbeiteteRaeume=";";
+
+!// HK-Kalibrierung laden (oder anlegen). Speichert Heizbeginn-Daten bis das Zieltemperatur-Event eintritt.
+!// Format: #RVN;T_A;EIN_Unix;AT#...
+var objKalib=dom.GetObject(vrp+"HK-Kalibrierung");
+if (!objKalib){
+  object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
+  objKalib = dom.CreateObject(OT_VARDP);
+  svObjects.Add(objKalib.ID());
+  objKalib.Name(vrp#"HK-Kalibrierung");
+  objKalib.DPInfo("Zwischenspeicher fuer Saettigungsmodell-Kalibrierung (automatisch angelegt)");
+  objKalib.ValueType(ivtString);
+  objKalib.ValueSubType(istChar8859);
+  objKalib.Internal(false);
+  objKalib.Visible(true);
+  objKalib.State("");
+}
+string KalibListe = objKalib.State();
 
 !// Baue eine simple Namensliste aus den HK2-HKG-Liste. Wir entfernen Prefix und im multiraum Fall auch die anderen Räume
 !// Aus HKG-Raum-GrSaal, wird GrSaal. Aus HKG-Foyer wird Foyer
@@ -354,6 +391,19 @@ foreach(SLEintrag,SListe){
       !// bit 0 setzen und bit 2 zurücksetzen
       status = status & 251;
       status = status | 1;
+      !// Kalibrierungs-Eintrag anlegen (nur fuer Raeume mit Saettigungsparametern: 4 *-Unterfelder in Feld 4)
+      if (RVI.StrValueByIndex(";",4).StrValueByIndex("*",3)!=""){
+        !// Alten Eintrag fuer diesen Raum entfernen, neuen anhaengen
+        iKalib = KalibListe.Find("#" # RVN # ";");
+        if (iKalib>=0){
+          kRest = KalibListe.Substr(iKalib+1, KalibListe.Length()-iKalib-1);
+          iKalib2 = kRest.Find("#");
+          if (iKalib2<0){ iKalib2 = kRest.Length(); }
+          KalibListe = KalibListe.Substr(0,iKalib) # kRest.Substr(iKalib2, kRest.Length()-iKalib2);
+        }
+        KalibListe = KalibListe # "#" # RVN # ";" # istTemperatur.ToString(2) # ";" # EIN # ";" # AT.ToString(2);
+        if (DEBUG) { WriteLine("Kalib Heizbeginn: " # RVN # " T_A=" # istTemperatur.ToString(2) # " EIN=" # EIN # " AT=" # AT.ToString(2)); }
+      }
     }
 
     !// Prüfen ob Heizende erkannt wird. Nur wenn bit 0 = ein und bit 2 = aus
@@ -382,6 +432,39 @@ foreach(SLEintrag,SListe){
         if (DEBUG) { WriteLine(RaumLogName # " Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1)); }
         !// Bit 1 setzen
         status = status | 2;
+        !// Kalibrierungs-Logging: k_gemessen berechnen (nur wenn Heizbeginn-Daten vorhanden)
+        iKalib = KalibListe.Find("#" # RVN # ";");
+        if (iKalib>=0){
+          kEntry = KalibListe.Substr(iKalib+1, KalibListe.Length()-iKalib-1);
+          iKalib2 = kEntry.Find("#");
+          if (iKalib2<0){ iKalib2 = kEntry.Length(); }
+          kEntry = kEntry.Substr(0, iKalib2);
+          kTA    = kEntry.StrValueByIndex(";",1).ToFloat();
+          kEIN   = kEntry.StrValueByIndex(";",2).ToInteger();
+          kAT    = kEntry.StrValueByIndex(";",3).ToFloat();
+          TG_kalib = RVI.StrValueByIndex(";",4).StrValueByIndex("*",3).ToFloat();
+          tHeizH = (NOW - kEIN).ToFloat() / 3600.0;
+          !// Plausibilitaetsfilter: zu kurze oder zu lange Zyklen nicht loggen
+          if (((tHeizH*60)>15.0) && ((tHeizH*60)<1440.0)){
+            !// k aus Newtonschem Abkuehlungsgesetz: k = -ln((T_G - T_ist) / (T_G - T_A)) / t
+            diffEnd   = TG_kalib - istTemperatur;
+            diffStart = TG_kalib - kTA;
+            k_gemessen = 0.0;
+            if (((diffEnd>0.01) && (diffStart>0.01)) && (tHeizH>0.01)){
+              ratio = diffEnd / diffStart;
+              !// Plausibilitaetsfilter: ratio ausserhalb [0.05, 0.95] macht ln instabil
+              if (((ratio>0.05) && (ratio<0.95))){
+                lnRatio    = 0.0 - ratio.Log();
+                k_gemessen = lnRatio / tHeizH;
+              }
+            }
+            if (log) { logObj.State(RaumLogName # " Kalib: tHeiz=" # (tHeizH*60).ToInteger() # "min T_A=" # kTA.ToString(1) # " T_G=" # TG_kalib.ToString(1) # " AT=" # kAT.ToString(1) # " k_gemessen=" # k_gemessen.ToString(4)); }
+            if (DEBUG) { WriteLine(RaumLogName # " Kalib: tHeiz=" # (tHeizH*60).ToInteger() # "min T_A=" # kTA.ToString(1) # " T_G=" # TG_kalib.ToString(1) # " AT=" # kAT.ToString(1) # " k_gemessen=" # k_gemessen.ToString(4)); }
+          }
+          !// Eintrag aus KalibListe entfernen
+          KalibListe = KalibListe.Substr(0,iKalib) # kEntry.Substr(iKalib2, kEntry.Length()-iKalib2);
+          if (DEBUG) { WriteLine("KalibListe nach Loeschen: " # KalibListe); }
+        }
       }
     }
 
@@ -415,6 +498,36 @@ foreach(SLEintrag,SListe){
         logObj.State          (RaumLogName # " Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1));
         if (DEBUG) { WriteLine(RaumLogName # " Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1)); }
         status = status | 2;
+        !// Kalibrierungs-Logging (Nachholen am Terminende, identisch mit normalem Zieltemperatur-Block)
+        iKalib = KalibListe.Find("#" # RVN # ";");
+        if (iKalib>=0){
+          kEntry = KalibListe.Substr(iKalib+1, KalibListe.Length()-iKalib-1);
+          iKalib2 = kEntry.Find("#");
+          if (iKalib2<0){ iKalib2 = kEntry.Length(); }
+          kEntry = kEntry.Substr(0, iKalib2);
+          kTA    = kEntry.StrValueByIndex(";",1).ToFloat();
+          kEIN   = kEntry.StrValueByIndex(";",2).ToInteger();
+          kAT    = kEntry.StrValueByIndex(";",3).ToFloat();
+          TG_kalib = RVI.StrValueByIndex(";",4).StrValueByIndex("*",3).ToFloat();
+          tHeizH = (NOW - kEIN).ToFloat() / 3600.0;
+          !// Plausibilitaetsfilter: zu kurze oder zu lange Zyklen nicht loggen
+          if (((tHeizH*60)>15.0) && ((tHeizH*60)<1440.0)){
+            diffEnd   = TG_kalib - istTemperatur;
+            diffStart = TG_kalib - kTA;
+            k_gemessen = 0.0;
+            if (((diffEnd>0.01) && (diffStart>0.01)) && (tHeizH>0.01)){
+              ratio    = diffEnd / diffStart;
+              !// Plausibilitaetsfilter: ratio ausserhalb [0.05, 0.95] macht ln instabil
+              if (((ratio>0.05) && (ratio<0.95))){
+                lnRatio    = 0.0 - ratio.Log();
+                k_gemessen = lnRatio / tHeizH;
+              }
+            }
+            if (log) { logObj.State(RaumLogName # " Kalib: tHeiz=" # (tHeizH*60).ToInteger() # "min T_A=" # kTA.ToString(1) # " T_G=" # TG_kalib.ToString(1) # " AT=" # kAT.ToString(1) # " k_gemessen=" # k_gemessen.ToString(4)); }
+            if (DEBUG) { WriteLine(RaumLogName # " Kalib: tHeiz=" # (tHeizH*60).ToInteger() # "min T_A=" # kTA.ToString(1) # " T_G=" # TG_kalib.ToString(1) # " AT=" # kAT.ToString(1) # " k_gemessen=" # k_gemessen.ToString(4)); }
+          }
+          KalibListe = KalibListe.Substr(0,iKalib) # kEntry.Substr(iKalib2, kEntry.Length()-iKalib2);
+        }
       }
       !// Setze den Status 0, wenn wir wirklich nicht mehr heizen. Andernfalls befinden wir uns schon wieder in
       !// einer neuen Heizphase. Jeder andere Status ist uns egal.
@@ -463,6 +576,11 @@ if (objVar.State()!=neueRaumListe){
   }
 } else {
   if (DEBUG) { WriteLine("Raumliste unverändert"); }
+}
+
+!// Kalibrierungsdaten speichern
+if (objKalib.State()!=KalibListe){
+  objKalib.State(KalibListe);
 }
 
 !// -----------------------------------------------------------------

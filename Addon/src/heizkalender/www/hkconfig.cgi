@@ -52,7 +52,7 @@ set rega_script {
     result = result # "===KAL===\n";
 
     string ev;
-    foreach(ev, "HK-Logging;HK1-Logging;HK2-Logging;HK-LoggingHeizkurvenkontrolle;HK2-Hand-Grundtemp;HK2-Hand-Temp;HK2-Grundtemperatur;HK2-A.Temp.Grenze;HK2-VorzeitAus;HK2-Kurvenversatz;HK2-Kurve".Split(";")) {
+    foreach(ev, "HK-Logging;HK1-Logging;HK2-Logging;HK3-Logging;HK-LoggingHeizkurvenkontrolle;HK2-Hand-Grundtemp;HK2-Hand-Temp;HK2-Grundtemperatur;HK2-A.Temp.Grenze;HK2-VorzeitAus;HK2-Kurvenversatz;HK2-Kurve;HK2-Vorlaufzeitmodell".Split(";")) {
         var o = dom.GetObject(ev);
         if (o) { result = result # "EINST\t" # ev # "\t" # o.Value() # "\n"; }
     }
@@ -362,7 +362,8 @@ puts {<div class="hk-table-scroll"><table class="hk-config-table-auto">}
 foreach {var label} {
     HK-Logging                    "Allgemeine Protokollierung"
     HK1-Logging                   "Skript 1 (Termindaten einlesen)"
-    HK2-Logging                   "Skript 2 (Heizung schalten)"
+    HK2-Logging                   "Skript 2 (Schaltzeiten berechnen)"
+    HK3-Logging                   "Skript 3 (Schalten)"
     HK-LoggingHeizkurvenkontrolle "Heizkurvenkontrolle"
 } {
     if {[info exists einstval($var)]} {
@@ -388,10 +389,11 @@ puts {</fieldset>}
 puts {<fieldset><legend>Temperaturen und Zeitversatz</legend>}
 puts {<div class="hk-table-scroll"><table class="hk-config-table-auto">}
 foreach {var label unit} {
-    HK2-Grundtemperatur "Grundtemperatur"              "&deg;C"
-    HK2-A.Temp.Grenze   "Au&szlig;entemperatur-Grenze" "&deg;C"
-    HK2-VorzeitAus      "Globaler Ausschalt-Versatz"   "min"
-    HK2-Kurvenversatz   "Globaler Einschalt-Versatz"   "min"
+    HK2-Grundtemperatur    "Grundtemperatur"                        "&deg;C"
+    HK2-A.Temp.Grenze      "Au&szlig;entemperatur-Grenze"           "&deg;C"
+    HK2-VorzeitAus         "Globaler Ausschalt-Versatz"             "min"
+    HK2-Kurvenversatz      "Globaler Einschalt-Versatz"             "min"
+    HK2-Vorlaufzeitmodell  "Vorlaufzeit-Berechnungsmodell (0=Heizkurve, 1=S&auml;ttigungsmodell)" ""
 } {
     if {[info exists einstval($var)]} {
         set decimals [expr {[string match "*Temp*" $var] || [string match "*Grenze*" $var] ? 1 : 0}]
@@ -466,7 +468,7 @@ puts {</fieldset>}
 set deg "&deg;"
 puts {<fieldset><legend>R&auml;ume</legend>}
 puts {<div class="hk-table-scroll"><table class="hk-config-table-auto hk-table-rooms">}
-puts "  <tr><th>Raum</th><th>Modus</th><th>Wohlf&uuml;hltemp.</th><th>Abw. Grundtemp.</th><th>Vorzeitiger Heizbeginn</th><th>Vorzeitiges Heizende</th><th>Faktor Heizkurve</th><th>Thermostat / Sensor</th><th>Schaltaktor</th><th>Ger&auml;tetyp</th></tr>"
+puts "  <tr><th>Raum</th><th>Modus</th><th>Wohlf&uuml;hltemp.</th><th>Abw. Grundtemp.</th><th>Vorzeitiger Heizbeginn</th><th>Vorzeitiges Heizende</th><th>Faktor Heizkurve</th><th>S&auml;ttigung k (1/h)</th><th>Grenztemperatur T<sub>G</sub> (&deg;C)</th><th>Thermostat / Sensor</th><th>Schaltaktor</th><th>Ger&auml;tetyp</th></tr>"
 foreach raum $raeume {
     set rname [string range [lindex $raum 0] 9 end]
     set felder [split [lindex $raum 1] ";"]
@@ -487,13 +489,22 @@ foreach raum $raeume {
     }
     set gtemp_str [expr {[string equal $gtemp ""] ? "&ndash;" : "[format_num $gtemp]&nbsp;${deg}C"}]
     set stern [string first "*" $vorlauf]
+    set saett_k ""
+    set saett_tg ""
     if {$stern >= 0} {
-        set faktor  [string range $vorlauf [expr {$stern+1}] end]
-        set vorlauf [string range $vorlauf 0 [expr {$stern-1}]]
+        set vparts  [split $vorlauf "*"]
+        set faktor  [lindex $vparts 1]
+        set vorlauf [lindex $vparts 0]
+        if {[llength $vparts] >= 4} {
+            set saett_k  [lindex $vparts 2]
+            set saett_tg [lindex $vparts 3]
+        }
     } else {
         set faktor "1.0"
     }
-    puts "  <tr><td>[htmlquote $rname]</td><td>[format_modus $modus]</td><td>[format_num $wtemp]&nbsp;${deg}C</td><td>$gtemp_str</td><td>[format_num $vorlauf 0]&nbsp;min</td><td>[format_num $vorzaus 0]&nbsp;min</td><td>[format_num $faktor]</td><td>[htmlquote $thermostat]</td><td>[htmlquote $schaltaktor]</td><td>[format_heiztyp $heiztyp]</td></tr>"
+    set saett_k_str  [expr {[string equal $saett_k  ""] ? "&ndash;" : [format_num $saett_k  3]}]
+    set saett_tg_str [expr {[string equal $saett_tg ""] ? "&ndash;" : "[format_num $saett_tg]&nbsp;${deg}C"}]
+    puts "  <tr><td>[htmlquote $rname]</td><td>[format_modus $modus]</td><td>[format_num $wtemp]&nbsp;${deg}C</td><td>$gtemp_str</td><td>[format_num $vorlauf 0]&nbsp;min</td><td>[format_num $vorzaus 0]&nbsp;min</td><td>[format_num $faktor]</td><td>$saett_k_str</td><td>$saett_tg_str</td><td>[htmlquote $thermostat]</td><td>[htmlquote $schaltaktor]</td><td>[format_heiztyp $heiztyp]</td></tr>"
 }
 puts {</table></div>}
 puts {</fieldset>}

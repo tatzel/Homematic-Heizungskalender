@@ -17,6 +17,13 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 - Doku: RRD4J-Diagrammexport dokumentiert, DumpRRD.java nach Tools verschoben
 - Doku: Eigenständiges Dokument `heizkalender/messdaten-auswertung.md` für Messdaten-Auswertung, Verlinkung aus Anwenderhandbuch und Entwickler-Doku
+- `HK-Skript 2`: Sättigungsmodell als alternatives Vorlaufzeit-Berechnungsverfahren (Modell 1): T(t) = T_G − (T_G − T_A) × e^(−k × t); aktiviert über `HK2-Vorlaufzeitmodell = 1` in Kombination mit raumindividuellen Parametern k und T_G in Feld 4 der Raumvariablen (#73)
+- `HK-Init-Skript 2+3`: Neue Systemvariable `HK2-Vorlaufzeitmodell` (Integer, Default 0) für die Wahl des Vorlaufzeit-Berechnungsmodells
+- Addon: `hkconfig.cgi`: Anzeige von `HK2-Vorlaufzeitmodell` im Abschnitt "Temperaturen und Zeitversatz" (nur wenn Variable auf CCU vorhanden)
+- Addon: `hkconfig.cgi` und `sysvars.cgi`: Spalten "Sättigung k (1/h)" und "Grenztemperatur T_G (°C)" in der Räume-Tabelle (rückwärtskompatibel: leer wenn keine Sättigungsparameter konfiguriert)
+- Doku: Anwenderhandbuch: Neuer Abschnitt "Das Sättigungsmodell" mit Formel, Parameterbeschreibung, Einrichtungsanleitung und Hinweisen zur Parameterermittlung
+- Doku: Entwickler-Doku: `HK2-Vorlaufzeitmodell` als neue Systemvariable, erweitertes Feld-4-Format der Raumvariablen (`Offset*Faktor*k*T_G`)
+- Doku: Addon-Anwenderhandbuch: Grundeinstellungen-Abschnitt um neue Spalten und `HK2-Vorlaufzeitmodell` erweitert
 
 ### Geändert
 
@@ -31,6 +38,7 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ### Behoben
 
+- `HK-Skript 3`: Fehlender Param-Initialisierungsblock (AGFParam/Param) in der Hauptschleife ergänzt (Copy-Paste-Fehler beim Aufteilen aus Skript 2)
 - Addon: sysvars.cgi: implizite Defaults für Faktor und Grundtemperatur anzeigen, wenn keine individuellen Werte gesetzt sind
 - Addon: CSS: Navigationsleiste bricht auf schmalen Displays um
 

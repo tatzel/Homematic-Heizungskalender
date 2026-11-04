@@ -50,6 +50,7 @@ foreach param [split $query_string "&"] {
     if {[string equal $key "filter"]} {
         if {[string equal $val "hk1"]}   { set filter "hk1" }
         if {[string equal $val "hk2"]}   { set filter "hk2" }
+        if {[string equal $val "hk3"]}   { set filter "hk3" }
         if {[string equal $val "hkl"]}   { set filter "hkl" }
         if {[string equal $val "hkk"]}   { set filter "hkk" }
         if {[string equal $val "nacht"]} { set filter "nacht" }
@@ -114,20 +115,23 @@ if {$has_file_param} {
 # ---------------------------------------------------------------------------
 set filter_is_hk1   0
 set filter_is_hk2   0
+set filter_is_hk3   0
 set filter_is_hkl   0
 set filter_is_hkk   0
 set filter_is_nacht 0
 if {[string equal $filter "hk1"]}   { set filter_is_hk1   1 }
 if {[string equal $filter "hk2"]}   { set filter_is_hk2   1 }
+if {[string equal $filter "hk3"]}   { set filter_is_hk3   1 }
 if {[string equal $filter "hkl"]}   { set filter_is_hkl   1 }
 if {[string equal $filter "hkk"]}   { set filter_is_hkk   1 }
 if {[string equal $filter "nacht"]} { set filter_is_nacht 1 }
 
-if {$filter_is_hk1 || $filter_is_hk2 || $filter_is_hkl || $filter_is_hkk || $filter_is_nacht} {
+if {$filter_is_hk1 || $filter_is_hk2 || $filter_is_hk3 || $filter_is_hkl || $filter_is_hkk || $filter_is_nacht} {
     set filtered {}
     set nacht_block 0
     set pat_hk1 "*HK1-Log*"
     set pat_hk2 "*HK2-Log*"
+    set pat_hk3 "*HK3-Log*"
     set pat_hkl "HK-Log"
     set pat_hkk "HK-LogHeizkurvenkontrolle"
     foreach line $log_lines {
@@ -140,6 +144,8 @@ if {$filter_is_hk1 || $filter_is_hk2 || $filter_is_hkl || $filter_is_hkk || $fil
             if {[string match $pat_hk1 $src]} { lappend filtered $line }
         } elseif {$filter_is_hk2} {
             if {[string match $pat_hk2 $src]} { lappend filtered $line }
+        } elseif {$filter_is_hk3} {
+            if {[string match $pat_hk3 $src]} { lappend filtered $line }
         } elseif {$filter_is_hkk} {
             if {[string equal $src $pat_hkk]} { lappend filtered $line }
         } elseif {$filter_is_hkl} {
@@ -195,10 +201,11 @@ puts "    <form method=\"get\" action=\"hklog.cgi\">"
 puts {      <fieldset>}
 puts {        <legend>Filter</legend>}
 puts "        <label>Filter: <select name=\"filter\">"
-foreach fopt {alle hk1 hk2 hkk hkl nacht} {
+foreach fopt {alle hk1 hk2 hk3 hkk hkl nacht} {
     set flabel "Alle"
     if {[string equal $fopt "hk1"]}   { set flabel "Nur HK1 (Kalender)" }
-    if {[string equal $fopt "hk2"]}   { set flabel "Nur HK2 (Schalten)" }
+    if {[string equal $fopt "hk2"]}   { set flabel "Nur HK2 (Schaltzeiten)" }
+    if {[string equal $fopt "hk3"]}   { set flabel "Nur HK3 (Schalten)" }
     if {[string equal $fopt "hkk"]}   { set flabel "Nur Heizkurvenkontrolle" }
     if {[string equal $fopt "hkl"]}   { set flabel "Nur HK-Log (System)" }
     if {[string equal $fopt "nacht"]} { set flabel "Nur Nachtabschaltung" }

@@ -1,7 +1,9 @@
 # Heizsteuerung — Vorheizzeit-Logik
 
-Dieses Dokument erklärt, wie das Hauptskript `HK-Skript 2` den Einschaltzeitpunkt der Heizung
-berechnet. Es geht dabei nicht um eine Vorlauftemperatur, sondern um eine **ereignisgesteuerte
+Dieses Dokument erklärt das **Heizkurven-Modell (Modell 0)** zur Vorheizzeit-Berechnung in `HK-Skript 2`. Seit Version 2026.11 gibt es zusätzlich das **Sättigungsmodell (Modell 1)**, das die Vorheizzeit über eine physikalische Aufheizkurve berechnet. Details dazu stehen im [Anwenderhandbuch](anwenderhandbuch.md) und in der [Entwickler-Dokumentation](entwickler.md).
+
+Das Hauptskript `HK-Skript 2` berechnet den Einschaltzeitpunkt der Heizung.
+Es geht dabei nicht um eine Vorlauftemperatur, sondern um eine **ereignisgesteuerte
 Zeitsteuerung**: Das Skript berechnet, wie viele Minuten vor einem Termin die Heizung eingeschaltet
 werden muss, damit der Raum pünktlich die gewünschte Temperatur erreicht.
 

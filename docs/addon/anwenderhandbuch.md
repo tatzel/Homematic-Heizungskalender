@@ -135,6 +135,17 @@ Die Seite zeigt die wichtigsten Einstellungen des Heizkalenders in aufbereiteter
 
 ![Grundeinstellungen mit Logging-Flags, Kurveneinstellungen und Raumkonfigurationen](images/grundeinstellungen.png "Heizkalender: Grundeinstellungen")
 
+Im Abschnitt **Temperaturen und Zeitversatz** wird, falls auf der CCU vorhanden, auch die Variable `HK2-Vorlaufzeitmodell` angezeigt. Sie zeigt, welches Berechnungsverfahren für die Vorheizzeit aktiv ist (0 = Heizkurve, 1 = Sättigungsmodell).
+
+Im Abschnitt **Räume** zeigt die Tabelle für jeden Raum zusätzlich die Sättigungsparameter aus Feld 4 der Raumvariablen:
+
+| Spalte | Bedeutung |
+| ------ | --------- |
+| Sättigung k (1/h) | Aufheizrate k des Sättigungsmodells; wird nur angezeigt, wenn der Raum mit 4 `*`-Unterfeldern in Feld 4 konfiguriert ist |
+| Grenztemperatur $T_G$ (°C) | Grenztemperatur des Sättigungsmodells; wird nur angezeigt, wenn der Raum mit 4 `*`-Unterfeldern in Feld 4 konfiguriert ist |
+
+Räume ohne Sättigungsparameter (Heizkurven-Modell) zeigen in diesen Spalten einen Strich.
+
 ---
 
 ## HK-Log
@@ -155,7 +166,7 @@ Das HK-Log zeigt die auf dem USB-Stick archivierten Protokolleinträge des Heizk
 
 | Filter | Bedeutung |
 | ------ | --------- |
-| Filter | Alle Einträge oder nur eine Quelle (HK1, HK2, Heizkurvenkontrolle, HK-Log, Nachtabschaltung) |
+| Filter | Alle Einträge oder nur eine Quelle (HK1, HK2, HK3, Heizkurvenkontrolle, HK-Log, Nachtabschaltung) |
 | Log-Datei | Auswahl der Tagesdatei |
 | Letzte Zeilen | Anzahl der angezeigten Zeilen (Standard: 50, max. 5000) |
 
@@ -193,9 +204,12 @@ Die Seite zeigt alle Systemvariablen des Heizkalenders mit ihrem aktuellen Wert 
 
 | Abschnitt | Präfix | Inhalt |
 | --------- | ------ | ------ |
-| Allgemein | `HK-*` | Logging-Flags und Log-Variablen |
+| Allgemein | `HK-*` | Logging-Flags, Log-Variablen und Kalibrierungsdaten |
 | Kalender | `HK1-*` | Variablen für Skript 1 (Termineinlesen) |
-| Schalten | `HK2-*` | Variablen für Skript 2 (Schalten und Heizen) |
+| Schaltzeiten | `HK2-*` | Variablen für Skript 2 (Schaltzeiten berechnen) |
+| Schalten | `HK3-*` | Variablen für Skript 3 (Schalten); nur angezeigt wenn auf der CCU vorhanden |
 | Räume | `HKG-Raum-*` | Individuelle Raumkonfigurationen |
+
+Die Variable `HK-Kalibrierung` wird als Tabelle dargestellt, sofern sie auf der CCU vorhanden ist. Sie zeigt je Raum die beim letzten Heizbeginn gespeicherte Starttemperatur ($T_A$), den Einschaltzeitpunkt und die Außentemperatur. Die Variable wird von `HK-Heizkurvenkontrolle.hsc` automatisch angelegt und nach jedem Zieltemperatur-Event geleert.
 
 Die Seite ist rein lesend. Werte können nur direkt in der CCU-Weboberfläche geändert werden.

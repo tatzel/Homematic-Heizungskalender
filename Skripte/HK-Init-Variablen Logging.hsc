@@ -1,11 +1,11 @@
 !// Skript zum Erstellen der Systemvariablen des Heizkalender für das Logging
 !//================================================================================================
-!// Stand:    23.02.2026
+!// Stand:    03.11.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
 !// Copyright (C) 2026 Martin Richter (xMRi-Software)
-!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License 
+!// Dieser Teil des Heizkalenders ist freie Software und wird unter der GNU General Public License
 !// Version 3 (GPLv3) oder neuer veröffentlicht.
 !// Es besteht keinerlei Garantie oder Haftung. Nutzung auf eigene Verantwortung.
 !//================================================================================================
@@ -17,10 +17,10 @@
 !//
 !// Code stammt von:
 !//   https://www.blogging-it.com/code-snippet-homematic-systemvariablen-ueber-ein-script-automatisch-erzeugen/hausautomatisierung-smart-home/homematic-ip/homematic-script.html
-!// 
+!//
+!// TT:   2026-11-03 HK-Kalibrierung ergänzt (Zwischenspeicher für Sättigungsmodell-Kalibrierung)
 !// MRi:  2026-11-03 Neue Variable für Skript3, HK3-Log...
-!//  
-
+!//
 
 !//Eingabe eines Namens Präfix
 !//Dies ist nur erforderlich wenn die Namensvorgabe abgeändert werden soll.
@@ -41,7 +41,8 @@ string nm=  "HK-Logging;" #
             "HK3-Log;" #
             "HK-LoggingHeizkurvenkontrolle;" #
             "HK-LogHeizkurvenkontrolle;" #
-            "HK-RäumeHeizkurvenkontrolle;";
+            "HK-RäumeHeizkurvenkontrolle;" #
+            "HK-Kalibrierung;";
 
 !// Beschreibungstexte
 string be=  "Flag um das Logging für Tools ein- und auszuschalten;" #
@@ -54,7 +55,8 @@ string be=  "Flag um das Logging für Tools ein- und auszuschalten;" #
             "Variable um ein einfaches Log im System Protokoll zu erzeugen;" #
             "Flag um das Logging für die Heizkurvenkontrolle ein- und auszuschalten;" #
             "Variable um ein einfaches Log im System Protokoll zu erzeugen;" #
-            "Aktuelle Raumdaten in der Heizkurvenkontrolle;";
+            "Aktuelle Raumdaten in der Heizkurvenkontrolle;" #
+            "Zwischenspeicher für Sättigungsmodell-Kalibrierung;";
 
 !// Typen
 string tp=  "boolean;" #
@@ -66,6 +68,7 @@ string tp=  "boolean;" #
             "boolean;" #
             "string;" #
             "boolean;" #
+            "string;" #
             "string;" #
             "string;";
 
@@ -79,6 +82,7 @@ string vl=  "1;" #
             "1;" #
             ";" #
             "1;" #
+            ";" #
             ";" #
             ";";
 
@@ -98,11 +102,13 @@ string wr=  "Logging ausgeschaltet+Logging eingeschaltet;" #
             ";" #
             "Logging ausgeschaltet+Logging eingeschaltet;" #
             ";" #
+            ";" #
             ";";
 
 
 !// Protokollierungs Flags
 string pr=  "1;" #
+            "1;" #
             "1;" #
             "1;" #
             "1;" #

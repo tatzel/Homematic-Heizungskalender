@@ -15,7 +15,7 @@ set rega_script {
     var sv = dom.GetObject(id);
     if (!sv) { continue; }
     string name = sv.Name();
-    if (name.StartsWith("HK-") || name.StartsWith("HK1-") || name.StartsWith("HK2-") || name.StartsWith("HKG-Raum-")) {
+    if (name.StartsWith("HK-") || name.StartsWith("HK1-") || name.StartsWith("HK2-") || name.StartsWith("HK3-") || name.StartsWith("HKG-Raum-")) {
       string val = sv.Value();
       string desc = sv.DPInfo();
       result = result # name # "\t" # val # "\t" # desc # "\n";
@@ -66,6 +66,7 @@ if {$stdout_start >= 0} {
 set vars_hk  {}
 set vars_hk1 {}
 set vars_hk2 {}
+set vars_hk3 {}
 set vars_hkg  {}
 
 foreach line [split $raw "\n"] {
@@ -78,6 +79,8 @@ foreach line [split $raw "\n"] {
 
     if {[string match "HKG-Raum-*" $name]} {
         lappend vars_hkg $name $val $desc
+    } elseif {[string match "HK3-*" $name]} {
+        lappend vars_hk3 $name $val $desc
     } elseif {[string match "HK2-*" $name]} {
         lappend vars_hk2 $name $val $desc
     } elseif {[string match "HK1-*" $name]} {
@@ -133,6 +136,8 @@ set doc_links [list \
     HK1-Vorlaufzeit               $doc_dev_vlz1 \
     HK2-Log                       $doc_skripte_log \
     HK2-Logging                   $doc_skripte_log \
+    HK3-Log                       $doc_skripte_log \
+    HK3-Logging                   $doc_skripte_log \
     HK2-A.Temp.Grenze             $doc_skripte_s2 \
     HK2-Aussentemperatur          $doc_skripte_s2 \
     HK2-Grundtemperatur           $doc_skripte_s2 \
@@ -142,6 +147,8 @@ set doc_links [list \
     HK2-Kurve                     $doc_dev_kurve  \
     HK2-Kurvenversatz             $doc_skripte_s2 \
     HK2-VorzeitAus                $doc_skripte_s2 \
+    HK2-Vorlaufzeitmodell         $doc_skripte_s2 \
+    HK2-Schaltliste               $doc_skripte_s2 \
     HK2-Schaltzeiten               $doc_dev_vlz2 \
     HK2-HKK-Zieltemperatur         $doc_awh_kurve \
 ]
@@ -360,6 +367,8 @@ proc render_table {varlist} {
         set display_val [mask_if_sensitive $name $val]
         if {[string equal $name "HK1-Schaltliste"]} {
             set cell [render_schaltliste $display_val]
+        } elseif {[string equal $name "HK2-Schaltliste"]} {
+            set cell [render_schaltliste $display_val]
         } elseif {[string equal $name "HK1-R-Liste"]} {
             set cell [render_rliste $display_val]
         } elseif {[string equal $name "HK2-HKG-Liste"]} {
@@ -368,6 +377,8 @@ proc render_table {varlist} {
             set cell [render_vlzliste $display_val]
         } elseif {[string match "HK-R*umeHeizkurvenkontrolle" $name]} {
             set cell [render_hk_raeume_hkk $display_val]
+        } elseif {[string equal $name "HK-Kalibrierung"]} {
+            set cell [render_hk_kalibrierung $display_val]
         } elseif {[is_temp_var $name]} {
             set cell [format_temp $display_val]
         } elseif {[is_time_min_var $name]} {
@@ -416,16 +427,37 @@ proc render_hk_raeume_hkk {val} {
     return $html
 }
 
-proc render_room_table {varlist {gt_default ""}} {
-    global modus_map heiztyp_map status_map
-    if {[llength $varlist] == 0} {
-        return "<p class=\"hk-empty\">Keine Raum-Systemvariablen gefunden.</p>"
+proc render_hk_kalibrierung {val} {
+    if {[string equal $val ""]} { return "<em>(leer)</em>" }
+    set entries [split $val "#"]
+    set clean {}
+    foreach e $entries {
+        if {![string equal $e ""]} { lappend clean $e }
     }
-    set html "<div class=\"hk-table-scroll\"><table class=\"hk-table hk-table-rooms\">\n"
-    append html "  <colgroup>\n"
+    if {[llength $clean] == 0} { return "<em>(leer)</em>" }
+    set html "<table class=\"hk-table hk-table-inline\">\n"
+    append html "  <tr><th>Raumvariable</th><th>T<sub>A</sub> (&deg;C)</th><th>Heizbeginn</th><th>AT (&deg;C)</th></tr>\n"
+    foreach entry $clean {
+        set parts [split $entry ";"]
+        set rvar [lindex $parts 0]
+        set ta   [lindex $parts 1]
+        set ein  [lindex $parts 2]
+        set at   [lindex $parts 3]
+        catch {set ta [format "%.1f" $ta]}
+        catch {set at [format "%.1f" $at]}
+        set ein_fmt $ein
+        catch {set ein_fmt [clock format $ein -format "%H:%M"]}
+        append html "  <tr><td>[htmlquote $rvar]</td><td>[htmlquote $ta]</td><td>[htmlquote $ein_fmt]</td><td>[htmlquote $at]</td></tr>\n"
+    }
+    append html "</table>\n"
+    return $html
+}
+
+proc render_room_table {varlist {gt_default ""}} {
     append html "    <col class=\"col-room\"><col class=\"col-status\"><col class=\"col-modus\">\n"
     append html "    <col class=\"col-heiztyp\"><col class=\"col-wtemp\"><col class=\"col-gtemp\">\n"
     append html "    <col class=\"col-vzeit\"><col class=\"col-faktor\"><col class=\"col-vaus\">\n"
+    append html "    <col class=\"col-saett-k\"><col class=\"col-saett-tg\">\n"
     append html "    <col class=\"col-thermostat\"><col class=\"col-schaltaktor\">\n"
     append html "  </colgroup>\n"
     append html "  <tr>"
@@ -438,6 +470,8 @@ proc render_room_table {varlist {gt_default ""}} {
     append html "<th>Vorheizzeit (min)</th>"
     append html "<th>Faktor</th>"
     append html "<th>Vorlaufzeit Aus (min)</th>"
+    append html "<th>S&auml;ttigung k (1/h)</th>"
+    append html "<th>Grenztemperatur T<sub>G</sub> (&deg;C)</th>"
     append html "<th>Thermostat / Sensor</th>"
     append html "<th>Schaltaktor(en)</th>"
     append html "</tr>\n"
@@ -465,13 +499,19 @@ proc render_room_table {varlist {gt_default ""}} {
             set gtemp [lindex $tparts 1]
         }
 
-        # Vorheizzeit / Faktor trennen
+        # Vorheizzeit / Faktor / Saettigungsparameter trennen
         set vzeit $vorheiz
         set faktor ""
+        set saett_k ""
+        set saett_tg ""
         if {[string first "*" $vorheiz] >= 0} {
             set vparts [split $vorheiz "*"]
             set vzeit  [lindex $vparts 0]
             set faktor [lindex $vparts 1]
+            if {[llength $vparts] >= 4} {
+                set saett_k  [lindex $vparts 2]
+                set saett_tg [lindex $vparts 3]
+            }
         }
 
         # Abkürzungen übersetzen
@@ -515,6 +555,16 @@ proc render_room_table {varlist {gt_default ""}} {
             append html "<td></td>"
         } else {
             append html "<td>[htmlquote $vorzeitaus] min</td>"
+        }
+        if {[string equal $saett_k ""]} {
+            append html "<td></td>"
+        } else {
+            append html "<td>[htmlquote $saett_k]</td>"
+        }
+        if {[string equal $saett_tg ""]} {
+            append html "<td></td>"
+        } else {
+            append html "<td>[htmlquote $saett_tg] &deg;C</td>"
         }
         append html "<td>[htmlquote $thermostat]</td>"
         append html "<td>[htmlquote $schaltaktor]</td>"
@@ -573,9 +623,15 @@ puts {<fieldset><legend>Kalender (HK1-*)</legend>}
 puts [render_table $vars_hk1]
 puts {</fieldset>}
 
-puts {<fieldset><legend>Schalten (HK2-*)</legend>}
+puts {<fieldset><legend>Schaltzeiten (HK2-*)</legend>}
 puts [render_table $vars_hk2]
 puts {</fieldset>}
+
+if {[llength $vars_hk3] > 0} {
+    puts {<fieldset><legend>Schalten (HK3-*)</legend>}
+    puts [render_table $vars_hk3]
+    puts {</fieldset>}
+}
 
 puts "<fieldset><legend>R&auml;ume (HKG-Raum-*) <a href=\"${doc_dev}#hkg-raum-\" target=\"_blank\" class=\"hk-doc-link\" title=\"Dokumentation\">&#x24D8;</a></legend>"
 # HK2-Grundtemperatur aus den HK2-Variablen extrahieren

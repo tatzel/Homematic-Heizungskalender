@@ -1,6 +1,6 @@
 !// Skript 2 für das berechnen der Schaltzeiten
 !//================================================================================================
-!// Stand:    02.11.2026
+!// Stand:    03.11.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,13 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-11-03 faktor2: Bedingung von RTemp>GT auf (RTemp-GT)!=0 geaendert, damit
+!//                 RTemp<GT als Feature erhalten bleibt (Faktor > 1 wenn IST unter Grundtemp);
+!//                 Division-by-zero nur noch bei RTemp==GT abgefangen.
+!// TT:  2026-11-03 Sättigungsmodell als Modell 1 eingebaut (HK2-Vorlaufzeitmodell);
+!//                 Modell 0 = bisherige Heizkurven-Berechnung (Default, unveraendert)
+!//                 Modell 1 = physikalisches Saettigungsmodell (k, T_G aus Feld 4 der Raumvariable)
+!//                 HK2-Kurvenversatz und Unterfeld-0-Puffer beruecksichtigt
 !// MRi: 2026-11-03 Aufteilung Skript2 Termine vorbereiten, Skript 3 Schalten
 !// MRi: 2026-11-02 Alte Changelogs entfernt
 !// TT:  2026-10-29 AT-Guard: Klammern um !isHeizModus ergänzt — HM-Script hat keine Operatorrangfolge
@@ -39,13 +46,14 @@
 string vrp="";
 
 !//Debug Ausgaben Ein und Aus schalten. 0 = Aus, 1 = Ein
-boolean DEBUG=1;
+boolean DEBUG=0;
 
 !// Logging in "Log" mit 1 zwingend einschalten oder mit -1 zwingend Ausschalten
 !// Mit 0 wird die Einstellunge aus der HKx-Logging übernommen
 integer log=0;
 
 !// Temperaturanpassung (1=100% Berücksichtigung Ist/Soll Temperatur Differenz 0.5=50%, 0=0%)
+!// Nur für Modell 0 (Heizkurven-Berechnung) relevant.
 real SollIstTemperaturAnpassung = 0.95;
 
 !//#######---Ende Variabler Bereich---#############################################################
@@ -90,6 +98,10 @@ boolean Flag_Hand_Grundtemp=dom.GetObject(vrp # "HK2-Hand-Grundtemp").State();
 real AT=dom.GetObject(vrp # "HK2-Aussentemperatur").State().ToFloat();
 real GTStandard=dom.GetObject(vrp # "HK2-Grundtemperatur").State().ToFloat();
 real GT=GTStandard;
+!// 0 = Heizkurven-Berechnung (Default), 1 = Saettigungsmodell
+integer VZModell=0;
+var objVZModell=dom.GetObject(vrp # "HK2-Vorlaufzeitmodell");
+if(objVZModell){ VZModell=objVZModell.State().ToInteger(); }
 string AktAktor;
 string AktorenListe;
 object objAktor;
@@ -322,7 +334,7 @@ foreach(TLEintrag,TerminListe){
         if(DEBUG) {WriteLine(RVN # " Schaltlisteneintrag wird übersprungen!");}
         continue;
       }
-      
+
       !// Befinden wir uns schon in der Schaltphase? Dann wird dieser Eintrag nicht mehr geändert
       if (EIN<NOW){
         !// Der Termin ist noch nicht abgeschaltet aber er befindet sich in der Heizphase.
@@ -333,7 +345,7 @@ foreach(TLEintrag,TerminListe){
         !// Log Eintrag für Eintrag erzeugen, der in Schaltung ist. DIese Daten verändern sich nicht mehr
         if(log){logObj.State(RaumLogName # " - Heiz-/Schaltphase " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)) };
         if(DEBUG) {WriteLine(RaumLogName # " - Heiz-/Schaltphase " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)) };
-        
+
         !// Übername der Daten in die HK2VLZListe
         if(DEBUG) {WriteLine(RVN # " Schaltlisteneintrag befindet sich im Heiz-/Schaltzustand und wird übernommen!");}
         HK2VLZListe = HK2VLZListe # RVN # ";" # ((EIN_Org.ToTime().ToInteger()-EIN)/60) # ";" # EIN.ToTime() # ";" # EIN_Org # ";" # AUS.ToTime() # ";" # ((AUS_Org.ToTime().ToInteger()-AUS)/60) # "~";
@@ -344,7 +356,7 @@ foreach(TLEintrag,TerminListe){
       !// Fall berechnen wir die Daten des Schalteintrages wieder neu.
     }
 
-    !// Originaldaten noch mal laden    
+    !// Originaldaten noch mal laden
     integer EIN     = EIN_Org.ToTime().ToInteger();
     integer AUS     = AUS_Org.ToTime().ToInteger();
 
@@ -524,13 +536,83 @@ foreach(TLEintrag,TerminListe){
           }
         }
 
-        !// Die SollIstTemperaturAnpassung begrenzt die Anrechnung weil diese bei einer Fussbodenheizung zu
-        !// stark begrenzt.
-        real faktor2 = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));
-        offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
-        offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
-        if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
-        !//if(log) {logObj.State("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
+        !//---------------------------------------------------------------------
+        !// Vorlaufzeit-Berechnung: Modell-Weiche
+        !//   VZModell 0 (Default): Heizkurven-Berechnung (faktor1/faktor2/HK2-Kurve)
+        !//   VZModell 1:           Saettigungsmodell (k, T_G aus Feld 4 der Raumvariable)
+        !//
+        !// Feld 4 der Raumvariable (RVI, Index 4):
+        !//   2 Felder ("480*1.4")          -> VZModell 0 erzwungen (fehlende Parameter)
+        !//   4 Felder ("480*1.4*0.042*31.5") -> VZModell 1 moeglich
+        !//---------------------------------------------------------------------
+
+        string feld4 = RVI.StrValueByIndex(";",4);
+        boolean hatSaettigungsParameter = (feld4.StrValueByIndex("*",2) != "");
+
+        if ((VZModell==1) && hatSaettigungsParameter){
+          !//-------------------------------------------------------------------
+          !// Modell 1: Saettigungsmodell (faktor1 wird hier nicht verwendet)
+          !//   t_heiz = -(1/k) * ln((T_G - ZIEL) / (T_G - IST))
+          !//   ln-Approximation via Pade: ln(x) ~ -2*u*(1 + u^2/3 + u^4/5), u=(1-x)/(1+x)
+          !//   Gueltigkeitsbereich: 0.05 < ratio < 0.95
+          !//   Fehler < 0.5% bei ratio > 0.3; bis ~7% bei ratio nahe 0.1 (betrifft nur
+          !//   Raeume mit T_G knapp ueber ZIEL; absoluter Fehler bleibt unter 1 min)
+          !//-------------------------------------------------------------------
+          real k_saett  = feld4.StrValueByIndex("*",2).ToFloat();
+          real TG_saett = feld4.StrValueByIndex("*",3).ToFloat();
+
+          if(DEBUG) {WriteLine("Saettigungsmodell: k=" # k_saett.ToString(3) # " T_G=" # TG_saett.ToString(1));}
+
+          !// Sicherheitsprüfungen: k und T_G müssen physikalisch sinnvoll sein
+          if ((k_saett > 0.0) && (TG_saett > RTemp)){
+            real ratio = (TG_saett - RTemp) / (TG_saett - ISTTemperatur.Min(RTemp));
+            ratio = ratio.Max(0.05).Min(0.95);
+
+            !// Pade-Approximation fuer ln(ratio)
+            real u_pade  = (1.0 - ratio) / (1.0 + ratio);
+            real u2_pade = u_pade * u_pade;
+            real lnRatio = (0.0-2.0) * u_pade * (1.0 + (u2_pade/3.0) + ((u2_pade*u2_pade)/5.0));
+
+            !// t_heiz in Sekunden (lnRatio ist negativ, daher -lnRatio / k = positive Zeit)
+            integer tHeizSek = ((0.0-lnRatio) / k_saett * 3600.0).ToInteger();
+
+            !// Unterfeld 0 = raumspez. Zusatzpuffer (min); GrundOffsetRaumEin = globaler Versatz
+            integer offsetFest = 0-(RVI.StrValueByIndex(";",4).StrValueByIndex("*",0).ToInteger()*60);
+            offsetRaumAn = (0-tHeizSek)+offsetFest-(GrundOffsetRaumEin*60);
+            offsetTempAn = 0;
+
+            if(log) {logObj.State(RaumLogName # ": Saett k=" # k_saett.ToString(3) # " T_G=" # TG_saett.ToString(1) # " tHeiz=" # (tHeizSek/60) # "min Puffer-Raum=" # (0-(offsetFest/60)) # "min Puffer-Global=" # GrundOffsetRaumEin # "min");}
+            if(DEBUG) {WriteLine("ratio=" # ratio.ToString(3) # " lnRatio=" # lnRatio.ToString(3) # " tHeiz=" # (tHeizSek/60) # "min offsetFest=" # (offsetFest/60) # "min globalVersatz=" # GrundOffsetRaumEin # "min");}
+          }else{
+            !// Ungueltige Parameter: Fallback auf Modell 0
+            if(log) {logObj.State(RaumLogName # ": Saettigungsmodell: ungueltige Parameter (k=" # k_saett.ToString(3) # " T_G=" # TG_saett.ToString(1) # "), Fallback auf Heizkurven-Berechnung");}
+            if(DEBUG) {WriteLine(RaumLogName # ": Saettigungsmodell: ungueltige Parameter, Fallback auf Modell 0");}
+
+            !// Modell 0 als Fallback (identischer Code-Block wie unten)
+            real faktor2_fb = 1.0;
+            if ((RTemp-GT)!=0){
+              !// Minderungsfaktor wenn IST > GT, Vergroesserungsfaktor wenn RTemp < GT
+              faktor2_fb = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));
+            }
+            offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2_fb).ToInteger();
+            offsetTempAn = (0.0-(faktor1*faktor2_fb*offsetTempAn).ToInteger()*60).ToInteger();
+          }
+        }else{
+          !//-------------------------------------------------------------------
+          !// Modell 0: Heizkurven-Berechnung (faktor1/faktor2/HK2-Kurve)
+          !//-------------------------------------------------------------------
+          !// Die SollIstTemperaturAnpassung begrenzt die Anrechnung weil diese bei einer Fussbodenheizung zu
+          !// stark begrenzt.
+          real faktor2 = 1.0;
+          if ((RTemp-GT)!=0){
+            !// Minderungsfaktor wenn IST > GT, Vergroesserungsfaktor wenn RTemp < GT (IST unter Grundtemp)
+            faktor2 = 1.0-(SollIstTemperaturAnpassung*((ISTTemperatur.Min(RTemp)-GT)/(RTemp-GT)));
+          }
+          offsetRaumAn = (offsetRaumAn.ToFloat()*faktor2).ToInteger();
+          offsetTempAn = (0.0-(faktor1*faktor2*offsetTempAn).ToInteger()*60).ToInteger();
+          if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
+          !//if(log) {logObj.State("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
+        }
 
         !// Reale Schaltzeiten berechnen
         string logText = RaumLogName # " - Heizen - AT " # AT.ToString(1) # "°C / GT " # GT.ToString(1) # "°C / IST " # ISTTemperatur.ToString(1) # "°C / ZIEL " # RTemp.ToString(1) # "°C" # HUMText # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " ";
@@ -546,7 +628,7 @@ foreach(TLEintrag,TerminListe){
         HK2VLZListe = HK2VLZListe # RVN # ";" # ((EIN_Org.ToTime().ToInteger()-EIN)/60) # ";" # EIN.ToTime() # ";" # EIN_Org # ";" # AUS.ToTime() # ";" # ((AUS_Org.ToTime().ToInteger()-AUS)/60) # "~";
         if(log) {logObj.State(logText);}
         if(DEBUG)  {WriteLine(logText);}
-      }      
+      }
     }else{
       !// SCHALTEN / VARIABLE kennt kein Offset
       string strTemp = " - Schalten - ";

@@ -74,13 +74,13 @@ Der Heizkalender wurde ursprünglich für die zeitgesteuerte Steuerung von Heizu
 
 Dafür stehen vier Betriebsmodi zur Verfügung:
 
-- **Heizen**  
+- **Heizen**
     Dies ist der Standardmodus für die Beheizung von Räumen. Anhand der Außentemperatur, der aktuellen Raumtemperatur, der individuellen Vorheizzeiten und der eingestellten Heizkurve berechnet der Heizkalender, wann mit dem Heizen begonnen werden muss, damit die gewünschte Wohlfühltemperatur zu den Nutzungszeiten erreicht wird.
-  
-    Außerhalb der Nutzungszeiten wird die Temperatur auf eine individuell einstellbare Grundtemperatur abgesenkt.  
-    Typische Anwendungsfälle sind die Steuerung von Heizgruppen oder Thermostaten.  
-	
-- **Heizen und Schalten**  
+
+    Außerhalb der Nutzungszeiten wird die Temperatur auf eine individuell einstellbare Grundtemperatur abgesenkt.
+    Typische Anwendungsfälle sind die Steuerung von Heizgruppen oder Thermostaten.
+
+- **Heizen und Schalten**
   Dieser Modus dient ebenfalls der zeitgesteuerten Beheizung von Räumen. Wie im Modus *Heizen* berücksichtigt der Heizkalender die Außentemperatur, die aktuelle Raumtemperatur, die individuellen Vorheizzeiten und die eingestellte Heizkurve, um die gewünschte Wohlfühltemperatur zu den Nutzungszeiten zu erreichen.
 
     Der Unterschied zum Modus *Heizen* liegt in der Art der Heizungssteuerung: Ein Thermostat dient ausschließlich zur Erfassung der aktuellen Raumtemperatur. Das Ein- und Ausschalten der Heizung erfolgt über separate Schaltaktoren.
@@ -89,14 +89,14 @@ Dafür stehen vier Betriebsmodi zur Verfügung:
 
     Typische Komponenten sind Thermostate zur Temperaturmessung und Schaltaktoren zur Steuerung der Heizung.
 
-- **Schalten**  
+- **Schalten**
     Dieser Modus dient zum zeitgesteuerten Ein- und Ausschalten beliebiger Geräte. Für jedes Gerät lassen sich individuelle Vor- und Nachlaufzeiten festlegen. Dadurch können Geräte bereits vor Beginn einer Nutzung eingeschaltet und nach deren Ende wieder ausgeschaltet werden.
 
     Während der vorgesehenen Nutzungszeit bleibt das Gerät eingeschaltet. Außerhalb der Nutzungszeit wird es ausgeschaltet. Die Schaltzeiten sind unabhängig von der Temperatur
 
     Typische Anwendungsfälle sind die Steuerung von Außenbeleuchtungen oder Belüftungsanlagen. Angesteuert werden in der Regel Schaltaktoren.
 
-- **Variable setzen**  
+- **Variable setzen**
     Dieser Modus ähnelt dem Modus *Schalten*, steuert jedoch keine Geräte direkt, sondern eine interne Systemvariable. Auch hier können individuelle Vor- und Nachlaufzeiten festgelegt werden.
 
     Beim Einschalten wird die Systemvariable auf `true`, beim Ausschalten auf `false` gesetzt. Eigene Skripte können den Wert dieser Variable auswerten und daraufhin weitere komplexe Aktionen ausführen.
@@ -356,9 +356,9 @@ kälter es draußen und je kühler der Raum, desto früher wird eingeschaltet.
 > [!NOTE]
 > Als Außentemperatur verwendet der Heizkalender **nicht** den aktuellen Momentanwert,
 > sondern einen gleitenden Mittelwert über die letzten 18 Stunden und die nächsten 6 Stunden. Das Skript
-> `HK-Außentemperatur-Open-Meteo` bezieht diese Daten vom Deutschen Wetterdienst. Verwendet werden die 
+> `HK-Außentemperatur-Open-Meteo` bezieht diese Daten vom Deutschen Wetterdienst. Verwendet werden die
 > Geodaten der CCU. Das Ergebnis dieser Berechnung schreibt das Skript in die Systemvariable `HK2-Aussentemperatur`
-> zur späteren Verwendung. Dadurch wirkt sich die Trägheit des Gebäudes realistischer aus, als es ein kurzfristiger 
+> zur späteren Verwendung. Dadurch wirkt sich die Trägheit des Gebäudes realistischer aus, als es ein kurzfristiger
 > Temperatursprung tun würde. Alternativ kann die Variable auch von einem eigenen Außentemperatursensor gesetzt
 > werden.
 
@@ -426,6 +426,149 @@ Zur Veranschauchlichung hier die Heizkurven in einer Grafik visualisiert:
 
 ![Heizkurven](bilder/Heizkurven.png)
 
+## Das Sättigungsmodell (alternative Vorheizzeitberechnung)
+
+Als Alternative zur Heizkurve bietet der Heizkalender ein physikalisches Aufheizmodell: das Sättigungsmodell. Es berechnet die Vorheizzeit nach der Formel für exponentielles Aufheizen. Die Formel geht auf Isaac Newton zurück und ist als Newtonsches Abkühlungsgesetz bekannt (gilt symmetrisch für Aufheizen und Abkühlen):
+
+$$T(t) = T_G - (T_G - T_A) \times e^{-k \cdot t}$$
+
+Dabei bedeuten:
+
+| Symbol | Bedeutung |
+| :----- | :-------- |
+| T(t) | Raumtemperatur nach Zeit t |
+| $T_G$ | Grenztemperatur: die Temperatur, der sich der Raum asymptotisch annähert (°C) |
+| $T_A$ | Starttemperatur des Raums (aktuelle Raumtemperatur beim Heizbeginn) |
+| k | Aufheizrate (1/h): gibt an, wie schnell der Raum aufheizt |
+| t | Zeit in Stunden |
+
+Das Modell berechnet anhand von k und $T_G$, wie lange es dauert, die gewünschte Wohlfühltemperatur zu erreichen. Die Berechnung erfolgt raumindividuell und berücksichtigt die aktuelle Raumtemperatur beim Start.
+
+### Wann ist das Sättigungsmodell sinnvoll?
+
+Die Heizkurve hat zwei strukturelle Schwächen, die das Sättigungsmodell behebt:
+
+**1. Vorgeheizte Räume werden trotzdem früh gestartet.**
+Die Heizkurve kennt die aktuelle Raumtemperatur zwar (sie fließt als Korrekturfaktor `faktor2` ein), aber die Korrektur ist nach unten begrenzt: Die Heizung startet immer mindestens 40 % der aus der Heizkurve berechneten Vorheizzeit vor dem Termin. Ist der Raum durch einen vorangegangenen Termin, viele Besucher oder Sonneneinstrahlung bereits warm (oder sogar wärmer als das Ziel), heizt das System trotzdem unnötig lange vor. Das Sättigungsmodell hat diese Untergrenze nicht: Wenn die Ist-Temperatur bereits das Ziel erreicht hat, ergibt die Formel eine Heizzeit von 0 oder weniger, und die Heizung startet überhaupt nicht.
+
+Das folgende Diagramm zeigt diesen Effekt anhand echter Messdaten (EG-Saal, 25.10.2026, Warmstart mit IST=18.2 °C, Ziel 20 °C): Das lineare Modell unterschätzt die Aufheizgeschwindigkeit bei warmem Raum systematisch und hätte die Heizung 2,5 Stunden zu früh gestartet. Das Sättigungsmodell folgt der gemessenen Kurve eng (maximale Abweichung ±0,3 °C).
+
+```mermaid
+---
+config:
+    xyChart:
+        width: 900
+    themeVariables:
+        xyChart:
+            plotColorPalette: "#16a34a, #2563eb, #dc2626, #9ca3af"
+---
+xychart-beta
+    title "EG-Saal 25.10. (Warmstart IST=18.2°): Gemessen vs. Sättigung vs. Linear"
+    x-axis "Stunden" ["0", "1", "2", "3", "4", "5", "6"]
+    y-axis "Raumtemperatur (°C)" 18 --> 22
+    line "Gemessen (30-min RRD)" [18.2, 19.0, 19.5, 19.9, 20.1, 20.4, 21.1]
+    line "Sättigung (k=0.042, T_G=31.5)" [18.2, 18.7, 19.2, 19.7, 20.2, 20.7, 21.1]
+    line "Lineares Modell (VLZ=365m)" [18.2, 18.5, 18.8, 19.1, 19.4, 19.7, 20.0]
+    line "ZIEL 20°C" [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+```
+
+**2. Die Heizkurve unterschätzt den Aufwand nahe am Ziel.**
+In der Realität flacht die Aufheizgeschwindigkeit ab, je näher die Raumtemperatur dem Gleichgewicht kommt: die letzten 2 °C vor der Wohlfühltemperatur dauern unverhältnismäßig lang. Eine lineare Vorlaufzeitschätzung führt dazu, dass die Heizung zu spät startet, wenn der Abstand zwischen Ist- und Zieltemperatur klein ist. Das Sättigungsmodell bildet dieses exponentielle Abflachen physikalisch korrekt ab.
+
+```mermaid
+---
+config:
+    themeVariables:
+        xyChart:
+            plotColorPalette: "#2563eb, #dc2626, #9ca3af"
+---
+xychart-beta
+    title "EG-Kinderraum: Sättigung vs. lineare Extrapolation"
+    x-axis "Stunden" ["0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5", "5.5", "6"]
+    y-axis "Raumtemperatur (°C)" 15 --> 25
+    line "Sättigung (k=0.25, T_G=22°)" [16.0, 16.7, 17.3, 17.9, 18.4, 18.8, 19.2, 19.5, 19.8, 20.1, 20.3, 20.5, 20.7]
+    line "Lineare Extrapolation (1.5°/h)" [16.0, 16.8, 17.5, 18.2, 19.0, 19.8, 20.5, 21.2, 22.0, 22.8, 23.5, 24.2, 25.0]
+    line "ZIEL 20°C" [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+```
+
+Beispiel EG-Kinderraum ($T_A = 16\,°C$, $k = 0{,}25$, $T_G = 22\,°C$, Ziel 20 °C): Die lineare Extrapolation nimmt die Anfangsrate konstant an und kommt auf 160 Minuten Vorlaufzeit. Das Sättigungsmodell bildet die reale Abflachung nahe dem Ziel ab und ergibt 264 Minuten, also über eine Stunde mehr. Ein lineares Modell würde den Raum regelmäßig zu spät warm haben.
+
+Das Sättigungsmodell eignet sich besonders dann, wenn das Aufheizverhalten eines Raums durch Messdaten bekannt ist. Die Heizkurve ist einfacher einzustellen und für die meisten Räume ausreichend; das Sättigungsmodell erfordert die Ermittlung von k und $T_G$ durch Messung oder Schätzung.
+
+### Einrichten des Sättigungsmodells
+
+Das Sättigungsmodell wird in zwei Schritten aktiviert:
+
+**Schritt 1:** Die Systemvariable `HK2-Vorlaufzeitmodell` auf `1` setzen (Default ist `0` = Heizkurve). Diese Einstellung gilt global für alle Räume, die Sättigungsparameter in ihrer Raumvariablen haben.
+
+**Schritt 2:** In der Raumvariablen (`HKG-Raum-<Name>`) die Parameter k und $T_G$ im Feld Vorheizzeit ergänzen. Das Feld erhält dann vier statt zwei `*`-getrennte Werte:
+
+```
+<Puffer>*<Faktor>*<k>*<T_G>
+```
+
+Beispiel:
+
+```
+0;H;IP;21/16;0*1.0*0.042*31.5;30;Heizgruppe-xyz
+```
+
+| Parameter | Bedeutung |
+| :-------- | :-------- |
+| `0` | Zusatzpuffer in Minuten: wird zur berechneten Heizzeit addiert. `0` = kein Puffer. Beispiel: `30` = Heizung schaltet 30 Minuten früher ein als die Formel ergibt, damit Wände und Mobiliar ebenfalls aufwärmen können. |
+| `1.0` | Skalierungsfaktor: wird beim Sättigungsmodell ignoriert, muss aber angegeben werden, damit das vierte Unterfeld (k) an der richtigen Position steht. Bei einem Fallback auf das Heizkurven-Modell (z.B. weil `HK2-Vorlaufzeitmodell = 0`) wirkt der Wert wieder als normaler Skalierungsfaktor. |
+| `0.042` | Aufheizrate k in 1/h |
+| `31.5` | Grenztemperatur $T_G$ in °C |
+
+Hat ein Raum keine Sättigungsparameter (also nur `<Puffer>*<Faktor>` oder kein `*`), fällt `HK-Skript 2` automatisch auf das Heizkurven-Modell zurück, auch wenn `HK2-Vorlaufzeitmodell = 1` gesetzt ist.
+
+> **Hinweis beim Wechsel von Heizkurve auf Sättigungsmodell:** Der erste Wert in Feld 4 war beim Heizkurven-Modell die feste Vorheizzeit (z.B. `480` für 8 Stunden). Beim Sättigungsmodell ist er ein additiver Puffer zur berechneten Zeit. Wer auf Modell 1 wechselt, sollte diesen Wert auf `0` setzen (außer er möchte bewusst einen Zusatzpuffer).
+>
+> Beispiel: `480*1.5` wird zu `0*1.5*0.042*31.5`
+
+### Zusatzpuffer für Wände und Mobiliar
+
+Das Sättigungsmodell berechnet, wann die **Raumluft** die Zieltemperatur erreicht. Wände, Stühle und Mobiliar brauchen zusätzlich Zeit, um sich auf diese Temperatur einzustellen. Um das zu berücksichtigen, gibt es zwei Möglichkeiten, die sich addieren:
+
+**Globaler Zusatzpuffer (`HK2-Kurvenversatz`):** Gilt für alle Räume. Ein Wert von z.B. `30` lässt alle Räume 30 Minuten früher einschalten als die Sättigungsformel berechnet.
+
+**Raumspezifischer Puffer (Unterfeld 0 in Feld 4):** Gilt nur für einen Raum. Ein Wert von `30` im ersten Unterfeld (z.B. `30*1.0*0.042*31.5`) gibt einem Raum 30 Minuten Zusatzpuffer. Sinnvoll, wenn Räume sich stark in ihrer Möblierung oder Wärmespeicherkapazität unterscheiden.
+
+Beispiel für einen Raum mit 30 Minuten raumspezifischem Puffer und globalem Kurvenversatz von 15 Minuten: Die Heizung startet `berechnete Zeit + 30 min + 15 min` vor Terminbeginn.
+
+### Ermittlung der Parameter k und $T_G$
+
+Die Parameter k und $T_G$ lassen sich aus Heizmessungen bestimmen:
+
+- **$T_G$ (Grenztemperatur):** Die Temperatur, auf die sich der Raum bei dauerhafter Volllast asymptotisch einpendelt. Typisch liegt dieser Wert 5 bis 15 °C über der Wohlfühltemperatur. Näherungsweise kann man $T_G$ als die höchste erreichbare Raumtemperatur bei maximaler Heizleistung schätzen.
+- **k (Aufheizrate):** Gibt an, wie schnell der Raum aufheizt. Ein kleineres k bedeutet trägeres Aufheizen. Die Rate lässt sich aus der gemessenen Temperaturkurve ableiten: Wie viel Prozent der verbleibenden Temperaturdifferenz zur Grenztemperatur wird pro Stunde abgebaut?
+
+Eine Analyse von Messdaten aus der [Heizkurvenkontrolle](#die-heizkurvenkontrolle) oder aus dem [RRD4J-Diagrammexport](messdaten-auswertung.md) kann bei der Parameterermittlung helfen.
+
+Wer noch keine Messdaten hat, kann mit den folgenden Richtwerten nach Baujahr des Gebäudes starten (angelehnt an Heizlast-Richtwerte nach DIN EN 15378). Die Werte geben typische Startkonfigurationen für Feld 4 der Raumvariablen an:
+
+| Baujahr | k (1/h) | $T_G$ (°C) | Feld 4 (Beispiel) |
+| :------ | :------ | :--------- | :---------------- |
+| bis 1977 | 0.12 | 38 | `0*1.0*0.12*38` |
+| 1978–1983 | 0.09 | 35 | `0*1.0*0.09*35` |
+| 1984–1994 | 0.08 | 30 | `0*1.0*0.08*30` |
+| 1995–2001 | 0.06 | 28 | `0*1.0*0.06*28` |
+| 2002–2008 | 0.05 | 25 | `0*1.0*0.05*25` |
+| ab 2009 | 0.04 | 23 | `0*1.0*0.04*23` |
+
+Diese Werte gelten für einen durchschnittlichen Raum mit normaler Außenwand. Für besondere Raumsituationen können folgende Korrekturen sinnvoll sein:
+
+| Raumsituation | k-Anpassung | $T_G$-Anpassung |
+| :------------ | :---------- | :-------------- |
+| Eckraum (2 Außenwände) | × 0,8 | − 2 °C |
+| Innenliegender Raum | × 1,3 | + 2 °C |
+| Große Fensterfläche | × 0,7 | − 3 °C |
+| Fußbodenheizung | × 0,5 | − 5 °C |
+| Dachgeschoss (ungedämmt) | × 0,6 | − 4 °C |
+| Kellerraum | × 0,9 | − 1 °C |
+
+Ist das Baujahr unbekannt, ist `0*1.0*0.10*30` ein universeller Startwert für einen trägen Altbau-Raum.
+
 ## Die richtige Grundtemperatur: Heizversuch
 
 Die Grundtemperatur sollte so gewählt werden, dass die Wände nicht zu stark
@@ -478,7 +621,7 @@ Das [`Heizkalender Addon`](#heizkalender-addon)(siehe unten) erleichtert den Zug
 
 Das Systemprotokoll ist allerdings vom Volumen begrenzt. Je nach Anzahl der Räume und Aktoren kann es sein, dass nicht mal die Aktivitäten für einen ganzen Tag im Systemprotokoll sichtbar bleiben. Gleichfalls geht das Systemprotokoll verloren, wenn die CCU neu gestartet wird oder abstürzt.
 
-Wird ein USB Stick eingesteckt sorgt das Programm `HK-Systemprotokoll sichern` dafür, dass das Systemprotokoll Wochenweise auf dem USB Stick gespeichert wird. Die Anzahl der Log-Dateien ist durch das Skript auf 30 beschränkt. Ab dem 31 Log wird die älteste Datei gelöscht.  
+Wird ein USB Stick eingesteckt sorgt das Programm `HK-Systemprotokoll sichern` dafür, dass das Systemprotokoll Wochenweise auf dem USB Stick gespeichert wird. Die Anzahl der Log-Dateien ist durch das Skript auf 30 beschränkt. Ab dem 31 Log wird die älteste Datei gelöscht.
 Dieses kleine Programm speichert das aktuelle Systemprotokoll alle 29min in eine Log Datei auf dem USB-Stick.
 
 Ist kein USB Stick installiert, dann führt das Programm `HK-Systemprotokoll sichern` auch keine Operationen aus.
@@ -516,11 +659,11 @@ Ist ein Raum bei Nutzungsbeginn noch zu kalt, können die Vorheizzeiten angepass
 Die Heizkurvenkontrolle erzeugt Log Einträge für jeden Raum. Die Einträge schlüsseln sich auf nach bestimmten Ereignistypen und werden mit den zusätzlichen Informationen angereichert:
 
 - Ereignisart
-    - Heizbeginn 
-    - Terminbeginn 
+    - Heizbeginn
+    - Terminbeginn
     - Zieltemperatur erreicht
-    - Heizende 
-    - Terminende 
+    - Heizende
+    - Terminende
 - Zeit relativ zum Terminbeginn
 - Außentemperatur bei Heizbeginn
 - aktuelle Raumtemperatur zum jeweiligen Ereignis
@@ -547,19 +690,19 @@ Sich im reinen Textprotokoll einen Überblick über einzelne Räume und mehrere 
 
 Die fünf Einträge zeigen beispielhaft den Ablauf eines Heizvorgangs:
 
-- **Zeile 1: Heizbeginn**  
+- **Zeile 1: Heizbeginn**
   Bei einer Außentemperatur von 8,9 °C und einer aktuellen Raumtemperatur von 19,2 °C beginnt das Heizen 64 Minuten vor dem Termin. Die Zieltemperatur beträgt 20 °C.
 
-- **Zeile 2: Zieltemperatur**  
+- **Zeile 2: Zieltemperatur**
   Die Zieltemperatur wird 29 Minuten vor Terminbeginn erreicht. Die Vorheizzeit war damit ausreichend. Ob sie auch optimal war, lässt sich besser anhand mehrerer Termine beurteilen.
 
-- **Zeile 3: Terminbeginn**  
+- **Zeile 3: Terminbeginn**
   Zum Terminbeginn beträgt die Raumtemperatur 20,7 °C. Die Temperatur liegt somit 0,7 °C über dem Zielwert. Das zeigt, dass die Raumtemperatur nach Erreichen der Zieltemperatur noch weiter angestiegen ist.
 
-- **Zeile 4: Heizende**  
+- **Zeile 4: Heizende**
   Das Heizen endet 60 Minuten nach Terminbeginn, also 30 Minuten vor dem geplanten Terminende. Die bisher erreichte maximale Raumtemperatur beträgt weiterhin 20,7 °C.
 
-- **Zeile 5: Terminende**  
+- **Zeile 5: Terminende**
   Zum Terminende beträgt die Raumtemperatur noch 21,1 °C und liegt damit weiterhin über der gewünschten Wohlfühltemperatur von 20 °C. Das kann auf die Wärmespeicherung des Raums oder des Heizsystems zurückzuführen sein.
 
 > [!WARNING]
@@ -591,7 +734,7 @@ Die Heizkurvenkontrolle ist damit kein einmaliger Vorgang, sondern ein Werkzeug 
 ## Globale Einstellungen (Systemvariablen für `HK-Skript 2`)
 
 Diese Systemvariablen gelten global für alle Räume und werden bei der Installation
-angelegt. 
+angelegt.
 
 **Alle diese Werte lassen sich im Programm `HeizkalenderInstallation.exe` einfach anpassen.**
 
@@ -604,7 +747,8 @@ Die folgenden Werte haben sich in der Praxis bewährt.
 | `HK2-Hand-Grundtemp` | Nächtliche Rückstellung auf Grundtemperatur um 01:00 Uhr | **Wahr (1) / True**|Thermostate, die nicht auf Grundtemperatur stehen, werden zurückgestellt (außer in einer aktiven Heizphase). Das gilt auch für Schaltungen. Ist der Schalter *Falsch (0)/False* bleiben alle Schaltungen und Thermostate unverändert.|
 | `HK2-Hand-Temp` | Manuelle Temperatur hat beim Terminende Vorrang | **Falsch (0) / False**|Ist der Schalter *Falsch (0) / False* wird eine manuell eingestellte Temperatur nicht beibehalten und die Grundtemperatur eingestellt. Ist der Schalter *Wahr (1) / True*, wird eine manuell abweichende Temperatur von Thermostaten beibehalten. |
 | `HK2-VorzeitAus` | Globale Minuten, um die vor Terminende abgeschaltet wird | **0**|Besser je Raum einstellen; nicht gleichzeitig mit der raumbezogenen VorzeitAus nutzen (beide Werte addieren sich). Das vorzeitige Heizende kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
-| `HK2-Kurvenversatz` | Gibt einen globalen Einschalt-Offset an | **0**|Minuten vor Terminbeginn und ist das Gegenstück zu `HK2-VorzeitAus`.  Das vorgezogene Heizbeginn kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
+| `HK2-Kurvenversatz` | Gibt einen globalen Einschalt-Offset an | **0**|Minuten vor Terminbeginn und ist das Gegenstück zu `HK2-VorzeitAus`.  Das vorgezogene Heizbeginn kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten. Beim Sättigungsmodell (Modell 1) wirkt der Wert als globaler Zusatzpuffer, der zur berechneten Heizzeit addiert wird.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
+| `HK2-Vorlaufzeitmodell` | Wählt das Berechnungsverfahren für die Vorheizzeit | **0 (Heizkurve)**| `0` = Heizkurven-Modell (Standard); `1` = Sättigungsmodell (physikalisches Aufheizmodell). Das Sättigungsmodell erfordert raumindividuelle Parameter k und $T_G$ in Feld 4 der jeweiligen Raumvariablen. Wird die Variable nicht angelegt, gilt Modell 0. |
 
 ## Einstellungen für `HK-Skript 1` (Termineinlesen)
 
@@ -645,7 +789,7 @@ zusammengefasst werden. Der Heizkalender steuert dann nur die Heizgruppe: ein
 Schreibzugriff auf den Datenpunkt `SET_POINT_TEMPERATURE` der Gruppe wird von der CCU
 automatisch an alle Thermostate in der Gruppe weitergeleitet.
 
-**Es wird dringend empfohlen Heizgruppen zu nutzen, wenn mehrere Thermostate in einem Raum vorhanden sind. Oft empfiehlt es sich auch einen zusätzlichen Temperatursensor in der Gruppe zu nutzen.** 
+**Es wird dringend empfohlen Heizgruppen zu nutzen, wenn mehrere Thermostate in einem Raum vorhanden sind. Oft empfiehlt es sich auch einen zusätzlichen Temperatursensor in der Gruppe zu nutzen.**
 
 Die reine Steuerung von Thermostaten ist möglich, aber ungenau, weil die Isttemperatur am Thermostat (nahe des Heizkörpers) gemessen wird und nicht an einer Heizkörper abgewendeten Stelle. Zusätzlich steuer ein Temperatursensor in einer Heizgruppe alle Thermostate eines Raumes auf einmal an. Das erleichtert auch die manuelle Bedienung.
 
@@ -674,7 +818,7 @@ den Zustand. Danach genügt wieder das normale Tool für den Regelbetrieb.
 
 #### Konfiguration im Heizkalender
 
-Anmerkung: Die `HeizkalenderInstallation.exe`erlaubt eine einfache Zuordnung von Raum und zugehöriger Heizgruppe oder Thermostat. 
+Anmerkung: Die `HeizkalenderInstallation.exe`erlaubt eine einfache Zuordnung von Raum und zugehöriger Heizgruppe oder Thermostat.
 
 Die Zuordnung erfolgt in der Raum-Systemvariablen. Die Heizgruppe als Aktor eingetragen, mit Heiztyp `IP` und
 Kanal 1:
@@ -686,7 +830,7 @@ Kanal 1:
 ```
 
 Die Adresse der Heizgruppe (`INT0000001` o.ä.) lässt sich in der CCU-WebUI unter den
-Geräteeigenschaften der Heizgruppe ablesen. 
+Geräteeigenschaften der Heizgruppe ablesen.
 
 Die `HeizkalenderInstallation.exe` übernimmt die Adresse, wenn der Raum dort entsprechend konfiguriert wird.
 
@@ -721,7 +865,7 @@ Beispiele:
 
 ## Sonderbefehle in Terminen
 
-Um eine größere Flexibilität bei der Planung und Nutzung von Heizung/Schaltung zu ermöglichen können 
+Um eine größere Flexibilität bei der Planung und Nutzung von Heizung/Schaltung zu ermöglichen können
 über Sonderbefehle im Termintext spezielle Vorgaben gemacht werden.
 
 So lässt sich das Heizverhalten eines einzelnen Termins individuell steuern. Die entsprechenden Befehle werden in `#...#` eingeschlossen. Groß- und Kleinschreibung spielt keine Rolle.
@@ -753,14 +897,14 @@ entscheidet `HK-Skript 1`, dass dieser Termin nicht in die Schaltliste kommt.
 
 Unabhängig von der Nachtschaltung prüft `HK-Skript 2` bei jedem Lauf (alle 5 Minuten) alle Räume aus der Raumliste `HK2-HKG-Liste`. Für jeden Raum der sich im Schaltzustand **Ein** befindet wird geprüft, ob in diesem Schalt-Lauf ein gültiger Schaltlisteneintrag vorhanden war. Fehlt ein solcher Eintrag, wurde der Termin offenbar gelöscht oder der Ausschaltpunkt wurde verpasst. Der Raum wird dann sofort in den Zustand **Aus** zurückgesetzt und der Aktor direkt ausgeschaltet bzw. auf die Grundtemperatur zurückgesetzt.
 
-Die Schaltlistenprüfung ist das Gegenstück zur Nachtschaltung: sie greift sofort im laufenden Betrieb, während die 
+Die Schaltlistenprüfung ist das Gegenstück zur Nachtschaltung: sie greift sofort im laufenden Betrieb, während die
 Nachtschaltung als nächtliche Generalabsicherung dient.
 
 Die Schaltlistenprüfung berücksichtigt dabei dauerhafte Sonderbefehle **#EIN#, #AUS#** etc.
 
 ## Nachtschaltung
 
-Eine optionale Nachtschaltung soll verhindern, dass Heizungen manuell eingeschaltet werden und eingeschaltet bleiben. 
+Eine optionale Nachtschaltung soll verhindern, dass Heizungen manuell eingeschaltet werden und eingeschaltet bleiben.
 
 Würde eine Heizung manuell eingeschaltet werden und der Nutzer vergisst das Ausschalten, dann hätte dies zur Folge, das die Heizung bis zum nächsten programmierten Schalttermin angeschaltet bleibt.
 
@@ -774,7 +918,7 @@ Räume aus `HK2-HKG-Liste` geprüft und bei Bedarf zurückgesetzt:
   (HSFlag=S/HS) wird der Aktor ausgeschaltet.
 
 Die Prüfung und das Schalten erfolgen direkt am Aktor auf der CCU, nicht nur in
-der Systemvariablen. 
+der Systemvariablen.
 
 Die Nachtschaltung ist eine Absicherung: Wurde die Heizung im Raum vergessen oder wenn ein Termin nicht korrekt ausgeschaltet wurde (z.B. durch einen CCU-Neustart während eines Termins), stellt sie sicher, dass keine Aktoren dauerhaft eingeschaltet bleiben.
 
@@ -787,7 +931,7 @@ Die Nachtschaltung ist eine Absicherung: Wurde die Heizung im Raum vergessen ode
 ## Heizkalender Addon
 
 Das Heizkalender Addon stellt eine Weboberfläche auf der CCU bereit, über die der
-laufende Betrieb beobachtet und konfiguriert werden kann (Raumübersicht, Heizkurvenkontrolle, 
+laufende Betrieb beobachtet und konfiguriert werden kann (Raumübersicht, Heizkurvenkontrolle,
 Einstellungen, HK-Log, Sysog, Systemvariablen).
 
 Das Addon wird wie andere Zusatzsoftware auf der CCU über die *Einstellungen -> Systemsteurung -> Zusatzsoftware* installiert.
@@ -800,7 +944,7 @@ Die vollständige Beschreibung der Funktionen und Seiten findet sich im
 
 ## Allgemeinde Informationen zum Betrieb
 
-Nach einem Neustart der CCU melden Thermostate, die noch nicht wieder Funkkontakt mit der Basis-CCU hatten eine Isttemperatur von 0°C. Dies kann direkt nach dem Neustart zu eigentümlichen errechneten Vorlaufzeiten führen oder auch zu falschen Informationen im Addon in der Raumübersicht.  
+Nach einem Neustart der CCU melden Thermostate, die noch nicht wieder Funkkontakt mit der Basis-CCU hatten eine Isttemperatur von 0°C. Dies kann direkt nach dem Neustart zu eigentümlichen errechneten Vorlaufzeiten führen oder auch zu falschen Informationen im Addon in der Raumübersicht.
 Durch diese *falschen* Temperatur Informationen kann es dazu kommen, dass Heizvorgänge vorzeitig eingeschaltet werden. Der Heizkalender wird diese Vorgänge jedoch sofort abbrechen, wenn die realen Temperaturen übermittelt werden und der nächste Durchlauf für `HK-Skript 2` startet
 
 Erst nach bis zu 1h Laufzeit wird sich die CCU nach einem Neustart wieder eingependelt haben.
