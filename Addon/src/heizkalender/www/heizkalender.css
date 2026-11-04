@@ -157,6 +157,12 @@ fieldset fieldset {
   box-sizing: border-box;
 }
 
+/* Erstes Element nach der legend: Browser-Default margin-top entfernen,
+   das Fieldset-Padding liefert bereits genug Abstand. */
+fieldset > legend + * {
+  margin-top: 0;
+}
+
 legend {
   font-weight: bold;
   padding: 0 0.4em;
@@ -297,6 +303,12 @@ body {
 .hk-table-scroll .hk-kurve-table,
 .hk-table-scroll .hk-log-table,
 .hk-table-scroll .hk-schaltliste-table {
+  margin-bottom: 0;
+}
+
+/* Letzter Scroll-Wrapper in einem Fieldset: kein Aussenabstand,
+   das Fieldset-Padding übernimmt den Abstand zur Umrandung. */
+fieldset > .hk-table-scroll:last-child {
   margin-bottom: 0;
 }
 

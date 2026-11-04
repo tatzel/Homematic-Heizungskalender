@@ -1,6 +1,6 @@
 !// Skript 3 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    03.11.2026
+!// Stand:    04.11.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,10 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-11-04 Schaltlisten-Format: Feldindizes angepasst (SDFlag 4->3, EIN 6->4, AUS 7->5),
+!//                 RTemp wird nicht mehr aus der Schaltliste gelesen, sondern eigenstaendig
+!//                 aus der Raumvariable berechnet (analog Skript 2). GepruefteGeraete: Typo
+!//                 korrigiert, Eintrag direkt nach dem Duplikat-Check (nicht am Schleifenende).
 !// TT:  2026-11-03 GepruefteGereate: Eintrag RVN nur einmal am Ende der Verarbeitung (Z.673);
 !//                 überflüssiges zweites Eintragen direkt nach Duplikat-Check entfernt.
 !// MRi: 2026-11-03 Aufteilung Skript2 Termine vorbereiten, Skript 3 Schalten
@@ -145,10 +149,9 @@ foreach(SLEintrag,SListe.Split("#")){
   !// Listenelement auslesen
   !// Parameter für aktuellen Schaltvorgang.
   string  RVN     = SLEintrag.StrValueByIndex(";",0);
-  integer SDFlag  = SLEintrag.StrValueByIndex(";",4).ToInteger();
-  real    RTemp   = SLEintrag.StrValueByIndex(";",5).ToFloat();
-  integer EIN     = SLEintrag.StrValueByIndex(";",6).ToTime().ToInteger();
-  integer AUS     = SLEintrag.StrValueByIndex(";",7).ToTime().ToInteger();
+  integer SDFlag  = SLEintrag.StrValueByIndex(";",3).ToInteger();
+  integer EIN     = SLEintrag.StrValueByIndex(";",4).ToTime().ToInteger();
+  integer AUS     = SLEintrag.StrValueByIndex(";",5).ToTime().ToInteger();
 
   !// Erzeuge einen Namen ohne prefixe
   string RVNName = RVN.Replace(vrp#"HKG-Raum-","");
@@ -168,6 +171,23 @@ foreach(SLEintrag,SListe.Split("#")){
   GT = RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();
   if(GT==0){
     GT=GTStandard;
+  }
+
+  !// Temperaturen individuell bestimmen. Ist
+  !//  SDFlag>0   individuelle Temperatur
+  !//  SDFlag==0  Normaltemperatur verwenden
+  !//  SDFlag==-1 AUS
+  !//  SDFlag==-2 EIN
+  !//  SDFlag==-3 RESET
+  real RTemp = SDFlag.ToFloat();
+  if(SDFlag<=0){
+    RTemp=RVI.StrValueByIndex(";",3).StrValueByIndex("/",0).ToFloat();
+    if((log))
+    {
+      if (SDFlag==-3)     {logObj.State(RaumLogName # " Sonderfunktion \"Normalisierung\": " # GT.ToString(1));}
+      elseif(SDFlag==-1)  {logObj.State(RaumLogName # " Sonderfunktion \"AUS\": " # GT.ToString(1));}
+      elseif(SDFlag==-2)  {logObj.State(RaumLogName # " Sonderfunktion \"EIN\": " # RTemp.ToString(1));}
+    }
   }
 
   !// Schaltparameter bestimmen
@@ -525,7 +545,7 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
   if(log){logObj.State("Beginn Nachtabschaltung-------------------------");}
   if(DEBUG) {WriteLine("Beginn Nachtabschaltung");}
 
-  string GepruefteGereate = ";";
+  string GepruefteGeraete = ";";
   string RVNListe=VarNamen;
   RVNListe = RVNListe.Replace("+",";");
   !// Laufe über alle Räume
@@ -536,11 +556,12 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
     }
 
     !// Gerät evtl. schon geprüft?
-    if (GepruefteGereate.Contains(";" # RVN # ";")){
+    if (GepruefteGeraete.Contains(";" # RVN # ";")){
       continue;
     }
 
-    !// Loggen
+    !// Eintrag in die geprüfte Liste übernehmen
+    GepruefteGeraete = GepruefteGeraete # RVN # ";";
     RaumLogName = RVN.Replace(vrp#"HKG-Raum-","");
     if(log){logObj.State(RaumLogName # ": Nachtschaltung prüfen");}
     if(DEBUG) {WriteLine(RaumLogName # ": Nachtschaltung prüfen");}
@@ -668,9 +689,6 @@ if((Flag_Hand_Grundtemp!=false) && (NOW.ToTime().Format("%H%M")>="0057") && (NOW
           if(DEBUG) {WriteLine(RaumLogName # ": " # AktAktor # " Objekt existiert nicht!");}
         }
       }
-
-      !// Eintrag in die geprüfte liste übernehmen
-      GepruefteGereate = GepruefteGereate # RVN # ";";
     }
   }
   if(log){logObj.State("Ende Nachtabschaltung-------------------------");}

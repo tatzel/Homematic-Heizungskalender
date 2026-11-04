@@ -1,6 +1,6 @@
 !// Skript 2 für das berechnen der Schaltzeiten
 !//================================================================================================
-!// Stand:    03.11.2026
+!// Stand:    04.11.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,9 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-11-04 Schaltlisten-Format: RTemp_Org aus HK2-Schaltzeiten entfernt (war Feld 5),
+!//                 Indizes um 1 verschoben; RTemp und GT werden jetzt vor dem SDFlag-Zweig
+!//                 aus der Raumvariable berechnet. Kompatibel mit Martins Format (Branch #75).
 !// TT:  2026-11-03 faktor2: Bedingung von RTemp>GT auf (RTemp-GT)!=0 geaendert, damit
 !//                 RTemp<GT als Feature erhalten bleibt (Faktor > 1 wenn IST unter Grundtemp);
 !//                 Division-by-zero nur noch bei RTemp==GT abgefangen.
@@ -189,13 +192,11 @@ foreach(TLEintrag,TerminListe){
   integer EIN_Org     = TLEintrag.StrValueByIndex(";",1);
   integer AUS_Org     = TLEintrag.StrValueByIndex(";",2);
   integer SDFlag_Org  = TLEintrag.StrValueByIndex(";",3);
-  real    RTemp_Org   = TLEintrag.StrValueByIndex(";",3);
 
   !// Arbeitswerte bestimmen
   integer EIN     = EIN_Org.ToTime().ToInteger();
   integer AUS     = AUS_Org.ToTime().ToInteger();
   integer SDFlag  = SDFlag_Org.ToInteger();
-  real    RTemp   = RTemp_Org.ToFloat();
 
   !// Nun suchen wir über die Ressource Id den Raum Index und den Namen. Leider hat dieser auch einen
   !// Raumname optional, das gestaltet die Suche etwas schwieriger
@@ -224,7 +225,7 @@ foreach(TLEintrag,TerminListe){
       if (SDFlag==0){
         cap = "Normaltemperatur";
       }else{
-        cap = RTemp.ToString(1);
+        cap = SDFlag.ToString(1);
       }
     }
 
@@ -281,7 +282,7 @@ foreach(TLEintrag,TerminListe){
     !// Bei einer Multiraum Definition könnte es sein, dass der Raum, den wir jetzt bearbeiten
     !// wollen, bereits in unserer neuen Schalliste vorhanden ist, weil der Termin mit einem
     !// anderen Schallisten Eintrag bereits bearbeitet wurde.
-    string SchaltListenIndex = RVN # ";" # EIN_Org # ";" # AUS_Org # ";" # SDFlag_Org # ";" # RTemp_Org # ";";
+    string SchaltListenIndex = RVN # ";" # EIN_Org # ";" # AUS_Org # ";" # SDFlag_Org # ";";
     if (("#" # SchaltListeNeu).Contains("#" # SchaltListenIndex)) {
       continue;
     }
@@ -303,7 +304,6 @@ foreach(TLEintrag,TerminListe){
     integer EIN     = EIN_Org.ToTime().ToInteger();
     integer AUS     = AUS_Org.ToTime().ToInteger();
     integer SDFlag  = SDFlag_Org.ToInteger();
-    real    RTemp   = RTemp_Org.ToFloat();
 
     if(DEBUG){WriteLine("RVN=" # RVN);}
     string RVI=dom.GetObject(RVN).State();
@@ -325,8 +325,8 @@ foreach(TLEintrag,TerminListe){
       sTemp = sTemp.Substr(0,iLen);
 
       !// Alte berechnete Schaltzeiten bestimmen
-      EIN = sTemp.StrValueByIndex(";",6).ToTime().ToInteger();
-      AUS = sTemp.StrValueByIndex(";",7).ToTime().ToInteger();
+      EIN = sTemp.StrValueByIndex(";",5).ToTime().ToInteger();
+      AUS = sTemp.StrValueByIndex(";",6).ToTime().ToInteger();
 
       !// Ist der Eintrag überhaupt noch gültig, 30min nach Schaltende entfernen wie den Eintrag
       if ((AUS+(zeitNachlauf*60))<NOW){
@@ -405,13 +405,22 @@ foreach(TLEintrag,TerminListe){
         offsetRaumAus = offsetRaumAus-(GrundOffsetRaumAus*60);
       }
     }
+    !// Grundtemperatur bestimmen
+    GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();
+    if(GT==0){
+      GT=GTStandard;
+    }
+
+    !// Temperaturen individuell bestimmen. Ist
+    !//  SDFlag>0   individuelle Temperatur
+    !//  SDFlag==0  Normaltemperatur verwenden
+    !//  SDFlag==-1 AUS
+    !//  SDFlag==-2 EIN
+    !//  SDFlag==-3 RESET
+    real RTemp = SDFlag.ToFloat();
     if(SDFlag<=0){
-      !// Temperaturen individuell bestimmen
+      !// Temperaturen individuell bestimmen nach Raumparameter
       RTemp=RVI.StrValueByIndex(";",3).StrValueByIndex("/",0).ToFloat();
-      GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();
-      if(GT==0){
-        GT=GTStandard;
-      }
       if((log))
       {
         if (SDFlag==-3)     {logObj.State(RaumLogName # " Sonderfunktion \"Normalisierung\": " # GT.ToString(1));}
@@ -661,7 +670,7 @@ foreach(TLEintrag,TerminListe){
 
     !// Der Termin wurde berechnet, wir setzen nun die errechnenten Daten an die Originaldaten
     if(DEBUG) {WriteLine(RVN # " Schaltlisteneintrag wurde neu berechnet!");}
-    SchaltListeNeu = SchaltListeNeu # SchaltListenIndex # ";" # EIN.ToTime() # ";" # AUS.ToTime() # ";" # AT.ToString(1) # ";" # ISTTemperatur.ToString(1) # "#";
+    SchaltListeNeu = SchaltListeNeu # SchaltListenIndex # EIN.ToTime() # ";" # AUS.ToTime() # ";" # AT.ToString(1) # ";" # ISTTemperatur.ToString(1) # "#";
   }
   !// Ende innere Schleife-------------------------------------------
 }

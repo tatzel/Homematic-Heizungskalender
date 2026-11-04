@@ -436,7 +436,7 @@ Beispiel: `#HKG-Raum-EG-Saal;1;18.1#HKG-Raum-UG-Buero;3;20.3#`
 
 Zwischenspeicher für das Sättigungsmodell-Kalibrierungs-Logging. Wird von `HK-Heizkurvenkontrolle.hsc` beim ersten Lauf automatisch angelegt, sofern sie noch nicht auf der CCU vorhanden ist. Die Variable ist flüchtig (kein USB-Backup).
 
-**Auto-Creation:** Das Skript prüft beim Start per `dom.GetObject(vrp+"HK-Kalibrierung")`. Ist das Objekt nicht vorhanden, legt es das Skript als String-Systemvariable an (`OT_VARDP`, `ivtString`, `istChar8859`, sichtbar, nicht intern) und initialisiert sie mit leerem String. Damit ist kein manuelles Anlegen über den Installer nötig.
+**Auto-Creation:** Das Skript prüft beim Start per `dom.GetObject(vrp+"HK-Kalibrierung")`. Ist das Objekt nicht vorhanden, legt es das Skript als String-Systemvariable an (`OT_VARDP`, `ivtString`, `istChar8859`, sichtbar, nicht intern) und initialisiert sie mit leerem String. Damit ist kein manuelles Anlegen über den Installer nötig. Wurde die Variable dennoch manuell oder über den Installer angelegt, enthält sie zunächst den Standardwert `???`; das Addon erkennt `???` als leer und zeigt in der Systemvariablen-Übersicht `(leer)` an.
 
 Beim **Heizbeginn-Event** schreibt das Skript für jeden Raum mit Sättigungsparametern (4 `*`-Unterfelder in Feld 4) einen Eintrag mit Starttemperatur, Einschaltzeitpunkt und Außentemperatur. Beim **Zieltemperatur-Event** liest es den Eintrag, berechnet die tatsächliche Heizzeit und daraus `k_gemessen` nach dem Newtonschen Abkühlungsgesetz, schreibt einen `Kalib:`-Logeintrag und löscht den Eintrag aus der Variable. Bei CCU-Neustart oder Stromausfall zwischen den beiden Events geht der Heizbeginn-Eintrag verloren; das Skript schreibt dann keinen `Kalib:`-Eintrag für diesen Zyklus.
 

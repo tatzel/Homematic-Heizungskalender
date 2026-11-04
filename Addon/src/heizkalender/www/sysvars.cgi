@@ -115,6 +115,7 @@ set doc_dev_vlz1    "${doc_dev}#hk1-vorlaufzeit"
 set doc_dev_vlz2    "${doc_dev}#hk2-schaltzeiten"
 set doc_dev_kurve   "${doc_dev}#hk2-kurve"
 set doc_dev_raeume_hkk "${doc_dev}#hk-raumeheizkurvenkontrolle"
+set doc_dev_kalibrierung "${doc_dev}#hk-kalibrierung"
 
 set doc_links [list \
     HK-Log                        $doc_skripte_log \
@@ -151,6 +152,7 @@ set doc_links [list \
     HK2-Schaltliste               $doc_skripte_s2 \
     HK2-Schaltzeiten               $doc_dev_vlz2 \
     HK2-HKK-Zieltemperatur         $doc_awh_kurve \
+    HK-Kalibrierung                $doc_dev_kalibrierung \
 ]
 
 proc lookup_doc_url {name doc_links_var} {
@@ -428,7 +430,8 @@ proc render_hk_raeume_hkk {val} {
 }
 
 proc render_hk_kalibrierung {val} {
-    if {[string equal $val ""]} { return "<em>(leer)</em>" }
+    set val [string trim $val]
+    if {[string equal $val ""] || [string equal $val "???"]} { return "<em>(leer)</em>" }
     set entries [split $val "#"]
     set clean {}
     foreach e $entries {
