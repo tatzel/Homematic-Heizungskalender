@@ -39,23 +39,27 @@ flowchart TD
     CT["ChurchTools-Kalender"] -->|"Termine"| Skript1["HK-Skript 1_ChurchTools<br/>(alle 30 Minuten)"]
     Skript1 -->|"schreibt Termine"| Schaltliste[("HK1-Schaltliste")]
 
-    Schaltliste --> Skript2["HK-Skript 2<br/>(alle 5 Minuten)"]
+    Schaltliste --> Skript2["HK-Skript 2<br/>Berechnet<br/>(alle 5 Minuten)"]
+    Skript2 -->|"schreibt Schaltzeiten"| Schaltliste2[("HK2-Schaltliste")]
     ATVar --> Skript2
     Raumtemp["Raumtemperatur<br/>(Thermostat-Sensor)"] --> Skript2
     SysVar --> Skript2
-    Skript2 -->|"berechnet Vorlaufzeit,<br/>heizt bzw. schaltet"| Thermostate["Thermostate / Aktoren"]
+    Schaltliste2 --> Skript3["HK-Skript 3<br/>Schaltet<br/>(alle 5 Minuten)"]
+    SysVar --> Skript3
+    Skript3 -->|"heizt bzw. schaltet"| Thermostate["Thermostate / Aktoren"]
 
     Installationsprogramm["HeizkalenderInstallation.exe<br/>(bei Installation, Konfiguration<br/>und Updates)"]
-    Installationsprogramm -->|"richtet ein und aktualisiert"| Programme[("Programme<br/>HK-Skript 1, HK-Skript 2, HK*")]
-    Installationsprogramm -->|"richtet ein und aktualisiert"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HKG-Raum-*")]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| Programme[("Programme<br/>HK-Skript 1, HK-Skript 2, HK-Skript 3, HK*")]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HK3-*, HKG-Raum-*")]
 ```
 
 Ablauf im Detail:
 
-1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (HK-Skript 1, HK-Skript 2 und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
+1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (HK-Skript 1, HK-Skript 2, HK-Skript 3 und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
 2. **Stündlich:** `HK-Außentemperatur-Open-Meteo` aktualisiert die Außentemperatur in `HK2-Aussentemperatur`.
 3. **Alle 30 Minuten:** `HK-Skript 1_ChurchTools` liest die ChurchTools-Termine und schreibt sie in `HK1-Schaltliste`.
-4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur, den Systemvariablen und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
+4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur, den Systemvariablen und der aktuellen Raumtemperatur die Vorlaufzeiten und schreibt sie in `HK2-Schaltliste`.
+5. **Alle 5 Minuten:** `HK-Skript 3` nimmt die berechneten Werte aus `HK2-Schaltliste` und heizt bzw. schaltet die Räume entsprechend.
 
 ## Einstieg
 

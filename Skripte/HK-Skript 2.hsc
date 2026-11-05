@@ -1,6 +1,6 @@
 !// Skript 2 für das berechnen der Schaltzeiten
 !//================================================================================================
-!// Stand:    04.11.2026
+!// Stand:    05.11.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -31,6 +31,7 @@
 !//                 Modell 0 = bisherige Heizkurven-Berechnung (Default, unveraendert)
 !//                 Modell 1 = physikalisches Saettigungsmodell (k, T_G aus Feld 4 der Raumvariable)
 !//                 HK2-Kurvenversatz und Unterfeld-0-Puffer beruecksichtigt
+!// MRi: 2026-11-03 Optimierungen Sonderschaltungen und Außentemperaturgrenze
 !// MRi: 2026-11-03 Aufteilung Skript2 Termine vorbereiten, Skript 3 Schalten
 !// MRi: 2026-11-02 Alte Changelogs entfernt
 !// TT:  2026-10-29 AT-Guard: Klammern um !isHeizModus ergänzt — HM-Script hat keine Operatorrangfolge
@@ -283,6 +284,7 @@ foreach(TLEintrag,TerminListe){
     !// wollen, bereits in unserer neuen Schalliste vorhanden ist, weil der Termin mit einem
     !// anderen Schallisten Eintrag bereits bearbeitet wurde.
     string SchaltListenIndex = RVN # ";" # EIN_Org # ";" # AUS_Org # ";" # SDFlag_Org # ";";
+    if(DEBUG) {WriteLine(RVN # " SchaltListenIndex=" # SchaltListenIndex);}
     if (("#" # SchaltListeNeu).Contains("#" # SchaltListenIndex)) {
       continue;
     }
@@ -317,16 +319,17 @@ foreach(TLEintrag,TerminListe){
     !// bereits in der Schalphase ist, wen dies so ist wird er unverndert übernommen
     integer iPos = ("#" # SchaltListeAlt).Find("#" # SchaltListenIndex);
     if (iPos>=0) {
-      string sTemp = SchaltListeAlt.Substr(iPos);
-      integer iLen = sTemp.Find("#");
+      string strAlterListenEintrag = SchaltListeAlt.Substr(iPos);
+      integer iLen = strAlterListenEintrag.Find("#");
       if (iLen<0){
-        iLen = sTemp.Length();
+        iLen = strAlterListenEintrag.Length();
       }
-      sTemp = sTemp.Substr(0,iLen);
+      strAlterListenEintrag = strAlterListenEintrag.Substr(0,iLen);
 
       !// Alte berechnete Schaltzeiten bestimmen
-      EIN = sTemp.StrValueByIndex(";",5).ToTime().ToInteger();
-      AUS = sTemp.StrValueByIndex(";",6).ToTime().ToInteger();
+      SDFlag  = strAlterListenEintrag.StrValueByIndex(";",3).ToTime().ToInteger();
+      EIN     = strAlterListenEintrag.StrValueByIndex(";",4).ToTime().ToInteger();
+      AUS     = strAlterListenEintrag.StrValueByIndex(";",5).ToTime().ToInteger();
 
       !// Ist der Eintrag überhaupt noch gültig, 30min nach Schaltende entfernen wie den Eintrag
       if ((AUS+(zeitNachlauf*60))<NOW){
@@ -335,16 +338,28 @@ foreach(TLEintrag,TerminListe){
         continue;
       }
 
-      !// Befinden wir uns schon in der Schaltphase? Dann wird dieser Eintrag nicht mehr geändert
-      if (EIN<NOW){
+      !// Wir prüfen den alten Schaltlisteneintrag. Befinden wir uns schon in der Schaltphase?
+      !// Dann wird dieser Eintrag nicht mehr geändert.
+      !// Das gilt nicht für Sonderbefehle (SDFlag<0).
+      if ((EIN<NOW) && (SDFlag>=0)){
         !// Der Termin ist noch nicht abgeschaltet aber er befindet sich in der Heizphase.
         !// Wir beerechnen die EIN und UAS Zeiten nicht neu, den alten Eintrag unverändert
         !// in  den aktuellen Schaltdaten übernehmen
-        SchaltListeNeu = SchaltListeNeu # sTemp # "#";
+        SchaltListeNeu = SchaltListeNeu # strAlterListenEintrag # "#";
 
-        !// Log Eintrag für Eintrag erzeugen, der in Schaltung ist. DIese Daten verändern sich nicht mehr
-        if(log){logObj.State(RaumLogName # " - Heiz-/Schaltphase " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)) };
-        if(DEBUG) {WriteLine(RaumLogName # " - Heiz-/Schaltphase " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)) };
+        !// Protokolleintrag mit Zeit erzeugen
+        string strTemp = "Schalten";
+        if (HSFlag=="H"){
+          strTemp = "Heizen";
+        }elseif (HSFlag=="HS"){
+          strTemp = "Heizen / Schalten";
+        } elseif (HSFlag=="V"){
+          strTemp = "Variable setzen";
+        }
+
+        !// Log Eintrag für Eintrag erzeugen, der in Schaltung ist. Diese Daten verändern sich nicht mehr
+        if(log){logObj.State(RaumLogName # " - " # strTemp # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)); };
+        if(DEBUG) {WriteLine(RaumLogName # " - " # strTemp # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)); };
 
         !// Übername der Daten in die HK2VLZListe
         if(DEBUG) {WriteLine(RVN # " Schaltlisteneintrag befindet sich im Heiz-/Schaltzustand und wird übernommen!");}
@@ -357,10 +372,11 @@ foreach(TLEintrag,TerminListe){
     }
 
     !// Originaldaten noch mal laden
-    integer EIN     = EIN_Org.ToTime().ToInteger();
-    integer AUS     = AUS_Org.ToTime().ToInteger();
+    EIN     = EIN_Org.ToTime().ToInteger();
+    AUS     = AUS_Org.ToTime().ToInteger();
+    SDFlag  = SDFlag_Org.ToInteger();
 
-    !// Dieser Termin ist noch nicht in der Schalliste oder er ist nicht in der Heizphase,
+    !// Dieser Termin ist noch nicht in der Schaltliste oder er ist nicht in der Heizphase,
     !// wir berechnen nun die Schaltzeiten neu.
     if(log){logObj.State(AktSRName # " Raumvariable: " # RVN # "=" # RVI);}
 
@@ -388,9 +404,6 @@ foreach(TLEintrag,TerminListe){
       iPos = iPos+1;
     }
 
-    !// Typ des Aktors bestimmen
-    AGF=RVI.StrValueByIndex(";",2);
-
     !// Schaltverzögerung berechnen
     integer offsetRaumAn=0;
     integer offsetRaumAus=0;
@@ -405,6 +418,7 @@ foreach(TLEintrag,TerminListe){
         offsetRaumAus = offsetRaumAus-(GrundOffsetRaumAus*60);
       }
     }
+
     !// Grundtemperatur bestimmen
     GT=RVI.StrValueByIndex(";",3).StrValueByIndex("/",1).ToFloat();
     if(GT==0){
@@ -429,25 +443,27 @@ foreach(TLEintrag,TerminListe){
       }
     }
 
+    !// Bestimmen der Vorheiz-/Schaltzeiten
     real ISTTemperatur=0.0;
 
-    !//Nach aktueller Aussentemperatur den Offsetwert berechnen und am Einschaltzeitpunkt abziehen und Aktor Paramter setzen
-    real ux=0.0;
-    real uy=0.0;
-    real lx=0.0;
-    real ly=0.0;
-    if((HSFlag=="H") || (HSFlag=="HS")){
-      !// HEIZEN / HEIZEN+SCHALTEN
-      !// Parameter bestimmen für Temperatur
-      AGFParam = "AGFParam"#AGF.ToUpper();
-      Param = AGFParamIP;
-      if (system.IsVar(AGFParam)){
-        Param = system.GetVar(AGFParam);
-      }
+    if (SDFlag>=0){
+      !// Normaler Heiz- bzw. Schaltvorgang
+      !//Nach aktueller Aussentemperatur den Offsetwert berechnen und am Einschaltzeitpunkt abziehen und Aktor Paramter setzen
+      if((HSFlag=="H") || (HSFlag=="HS")){
+        !// HEIZEN / HEIZEN+SCHALTEN
 
-      !// Wir nutzen die Temperaturverschiebung nur, wenn wir einen normalen Schaltvorgang haben
-      !// Spezial Befehle #EIN# #AUS# #NORMAL# werden zur normalen Zeit ausgeführt.
-      if (SDFlag>=0){
+        !// Parameter bestimmen für Temperatur
+        AGF=RVI.StrValueByIndex(";",2);
+        AGFParam = "AGFParam"#AGF.ToUpper();
+        Param = AGFParamIP;
+        if (system.IsVar(AGFParam)){
+          Param = system.GetVar(AGFParam);
+        }
+
+        real ux=0.0;
+        real uy=0.0;
+        real lx=0.0;
+        real ly=0.0;
         if(AT<-5.0){
           lx=-10.0;
           ly = OffsetAT.StrValueByIndex(";",0).ToFloat();
@@ -499,7 +515,6 @@ foreach(TLEintrag,TerminListe){
           faktor1 = 1.0;
         }
         faktor1 = faktor1.Max(0.20).Min(5.0);
-        if(DEBUG)  {WriteLine("faktor1=" # faktor1.ToString(2));}
 
         !// Bestimme nun einen weiteren Faktor aus der ISTTemperatur und der Solltemperatur RTemp
         !// und der Grundtemperatur für den Raum (in diesem Fall wird nur die Temperatur, des ersten
@@ -543,6 +558,14 @@ foreach(TLEintrag,TerminListe){
               HUMText = " / HUM " # humVal.ToString() # "%";
             }
           }
+        }
+
+        !// Wir nutzen die Temperaturverschiebung nur, wenn wir einen normalen Schaltvorgang haben.
+        !// Wenn die Außentemperaturgrenze erreicht ist, brechen wir alle Heizvorgänge ab.
+        if(AT>=ATG){
+          if(log){logObj.State(RaumLogName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
+          if(DEBUG) {WriteLine(RaumLogName # " Heizen abgebrochen Aussentemperatur " # AT.ToString(1) # "°C größer Grenzwert " # ATG.ToString(1) # "°C");}
+          continue;
         }
 
         !//---------------------------------------------------------------------
@@ -622,7 +645,6 @@ foreach(TLEintrag,TerminListe){
           if(DEBUG)  {WriteLine("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
           !//if(log) {logObj.State("faktor2=" # faktor2.ToString(2) # " - " # AT.ToString(1) # "/" # GT.ToString(1) # "/" # ISTTemperatur.ToString(1) # "°C offsetRaumAn=" # (offsetRaumAn/60) # " offsetTempAn=" # (offsetTempAn/60));}
         }
-
         !// Reale Schaltzeiten berechnen
         string logText = RaumLogName # " - Heizen - AT " # AT.ToString(1) # "°C / GT " # GT.ToString(1) # "°C / IST " # ISTTemperatur.ToString(1) # "°C / ZIEL " # RTemp.ToString(1) # "°C" # HUMText # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " ";
         if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
@@ -637,26 +659,42 @@ foreach(TLEintrag,TerminListe){
         HK2VLZListe = HK2VLZListe # RVN # ";" # ((EIN_Org.ToTime().ToInteger()-EIN)/60) # ";" # EIN.ToTime() # ";" # EIN_Org # ";" # AUS.ToTime() # ";" # ((AUS_Org.ToTime().ToInteger()-AUS)/60) # "~";
         if(log) {logObj.State(logText);}
         if(DEBUG)  {WriteLine(logText);}
+      }else{
+        !// SCHALTEN / VARIABLE kennt keine Vorheizzeiten
+        string strTemp = " - Schalten - ";
+        if (HSFlag=="V"){
+          strTemp = " - Variable setzen - ";
+        }
+
+        !// Reale Schaltzeiten berechnen
+        string logText = RaumLogName # strTemp #EIN.ToTime().Format("%X").Substr(0,5) # " ";
+        if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
+        logText = logText # (offsetRaumAn/60) #"min = ";
+        EIN = EIN + offsetRaumAn;
+        logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
+        if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
+        AUS = AUS + offsetRaumAus;
+        logText = logText # (offsetRaumAus/60) # "min = " # AUS.ToTime().Format("%X").Substr(0,5);
+        HK2VLZListe = HK2VLZListe # RVN # ";" # ((EIN_Org.ToTime().ToInteger()-EIN)/60) # ";" # EIN.ToTime() # ";" # EIN_Org # ";" # AUS.ToTime() # ";" # ((AUS_Org.ToTime().ToInteger()-AUS)/60) # "~";
+        if(log) {logObj.State(logText);}
+        if(DEBUG)  {WriteLine(logText);}
       }
     }else{
-      !// SCHALTEN / VARIABLE kennt kein Offset
-      string strTemp = " - Schalten - ";
-      if (HSFlag=="V"){
-        strTemp = " - Variable setzen - ";
-      }
+        !// Spezial Befehle #EIN# #AUS# #NORMAL# werden zur normalen Zeit ausgeführt.
+        !// Sonderbefehle werden ganz ohne Versatz ausgeführt.
 
-      !// Reale Schaltzeiten berechnen
-      string logText = RaumLogName # strTemp #EIN.ToTime().Format("%X").Substr(0,5) # " ";
-      if (offsetRaumAn>0){ logText=logText#"+"; }elseif(offsetRaumAn==0){ logText=logText#"-"; }
-      logText = logText # (offsetRaumAn/60) #"min = ";
-      EIN = EIN + offsetRaumAn;
-      logText = logText # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5) # " ";
-      if (offsetRaumAus>0){ logText=logText#"+"; }elseif(offsetRaumAus==0){ logText=logText#"-"; }
-      AUS = AUS + offsetRaumAus;
-      logText = logText # (offsetRaumAus/60) # "min = " # AUS.ToTime().Format("%X").Substr(0,5);
-      HK2VLZListe = HK2VLZListe # RVN # ";" # ((EIN_Org.ToTime().ToInteger()-EIN)/60) # ";" # EIN.ToTime() # ";" # EIN_Org # ";" # AUS.ToTime() # ";" # ((AUS_Org.ToTime().ToInteger()-AUS)/60) # "~";
-      if(log) {logObj.State(logText);}
-      if(DEBUG)  {WriteLine(logText);}
+        string strTemp = "???";
+        if (SDFlag==-3){
+          strTemp = "\"RESET\": " # GT.ToString(1);
+        }elseif(SDFlag==-1){
+          strTemp = "\"AUS\": " # GT.ToString(1);
+        }elseif(SDFlag==-2){
+          strTemp = "\"EIN\": " # RTemp.ToString(1);
+        }
+
+        !// Log Eintrag für Eintrag erzeugen.
+        if(log){logObj.State(RaumLogName # " - Sonderfunktion - " # strTemp # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)); };
+        if(DEBUG) {WriteLine(RaumLogName # " - Sonderfunktion - " # strTemp # " - " # EIN.ToTime().Format("%X").Substr(0,5) # " / " # AUS.ToTime().Format("%X").Substr(0,5)); };
     }
 
     !// Verhindern dass Ausschaltpunkt vor Einschaltpunkt liegt
@@ -668,8 +706,11 @@ foreach(TLEintrag,TerminListe){
       continue;
     }
 
+    !// Abgelaufene Termine bleiben erhalten, um einen Ausschaltvorgang auslösen zu lassen.
+
     !// Der Termin wurde berechnet, wir setzen nun die errechnenten Daten an die Originaldaten
     if(DEBUG) {WriteLine(RVN # " Schaltlisteneintrag wurde neu berechnet!");}
+    if(DEBUG) {WriteLine(RVN # " Schaltlisteneintrag=" # SchaltListenIndex # EIN.ToTime() # ";" # AUS.ToTime() # ";" # AT.ToString(1) # ";" # ISTTemperatur.ToString(1) # "#");}
     SchaltListeNeu = SchaltListeNeu # SchaltListenIndex # EIN.ToTime() # ";" # AUS.ToTime() # ";" # AT.ToString(1) # ";" # ISTTemperatur.ToString(1) # "#";
   }
   !// Ende innere Schleife-------------------------------------------

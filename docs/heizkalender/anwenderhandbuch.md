@@ -125,23 +125,27 @@ flowchart TD
     CT["ChurchTools-Kalender"] -->|"Termine"| Skript1["HK-Skript 1_ChurchTools<br/>(alle 30 Minuten)"]
     Skript1 -->|"schreibt Termine"| Schaltliste[("HK1-Schaltliste")]
 
-    Schaltliste --> Skript2["HK-Skript 2<br/>(alle 5 Minuten)"]
+    Schaltliste --> Skript2["HK-Skript 2<br/>Berechnet<br/>(alle 5 Minuten)"]
+    Skript2 -->|"schreibt Schaltzeiten"| Schaltliste2[("HK2-Schaltliste")]
     ATVar --> Skript2
     Raumtemp["Raumtemperatur<br/>(Thermostat-Sensor)"] --> Skript2
     SysVar --> Skript2
-    Skript2 -->|"berechnet Vorlaufzeit,<br/>heizt bzw. schaltet"| Thermostate["Thermostate / Aktoren"]
+    Schaltliste2 --> Skript3["HK-Skript 3<br/>Schaltet<br/>(alle 5 Minuten)"]
+    SysVar --> Skript3
+    Skript3 -->|"heizt bzw. schaltet"| Thermostate["Thermostate / Aktoren"]
 
     Installationsprogramm["HeizkalenderInstallation.exe<br/>(bei Installation, Konfiguration<br/>und Updates)"]
-    Installationsprogramm -->|"richtet ein und aktualisiert"| Programme[("Programme<br/>HK-Skript 1, HK-Skript 2, HK*")]
-    Installationsprogramm -->|"richtet ein und aktualisiert"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HKG-Raum-*")]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| Programme[("Programme<br/>HK-Skript 1, HK-Skript 2, HK-Skript 3, HK*")]
+    Installationsprogramm -->|"richtet ein und aktualisiert"| SysVar[("Systemvariablen<br/>HK1-*, HK2-*, HK3-*, HKG-Raum-*")]
 ```
 
 Ablauf im Detail:
 
-1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (`HK-Skript 1`, `HK-Skript 2` und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
+1. **Bei Installation/Konfiguration/Updates:** Die `HeizkalenderInstallation.exe` richtet die Programme (`HK-Skript 1`, `HK-Skript 2`, `HK-Skript 3` und weitere HK-Skripte) sowie die Systemvariablen auf der CCU ein und hält sie aktuell.
 2. **Stündlich:** `HK-Außentemperatur-Open-Meteo` aktualisiert die Außentemperatur in `HK2-Aussentemperatur`.
 3. **Alle 30 Minuten:** `HK-Skript 1_ChurchTools` liest die ChurchTools-Termine und schreibt sie in `HK1-Schaltliste`.
-4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur, den Systemvariablen und der aktuellen Raumtemperatur die Vorlaufzeiten und heizt bzw. schaltet die Räume entsprechend.
+4. **Alle 5 Minuten:** `HK-Skript 2` berechnet aus der Schaltliste, der Außentemperatur, den Systemvariablen und der aktuellen Raumtemperatur die Vorlaufzeiten und schreibt sie in `HK2-Schaltliste`.
+5. **Alle 5 Minuten:** `HK-Skript 3` nimmt die berechneten Werte aus `HK2-Schaltliste` und heizt bzw. schaltet die Räume entsprechend.
 
 ## Voraussetzungen
 
@@ -743,7 +747,7 @@ Die folgenden Werte haben sich in der Praxis bewährt.
 | Variable | Bedeutung | Wert/Empfehlung | Beschreibung |
 | :--- | :--- | :--- | :--- |
 | `HK2-Grundtemperatur` | Temperatur außerhalb der Nutzungszeit | **16 °C**|Nicht zu niedrig, sonst kühlen die Wände aus; einzelne Räume können abweichen)<br>Eine abweichende Grundtemperatur kann je Raum individuell eingestellt werden. |
-| `HK2-A.Temp.Grenze` | Außentemperatur, ab der nicht mehr geheizt wird | **19-20 °C**|Zum Testen einen utopisch hohen Wert (z.B. 50 °C) setzen und danach nicht vergessen zurückzustellen |
+| `HK2-A.Temp.Grenze` | Außentemperatur, ab der nicht mehr geheizt wird | **19-20 °C**|Zum Testen einen sehr niedrigen Wert (z.B. 0 °C) setzen und danach nicht vergessen zurückzustellen |
 | `HK2-Hand-Grundtemp` | Nächtliche Rückstellung auf Grundtemperatur um 01:00 Uhr | **Wahr (1) / True**|Thermostate, die nicht auf Grundtemperatur stehen, werden zurückgestellt (außer in einer aktiven Heizphase). Das gilt auch für Schaltungen. Ist der Schalter *Falsch (0)/False* bleiben alle Schaltungen und Thermostate unverändert.|
 | `HK2-Hand-Temp` | Manuelle Temperatur hat beim Terminende Vorrang | **Falsch (0) / False**|Ist der Schalter *Falsch (0) / False* wird eine manuell eingestellte Temperatur nicht beibehalten und die Grundtemperatur eingestellt. Ist der Schalter *Wahr (1) / True*, wird eine manuell abweichende Temperatur von Thermostaten beibehalten. |
 | `HK2-VorzeitAus` | Globale Minuten, um die vor Terminende abgeschaltet wird | **0**|Besser je Raum einstellen; nicht gleichzeitig mit der raumbezogenen VorzeitAus nutzen (beide Werte addieren sich). Das vorzeitige Heizende kann besser je Raum individuell gesteuert werden. Dieser Wert gilt nur für Heizvorgänge, nicht beim reinen Schalten.<br>**Dieser Wert sollte nicht verwendet werden er existiert nur noch aus Gründen der Rückwärtskompatibilität.** |
@@ -880,6 +884,8 @@ Diese Sonderbefehle können eine Heizung dauerhaft ein oder dauerhaft ausschalte
 | `#GT#` | Wohlfühltemperatur ignorieren, stattdessen die Grundtemperatur schalten |
 | `#NS#` / `#NH#` | Nicht schalten / nicht heizen: der Termin wird nicht in die Schaltliste aufgenommen |
 | `#<Zahl>...#` | Setzt die gewünschte Temperatur (0 bis 30 °C, begrenzt durch den Aktor) |
+
+**Bei den Sonderbefehlen `#EIN#`, `#AUS#` und `#RESET#`/`#NORMAL#` spielt die Dauer eines Termins keine Rolle. Relevant ist alleine der Terminstart. Der entsprechende Befehl wird genau und nur zu diesem Zeitpunkt ausgeführt.**
 
 **Anwendungsbeispiel `#NS#`/`#NH#`:** Reinigt eine Firma die Räume, soll die
 Ressource als belegt gelten, aber nicht geheizt werden. Mit `#NS#` oder `#NH#`
