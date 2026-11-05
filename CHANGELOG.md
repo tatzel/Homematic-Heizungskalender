@@ -40,6 +40,11 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 ### Behoben
 
 - `HK-Skript 3`: Fehlender Param-Initialisierungsblock (AGFParam/Param) in der Hauptschleife ergänzt (Copy-Paste-Fehler beim Aufteilen aus Skript 2)
+- Addon: index.cgi: Spalte „Vorlauf" zeigte bei Räumen mit mehreren Einträgen in `HK2-Schaltzeiten` den falschen Wert (Gruppenräume können mehrere Einträge in beliebiger Reihenfolge haben); es wird jetzt der Eintrag mit dem frühesten Einschaltzeitpunkt gewählt
+- Addon: index.cgi: Hinweistext unter der Tabelle zu „Vorlauf" und „Heizen ab" korrigiert
+- Addon: index.cgi: Spalte „Modus" ans Ende der Tabelle verschoben
+- Addon: heizkalender.css: `vertical-align: top` für Tabellenzellen ergänzt
+- Addon: sysvars.cgi: Klasse `hk-nowrap` zur Systemvariablen-Tabelle ergänzt
 - Addon: sysvars.cgi: implizite Defaults für Faktor und Grundtemperatur anzeigen, wenn keine individuellen Werte gesetzt sind
 - Addon: CSS: Navigationsleiste bricht auf schmalen Displays um
 
