@@ -300,7 +300,9 @@ if {$submitted && [llength $log_files] > 0} {
                 set ereignis [string trim [string range $rest 0 [expr {$cdp-1}]]]
                 set detail   [string trim [string range $rest [expr {$cdp+1}] end]]
                 set c1 [string first "," $detail]
-                if {$c1 > 0} {
+                if {[string equal $ereignis "Fehler"] && $c1 < 0} {
+                    set delta $detail
+                } elseif {$c1 > 0} {
                     set delta [string trim [string range $detail 0 [expr {$c1-1}]]]
                     set rest2 [string trim [string range $detail [expr {$c1+1}] end]]
                     set ip [string first "Ist:" $rest2]
@@ -473,9 +475,7 @@ if {[llength $log_files] == 0} {
         set at_str   [expr {![string equal $at_val ""] ? "$at_val ${deg}C" : ""}]
         set delta_str $delta
         if {[string equal $ereignis "Fehler"]} {
-            set delta_str ""
-            set max_str   ""
-            set at_str    $delta
+            set max_str ""
         }
 
         # Indikator: Dreieck in der Ist-Temperatur-Spalte
@@ -497,11 +497,15 @@ if {[llength $log_files] == 0} {
         puts "      <td>[htmlquote $raumname]</td>"
         puts "      <td>[htmlquote $ts]</td>"
         puts "      <td>[htmlquote $ereignis]</td>"
-        puts "      <td>[htmlquote $delta_str]</td>"
-        puts "      <td>${ist_str}${indikator}</td>"
-        puts "      <td>${ziel_str}</td>"
-        puts "      <td>${max_str}</td>"
-        puts "      <td>${at_str}</td>"
+        if {[string equal $ereignis "Fehler"]} {
+            puts "      <td colspan=\"5\">[htmlquote $delta_str]</td>"
+        } else {
+            puts "      <td>[htmlquote $delta_str]</td>"
+            puts "      <td>${ist_str}${indikator}</td>"
+            puts "      <td>${ziel_str}</td>"
+            puts "      <td>${max_str}</td>"
+            puts "      <td>${at_str}</td>"
+        }
         puts "    </tr>"
     }
     puts {  </table></div>}
