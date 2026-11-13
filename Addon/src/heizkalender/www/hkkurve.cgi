@@ -329,10 +329,8 @@ if {$submitted && [llength $log_files] > 0} {
                     }
                     set ap [string first "AT:" $rest2]
                     if {$ap >= 0} {
-                        set after [string trim [string range $rest2 [expr {$ap+3}] end]]
-                        set sp3 [string first " " $after]
-                        if {$sp3 > 0} { set at_val [string range $after 0 [expr {$sp3-1}]] } else { set at_val $after }
-                        set at_val [string trimright $at_val ","]
+                        # AT ist immer das letzte Feld: alles nach "AT:" uebernehmen
+                        set at_val [string trim [string range $rest2 [expr {$ap+3}] end]]
                     }
                 }
             }
@@ -475,7 +473,17 @@ if {[llength $log_files] == 0} {
         set ist_str  [expr {![string equal $ist  ""] ? "$ist ${deg}C" : ""}]
         set ziel_str [expr {![string equal $ziel ""] ? "$ziel ${deg}C" : ""}]
         set max_str  [expr {![string equal $max_val ""] ? "$max_val ${deg}C" : ""}]
-        set at_str   [expr {![string equal $at_val ""] ? "$at_val ${deg}C" : ""}]
+        set at_str ""
+        if {![string equal $at_val ""]} {
+            set sp_at [string first " " $at_val]
+            if {$sp_at > 0} {
+                set at_num [string range $at_val 0 [expr {$sp_at-1}]]
+                set at_rest [string range $at_val $sp_at end]
+                set at_str "${at_num} ${deg}C${at_rest}"
+            } else {
+                set at_str "$at_val ${deg}C"
+            }
+        }
         set delta_str $delta
         if {[string equal $ereignis "Fehler"] || [string equal $ereignis "Termin entfernt"]} {
             set max_str ""

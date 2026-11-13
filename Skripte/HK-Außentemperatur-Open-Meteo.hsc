@@ -1,6 +1,6 @@
 !// Bestimmen der Außentemperatur für den Heizkalender
 !//================================================================================================
-!// Stand:    04.10.2026
+!// Stand:    13.11.2026
 !// Autor:    Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -22,6 +22,9 @@
 !//
 !// Das Skript sollte jede volle Stunde laufen
 
+!// TT: 2026-11-13 Prognose-Minimum der naechsten 12h ergaenzt (HK2-Aussentemperatur-Prognose-Min);
+!//                aktuelle AT-Stunde ergaenzt (HK2-Aussentemperatur-Aktuell); beide optional.
+!//                Log-Text in Variable atLogText ausgelagert.
 !// TT: 2026-10-04 Log-Eintrag um Zeitfenster ergaenzt (Fenster: -Xh/+Yh);
 !//                Tippfehler in Kommentaren korrigiert; + durch # in DEBUG-Ausgaben ersetzt;
 !//                Abbruch mit Log-Eintrag wenn keine Geokoordinaten in der CCU hinterlegt
@@ -175,22 +178,37 @@ if (lat=="" || lon=="" || lat.ToFloat()==0.0 || lon.ToFloat()==0.0){
     !// Werte berechnen
     integer i=0;
     real aktuellerWert;
+    !// Prognose-Minimum: niedrigste AT der naechsten Stunden (ab aktueller Stunde)
+    integer prognoseStunden = 12;
+    real prognoseMin = 99.0;
+    integer prognoseN = 0;
+    real tempWert = 0.0;
     foreach (temp, stemp.Split(","))
     {
       !// Werte bis zur aktuellen Stunde überspringen wir.
       if ((i>h) && i>ueberspringen){
+        tempWert = temp.ToFloat();
         if (DEBUG){
           WriteLine((i % 24) # ": " # temp);
         }
-        summe = summe+temp.ToFloat();
-        n = n+1;
+        !// Durchschnitt: nur die ersten stundenZurueck+stundenVoraus Werte
+        if (n<(stundenZurueck+stundenVoraus)){
+          summe = summe+tempWert;
+          n = n+1;
+        }
         if (n==stundenZurueck){
-          aktuellerWert = temp.ToFloat();
+          aktuellerWert = tempWert;
           if (DEBUG){
-            WriteLine("<-- Letzter Wert");
+            WriteLine("<-- Aktueller Wert");
           }
         }
-        if (n>=(stundenZurueck+stundenVoraus)) {
+        !// Prognose-Minimum: ab aktueller Stunde die naechsten prognoseStunden
+        if ((n>=stundenZurueck) && (prognoseN<prognoseStunden)){
+          if (tempWert<prognoseMin){ prognoseMin = tempWert; }
+          prognoseN = prognoseN+1;
+        }
+        !// Abbruch wenn Durchschnitt und Prognose-Minimum fertig
+        if ((n>=(stundenZurueck+stundenVoraus)) && (prognoseN>=prognoseStunden)) {
           break;
         }
       }
@@ -205,11 +223,13 @@ if (lat=="" || lon=="" || lat.ToFloat()==0.0 || lon.ToFloat()==0.0){
       WriteLine(n);
     }
     temp = (summe/n).ToString(1);
-    WriteLine("Akt. Außentemperatur= " # aktuellerWert.ToString(1) # "°C / Durchsch. Außentemperatur= " # temp # "°C (Zeitfenster: -" # stundenZurueck.ToInteger() # "h/+" # stundenVoraus.ToInteger() # "h)");
+    string prognoseMinStr = prognoseMin.ToString(1);
+    string atLogText = "Akt. AT= " # aktuellerWert.ToString(1) # "°C / Durchschn. AT= " # temp # "°C / Min" # prognoseStunden # "h= " # prognoseMinStr # "°C (Fenster: -" # stundenZurueck.ToInteger() # "h/+" # stundenVoraus.ToInteger() # "h)";
+    WriteLine(atLogText);
 
     if (log) {
       if (n!=0) {
-        logObj.State("Akt. Außentemperatur= " # aktuellerWert.ToString(1) # "°C / Durchsch. Außentemperatur= " # temp # "°C (Zeitfenster: -" # stundenZurueck.ToInteger() # "h/+" # stundenVoraus.ToInteger() # "h)");
+        logObj.State(atLogText);
       } else {
         logObj.State("Keine Werte für die Außentemperatur gefunden!");
       }
@@ -218,6 +238,14 @@ if (lat=="" || lon=="" || lat.ToFloat()==0.0 || lon.ToFloat()==0.0){
     !// Ergebnis schreiben
     if (n!=0){
       dom.GetObject(vrp+"HK2-Aussentemperatur").State(temp);
+      !// Optionale Variablen: aktuelle Temperatur und Prognose-Minimum
+      !// Variablen werden nur geschrieben wenn sie existieren (kein Init-Skript noetig)
+      var svAkt = dom.GetObject(vrp+"HK2-Aussentemperatur-Aktuell");
+      if (svAkt) { svAkt.State(aktuellerWert.ToString(1)); }
+      if (prognoseN>0) {
+        var svMin = dom.GetObject(vrp+"HK2-Aussentemperatur-Prognose-Min");
+        if (svMin) { svMin.State(prognoseMinStr); }
+      }
       break;
     } else {
       !// Unerwünschtes Ergebnis/Fehler, also ein Retry mehr

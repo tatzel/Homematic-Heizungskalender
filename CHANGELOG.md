@@ -13,15 +13,29 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+
+- AT-Skript: Prognose-Minimum der nächsten 12h wird in optionale Variable `HK2-Aussentemperatur-Prognose-Min` geschrieben.
+- AT-Skript: Momentanwert der letzten vollen Stunde wird in optionale Variable `HK2-Aussentemperatur-Aktuell` geschrieben.
+- Skript 2: Verwendet `min(Durchschnitt, Prognose-Min)` als effektive Außentemperatur — Vorheizzeit steigt frühzeitig bei vorhergesagter Kältefront.
+- Init-Skript 2+3: Neue Variablen `HK2-Aussentemperatur-Aktuell` und `HK2-Aussentemperatur-Prognose-Min` werden angelegt.
+- Addon: Version 0.10.3.
+
 ### Behoben
 
+- Heizkurvenkontrolle: Letzter Listeneintrag wurde nicht gefunden (fehlendes abschliessendes `#` in Suche).
+- Heizkurvenkontrolle: Absturz bei gelöschter Raumvariable — Null-Check für `dom.GetObject(RVN)` ergänzt.
+- Heizkurvenkontrolle: Heizbeginn eines zweiten überlappenden Eintrags wurde unterdrückt — Status-Reset auf Bit 5 bei neuem Heizvorgang.
+- Heizkurvenkontrolle: Zieltemperatur konnte ohne aktiven Heizvorgang geloggt werden — Bit-0-Guard ergänzt.
+- Addon: Heizkurvenkontrolle-Seite lieferte Rega-Redirect wegen ungültigem Kommentarzeichen (`!#`) in Tcl-Datei.
+- Addon: `gt_fmt` blieb bei nicht-numerischem `HK2-Grundtemperatur`-Wert ungesetzt — Fallback-Zuweisung vor `catch` ergänzt.
 - Skript 3: AUS-Befehl wird bei überlappenden Terminen unterdrückt, wenn ein
   anderer aktiver Eintrag für denselben Raum existiert. Verhindert unnötige
   AUS/EIN-Zyklen (z.B. Flur mit 3 Buchungen).
 - Heizkurvenkontrolle: RaumParameter-Verlust im bearbeiteteRaeume-Guard bei 3+
   überlappenden Einträgen behoben — verursachte falsches Heizbeginn alle 5 min.
 
-### Hinzugefügt
+### Hinzugefügt (aus vorherigem Unveröffentlicht)
 
 - Heizkurvenkontrolle: Feld 3 (`ausTerminMax`) in RaumParameter — trackt das
   späteste Terminende bei überlappenden Buchungen. Terminende-Event und

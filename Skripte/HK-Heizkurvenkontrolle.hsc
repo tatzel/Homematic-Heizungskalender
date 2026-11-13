@@ -18,6 +18,12 @@
 !//                 ausTerminMax statt AUS_Termin des ersten Eintrags.
 !//                 Bugfix: RaumParameter wird im bearbeiteteRaeume-Guard zurückgespeichert —
 !//                 verhindert Datenverlust und falsches Heizbeginn bei 3+ überlappenden Einträgen.
+!//                 Bugfix Finding 1: abschliessendes # in SListe-Suche ergaenzt (letzter Eintrag).
+!//                 Bugfix Finding 2: Null-Check fuer dom.GetObject(RVN) ergaenzt (continue).
+!//                 Bugfix Finding 3: status-Reset auf (status & 32) bei neuem Heizvorgang.
+!//                 Bugfix Finding 4: Bit-0-Guard bei Zieltemperatur-Pruefung ergaenzt.
+!//                 ATLog: akt= und min12h= auf eine Dezimalstelle formatiert (war roher CCU-Float).
+!//                 AT-Logausgabe: effektive AT mit Durchschnitt/Aktuell/Prognose-Min.
 !// TT:  2026-11-13 Bereinigungsblock loggt "Termin entfernt", wenn ein Raum während einer aktiven
 !//                 Heizphase aus der Schaltliste gelöscht wurde (Bit 0 gesetzt, Bit 4 nicht).
 !// TT:  2026-11-12 Code-Review: Tippfehler behoben, ungenutzte Variablen entfernt,
@@ -70,7 +76,25 @@ integer log=0;
 integer NOW=system.Date().ToTime().ToInteger();
 string SListe=dom.GetObject(vrp # "HK2-Schaltliste").State();
 string VarNamen=dom.GetObject(vrp # "HK2-HKG-Liste").State();
-real AT=dom.GetObject(vrp # "HK2-Aussentemperatur").State().ToFloat();
+real ATDurchschnitt=dom.GetObject(vrp # "HK2-Aussentemperatur").State().ToFloat();
+real AT=ATDurchschnitt;
+!// Effektive AT: min(Durchschnitt, Prognose-Min), identisch zu Skript 2.
+!// Damit entspricht das geloggte AT dem Wert, mit dem die VLZ berechnet wurde.
+!// ATLog zeigt den effektiven Wert und optional Durchschnitt, aktuelle AT und Prognose-Min.
+!// Format: "3.8 (avg=6.1/akt=4.2/min12h=3.8)" oder nur "6.1" ohne Variablen.
+string ATExtra = "";
+var svATAkt = dom.GetObject(vrp # "HK2-Aussentemperatur-Aktuell");
+if (svATAkt) { ATExtra = "akt=" # svATAkt.State().ToFloat().ToString(1); }
+var svATMin = dom.GetObject(vrp # "HK2-Aussentemperatur-Prognose-Min");
+if (svATMin) {
+    real ATMin = svATMin.State().ToFloat();
+    if ((ATMin < AT)) { AT = ATMin; }
+    if (ATExtra != "") { ATExtra = ATExtra # "/"; }
+    ATExtra = ATExtra # "min12h=" # ATMin.ToString(1);
+}
+string ATLog = AT.ToString(1);
+if (ATExtra != "") { ATLog = "avg=" # ATDurchschnitt.ToString(1) # "/" # ATExtra; }
+if (ATExtra != "") { ATLog = AT.ToString(1) # " (" # ATLog # ")"; }
 real GTStandard=dom.GetObject(vrp # "HK2-Grundtemperatur").State().ToFloat();
 real GT=GTStandard;
 string AktAktor;
@@ -166,7 +190,8 @@ while(SListe!=""){
 
   !// Wir haben nun den kleinsten Schaltlisten Eintrag für diesen Raum.
   !// Den entfernen wir nun aus der Schaltliste, weil wir ihn behandelt haben
-  iPos = ("#" # SListe).Find("#" # SLEintrag # "#");
+  !// Abschliessendes # noetig damit auch der letzte Eintrag (ohne nachfolgendes #) gefunden wird
+  iPos = ("#" # SListe # "#").Find("#" # SLEintrag # "#");
   if (iPos<0){
     if(DEBUG){WriteLine("Fataler Fehler. Heizlisteneintrag konnte nicht gefunden werden!");}
     quit;
@@ -196,7 +221,13 @@ while(SListe!=""){
 
   !// Raumbestimmen
   if(DEBUG){WriteLine("RVN=" # RVN);}
-  string RVI=dom.GetObject(RVN).State();
+  object objRVN = dom.GetObject(RVN);
+  if (!objRVN){
+    if(log){logObj.State("Raumvariable " # RVN # " wurde nicht gefunden!");}
+    if(DEBUG){WriteLine("Raumvariable " # RVN # " wurde nicht gefunden!");}
+    continue;
+  }
+  string RVI=objRVN.State();
   if(DEBUG){WriteLine("RVI=" # RVI);}
 
   !// Erzeuge einen Namen ohne prefixe
@@ -229,7 +260,7 @@ while(SListe!=""){
   !// Räume im Dauerschaltstatus werden ignoriert
   !// 0=Aus, 1=Ein, 2=Dauer AUS, 3=Dauer EIN
   integer aktuellerSchaltZustand = RVI.StrValueByIndex(";",0).ToInteger();
-  if ((aktuellerSchaltZustand==3) ||(aktuellerSchaltZustand==2)){
+  if ((aktuellerSchaltZustand==3) || (aktuellerSchaltZustand==2)){
     if(DEBUG)  {WriteLine(RaumLogName # "ist dauerhaft AN/AUS");}
     continue;
   }
@@ -292,10 +323,13 @@ while(SListe!=""){
       continue;
     }else{
       if(DEBUG) {WriteLine(RaumLogName # "neuer Heizlisteneintrag wird bearbeitet, da das Heizende erreicht wurde!");}
-    }   
-  } 
-  
-  !// Räume merken, die geschaltet werden. 
+      !// Bits des abgeschlossenen Heizvorgangs zuruecksetzen, damit Heizbeginn des neuen Eintrags
+      !// geloggt wird. Bit 5 (Terminbeginn) bleibt erhalten, damit er nicht doppelt geloggt wird.
+      status = (status & 32);
+    }
+  }
+
+  !// Räume merken, die geschaltet werden.
   bearbeiteteRaeume = bearbeiteteRaeume # RVN # ";";
 
   !// Vorgegebene Temperatur oder Raumtemperatur bestimmen
@@ -357,8 +391,8 @@ while(SListe!=""){
     if (!strTemp.StartsWith("-")){
       strTemp = "+" # strTemp;
     }
-    logObj.State          (RaumLogName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1));
-    if (DEBUG) { WriteLine(RaumLogName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", AT: " # AT.ToString(1)); }
+    logObj.State          (RaumLogName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", AT: " # ATLog);
+    if (DEBUG) { WriteLine(RaumLogName # " Heizbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", AT: " # ATLog); }
     !// setzt Bit 0 (Heizvorgang), löscht alle anderen Zustände außer Bit 5 (Terminbeginn bereits geloggt)
     status = 1 | (status & 32);
   }
@@ -371,21 +405,21 @@ while(SListe!=""){
     if (!strTemp.StartsWith("-")){
       strTemp = "+" # strTemp;
     }
-    logObj.State          (RaumLogName # "Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1));
-    if (DEBUG) { WriteLine(RaumLogName # "Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1)); }
+    logObj.State          (RaumLogName # "Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog);
+    if (DEBUG) { WriteLine(RaumLogName # "Heizende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog); }
     !// setzt Bit 2 (Heizung ausgeschaltet)
     status = status | 4;
   }
 
-  !// Warte auf Zieltemperatur. Nur wenn bit 1 = aus und Terminende noch nicht erreicht
-  if (((status & 2)==0) && ((status & 16)==0) && (istTemperatur>=RTemp)) {
+  !// Warte auf Zieltemperatur. Nur wenn bit 0 = ein, bit 1 = aus und Terminende noch nicht erreicht
+  if (((status & 1)!=0) && ((status & 2)==0) && ((status & 16)==0) && (istTemperatur>=RTemp)) {
     !// Zieltemperatur erreicht
     strTemp = ((NOW-EIN_Termin)/60).ToString();
     if (!strTemp.StartsWith("-")){
       strTemp = "+" # strTemp;
     }
-    logObj.State          (RaumLogName # "Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1));
-    if (DEBUG) { WriteLine(RaumLogName # "Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1)); }
+    logObj.State          (RaumLogName # "Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog);
+    if (DEBUG) { WriteLine(RaumLogName # "Zieltemperatur: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog); }
     !// Setzt Bit 1 (Zieltemperatur erreicht)
     status = status | 2;
   }
@@ -397,8 +431,8 @@ while(SListe!=""){
     if (!strTemp.StartsWith("-")){
       strTemp = "+" # strTemp;
     }
-    logObj.State          (RaumLogName # "Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1));
-    if (DEBUG) { WriteLine(RaumLogName # "Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1)); }
+    logObj.State          (RaumLogName # "Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog);
+    if (DEBUG) { WriteLine(RaumLogName # "Terminbeginn: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog); }
     !// Setzt Bit 5 (Terminanfang geloggt)
     status = status | 32;
   }
@@ -411,8 +445,8 @@ while(SListe!=""){
     if (!strTemp.StartsWith("-")){
       strTemp = "+" # strTemp;
     }
-    logObj.State          (RaumLogName # "Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1));
-    if (DEBUG) { WriteLine(RaumLogName # "Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # AT.ToString(1)); }
+    logObj.State          (RaumLogName # "Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog);
+    if (DEBUG) { WriteLine(RaumLogName # "Terminende: " # strTemp # "min, Ist: " # istTemperatur.ToString(1) # ", Ziel: " # RTemp.ToString(1) # ", Max.: " # maxTemperatur.ToString(1) # ", AT: " # ATLog); }
     !// Setzt Bit 4 (Terminende geloggt)
     status = status | 16;
   }
@@ -447,7 +481,7 @@ foreach(RaumParameter,RaumListe.Split("#")){
     real    maxAlt    = RaumParameter.StrValueByIndex(";",2).ToFloat();
     if (((statusAlt & 1)!=0) && ((statusAlt & 16)==0) && (rvnAlt!="")) {
       string rvnNameAlt = rvnAlt.Replace(vrp # "HKG-Raum-","");
-      logObj.State(rvnNameAlt # " - Termin entfernt: Max.: " # maxAlt.ToString(1) # ", AT: " # AT.ToString(1));
+      logObj.State(rvnNameAlt # " - Termin entfernt: Max.: " # maxAlt.ToString(1) # ", AT: " # ATLog);
     }
   }
 }
