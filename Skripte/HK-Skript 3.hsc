@@ -1,6 +1,6 @@
 !// Skript 3 für das Schalten der Heizgruppen
 !//================================================================================================
-!// Stand:    06.11.2026
+!// Stand:    13.11.2026
 !// Autoren:  Lukas Helduser    (Youtube: https://www.youtube.com/LukasvandeHaag)
 !//           Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
@@ -21,6 +21,9 @@
 !//
 !// Skript sollte alle 5min laufen
 !//
+!// TT:  2026-11-13 Überlappende Termine: AUS-Befehl unterdrücken wenn ein anderer aktiver
+!//                 Eintrag für denselben Raum existiert (SDFlag>=0, EIN<=NOW<AUS).
+!//                 Verhindert unnötige AUS/EIN-Zyklen bei Räumen mit mehreren Terminen.
 !// TT:  2026-11-06 Kommentar RESET-Bedingung korrigiert (erlaubt jetzt alle Zustaende ausser EIN)
 !// MRi: 2026-11-06 Diverse Fixes Aufgrund einer statischen Code-Analyse
 !// MRi: 2026-11-06 Nachtschaltung berücksichtigt Dauer-Ein/Aus falsch.
@@ -359,6 +362,32 @@ foreach(SLEintrag,SListe.Split("#")){
     if(((AUS-160)<NOW) && ((AUS+160)>NOW)){
       !// Aber auch nur wenn er aktuell an ist, sonst müssen wir nicht ausschalten
       if(aktuellerSchaltZustand==1){
+        !// Prüfe ob eine andere aktive EIN-Phase für diesen Raum besteht (SDFlag>=0).
+        !// Wenn ja, wird nicht ausgeschaltet — der älteste Schaltbefehl gilt weiter
+        !// für die gesamte überlappende Zeit. Das vermeidet unnötige AUS/EIN-Zyklen.
+        boolean hatAktivePhase = false;
+        string grdSL = "#" # SListe;
+        integer grdPos = grdSL.Find("#" # RVN # ";");
+        while (grdPos >= 0) {
+          string grdRest = grdSL.Substr(grdPos + 1);
+          string grdEntry = grdRest.StrValueByIndex("#", 0);
+          if (grdEntry != SLEintrag) {
+            integer grdSD = grdEntry.StrValueByIndex(";", 3).ToInteger();
+            if (grdSD >= 0) {
+              integer grdEIN = grdEntry.StrValueByIndex(";", 4).ToTime().ToInteger();
+              integer grdAUS = grdEntry.StrValueByIndex(";", 5).ToTime().ToInteger();
+              if ((grdEIN <= NOW) && (grdAUS > NOW)) {
+                hatAktivePhase = true;
+              }
+            }
+          }
+          grdSL = "-" # grdRest.Substr(grdEntry.Length());
+          grdPos = grdSL.Find("#" # RVN # ";");
+        }
+        if (hatAktivePhase) {
+          if(log) {logObj.State(RaumLogName # " AUS unterdrückt - überlappender Termin aktiv");}
+          if(DEBUG) {WriteLine(RaumLogName # " AUS unterdrückt - überlappender Termin aktiv");}
+        } else {
         foreach(AktAktor,AktorenListe.Split(";")){
           objAktor = dom.GetObject(AktAktor);
           if (AktAktor && objAktor){
@@ -404,6 +433,7 @@ foreach(SLEintrag,SListe.Split("#")){
         }
         dom.GetObject(RVN).State("0;" # RVI.Substr(2,RVI.Length()-2));
         continue;
+        } !// else !hatAktivePhase
       }
     }
   }

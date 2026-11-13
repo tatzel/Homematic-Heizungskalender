@@ -13,6 +13,20 @@ Diese Datei **ergänzt** die Changelog-Blöcke in den Datei-Headern (`!// MRi:` 
 
 ## [Unveröffentlicht]
 
+### Behoben
+
+- Skript 3: AUS-Befehl wird bei überlappenden Terminen unterdrückt, wenn ein
+  anderer aktiver Eintrag für denselben Raum existiert. Verhindert unnötige
+  AUS/EIN-Zyklen (z.B. Flur mit 3 Buchungen).
+- Heizkurvenkontrolle: RaumParameter-Verlust im bearbeiteteRaeume-Guard bei 3+
+  überlappenden Einträgen behoben — verursachte falsches Heizbeginn alle 5 min.
+
+### Hinzugefügt
+
+- Heizkurvenkontrolle: Feld 3 (`ausTerminMax`) in RaumParameter — trackt das
+  späteste Terminende bei überlappenden Buchungen. Terminende-Event und
+  Zieltemperatur-Guard nutzen den letzten statt den ersten Termin.
+
 ## [2026-11-12]
 
 ### Hinzugefügt

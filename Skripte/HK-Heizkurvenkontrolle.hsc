@@ -13,6 +13,11 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript
 !//
 
+!// TT:  2026-11-13 Überlappende Termine: ausTerminMax (Feld 3 in RaumParameter) trackt das
+!//                 Maximum aller AUS_Termin-Werte. Terminende und Zieltemperatur-Guard nutzen
+!//                 ausTerminMax statt AUS_Termin des ersten Eintrags.
+!//                 Bugfix: RaumParameter wird im bearbeiteteRaeume-Guard zurückgespeichert —
+!//                 verhindert Datenverlust und falsches Heizbeginn bei 3+ überlappenden Einträgen.
 !// TT:  2026-11-13 Bereinigungsblock loggt "Termin entfernt", wenn ein Raum während einer aktiven
 !//                 Heizphase aus der Schaltliste gelöscht wurde (Bit 0 gesetzt, Bit 4 nicht).
 !// TT:  2026-11-12 Code-Review: Tippfehler behoben, ungenutzte Variablen entfernt,
@@ -231,9 +236,10 @@ while(SListe!=""){
   if(DEBUG)  {WriteLine(RaumLogName # "aktuellerSchaltZustand=" # aktuellerSchaltZustand);}
 
   !// Daten aus aktueller Raumliste bestimmen. Und die Daten aus der Raumliste entfernen.
-  !//   0. Name
-  !//   1. Messzustand
+  !//   0. Name (RVN)
+  !//   1. Messzustand (status bitmap)
   !//   2. Bisherige maximale Temperatur
+  !//   3. ausTerminMax — maximaler AUS_Termin über alle überlappenden Einträge (integer, optional)
   if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
   string strTemp;
   string RaumParameter="";
@@ -262,6 +268,14 @@ while(SListe!=""){
   !//  32 bit 5 = Terminbeginn bereits geloggt
   integer status = RaumParameter.StrValueByIndex(";",1).ToInteger();
   real maxTemperatur = RaumParameter.StrValueByIndex(";",2).ToFloat();
+  !// Maximaler AUS_Termin über alle überlappenden Einträge dieses Raums (Feld 3).
+  !// Rückwärtskompatibel: bei alten Daten ohne Feld 3 ergibt ToInteger() 0.
+  integer ausTerminMax = RaumParameter.StrValueByIndex(";",3).ToInteger();
+
+  !// AUS_Termin des aktuellen Eintrags berücksichtigen (für überlappende Termine)
+  if (AUS_Termin > ausTerminMax) {
+    ausTerminMax = AUS_Termin;
+  }
 
   !// Raum wurde im aktuellen Lauf schon verarbeitet. Wir behandeln diesen Termin nur, wenn der erste Termin bereits
   !// im Heizende Zustand ist. Ansonsten warten wir bis der Heizende Zustand eintritt. Ab dem Moment kann
@@ -272,6 +286,9 @@ while(SListe!=""){
     !// Schaltlisteneintrag, den wir schon behandelt haben erreicht ist
     if ((status & 4)==0) {
       if(DEBUG) {WriteLine(RaumLogName # "Späterer Termin wird übersprungen, Raum wurde in diesem Lauf bereits verarbeitet und ist nicht am Heizende!");}
+      !// RaumParameter zurückspeichern — ohne dieses Save geht er beim continue verloren
+      !// und ein dritter überlappender Eintrag würde fälschlich ein neues Heizbeginn starten.
+      RaumListe = RaumListe # "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1) # ";" # ausTerminMax;
       continue;
     }else{
       if(DEBUG) {WriteLine(RaumLogName # "neuer Heizlisteneintrag wird bearbeitet, da das Heizende erreicht wurde!");}
@@ -323,7 +340,7 @@ while(SListe!=""){
       status = status | 8;
     }
     !// Merker (Bit 3) erhalten, damit der Hinweis nicht bei jedem Lauf erneut kommt.
-    RaumListe = RaumListe # "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
+    RaumListe = RaumListe # "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1) # ";" # ausTerminMax;
     continue;
   }
 
@@ -386,8 +403,9 @@ while(SListe!=""){
     status = status | 32;
   }
 
-  !// Der Terminende prüfen
-  if(((status & 16)==0) && (AUS_Termin<=NOW)){
+  !// Der Terminende prüfen (ausTerminMax statt AUS_Termin: bei überlappenden Terminen
+  !// zählt das Ende des letzten Termins, damit Zieltemperatur nicht zu früh blockiert wird)
+  if(((status & 16)==0) && (ausTerminMax<=NOW)){
     !// Terminende erreicht
     strTemp = ((NOW-EIN_Termin)/60).ToString();
     if (!strTemp.StartsWith("-")){
@@ -401,8 +419,8 @@ while(SListe!=""){
 
   !// Wir speichern einen Raum nur, mit dem neuen Status. Wenn er sich nicht in einem unbeheizten Zustand (status==0)
   !// wird das in der nächsten Schleife korrigiert.
-  !// Neuen RaumParameter zusammensetzen
-  RaumParameter = "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1);
+  !// Neuen RaumParameter zusammensetzen (Feld 3: ausTerminMax für überlappende Termine)
+  RaumParameter = "#" # RVN # ";" # status # ";" # maxTemperatur.ToString(1) # ";" # ausTerminMax;
   if (DEBUG) { WriteLine("RaumParameter=" # RaumParameter); }
   RaumListe = RaumListe # RaumParameter;
   if (DEBUG) { WriteLine("RaumListe=" # RaumListe); }
