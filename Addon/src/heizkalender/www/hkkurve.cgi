@@ -300,7 +300,9 @@ if {$submitted && [llength $log_files] > 0} {
                 set ereignis [string trim [string range $rest 0 [expr {$cdp-1}]]]
                 set detail   [string trim [string range $rest [expr {$cdp+1}] end]]
                 set c1 [string first "," $detail]
-                if {[string equal $ereignis "Fehler"] && $c1 < 0} {
+                if {[string equal $ereignis "Fehler"] || [string equal $ereignis "Termin entfernt"]} {
+                    set delta $detail
+                } elseif {$c1 < 0} {
                     set delta $detail
                 } elseif {$c1 > 0} {
                     set delta [string trim [string range $detail 0 [expr {$c1-1}]]]
@@ -422,6 +424,7 @@ foreach {eval elabel} {
     Zieltemperatur "Zieltemperatur"
     Heizende    "Heizende"
     Terminende  "Terminende"
+    {Termin entfernt} "Termin entfernt"
     Fehler      "Fehler"
 } {
     set sel [expr {[string equal $eval $filter_ereignis] ? " selected" : ""}]
@@ -474,7 +477,7 @@ if {[llength $log_files] == 0} {
         set max_str  [expr {![string equal $max_val ""] ? "$max_val ${deg}C" : ""}]
         set at_str   [expr {![string equal $at_val ""] ? "$at_val ${deg}C" : ""}]
         set delta_str $delta
-        if {[string equal $ereignis "Fehler"]} {
+        if {[string equal $ereignis "Fehler"] || [string equal $ereignis "Termin entfernt"]} {
             set max_str ""
         }
 
@@ -497,7 +500,7 @@ if {[llength $log_files] == 0} {
         puts "      <td>[htmlquote $raumname]</td>"
         puts "      <td>[htmlquote $ts]</td>"
         puts "      <td>[htmlquote $ereignis]</td>"
-        if {[string equal $ereignis "Fehler"]} {
+        if {[string equal $ereignis "Fehler"] || [string equal $ereignis "Termin entfernt"]} {
             puts "      <td colspan=\"5\">[htmlquote $delta_str]</td>"
         } else {
             puts "      <td>[htmlquote $delta_str]</td>"

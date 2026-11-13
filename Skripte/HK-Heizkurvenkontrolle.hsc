@@ -1,6 +1,6 @@
 !// Tool zur Kontrolle der Heizkurve
 !//================================================================================================
-!// Stand:    12.11.2026
+!// Stand:    13.11.2026
 !// Autoren:  Martin Richter    (heizkalender@m-ri.de) http://blog.m-ri.de/
 !// Projekt:  Helmut Diedrichs  (helmut@diedrichs.de) https://diedrichs.de
 !//------------------------------------------------------------------------------------------------
@@ -13,6 +13,8 @@
 !// Skript sollte alle 5min laufen ca. 30 Sekunden nach dem Schaltskript
 !//
 
+!// TT:  2026-11-13 Bereinigungsblock loggt "Termin entfernt", wenn ein Raum während einer aktiven
+!//                 Heizphase aus der Schaltliste gelöscht wurde (Bit 0 gesetzt, Bit 4 nicht).
 !// TT:  2026-11-12 Code-Review: Tippfehler behoben, ungenutzte Variablen entfernt,
 !//                 vrp+ auf vrp# korrigiert, Guard RaumListe!="" auf RaumParameter!=""
 !//                 umgestellt, Heizbeginn-Reset erhält Bit 5, Union-Wert Feld 3 dokumentiert.
@@ -419,6 +421,16 @@ foreach(RaumParameter,RaumListe.Split("#")){
   if (bearbeiteteRaeume.Contains(";" # RaumParameter.StrValueByIndex(";",0) # ";")){
     !// Diesen Eintrag übernehmen. Wir haben ihn behandelt.
     neueRaumListe = neueRaumListe # "#" # RaumParameter;
+  } else {
+    !// Raum ist aus der Schaltliste gelöscht worden.
+    !// Wenn Heizphase aktiv war (Bit 0) und Terminende noch nicht geloggt (Bit 4), einen Eintrag schreiben.
+    integer statusAlt = RaumParameter.StrValueByIndex(";",1).ToInteger();
+    string  rvnAlt    = RaumParameter.StrValueByIndex(";",0);
+    real    maxAlt    = RaumParameter.StrValueByIndex(";",2).ToFloat();
+    if (((statusAlt & 1)!=0) && ((statusAlt & 16)==0) && (rvnAlt!="")) {
+      string rvnNameAlt = rvnAlt.Replace(vrp # "HKG-Raum-","");
+      logObj.State(rvnNameAlt # " - Termin entfernt: Max.: " # maxAlt.ToString(1) # ", AT: " # AT.ToString(1));
+    }
   }
 }
 if (DEBUG) { WriteLine("neueRaumliste=" # neueRaumListe); }
